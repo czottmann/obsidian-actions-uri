@@ -1,22 +1,28 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@typed/curry': ^1.0.1
   '@types/node': ^16.11.58
   '@typescript-eslint/eslint-plugin': 5.29.0
   '@typescript-eslint/parser': 5.29.0
   builtin-modules: 3.3.0
+  camelcase: ^7.0.0
   esbuild: 0.14.47
   obsidian: latest
+  obsidian-daily-notes-interface: ^0.9.4
   tslib: 2.4.0
   typescript: 4.7.4
 
 devDependencies:
+  '@typed/curry': 1.0.1
   '@types/node': 16.11.58
   '@typescript-eslint/eslint-plugin': 5.29.0_jvghj7jkteugygu4eap3fpvzam
   '@typescript-eslint/parser': 5.29.0_sorwav4hsh5vncerguqybud76i
   builtin-modules: 3.3.0
+  camelcase: 7.0.0
   esbuild: 0.14.47
-  obsidian: 0.16.0_michkwnirgfdv23qrytelgbfcu
+  obsidian: 0.16.3_michkwnirgfdv23qrytelgbfcu
+  obsidian-daily-notes-interface: 0.9.4_michkwnirgfdv23qrytelgbfcu
   tslib: 2.4.0
   typescript: 4.7.4
 
@@ -94,6 +100,10 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
+    dev: true
+
+  /@typed/curry/1.0.1:
+    resolution: {integrity: sha512-ifSe9XfT+K0pycWdfIAOJda0gqHCjqMXqv+Ecb0mm6uCOI6SnDXykl7vU1lOafZbuptAmeFbdBqj+093GX5GxQ==}
     dev: true
 
   /@types/codemirror/0.0.108:
@@ -316,6 +326,11 @@ packages:
   /callsites/3.1.0:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
+    dev: true
+
+  /camelcase/7.0.0:
+    resolution: {integrity: sha512-JToIvOmz6nhGsUhAYScbo2d6Py5wojjNfoxoc2mEVLUdJ70gJK2gnd+ABY1Tc3sVMyK7QDPtN0T/XdlCQWITyQ==}
+    engines: {node: '>=14.16'}
     dev: true
 
   /chalk/4.1.2:
@@ -961,8 +976,19 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
-  /obsidian/0.16.0_michkwnirgfdv23qrytelgbfcu:
-    resolution: {integrity: sha512-KnQu1CntLz/EqA50W0zwlCqMgLbvMMfW2nmNQV4aMPW/aSYyjmnRMEwO0rAThQGhJPabDm2okVUSeXLctC/aMA==}
+  /obsidian-daily-notes-interface/0.9.4_michkwnirgfdv23qrytelgbfcu:
+    resolution: {integrity: sha512-PILoRtZUB5wEeGnDQAPMlkVlXwDYoxkLR8Wl4STU2zLNwhcq9kKvQexiXi7sfjGlpTnL+LeAOfEVWyeVndneKg==}
+    hasBin: true
+    dependencies:
+      obsidian: github.com/obsidianmd/obsidian-api/1b4f6e2e5753c8ac2d538bc5d55c38f228450cb2_michkwnirgfdv23qrytelgbfcu
+      tslib: 2.1.0
+    transitivePeerDependencies:
+      - '@codemirror/state'
+      - '@codemirror/view'
+    dev: true
+
+  /obsidian/0.16.3_michkwnirgfdv23qrytelgbfcu:
+    resolution: {integrity: sha512-hal9qk1A0GMhHSeLr2/+o3OpLmImiP+Y+sx2ewP13ds76KXsziG96n+IPFT0mSkup1zSwhEu+DeRhmbcyCCXWw==}
     peerDependencies:
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
@@ -1142,6 +1168,10 @@ packages:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: true
 
+  /tslib/2.1.0:
+    resolution: {integrity: sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==}
+    dev: true
+
   /tslib/2.4.0:
     resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
     dev: true
@@ -1208,4 +1238,19 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+    dev: true
+
+  github.com/obsidianmd/obsidian-api/1b4f6e2e5753c8ac2d538bc5d55c38f228450cb2_michkwnirgfdv23qrytelgbfcu:
+    resolution: {tarball: https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/1b4f6e2e5753c8ac2d538bc5d55c38f228450cb2}
+    id: github.com/obsidianmd/obsidian-api/1b4f6e2e5753c8ac2d538bc5d55c38f228450cb2
+    name: obsidian
+    version: 0.16.3
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+    dependencies:
+      '@codemirror/state': 6.1.1
+      '@codemirror/view': 6.2.3
+      '@types/codemirror': 0.0.108
+      moment: 2.29.4
     dev: true
