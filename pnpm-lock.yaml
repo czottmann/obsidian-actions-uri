@@ -1,30 +1,28 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@typed/curry': ^1.0.1
   '@types/node': ^16.11.58
   '@typescript-eslint/eslint-plugin': 5.29.0
   '@typescript-eslint/parser': 5.29.0
   builtin-modules: 3.3.0
-  camelcase: ^7.0.0
   esbuild: 0.14.47
   obsidian: latest
   obsidian-daily-notes-interface: ^0.9.4
   tslib: 2.4.0
   typescript: 4.7.4
+  zod: ^3.19.1
 
 devDependencies:
-  '@typed/curry': 1.0.1
   '@types/node': 16.11.58
   '@typescript-eslint/eslint-plugin': 5.29.0_jvghj7jkteugygu4eap3fpvzam
   '@typescript-eslint/parser': 5.29.0_sorwav4hsh5vncerguqybud76i
   builtin-modules: 3.3.0
-  camelcase: 7.0.0
   esbuild: 0.14.47
   obsidian: 0.16.3_michkwnirgfdv23qrytelgbfcu
   obsidian-daily-notes-interface: 0.9.4_michkwnirgfdv23qrytelgbfcu
   tslib: 2.4.0
   typescript: 4.7.4
+  zod: 3.19.1
 
 packages:
 
@@ -100,10 +98,6 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
-    dev: true
-
-  /@typed/curry/1.0.1:
-    resolution: {integrity: sha512-ifSe9XfT+K0pycWdfIAOJda0gqHCjqMXqv+Ecb0mm6uCOI6SnDXykl7vU1lOafZbuptAmeFbdBqj+093GX5GxQ==}
     dev: true
 
   /@types/codemirror/0.0.108:
@@ -326,11 +320,6 @@ packages:
   /callsites/3.1.0:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
-    dev: true
-
-  /camelcase/7.0.0:
-    resolution: {integrity: sha512-JToIvOmz6nhGsUhAYScbo2d6Py5wojjNfoxoc2mEVLUdJ70gJK2gnd+ABY1Tc3sVMyK7QDPtN0T/XdlCQWITyQ==}
-    engines: {node: '>=14.16'}
     dev: true
 
   /chalk/4.1.2:
@@ -1238,6 +1227,10 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+    dev: true
+
+  /zod/3.19.1:
+    resolution: {integrity: sha512-LYjZsEDhCdYET9ikFu6dVPGp2YH9DegXjdJToSzD9rO6fy4qiRYFoyEYwps88OseJlPyl2NOe2iJuhEhL7IpEA==}
     dev: true
 
   github.com/obsidianmd/obsidian-api/1b4f6e2e5753c8ac2d538bc5d55c38f228450cb2_michkwnirgfdv23qrytelgbfcu:
