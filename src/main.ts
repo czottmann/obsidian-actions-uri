@@ -1,23 +1,23 @@
 import { dirname } from "path";
 import { Plugin, TFile, TFolder } from "obsidian";
-import {
-  appHasDailyNotesPluginLoaded,
-  createDailyNote,
-  getAllDailyNotes,
-  getDailyNote,
-} from "obsidian-daily-notes-interface";
+import { ZodError } from "zod";
 
-import { handleParseError } from "./handlers";
-import { routes } from "./routes";
+import { routes as rootRoutes } from "./routes";
+import { routes as dailyNoteRoutes } from "./routes.daily-note";
+import { routes as noteRoutes } from "./routes.note";
+import { routes as openRoutes } from "./routes.open";
 import { Route, ZodSafeParseSuccessData } from "./types";
-import { sanitizeFilePath } from "./utils";
+import { sanitizeFilePath, showBrandedNotice } from "./utils";
 
 export default class ActionsURI extends Plugin {
   static readonly URI_NAMESPACE = "actions-uri";
 
   async onload() {
     this.app.workspace.onLayoutReady(() => {
-      this.registerRoutes(routes);
+      this.registerRoutes(rootRoutes);
+      this.registerRoutes(dailyNoteRoutes);
+      this.registerRoutes(noteRoutes);
+      this.registerRoutes(openRoutes);
 
       // this.writeOrUpdateFile("//../folder/./test/test.md", "test");
       // this.writeOrUpdateFile("../folder/./test/test.md", "test update");
@@ -51,7 +51,7 @@ export default class ActionsURI extends Plugin {
               const data = parsedPayload.data as ZodSafeParseSuccessData;
               handler.bind(this, data)();
             } else {
-              handleParseError.bind(this, parsedPayload.error)();
+              this.handleParseError(parsedPayload.error);
             }
           },
         );
@@ -67,6 +67,17 @@ export default class ActionsURI extends Plugin {
       .flat()
       .filter((x) => !!x)
       .join("/");
+  }
+
+  handleParseError(parseError: ZodError) {
+    const msg = [
+      "Incoming call failed",
+      parseError.errors
+        .map((error) => `- ${error.path.join(".")}: ${error.message}`),
+    ].flat().join("\n");
+
+    console.error(msg);
+    showBrandedNotice(msg);
   }
 
   async writeOrUpdateFile(
