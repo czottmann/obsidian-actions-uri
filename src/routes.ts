@@ -1,25 +1,14 @@
-import { z } from "zod";
-import { basePayload } from "./schemata";
 import { Route } from "./types";
-import { showBrandedNotice } from "./utils";
-
-// SCHEMATA --------------------
-
-const IncomingBasePayload = z.object(basePayload);
-
-// ROUTES --------------------
+import { routes as dailyNoteRoutes } from "./routes/daily-note";
+import { routes as noteRoutes } from "./routes/note";
+import { routes as openRoutes } from "./routes/open";
+import { routes as rootRoutes } from "./routes/root";
+import { routes as searchRoutes } from "./routes/search";
 
 export const routes: Route[] = [
-  {
-    path: "",
-    schema: IncomingBasePayload,
-    handler: handleRoot,
-  },
-  // --------------------
+  ...rootRoutes,
+  ...dailyNoteRoutes,
+  ...noteRoutes,
+  ...openRoutes,
+  ...searchRoutes,
 ];
-
-// HANDLERS --------------------
-
-function handleRoot(_: {}) {
-  showBrandedNotice("… is ready for action 🚀");
-}
