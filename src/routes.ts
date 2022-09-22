@@ -1,36 +1,29 @@
-import { AnyZodObject, z } from "zod";
 import {
   handleDailyNoteAppend,
   handleDailyNoteCreate,
-  handleDailyNoteCreateOrOverwrite,
-  handleDailyNoteOpen,
+  handleDailyNoteGet,
   handleDailyNotePrepend,
-  handleDailyNoteRead,
   handleNoteAppend,
   handleNoteCreate,
-  handleNoteCreateOrOverwrite,
-  handleNoteOpen,
+  handleNoteGet,
   handleNotePrepend,
-  handleNoteRead,
+  handleOpenDailyNote,
+  handleOpenNote,
+  handleOpenSearch,
   handleRoot,
 } from "./handlers";
+import { Route } from "./types";
 import {
-  DailyNoteOpenPayload,
+  DailyNoteCreatePayload,
   DailyNoteReadPayload,
   DailyNoteWritePayload,
   IncomingBasePayload,
-  NoteOpenPayload,
   NoteReadPayload,
   NoteWritePayload,
-} from "./validators";
-
-export type Route = {
-  path: string;
-  schema: AnyZodObject;
-  handler: <T extends typeof IncomingBasePayload>(
-    payload: z.infer<T>,
-  ) => void;
-};
+  OpenDailyNotePayload,
+  OpenNotePayload,
+  OpenSearchPayload,
+} from "./schemata";
 
 export const routes: Route[] = [
   {
@@ -38,25 +31,16 @@ export const routes: Route[] = [
     schema: IncomingBasePayload,
     handler: handleRoot,
   },
+  // --------------------
   {
-    path: "daily-note",
+    path: ["daily-note", "daily-note/get"],
     schema: DailyNoteReadPayload,
-    handler: handleDailyNoteRead,
-  },
-  {
-    path: "daily-note/open",
-    schema: DailyNoteOpenPayload,
-    handler: handleDailyNoteOpen,
+    handler: handleDailyNoteGet,
   },
   {
     path: "daily-note/create",
-    schema: DailyNoteWritePayload,
+    schema: DailyNoteCreatePayload,
     handler: handleDailyNoteCreate,
-  },
-  {
-    path: "daily-note/create-or-overwrite",
-    schema: DailyNoteWritePayload,
-    handler: handleDailyNoteCreateOrOverwrite,
   },
   {
     path: "daily-note/append",
@@ -68,25 +52,16 @@ export const routes: Route[] = [
     schema: DailyNoteWritePayload,
     handler: handleDailyNotePrepend,
   },
+  // --------------------
   {
-    path: "note",
+    path: ["note", "note/get"],
     schema: NoteReadPayload,
-    handler: handleNoteRead,
-  },
-  {
-    path: "note/open",
-    schema: NoteOpenPayload,
-    handler: handleNoteOpen,
+    handler: handleNoteGet,
   },
   {
     path: "note/create",
     schema: NoteWritePayload,
     handler: handleNoteCreate,
-  },
-  {
-    path: "note/create-or-overwrite",
-    schema: NoteWritePayload,
-    handler: handleNoteCreateOrOverwrite,
   },
   {
     path: "note/append",
@@ -97,5 +72,21 @@ export const routes: Route[] = [
     path: "note/prepend",
     schema: NoteWritePayload,
     handler: handleNotePrepend,
+  },
+  // --------------------
+  {
+    path: "open/daily-note",
+    schema: OpenDailyNotePayload,
+    handler: handleOpenDailyNote,
+  },
+  {
+    path: "open/note",
+    schema: OpenNotePayload,
+    handler: handleOpenNote,
+  },
+  {
+    path: "open/search",
+    schema: OpenSearchPayload,
+    handler: handleOpenSearch,
   },
 ];

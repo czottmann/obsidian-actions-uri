@@ -1,34 +1,33 @@
-import { dirname, extname } from "path";
-import { ObsidianProtocolData, Plugin, TFile, TFolder } from "obsidian";
+import { dirname } from "path";
+import { Plugin, TFile, TFolder } from "obsidian";
 import {
   appHasDailyNotesPluginLoaded,
   createDailyNote,
   getAllDailyNotes,
   getDailyNote,
 } from "obsidian-daily-notes-interface";
-import { z } from "zod";
 
 import { handleParseError } from "./handlers";
-import { Route, routes } from "./routes";
+import { routes } from "./routes";
+import { Route, ZodSafeParseSuccessData } from "./types";
 import { sanitizeFilePath } from "./utils";
-import { IncomingBasePayload } from "./validators";
-
-const URI_NAMESPACE = "actions-uri";
 
 export default class ActionsURI extends Plugin {
+  static readonly URI_NAMESPACE = "actions-uri";
+
   async onload() {
     this.app.workspace.onLayoutReady(() => {
       this.registerRoutes(routes);
 
-      this.writeOrUpdateFile("//../folder/./test/test.md", "test");
-      this.writeOrUpdateFile("../folder/./test/test.md", "test update");
-      this.writeOrUpdateFile("folder/test/test 2.md", "test 2");
+      // this.writeOrUpdateFile("//../folder/./test/test.md", "test");
+      // this.writeOrUpdateFile("../folder/./test/test.md", "test update");
+      // this.writeOrUpdateFile("folder/test/test 2.md", "test 2");
 
-      console.log(
-        appHasDailyNotesPluginLoaded(),
-        getDailyNote(window.moment(), getAllDailyNotes()),
-        // createDailyNote(window.moment()),
-      );
+      // console.log(
+      //   appHasDailyNotesPluginLoaded(),
+      //   getDailyNote(window.moment(), getAllDailyNotes()),
+      //   // createDailyNote(window.moment()),
+      // );
     });
   }
 
@@ -38,23 +37,36 @@ export default class ActionsURI extends Plugin {
   registerRoutes(routes: Route[]) {
     routes.forEach((route) => {
       const { path, schema, handler } = route;
+      const paths = Array.isArray(path) ? path : [path];
 
-      this.registerObsidianProtocolHandler(
-        this.buildActionPath(path),
-        async (incoming) => {
-          const parsedPayload = schema.safeParse(incoming);
+      for (const p of paths) {
+        const actionPath = this.buildActionPath(p);
 
-          if (parsedPayload.success) {
-            handler.bind(
-              this,
-              parsedPayload.data as z.infer<typeof IncomingBasePayload>,
-            )();
-          } else {
-            handleParseError.bind(this, parsedPayload.error)();
-          }
-        },
-      );
+        this.registerObsidianProtocolHandler(
+          actionPath,
+          async (incoming) => {
+            const parsedPayload = schema.safeParse(incoming);
+
+            if (parsedPayload.success) {
+              const data = parsedPayload.data as ZodSafeParseSuccessData;
+              handler.bind(this, data)();
+            } else {
+              handleParseError.bind(this, parsedPayload.error)();
+            }
+          },
+        );
+
+        console.info(`Registered URI handler for ${actionPath}`);
+      }
     });
+  }
+
+  // Building a namespaced action string used in the Obsidian protocol handler.
+  private buildActionPath(path: string) {
+    return [ActionsURI.URI_NAMESPACE, path.split("/")]
+      .flat()
+      .filter((x) => !!x)
+      .join("/");
   }
 
   async writeOrUpdateFile(
@@ -86,13 +98,5 @@ export default class ActionsURI extends Plugin {
     // Create the new note
     await this.app.vault.create(filename, content);
     return this.app.vault.getAbstractFileByPath(filename) as TFile;
-  }
-
-  // Building a namespaced action string used in the Obsidian protocol handler.
-  private buildActionPath(path: string) {
-    return [URI_NAMESPACE, path.split("/")]
-      .flat()
-      .filter((x) => !!x)
-      .join("/");
   }
 }

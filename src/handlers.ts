@@ -1,13 +1,15 @@
 import { z, ZodError } from "zod";
-import { showBrandedNotice } from "./utils";
 import {
-  DailyNoteOpenPayload,
   DailyNoteReadPayload,
   DailyNoteWritePayload,
-  NoteOpenPayload,
   NoteReadPayload,
   NoteWritePayload,
-} from "./validators";
+  OpenDailyNotePayload,
+  OpenNotePayload,
+  OpenSearchPayload,
+} from "./schemata";
+import { ZodSafeParseSuccessData } from "./types";
+import { showBrandedNotice } from "./utils";
 
 export function handleParseError(parseError: ZodError) {
   const msg = [
@@ -20,90 +22,67 @@ export function handleParseError(parseError: ZodError) {
   showBrandedNotice(msg);
 }
 
-export function handleRoot(payload: {}) {
+export function handleRoot(_: {}) {
   showBrandedNotice("… is ready for action 🚀");
 }
 
-export function handleDailyNoteRead(
-  payload: z.infer<typeof DailyNoteReadPayload>,
-) {
-  console.log("handleDailyNoteRead");
-  console.dir(payload);
+// --------------------
+
+export function handleDailyNoteGet(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof DailyNoteReadPayload>;
+  console.log("handleDailyNoteGet", payload);
 }
 
-export function handleDailyNoteOpen(
-  payload: z.infer<typeof DailyNoteOpenPayload>,
-) {
-  console.log("handleDailyNoteOpen");
-  console.dir(payload);
+export function handleDailyNoteCreate(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof DailyNoteWritePayload>;
+  console.log("handleDailyNoteCreate", payload);
 }
 
-export function handleDailyNoteCreate(
-  payload: z.infer<typeof DailyNoteWritePayload>,
-) {
-  console.log("handleDailyNoteCreate");
-  console.dir(payload);
+export function handleDailyNoteAppend(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof DailyNoteWritePayload>;
+  console.log("handleDailyNotePrepend", payload);
 }
 
-export function handleDailyNoteCreateOrOverwrite(
-  payload: z.infer<typeof DailyNoteWritePayload>,
-) {
-  console.log("handleDailyNoteCreateOrOverwrite");
-  console.dir(payload);
+export function handleDailyNotePrepend(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof DailyNoteWritePayload>;
+  console.log("handleDailyNotePrepend", payload);
 }
 
-export function handleDailyNoteAppend(
-  payload: z.infer<typeof DailyNoteWritePayload>,
-) {
-  console.log("handleDailyNotePrepend");
-  console.dir(payload);
+// --------------------
+
+export function handleNoteGet(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof NoteReadPayload>;
+  console.log("handleNoteGet", payload);
 }
 
-export function handleDailyNotePrepend(
-  payload: z.infer<typeof DailyNoteWritePayload>,
-) {
-  console.log("handleDailyNotePrepend");
-  console.dir(payload);
+export function handleNoteCreate(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof NoteWritePayload>;
+  console.log("handleNoteCreate", payload);
 }
 
-export function handleNoteRead(
-  payload: z.infer<typeof NoteReadPayload>,
-) {
-  console.log("handleNoteRead");
-  console.dir(payload);
+export function handleNoteAppend(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof NoteWritePayload>;
+  console.log("handleNotePrepend", payload);
 }
 
-export function handleNoteOpen(
-  payload: z.infer<typeof NoteOpenPayload>,
-) {
-  console.log("handleNoteOpen");
-  console.dir(payload);
+export function handleNotePrepend(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof NoteWritePayload>;
+  console.log("handleNotePrepend", payload);
 }
 
-export function handleNoteCreate(
-  payload: z.infer<typeof NoteWritePayload>,
-) {
-  console.log("handleNoteCreate");
-  console.dir(payload);
+// --------------------
+
+export function handleOpenDailyNote(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof OpenDailyNotePayload>;
+  console.log("handleOpenDailyNote", payload);
 }
 
-export function handleNoteCreateOrOverwrite(
-  payload: z.infer<typeof NoteWritePayload>,
-) {
-  console.log("handleNoteCreateOrOverwrite");
-  console.dir(payload);
+export function handleOpenNote(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof OpenNotePayload>;
+  console.log("handleOpenNote", payload);
 }
 
-export function handleNoteAppend(
-  payload: z.infer<typeof NoteWritePayload>,
-) {
-  console.log("handleNotePrepend");
-  console.dir(payload);
-}
-
-export function handleNotePrepend(
-  payload: z.infer<typeof NoteWritePayload>,
-) {
-  console.log("handleNotePrepend");
-  console.dir(payload);
+export function handleOpenSearch(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof OpenSearchPayload>;
+  console.log("handleOpenSearch", payload);
 }
