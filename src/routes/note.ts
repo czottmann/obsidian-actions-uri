@@ -1,4 +1,6 @@
+import { Vault } from "obsidian";
 import { z } from "zod";
+import { createNote, createOrOverwriteNote } from "../file-handling";
 import {
   basePayload,
   zodOptionalBoolean,
@@ -58,7 +60,7 @@ export const routes: Route[] = [
   },
   {
     path: "note/create",
-    schema: NoteWritePayload,
+    schema: NoteCreatePayload,
     handler: handleNoteCreate,
   },
   {
@@ -85,38 +87,64 @@ export const routes: Route[] = [
 
 // HANDLERS --------------------
 
+// TODO: Support für optional `silent` in allen Handlern implementieren
+// TODO: Support for optionale Callbacks in allen Handlern implementieren
+
 // TODO: handleNoteGet()
-function handleNoteGet(data: ZodSafeParseSuccessData) {
+function handleNoteGet(
+  data: ZodSafeParseSuccessData,
+  vault: Vault,
+) {
   const payload = data as z.infer<typeof NoteReadPayload>;
   console.log("handleNoteGet", payload);
 }
 
-// TODO: handleNoteCreate()
-function handleNoteCreate(data: ZodSafeParseSuccessData) {
+function handleNoteCreate(
+  data: ZodSafeParseSuccessData,
+  vault: Vault,
+) {
   const payload = data as z.infer<typeof NoteCreatePayload>;
-  console.log("handleNoteCreate", payload);
+  const { file, content, overwrite, silent } = payload;
+
+  if (overwrite) {
+    createOrOverwriteNote(file, content || "", vault);
+  } else {
+    createNote(file, content || "", vault);
+  }
 }
 
 // TODO: handleNoteAppend()
-function handleNoteAppend(data: ZodSafeParseSuccessData) {
+function handleNoteAppend(
+  data: ZodSafeParseSuccessData,
+  vault: Vault,
+) {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
 }
 
 // TODO: handleNotePrepend()
-function handleNotePrepend(data: ZodSafeParseSuccessData) {
+function handleNotePrepend(
+  data: ZodSafeParseSuccessData,
+  vault: Vault,
+) {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
 }
 
 // TODO: handleNoteSearchStringAndReplace()
-function handleNoteSearchStringAndReplace(data: ZodSafeParseSuccessData) {
+function handleNoteSearchStringAndReplace(
+  data: ZodSafeParseSuccessData,
+  vault: Vault,
+) {
   const payload = data as z.infer<typeof NoteSearchPayload>;
   console.log("handleNoteSearchStringAndReplace", payload);
 }
 
 // TODO: handleNoteSearchRegexAndReplace()
-function handleNoteSearchRegexAndReplace(data: ZodSafeParseSuccessData) {
+function handleNoteSearchRegexAndReplace(
+  data: ZodSafeParseSuccessData,
+  vault: Vault,
+) {
   const payload = data as z.infer<typeof NoteSearchPayload>;
   console.log("handleNoteSearchRegexAndReplace", payload);
 }

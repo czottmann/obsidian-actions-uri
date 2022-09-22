@@ -1,10 +1,9 @@
-import { dirname } from "path";
-import { Plugin, TFile, TFolder } from "obsidian";
+import { Plugin } from "obsidian";
 import { ZodError } from "zod";
-
+import { createOrOverwriteNote } from "./file-handling";
 import { routes } from "./routes";
 import { Route, ZodSafeParseSuccessData } from "./types";
-import { sanitizeFilePath, showBrandedNotice } from "./utils";
+import { showBrandedNotice } from "./utils";
 
 export default class ActionsURI extends Plugin {
   static readonly URI_NAMESPACE = "actions-uri";
@@ -13,9 +12,17 @@ export default class ActionsURI extends Plugin {
     this.app.workspace.onLayoutReady(() => {
       this.registerRoutes(routes);
 
-      // this.writeOrUpdateFile("//../folder/./test/test.md", "test");
-      // this.writeOrUpdateFile("../folder/./test/test.md", "test update");
-      // this.writeOrUpdateFile("folder/test/test 2.md", "test 2");
+      createOrOverwriteNote(
+        "//../folder/./test/test.md",
+        "test",
+        this.app.vault,
+      );
+      createOrOverwriteNote(
+        "../folder/./test/test.md",
+        "test update",
+        this.app.vault,
+      );
+      createOrOverwriteNote("folder/test/test 2.md", "test 2", this.app.vault);
 
       // console.log(
       //   appHasDailyNotesPluginLoaded(),
@@ -35,7 +42,7 @@ export default class ActionsURI extends Plugin {
       const { path, schema, handler } = route;
       const paths = Array.isArray(path) ? path : [path];
 
-      for (const p of paths) {
+      paths.forEach((p) => {
         const actionPath = this.buildActionPath(p);
 
         this.registerObsidianProtocolHandler(
@@ -44,15 +51,18 @@ export default class ActionsURI extends Plugin {
             const parsedPayload = schema.safeParse(incoming);
 
             if (parsedPayload.success) {
-              const data = parsedPayload.data as ZodSafeParseSuccessData;
-              handler.bind(this, data)();
+              handler.bind(
+                this,
+                parsedPayload.data as ZodSafeParseSuccessData,
+                this.app.vault,
+              )();
             } else {
               this.handleParseError(parsedPayload.error);
             }
           },
         );
         registeredRoutes.push(actionPath);
-      }
+      });
     });
 
     console.info("Registered URI handlers:");
@@ -78,36 +88,5 @@ export default class ActionsURI extends Plugin {
 
     console.error(msg);
     showBrandedNotice(msg);
-  }
-
-  async writeOrUpdateFile(
-    filename: string,
-    content: string,
-  ): Promise<TFile> {
-    filename = sanitizeFilePath(filename);
-
-    const file = this.app.vault.getAbstractFileByPath(filename);
-    const doesFileExist = file instanceof TFile;
-
-    // Update the file if it already exists
-    if (doesFileExist) {
-      await this.app.vault.modify(file, content);
-      return this.app.vault.getAbstractFileByPath(filename) as TFile;
-    }
-
-    // Create folder if necessary
-    const folder = dirname(filename);
-    if (folder !== "") {
-      const doesFolderExist =
-        this.app.vault.getAbstractFileByPath(folder) instanceof TFolder;
-
-      if (!doesFolderExist) {
-        await this.app.vault.createFolder(folder);
-      }
-    }
-
-    // Create the new note
-    await this.app.vault.create(filename, content);
-    return this.app.vault.getAbstractFileByPath(filename) as TFile;
   }
 }

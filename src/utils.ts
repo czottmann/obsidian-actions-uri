@@ -13,7 +13,7 @@ export function showBrandedNotice(msg: string) {
   new Notice(`[Actions URI] ${msg}`);
 }
 
-export function addMD(filename: string) {
+export function filenameWithExt(filename: string) {
   return extname(filename).toLowerCase() === ".md"
     ? filename
     : `${filename}.md`;
