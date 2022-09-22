@@ -59,21 +59,25 @@ export const routes: Route[] = [
 
 // HANDLERS --------------------
 
+// TODO: handleDailyNoteGet()
 function handleDailyNoteGet(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof DailyNoteReadPayload>;
   console.log("handleDailyNoteGet", payload);
 }
 
+// TODO: handleDailyNoteCreate()
 function handleDailyNoteCreate(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof DailyNoteCreatePayload>;
   console.log("handleDailyNoteCreate", payload);
 }
 
+// TODO: handleDailyNoteAppend()
 function handleDailyNoteAppend(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);
 }
 
+// TODO: handleDailyNotePrepend()
 function handleDailyNotePrepend(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);

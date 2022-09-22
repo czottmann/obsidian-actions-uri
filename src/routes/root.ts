@@ -10,12 +10,7 @@ const IncomingBasePayload = z.object(basePayload);
 // ROUTES --------------------
 
 export const routes: Route[] = [
-  {
-    path: "",
-    schema: IncomingBasePayload,
-    handler: handleRoot,
-  },
-  // --------------------
+  { path: "", schema: IncomingBasePayload, handler: handleRoot },
 ];
 
 // HANDLERS --------------------

@@ -40,6 +40,14 @@ const NotePrependPayload = z.object({
   "ignore-front-matter": zodOptionalBoolean,
 });
 
+const NoteSearchPayload = z.object({
+  ...basePayload,
+  file: zodSanitizedFilePath,
+  silent: zodOptionalBoolean,
+  search: z.string().min(1, { message: "can't be empty" }),
+  replace: z.string(),
+});
+
 // ROUTES --------------------
 
 export const routes: Route[] = [
@@ -63,26 +71,52 @@ export const routes: Route[] = [
     schema: NotePrependPayload,
     handler: handleNotePrepend,
   },
+  {
+    path: "note/search-string-and-replace",
+    schema: NoteSearchPayload,
+    handler: handleNoteSearchStringAndReplace,
+  },
+  {
+    path: "note/search-regex-and-replace",
+    schema: NoteSearchPayload,
+    handler: handleNoteSearchRegexAndReplace,
+  },
 ];
 
 // HANDLERS --------------------
 
+// TODO: handleNoteGet()
 function handleNoteGet(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof NoteReadPayload>;
   console.log("handleNoteGet", payload);
 }
 
+// TODO: handleNoteCreate()
 function handleNoteCreate(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof NoteCreatePayload>;
   console.log("handleNoteCreate", payload);
 }
 
+// TODO: handleNoteAppend()
 function handleNoteAppend(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
 }
 
+// TODO: handleNotePrepend()
 function handleNotePrepend(data: ZodSafeParseSuccessData) {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
+}
+
+// TODO: handleNoteSearchStringAndReplace()
+function handleNoteSearchStringAndReplace(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof NoteSearchPayload>;
+  console.log("handleNoteSearchStringAndReplace", payload);
+}
+
+// TODO: handleNoteSearchRegexAndReplace()
+function handleNoteSearchRegexAndReplace(data: ZodSafeParseSuccessData) {
+  const payload = data as z.infer<typeof NoteSearchPayload>;
+  console.log("handleNoteSearchRegexAndReplace", payload);
 }
