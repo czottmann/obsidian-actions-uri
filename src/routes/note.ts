@@ -32,6 +32,14 @@ const NoteWritePayload = z.object({
   silent: zodOptionalBoolean,
 });
 
+const NotePrependPayload = z.object({
+  ...basePayload,
+  content: z.string().optional(),
+  file: zodSanitizedFilePath,
+  silent: zodOptionalBoolean,
+  "ignore-front-matter": zodOptionalBoolean,
+});
+
 // ROUTES --------------------
 
 export const routes: Route[] = [
@@ -52,7 +60,7 @@ export const routes: Route[] = [
   },
   {
     path: "note/prepend",
-    schema: NoteWritePayload,
+    schema: NotePrependPayload,
     handler: handleNotePrepend,
   },
 ];

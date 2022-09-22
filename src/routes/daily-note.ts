@@ -25,6 +25,13 @@ const DailyNoteWritePayload = z.object({
   silent: zodOptionalBoolean,
 });
 
+const DailyNotePrependPayload = z.object({
+  ...basePayload,
+  content: z.string().optional(),
+  silent: zodOptionalBoolean,
+  "ignore-front-matter": zodOptionalBoolean,
+});
+
 // ROUTES --------------------
 
 export const routes: Route[] = [
@@ -45,7 +52,7 @@ export const routes: Route[] = [
   },
   {
     path: "daily-note/prepend",
-    schema: DailyNoteWritePayload,
+    schema: DailyNotePrependPayload,
     handler: handleDailyNotePrepend,
   },
 ];
