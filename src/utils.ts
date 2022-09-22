@@ -1,10 +1,12 @@
-import { extname, normalize as pathNormalize } from "path";
 import { Notice } from "obsidian";
+import { extname, normalize as pathNormalize } from "path";
 
 // Make sure user-submitted file paths are relative to the vault root and the
-// path is normalized
+// path is normalized and cleaned up
 export function sanitizeFilePath(filename: string) {
-  return pathNormalize(filename).replace(/^[\/\.]+/, "");
+  return pathNormalize(filename)
+    .replace(/^[\/\.]+/, "")
+    .trim();
 }
 
 export function showBrandedNotice(msg: string) {
