@@ -1,6 +1,6 @@
 import { dirname } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
-import { filenameWithExt, sanitizeFilePath } from "./utils";
+import { sanitizeFilePath } from "./utils";
 
 // Create a new note. If the note already exists, find a available numeric
 // suffix for the filename and create a new note with that suffix.
@@ -11,8 +11,7 @@ export async function createNote(
   content: string,
   vault: Vault,
 ): Promise<TFile> {
-  // Sanitize the filename and ensure it ends on `.md`
-  filename = filenameWithExt(sanitizeFilePath(filename));
+  filename = sanitizeFilePath(filename);
   let file = vault.getAbstractFileByPath(filename);
   let doesFileExist = file instanceof TFile;
 
@@ -47,7 +46,7 @@ export async function createOrOverwriteNote(
   content: string,
   vault: Vault,
 ): Promise<TFile> {
-  filename = filenameWithExt(sanitizeFilePath(filename));
+  filename = sanitizeFilePath(filename);
   const file = vault.getAbstractFileByPath(filename);
   const doesFileExist = file instanceof TFile;
 
@@ -64,6 +63,23 @@ export async function createOrOverwriteNote(
   await vault.create(filename, content);
   return vault.getAbstractFileByPath(filename) as TFile;
 }
+
+export async function getNoteContent(
+  filename: string,
+  vault: Vault,
+): Promise<string | undefined> {
+  filename = sanitizeFilePath(filename);
+  const file = vault.getAbstractFileByPath(filename);
+  const doesFileExist = file instanceof TFile;
+
+  if (doesFileExist) {
+    return await vault.read(file);
+  }
+
+  return undefined;
+}
+
+// HELPERS ----------------------------------------
 
 async function createFolderIfNecessary(folder: string, vault: Vault) {
   if (folder === "" || folder === ".") return;

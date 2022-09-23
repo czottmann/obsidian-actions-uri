@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { basePayload, zodOptionalBoolean } from "../schemata";
-import { Route, ZodSafeParseSuccessData } from "../types";
+import {
+  AnyResult,
+  Route,
+  SuccessfulFileResult,
+  SuccessfulResult,
+  SuccessfulStringResult,
+  UnsuccessfulResult,
+  ZodSafeParseSuccessData,
+} from "../types";
 
 // SCHEMATA --------------------
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
@@ -32,6 +40,12 @@ const DailyNotePrependPayload = z.object({
   "ignore-front-matter": zodOptionalBoolean,
 });
 
+export type PayloadUnion =
+  | z.infer<typeof DailyNoteCreatePayload>
+  | z.infer<typeof DailyNoteReadPayload>
+  | z.infer<typeof DailyNoteWritePayload>
+  | z.infer<typeof DailyNotePrependPayload>;
+
 // ROUTES --------------------
 
 export const routes: Route[] = [
@@ -60,25 +74,37 @@ export const routes: Route[] = [
 // HANDLERS --------------------
 
 // TODO: handleDailyNoteGet()
-function handleDailyNoteGet(data: ZodSafeParseSuccessData) {
+async function handleDailyNoteGet(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteReadPayload>;
   console.log("handleDailyNoteGet", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleDailyNoteCreate()
-function handleDailyNoteCreate(data: ZodSafeParseSuccessData) {
+async function handleDailyNoteCreate(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteCreatePayload>;
   console.log("handleDailyNoteCreate", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleDailyNoteAppend()
-function handleDailyNoteAppend(data: ZodSafeParseSuccessData) {
+async function handleDailyNoteAppend(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleDailyNotePrepend()
-function handleDailyNotePrepend(data: ZodSafeParseSuccessData) {
+async function handleDailyNotePrepend(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }

@@ -1,12 +1,23 @@
 import { Vault } from "obsidian";
 import { z } from "zod";
-import { createNote, createOrOverwriteNote } from "../file-handling";
+import {
+  createNote,
+  createOrOverwriteNote,
+  getNoteContent,
+} from "../file-handling";
 import {
   basePayload,
   zodOptionalBoolean,
   zodSanitizedFilePath,
 } from "../schemata";
-import { Route, ZodSafeParseSuccessData } from "../types";
+import {
+  AnyResult,
+  Route,
+  SuccessfulFileResult,
+  SuccessfulStringResult,
+  UnsuccessfulResult,
+  ZodSafeParseSuccessData,
+} from "../types";
 
 // SCHEMATA --------------------
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
@@ -50,6 +61,13 @@ const NoteSearchPayload = z.object({
   replace: z.string(),
 });
 
+export type PayloadUnion =
+  | z.infer<typeof NoteCreatePayload>
+  | z.infer<typeof NoteReadPayload>
+  | z.infer<typeof NoteWritePayload>
+  | z.infer<typeof NotePrependPayload>
+  | z.infer<typeof NoteSearchPayload>;
+
 // ROUTES --------------------
 
 export const routes: Route[] = [
@@ -90,61 +108,87 @@ export const routes: Route[] = [
 // TODO: Support für optional `silent` in allen Handlern implementieren
 // TODO: Support for optionale Callbacks in allen Handlern implementieren
 
-// TODO: handleNoteGet()
-function handleNoteGet(
+async function handleNoteGet(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-) {
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteReadPayload>;
-  console.log("handleNoteGet", payload);
+  const { file } = payload;
+  const content = await getNoteContent(file, vault);
+
+  return content
+    ? <SuccessfulFileResult> {
+      success: true,
+      data: { file, content },
+      input: payload,
+    }
+    : <UnsuccessfulResult> {
+      success: false,
+      error: "Note not found",
+      input: payload,
+    };
 }
 
-function handleNoteCreate(
+async function handleNoteCreate(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-) {
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteCreatePayload>;
   const { file, content, overwrite, silent } = payload;
 
-  if (overwrite) {
-    createOrOverwriteNote(file, content || "", vault);
-  } else {
-    createNote(file, content || "", vault);
-  }
+  const result = overwrite
+    ? await createOrOverwriteNote(file, content || "", vault)
+    : await createNote(file, content || "", vault);
+
+  return result
+    ? <SuccessfulStringResult> {
+      success: true,
+      data: file,
+      input: payload,
+    }
+    : <UnsuccessfulResult> {
+      success: false,
+      error: "Note couldn't be written",
+      input: payload,
+    };
 }
 
 // TODO: handleNoteAppend()
-function handleNoteAppend(
+async function handleNoteAppend(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-) {
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleNotePrepend()
-function handleNotePrepend(
+async function handleNotePrepend(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-) {
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleNoteSearchStringAndReplace()
-function handleNoteSearchStringAndReplace(
+async function handleNoteSearchStringAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-) {
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteSearchPayload>;
   console.log("handleNoteSearchStringAndReplace", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleNoteSearchRegexAndReplace()
-function handleNoteSearchRegexAndReplace(
+async function handleNoteSearchRegexAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-) {
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteSearchPayload>;
   console.log("handleNoteSearchRegexAndReplace", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }

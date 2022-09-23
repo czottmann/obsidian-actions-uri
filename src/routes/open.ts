@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { basePayload } from "../schemata";
-import { Route, ZodSafeParseSuccessData } from "../types";
+import {
+  AnyResult,
+  Route,
+  SuccessfulStringResult,
+  UnsuccessfulResult,
+  ZodSafeParseSuccessData,
+} from "../types";
 
 // SCHEMATA --------------------
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
@@ -12,6 +18,11 @@ const OpenSearchPayload = z.object({
   ...basePayload,
   query: z.string().min(1, { message: "can't be empty" }),
 });
+
+export type PayloadUnion =
+  | z.infer<typeof OpenDailyNotePayload>
+  | z.infer<typeof OpenNotePayload>
+  | z.infer<typeof OpenSearchPayload>;
 
 // ROUTES --------------------
 
@@ -28,19 +39,28 @@ export const routes: Route[] = [
 // HANDLERS --------------------
 
 // TODO: handleOpenDailyNote()
-function handleOpenDailyNote(data: ZodSafeParseSuccessData) {
+async function handleOpenDailyNote(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof OpenDailyNotePayload>;
   console.log("handleOpenDailyNote", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleOpenNote()
-function handleOpenNote(data: ZodSafeParseSuccessData) {
+async function handleOpenNote(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof OpenNotePayload>;
   console.log("handleOpenNote", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }
 
 // TODO: handleOpenSearch()
-function handleOpenSearch(data: ZodSafeParseSuccessData) {
+async function handleOpenSearch(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyResult> {
   const payload = data as z.infer<typeof OpenSearchPayload>;
   console.log("handleOpenSearch", payload);
+  return <SuccessfulStringResult> { success: true, data: "", input: payload };
 }

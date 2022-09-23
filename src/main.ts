@@ -1,8 +1,16 @@
 import { Plugin } from "obsidian";
-import { ZodError } from "zod";
+import { AnyZodObject, ZodError } from "zod";
 import { createOrOverwriteNote } from "./file-handling";
-import { routes } from "./routes";
-import { Route, ZodSafeParseSuccessData } from "./types";
+import { PayloadUnion, routes } from "./routes";
+import {
+  AnyResult,
+  Route,
+  SuccessfulFileResult,
+  SuccessfulResult,
+  SuccessfulStringResult,
+  UnsuccessfulResult,
+  ZodSafeParseSuccessData,
+} from "./types";
 import { showBrandedNotice } from "./utils";
 
 export default class ActionsURI extends Plugin {
@@ -51,11 +59,14 @@ export default class ActionsURI extends Plugin {
             const parsedPayload = schema.safeParse(incoming);
 
             if (parsedPayload.success) {
-              handler.bind(
-                this,
-                parsedPayload.data as ZodSafeParseSuccessData,
-                this.app.vault,
-              )();
+              const result = await handler
+                .bind(
+                  this,
+                  parsedPayload.data as ZodSafeParseSuccessData,
+                  this.app.vault,
+                )();
+
+              this.sendCallBackToSenderIfNecessary(result);
             } else {
               this.handleParseError(parsedPayload.error);
             }
@@ -89,4 +100,58 @@ export default class ActionsURI extends Plugin {
     console.error(msg);
     showBrandedNotice(msg);
   }
+
+  private sendCallBackToSenderIfNecessary(result: AnyResult) {
+    const { success } = result;
+    const input = result.input as PayloadUnion;
+
+    if (input.hasOwnProperty("silent")) {
+      console.log("Silent call, not sending callback");
+      return;
+    }
+
+    if (!input["x-success"] && !input["x-error"]) {
+      console.log("No callbacks specified");
+      return;
+    }
+
+    if (success) {
+      result = <SuccessfulResult> result;
+
+      if (input["x-success"]) {
+        console.log(`TODO: Send success callback to ${input["x-success"]}`);
+        console.log(result.data);
+      }
+    } else {
+      result = <UnsuccessfulResult> result;
+
+      if (input["x-error"]) {
+        console.log(
+          `TODO: Send error callback to ${input["x-error"]}: ${result.error}`,
+        );
+      }
+    }
+
+    return;
+
+    // const url = new URL(input["x-success"]);
+    // for (const param in options) {
+    //   url.searchParams.set(param, options[param]);
+    // }
+    // window.open(url.toString());
+  }
 }
+
+// class Result {
+//   readonly input: unknown;
+//   readonly error?: string;
+//   readonly success: boolean;
+//   readonly data: unknown;
+
+//   constructor({input: unknown, error?: string, success: boolean, data: unknown) {
+//     this.input = input;
+//     this.error = error;
+//     this.success = success;
+//     this.data = data;
+//   }
+// }
