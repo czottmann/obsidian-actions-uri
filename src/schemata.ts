@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sanitizeFilePath } from "./utils";
+import { sanitizeFilePath } from "./file-handling";
 
 export const basePayload = {
   action: z.string(),

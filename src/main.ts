@@ -1,43 +1,20 @@
 import { Plugin } from "obsidian";
-import { AnyZodObject, ZodError } from "zod";
-import { createOrOverwriteNote } from "./file-handling";
+import { ZodError } from "zod";
 import { PayloadUnion, routes } from "./routes";
 import {
   AnyResult,
   Route,
-  SuccessfulFileResult,
   SuccessfulResult,
-  SuccessfulStringResult,
   UnsuccessfulResult,
   ZodSafeParseSuccessData,
 } from "./types";
-import { showBrandedNotice } from "./utils";
+import { sendUrlCallback, showBrandedNotice } from "./utils";
 
 export default class ActionsURI extends Plugin {
   static readonly URI_NAMESPACE = "actions-uri";
 
   async onload() {
-    this.app.workspace.onLayoutReady(() => {
-      this.registerRoutes(routes);
-
-      createOrOverwriteNote(
-        "//../folder/./test/test.md",
-        "test",
-        this.app.vault,
-      );
-      createOrOverwriteNote(
-        "../folder/./test/test.md",
-        "test update",
-        this.app.vault,
-      );
-      createOrOverwriteNote("folder/test/test 2.md", "test 2", this.app.vault);
-
-      // console.log(
-      //   appHasDailyNotesPluginLoaded(),
-      //   getDailyNote(window.moment(), getAllDailyNotes()),
-      //   // createDailyNote(window.moment()),
-      // );
-    });
+    this.app.workspace.onLayoutReady(() => this.registerRoutes(routes));
   }
 
   onunload() {
@@ -60,13 +37,12 @@ export default class ActionsURI extends Plugin {
 
             if (parsedPayload.success) {
               const result = await handler
-                .bind(
-                  this,
+                .apply(this, [
                   parsedPayload.data as ZodSafeParseSuccessData,
                   this.app.vault,
-                )();
+                ]);
 
-              this.sendCallBackToSenderIfNecessary(result);
+              this.sendUrlCallbackIfNeeded(result);
             } else {
               this.handleParseError(parsedPayload.error);
             }
@@ -101,7 +77,7 @@ export default class ActionsURI extends Plugin {
     showBrandedNotice(msg);
   }
 
-  private sendCallBackToSenderIfNecessary(result: AnyResult) {
+  private sendUrlCallbackIfNeeded(result: AnyResult) {
     const { success } = result;
     const input = result.input as PayloadUnion;
 
@@ -116,42 +92,13 @@ export default class ActionsURI extends Plugin {
     }
 
     if (success) {
-      result = <SuccessfulResult> result;
-
       if (input["x-success"]) {
-        console.log(`TODO: Send success callback to ${input["x-success"]}`);
-        console.log(result.data);
+        sendUrlCallback(input["x-success"], <SuccessfulResult> result);
       }
     } else {
-      result = <UnsuccessfulResult> result;
-
       if (input["x-error"]) {
-        console.log(
-          `TODO: Send error callback to ${input["x-error"]}: ${result.error}`,
-        );
+        sendUrlCallback(input["x-error"], <UnsuccessfulResult> result);
       }
     }
-
-    return;
-
-    // const url = new URL(input["x-success"]);
-    // for (const param in options) {
-    //   url.searchParams.set(param, options[param]);
-    // }
-    // window.open(url.toString());
   }
 }
-
-// class Result {
-//   readonly input: unknown;
-//   readonly error?: string;
-//   readonly success: boolean;
-//   readonly data: unknown;
-
-//   constructor({input: unknown, error?: string, success: boolean, data: unknown) {
-//     this.input = input;
-//     this.error = error;
-//     this.success = success;
-//     this.data = data;
-//   }
-// }

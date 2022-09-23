@@ -1,6 +1,5 @@
-import { dirname } from "path";
+import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
-import { sanitizeFilePath } from "./utils";
 
 // Create a new note. If the note already exists, find a available numeric
 // suffix for the filename and create a new note with that suffix.
@@ -77,6 +76,18 @@ export async function getNoteContent(
   }
 
   return undefined;
+}
+
+// Make sure user-submitted file paths are relative to the vault root and the
+// path is normalized and cleaned up
+export function sanitizeFilePath(filename: string): string {
+  filename = normalize(filename)
+    .replace(/^[\/\.]+/, "")
+    .trim();
+  filename = extname(filename).toLowerCase() === ".md"
+    ? filename
+    : `${filename}.md`;
+  return filename;
 }
 
 // HELPERS ----------------------------------------

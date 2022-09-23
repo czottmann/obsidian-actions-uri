@@ -19,5 +19,9 @@ export const routes: Route[] = [
 
 async function handleRoot(payload: {}): Promise<AnyResult> {
   showBrandedNotice("… is ready for action 🚀");
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }

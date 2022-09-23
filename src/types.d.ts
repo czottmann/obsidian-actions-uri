@@ -7,9 +7,7 @@ export type Route = {
   handler: (data: ZodSafeParseSuccessData, vault: Vault) => Promise<AnyResult>;
 };
 
-export type ZodSafeParseSuccessData = {
-  [x: string]: any;
-};
+export type ZodSafeParseSuccessData = Record<string, any>;
 
 interface Result {
   input: ZodSafeParseSuccessData;
@@ -25,7 +23,9 @@ export interface UnsuccessfulResult extends Result {
 }
 
 export interface SuccessfulStringResult extends SuccessfulResult {
-  data: string;
+  data: {
+    result: string;
+  };
 }
 
 export interface SuccessfulFileResult extends SuccessfulResult {

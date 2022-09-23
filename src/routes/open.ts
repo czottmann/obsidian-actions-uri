@@ -44,7 +44,11 @@ async function handleOpenDailyNote(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof OpenDailyNotePayload>;
   console.log("handleOpenDailyNote", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleOpenNote()
@@ -53,7 +57,11 @@ async function handleOpenNote(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof OpenNotePayload>;
   console.log("handleOpenNote", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleOpenSearch()
@@ -62,5 +70,9 @@ async function handleOpenSearch(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof OpenSearchPayload>;
   console.log("handleOpenSearch", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }

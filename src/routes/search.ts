@@ -29,5 +29,9 @@ export const routes: Route[] = [
 async function handleSearch(data: ZodSafeParseSuccessData): Promise<AnyResult> {
   const payload = data as z.infer<typeof SearchPayload>;
   console.log("handleSearch", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }

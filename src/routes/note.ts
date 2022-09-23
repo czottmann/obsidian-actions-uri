@@ -105,9 +105,6 @@ export const routes: Route[] = [
 
 // HANDLERS --------------------
 
-// TODO: Support für optional `silent` in allen Handlern implementieren
-// TODO: Support for optionale Callbacks in allen Handlern implementieren
-
 async function handleNoteGet(
   data: ZodSafeParseSuccessData,
   vault: Vault,
@@ -134,7 +131,7 @@ async function handleNoteCreate(
   vault: Vault,
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteCreatePayload>;
-  const { file, content, overwrite, silent } = payload;
+  const { file, content, overwrite } = payload;
 
   const result = overwrite
     ? await createOrOverwriteNote(file, content || "", vault)
@@ -143,7 +140,7 @@ async function handleNoteCreate(
   return result
     ? <SuccessfulStringResult> {
       success: true,
-      data: file,
+      data: { result: file },
       input: payload,
     }
     : <UnsuccessfulResult> {
@@ -160,7 +157,11 @@ async function handleNoteAppend(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleNotePrepend()
@@ -170,7 +171,11 @@ async function handleNotePrepend(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleNoteSearchStringAndReplace()
@@ -180,7 +185,11 @@ async function handleNoteSearchStringAndReplace(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteSearchPayload>;
   console.log("handleNoteSearchStringAndReplace", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleNoteSearchRegexAndReplace()
@@ -190,5 +199,9 @@ async function handleNoteSearchRegexAndReplace(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof NoteSearchPayload>;
   console.log("handleNoteSearchRegexAndReplace", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }

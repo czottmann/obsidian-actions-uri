@@ -73,13 +73,23 @@ export const routes: Route[] = [
 
 // HANDLERS --------------------
 
+// console.log(
+//   appHasDailyNotesPluginLoaded(),
+//   getDailyNote(window.moment(), getAllDailyNotes()),
+//   // createDailyNote(window.moment()),
+// );
+
 // TODO: handleDailyNoteGet()
 async function handleDailyNoteGet(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteReadPayload>;
   console.log("handleDailyNoteGet", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleDailyNoteCreate()
@@ -88,7 +98,11 @@ async function handleDailyNoteCreate(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteCreatePayload>;
   console.log("handleDailyNoteCreate", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleDailyNoteAppend()
@@ -97,7 +111,11 @@ async function handleDailyNoteAppend(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
 
 // TODO: handleDailyNotePrepend()
@@ -106,5 +124,9 @@ async function handleDailyNotePrepend(
 ): Promise<AnyResult> {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);
-  return <SuccessfulStringResult> { success: true, data: "", input: payload };
+  return <SuccessfulStringResult> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
 }
