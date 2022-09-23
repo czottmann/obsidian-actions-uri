@@ -4,6 +4,7 @@ import { sanitizeFilePath } from "./file-handling";
 export const basePayload = {
   action: z.string(),
   vault: z.string().min(1, { message: "can't be empty" }),
+  id: z.string().optional(),
   "x-error": z.string().url().optional(),
   "x-success": z.string().url().optional(),
 };
