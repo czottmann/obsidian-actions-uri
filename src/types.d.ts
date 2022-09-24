@@ -15,7 +15,7 @@ interface Result {
 }
 
 export interface SuccessfulResult extends Result {
-  data: any;
+  data: Record<string, string>;
 }
 
 export interface UnsuccessfulResult extends Result {

@@ -1,10 +1,25 @@
 import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
 
-// Create a new note. If the note already exists, find a available numeric
-// suffix for the filename and create a new note with that suffix.
-//
-// Example: `test.md` exists → `test 1.md`; `test 1.md` exists → `test 2.md`
+/**
+ * Create a new note. If the note already exists, find a available numeric
+ * suffix for the filename and create a new note with that suffix.
+ *
+ * @example
+ * - `test.md` exists → `test 1.md`
+ * - `test 1.md` exists → `test 2.md`
+ *
+ * @param filename - A full filename, including the path relative from vault
+ * root
+ * @param content - The body of the note to be created
+ * @param vault - The vault to create the note in
+ *
+ * @returns The created file
+ *
+ * @remarks
+ * The `filename` parameter will be sanitized and suffixed with the file
+ * extension `.md` if it is not already present.
+ */
 export async function createNote(
   filename: string,
   content: string,
@@ -39,7 +54,20 @@ export async function createNote(
   return vault.getAbstractFileByPath(filename) as TFile;
 }
 
-// Create a new note. If the note already exists, overwrite its content.
+/**
+ * Create a new note. If the note already exists, overwrite its content.
+ *
+ * @param filename - A full filename, including the path relative from vault
+ * root
+ * @param content - The body of the note to be created
+ * @param vault - The vault to create the note in
+ *
+ * @returns The created file
+ *
+ * @remarks
+ * The `filename` parameter will be sanitized and suffixed with the file
+ * extension `.md` if it is not already present.
+ */
 export async function createOrOverwriteNote(
   filename: string,
   content: string,
@@ -55,14 +83,20 @@ export async function createOrOverwriteNote(
     return vault.getAbstractFileByPath(filename) as TFile;
   }
 
-  // Create folder if necessary
-  await createFolderIfNecessary(dirname(filename), vault);
-
   // Create the new note
+  await createFolderIfNecessary(dirname(filename), vault);
   await vault.create(filename, content);
   return vault.getAbstractFileByPath(filename) as TFile;
 }
 
+/**
+ * Fetches an existing note and returns its content.
+ *
+ * @param filename - A full filename, including the path relative from vault
+ * @param vault - The vault to search for the note in
+ *
+ * @returns The note body, or `undefined` if the note does not exist
+ */
 export async function getNoteContent(
   filename: string,
   vault: Vault,
@@ -78,8 +112,15 @@ export async function getNoteContent(
   return undefined;
 }
 
-// Make sure user-submitted file paths are relative to the vault root and the
-// path is normalized and cleaned up
+/**
+ * Make sure user-submitted file paths are relative to the vault root and the
+ * path is normalized and sanitized. Returned paths will never start with dots
+ * or slashes.
+ *
+ * @param filename - A full file path
+ *
+ * @returns A normalized file path relative to the vault root
+ */
 export function sanitizeFilePath(filename: string): string {
   filename = normalize(filename)
     .replace(/^[\/\.]+/, "")
@@ -92,6 +133,13 @@ export function sanitizeFilePath(filename: string): string {
 
 // HELPERS ----------------------------------------
 
+/**
+ * Creates a folder but checks for its existence before attempting creation.
+ * We're civilized people here.
+ *
+ * @param folder - A folder path relative from the vault root
+ * @param vault - The vault to create the folder in
+ */
 async function createFolderIfNecessary(folder: string, vault: Vault) {
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists

@@ -1,10 +1,24 @@
 import { Notice } from "obsidian";
-import { SuccessfulResult, UnsuccessfulResult } from "./types";
+import { AnyResult, SuccessfulResult, UnsuccessfulResult } from "./types";
 
+/**
+ * Displays a `Notice` inside Obsidian. The notice is prefixed with
+ * "[Actions URI]" so the sender is clear to the receiving user.
+ *
+ * @param msg - The message to be shown in the notice
+ */
 export function showBrandedNotice(msg: string) {
   new Notice(`[Actions URI] ${msg}`);
 }
 
+/**
+ * @param baseURL - The base `x-callback-url` of the receiver, e.g.
+ * "another-app://", "another-app://x-callback-url/success" or
+ * "another-app://success"
+ * @param result - Any route handler result object
+ *
+ * @see {@link AnyResult}
+ */
 export function sendUrlCallback(
   baseURL: string,
   result: SuccessfulResult | UnsuccessfulResult,
