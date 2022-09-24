@@ -123,10 +123,9 @@ export default class ActionsURI extends Plugin {
    * @see {@link sendUrlCallback}
    */
   private sendUrlCallbackIfNeeded(result: AnyHandlerResult) {
-    const { success } = result;
-    const input = result.input as PayloadUnion;
+    const { success, input } = result;
 
-    if (input.hasOwnProperty("silent")) {
+    if (input.silent) {
       console.log("Silent call, not sending callback");
       return;
     }
