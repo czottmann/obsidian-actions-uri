@@ -1,15 +1,4 @@
-import { Notice } from "obsidian";
-import { AnyHandlerResult, HandlerFailure, HandlerSuccess } from "./types";
-
-/**
- * Displays a `Notice` inside Obsidian. The notice is prefixed with
- * "[Actions URI]" so the sender is clear to the receiving user.
- *
- * @param msg - The message to be shown in the notice
- */
-export function showBrandedNotice(msg: string) {
-  new Notice(`[Actions URI] ${msg}`);
-}
+import { AnyHandlerResult, HandlerFailure, HandlerSuccess } from "../types";
 
 /**
  * @param baseURL - The base `x-callback-url` of the receiver, e.g.

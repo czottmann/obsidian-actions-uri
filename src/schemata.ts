@@ -1,13 +1,15 @@
 import { z } from "zod";
-import { sanitizeFilePath } from "./file-handling";
+import { sanitizeFilePath } from "./utils/file-handling";
 
-export const basePayload = {
+export const basePayloadSchema = {
   action: z.string(),
   vault: z.string().min(1, { message: "can't be empty" }),
   id: z.string().optional(),
   "x-error": z.string().url().optional(),
   "x-success": z.string().url().optional(),
 };
+
+export const basePayload = z.object(basePayloadSchema);
 
 export const zodOptionalBoolean = z.preprocess(
   (param: unknown): boolean => {

@@ -8,7 +8,8 @@ import {
   Route,
   ZodSafeParseSuccessData,
 } from "./types";
-import { sendUrlCallback, showBrandedNotice } from "./utils";
+import { sendUrlCallback } from "./utils/callbacks";
+import { showBrandedNotice } from "./utils/grabbag";
 
 export default class ActionsURI extends Plugin {
   static readonly URI_NAMESPACE = "actions-uri";

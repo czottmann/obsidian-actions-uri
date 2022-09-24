@@ -4,12 +4,13 @@ import {
   createNote,
   createOrOverwriteNote,
   getNoteContent,
-} from "../file-handling";
+} from "../utils/file-handling";
 import {
-  basePayload,
+  basePayloadSchema,
   zodOptionalBoolean,
   zodSanitizedFilePath,
 } from "../schemata";
+import { helloRoute } from "../utils/routing";
 import {
   AnyHandlerResult,
   HandlerFailure,
@@ -23,38 +24,38 @@ import {
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
 // lookups easier to read when the objects are defined using spread syntax. 🤷🏻‍♂️
 
-const NoteCreatePayload = z.object({
-  ...basePayload,
+const CreatePayload = z.object({
+  ...basePayloadSchema,
   content: z.string().optional(),
   file: zodSanitizedFilePath,
   overwrite: zodOptionalBoolean,
   silent: zodOptionalBoolean,
 });
 
-const NoteReadPayload = z.object({
-  ...basePayload,
+const ReadPayload = z.object({
+  ...basePayloadSchema,
   file: zodSanitizedFilePath,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
 
-const NoteWritePayload = z.object({
-  ...basePayload,
+const WritePayload = z.object({
+  ...basePayloadSchema,
   content: z.string().optional(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
 });
 
-const NotePrependPayload = z.object({
-  ...basePayload,
+const PrependPayload = z.object({
+  ...basePayloadSchema,
   content: z.string().optional(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
 
-const NoteSearchAndReplacePayload = z.object({
-  ...basePayload,
+const SearchAndReplacePayload = z.object({
+  ...basePayloadSchema,
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
   search: z.string().min(1, { message: "can't be empty" }),
@@ -62,43 +63,30 @@ const NoteSearchAndReplacePayload = z.object({
 });
 
 export type PayloadUnion =
-  | z.infer<typeof NoteCreatePayload>
-  | z.infer<typeof NoteReadPayload>
-  | z.infer<typeof NoteWritePayload>
-  | z.infer<typeof NotePrependPayload>
-  | z.infer<typeof NoteSearchAndReplacePayload>;
+  | z.infer<typeof CreatePayload>
+  | z.infer<typeof ReadPayload>
+  | z.infer<typeof WritePayload>
+  | z.infer<typeof PrependPayload>
+  | z.infer<typeof SearchAndReplacePayload>;
 
 // ROUTES --------------------
 
+console.log(basePayloadSchema);
+
 export const routes: Route[] = [
-  {
-    path: ["note", "note/get"],
-    schema: NoteReadPayload,
-    handler: handleNoteGet,
-  },
-  {
-    path: "note/create",
-    schema: NoteCreatePayload,
-    handler: handleNoteCreate,
-  },
-  {
-    path: "note/append",
-    schema: NoteWritePayload,
-    handler: handleNoteAppend,
-  },
-  {
-    path: "note/prepend",
-    schema: NotePrependPayload,
-    handler: handleNotePrepend,
-  },
+  helloRoute("note"),
+  { path: "note/get", schema: ReadPayload, handler: handleNoteGet },
+  { path: "note/create", schema: CreatePayload, handler: handleNoteCreate },
+  { path: "note/append", schema: WritePayload, handler: handleNoteAppend },
+  { path: "note/prepend", schema: PrependPayload, handler: handleNotePrepend },
   {
     path: "note/search-string-and-replace",
-    schema: NoteSearchAndReplacePayload,
+    schema: SearchAndReplacePayload,
     handler: handleNoteSearchStringAndReplace,
   },
   {
     path: "note/search-regex-and-replace",
-    schema: NoteSearchAndReplacePayload,
+    schema: SearchAndReplacePayload,
     handler: handleNoteSearchRegexAndReplace,
   },
 ];
@@ -109,7 +97,7 @@ async function handleNoteGet(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof NoteReadPayload>;
+  const payload = data as z.infer<typeof ReadPayload>;
   const { file } = payload;
   const content = await getNoteContent(file, vault);
 
@@ -130,7 +118,7 @@ async function handleNoteCreate(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof NoteCreatePayload>;
+  const payload = data as z.infer<typeof CreatePayload>;
   const { file, content, overwrite } = payload;
 
   const result = overwrite
@@ -155,7 +143,7 @@ async function handleNoteAppend(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof NoteWritePayload>;
+  const payload = data as z.infer<typeof WritePayload>;
   console.log("handleNotePrepend", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -169,7 +157,7 @@ async function handleNotePrepend(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof NoteWritePayload>;
+  const payload = data as z.infer<typeof WritePayload>;
   console.log("handleNotePrepend", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -183,7 +171,7 @@ async function handleNoteSearchStringAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof NoteSearchAndReplacePayload>;
+  const payload = data as z.infer<typeof SearchAndReplacePayload>;
   console.log("handleNoteSearchStringAndReplace", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -197,7 +185,7 @@ async function handleNoteSearchRegexAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof NoteSearchAndReplacePayload>;
+  const payload = data as z.infer<typeof SearchAndReplacePayload>;
   console.log("handleNoteSearchRegexAndReplace", payload);
   return <HandlerTextSuccess> {
     success: true,

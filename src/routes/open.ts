@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { basePayload } from "../schemata";
+import { basePayloadSchema } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerFailure,
@@ -12,28 +12,28 @@ import {
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
 // lookups easier to read when the objects are defined using spread syntax. 🤷🏻‍♂️
 
-const OpenDailyNotePayload = z.object(basePayload);
-const OpenNotePayload = z.object(basePayload);
-const OpenSearchPayload = z.object({
-  ...basePayload,
+const DailyNotePayload = z.object(basePayloadSchema);
+const NotePayload = z.object(basePayloadSchema);
+const SearchPayload = z.object({
+  ...basePayloadSchema,
   query: z.string().min(1, { message: "can't be empty" }),
 });
 
 export type PayloadUnion =
-  | z.infer<typeof OpenDailyNotePayload>
-  | z.infer<typeof OpenNotePayload>
-  | z.infer<typeof OpenSearchPayload>;
+  | z.infer<typeof DailyNotePayload>
+  | z.infer<typeof NotePayload>
+  | z.infer<typeof SearchPayload>;
 
 // ROUTES --------------------
 
 export const routes: Route[] = [
   {
     path: "open/daily-note",
-    schema: OpenDailyNotePayload,
+    schema: DailyNotePayload,
     handler: handleOpenDailyNote,
   },
-  { path: "open/note", schema: OpenNotePayload, handler: handleOpenNote },
-  { path: "open/search", schema: OpenSearchPayload, handler: handleOpenSearch },
+  { path: "open/note", schema: NotePayload, handler: handleOpenNote },
+  { path: "open/search", schema: SearchPayload, handler: handleOpenSearch },
 ];
 
 // HANDLERS --------------------
@@ -42,7 +42,7 @@ export const routes: Route[] = [
 async function handleOpenDailyNote(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof OpenDailyNotePayload>;
+  const payload = data as z.infer<typeof DailyNotePayload>;
   console.log("handleOpenDailyNote", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -55,7 +55,7 @@ async function handleOpenDailyNote(
 async function handleOpenNote(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof OpenNotePayload>;
+  const payload = data as z.infer<typeof NotePayload>;
   console.log("handleOpenNote", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -68,7 +68,7 @@ async function handleOpenNote(
 async function handleOpenSearch(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof OpenSearchPayload>;
+  const payload = data as z.infer<typeof SearchPayload>;
   console.log("handleOpenSearch", payload);
   return <HandlerTextSuccess> {
     success: true,

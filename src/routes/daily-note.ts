@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { basePayload, zodOptionalBoolean } from "../schemata";
+import { basePayloadSchema, zodOptionalBoolean } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerFailure,
@@ -9,64 +9,66 @@ import {
   Route,
   ZodSafeParseSuccessData,
 } from "../types";
+import { helloRoute } from "../utils/routing";
 
 // SCHEMATA --------------------
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
 // lookups easier to read when the objects are defined using spread syntax. 🤷🏻‍♂️
 
-const DailyNoteCreatePayload = z.object({
-  ...basePayload,
+const CreatePayload = z.object({
+  ...basePayloadSchema,
   content: z.string().optional(),
   overwrite: zodOptionalBoolean,
   silent: zodOptionalBoolean,
 });
 
-const DailyNoteReadPayload = z.object({
-  ...basePayload,
+const ReadPayload = z.object({
+  ...basePayloadSchema,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
 
-const DailyNoteWritePayload = z.object({
-  ...basePayload,
+const WritePayload = z.object({
+  ...basePayloadSchema,
   content: z.string().optional(),
   silent: zodOptionalBoolean,
 });
 
-const DailyNotePrependPayload = z.object({
-  ...basePayload,
+const PrependPayload = z.object({
+  ...basePayloadSchema,
   content: z.string().optional(),
   silent: zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
 
 export type PayloadUnion =
-  | z.infer<typeof DailyNoteCreatePayload>
-  | z.infer<typeof DailyNoteReadPayload>
-  | z.infer<typeof DailyNoteWritePayload>
-  | z.infer<typeof DailyNotePrependPayload>;
+  | z.infer<typeof CreatePayload>
+  | z.infer<typeof ReadPayload>
+  | z.infer<typeof WritePayload>
+  | z.infer<typeof PrependPayload>;
 
 // ROUTES --------------------
 
 export const routes: Route[] = [
+  helloRoute("daily-note"),
   {
-    path: ["daily-note", "daily-note/get"],
-    schema: DailyNoteReadPayload,
+    path: "daily-note/get",
+    schema: ReadPayload,
     handler: handleDailyNoteGet,
   },
   {
     path: "daily-note/create",
-    schema: DailyNoteCreatePayload,
+    schema: CreatePayload,
     handler: handleDailyNoteCreate,
   },
   {
     path: "daily-note/append",
-    schema: DailyNoteWritePayload,
+    schema: WritePayload,
     handler: handleDailyNoteAppend,
   },
   {
     path: "daily-note/prepend",
-    schema: DailyNotePrependPayload,
+    schema: PrependPayload,
     handler: handleDailyNotePrepend,
   },
 ];
@@ -83,7 +85,7 @@ export const routes: Route[] = [
 async function handleDailyNoteGet(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof DailyNoteReadPayload>;
+  const payload = data as z.infer<typeof ReadPayload>;
   console.log("handleDailyNoteGet", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -96,7 +98,7 @@ async function handleDailyNoteGet(
 async function handleDailyNoteCreate(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof DailyNoteCreatePayload>;
+  const payload = data as z.infer<typeof CreatePayload>;
   console.log("handleDailyNoteCreate", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -109,7 +111,7 @@ async function handleDailyNoteCreate(
 async function handleDailyNoteAppend(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof DailyNoteWritePayload>;
+  const payload = data as z.infer<typeof WritePayload>;
   console.log("handleDailyNotePrepend", payload);
   return <HandlerTextSuccess> {
     success: true,
@@ -122,7 +124,7 @@ async function handleDailyNoteAppend(
 async function handleDailyNotePrepend(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof DailyNoteWritePayload>;
+  const payload = data as z.infer<typeof WritePayload>;
   console.log("handleDailyNotePrepend", payload);
   return <HandlerTextSuccess> {
     success: true,

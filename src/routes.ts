@@ -1,4 +1,4 @@
-import { Route } from "./types";
+import { z } from "zod";
 import {
   PayloadUnion as DailyNotePayloadUnion,
   routes as dailyNoteRoutes,
@@ -11,20 +11,19 @@ import {
   PayloadUnion as OpenPayloadUnion,
   routes as openRoutes,
 } from "./routes/open";
-import {
-  PayloadUnion as RootPayloadUnion,
-  routes as rootRoutes,
-} from "./routes/root";
+import { routes as rootRoutes } from "./routes/root";
 import {
   PayloadUnion as SearchPayloadUnion,
   routes as searchRoutes,
 } from "./routes/search";
+import { basePayload } from "./schemata";
+import { Route } from "./types";
 
 export type PayloadUnion =
+  | z.infer<typeof basePayload>
   | DailyNotePayloadUnion
   | NotePayloadUnion
   | OpenPayloadUnion
-  | RootPayloadUnion
   | SearchPayloadUnion;
 
 export const routes: Route[] = [
