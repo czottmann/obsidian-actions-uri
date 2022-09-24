@@ -11,6 +11,7 @@ import {
   zodOptionalBoolean,
   zodSanitizedFilePath,
 } from "../schemata";
+import { ensureNewline } from "../utils/grabbag";
 import { helloRoute } from "../utils/routing";
 import {
   AnyHandlerResult,
@@ -48,11 +49,20 @@ const WritePayload = z.object({
   silent: zodOptionalBoolean,
 });
 
+const AppendPayload = z.object({
+  ...basePayloadSchema,
+  content: z.string().optional(),
+  file: zodSanitizedFilePath,
+  silent: zodOptionalBoolean,
+  "ensure-newline": zodOptionalBoolean,
+});
+
 const PrependPayload = z.object({
   ...basePayloadSchema,
   content: z.string().optional(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
+  "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
 
@@ -68,6 +78,7 @@ export type PayloadUnion =
   | z.infer<typeof CreatePayload>
   | z.infer<typeof ReadPayload>
   | z.infer<typeof WritePayload>
+  | z.infer<typeof AppendPayload>
   | z.infer<typeof PrependPayload>
   | z.infer<typeof SearchAndReplacePayload>;
 
@@ -77,7 +88,7 @@ export const routes: Route[] = [
   helloRoute("note"),
   { path: "note/get", schema: ReadPayload, handler: handleNoteGet },
   { path: "note/create", schema: CreatePayload, handler: handleNoteCreate },
-  { path: "note/append", schema: WritePayload, handler: handleNoteAppend },
+  { path: "note/append", schema: AppendPayload, handler: handleNoteAppend },
   { path: "note/prepend", schema: PrependPayload, handler: handleNotePrepend },
   {
     path: "note/search-string-and-replace",
@@ -142,8 +153,9 @@ async function handleNoteAppend(
   data: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof WritePayload>;
-  const { file, content } = payload;
+  const payload = data as z.infer<typeof AppendPayload>;
+  const { file } = payload;
+  let { content } = payload;
   const res = await getNoteContent(file, vault);
 
   if (!res.success) {
@@ -152,6 +164,10 @@ async function handleNoteAppend(
       error: res.error,
       input: payload,
     };
+  }
+
+  if (payload["ensure-newline"]) {
+    content = ensureNewline(content);
   }
 
   const noteContent = res.result;
@@ -171,18 +187,53 @@ async function handleNoteAppend(
     };
 }
 
-// TODO: handleNotePrepend()
 async function handleNotePrepend(
   data: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof WritePayload>;
-  console.log("handleNotePrepend", payload);
-  return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
-    input: payload,
-  };
+  const payload = data as z.infer<typeof PrependPayload>;
+  const { file } = payload;
+  let { content } = payload;
+  const res = await getNoteContent(file, vault);
+
+  if (!res.success) {
+    return <HandlerFailure> {
+      success: false,
+      error: res.error,
+      input: payload,
+    };
+  }
+
+  let newContent: string;
+  const noteContent = res.result.trimStart();
+  const hasFrontMatter = noteContent.startsWith("---\n") &&
+    (noteContent.indexOf("---\n", 4) > -1);
+
+  if (hasFrontMatter && !payload["ignore-front-matter"]) {
+    const bodyStartPos = noteContent.indexOf("---\n", 4) + 4;
+    const frontMatter = noteContent.slice(0, bodyStartPos);
+    const noteBody = noteContent.slice(bodyStartPos);
+    newContent = frontMatter + ensureNewline(content) + noteBody;
+  } else {
+    if (payload["ensure-newline"]) {
+      content = ensureNewline(content);
+    }
+    newContent = content + noteContent;
+  }
+
+  const updatedFile = await createOrOverwriteNote(file, newContent, vault);
+
+  return (updatedFile instanceof TFile)
+    ? <HandlerTextSuccess> {
+      success: true,
+      data: { result: STRINGS.prepend_done },
+      input: payload,
+    }
+    : <HandlerFailure> {
+      success: false,
+      error: STRINGS.unable_to_write_note,
+      input: payload,
+    };
 }
 
 async function handleNoteSearchStringAndReplace(
