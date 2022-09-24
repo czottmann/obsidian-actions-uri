@@ -7,6 +7,7 @@ import {
   Route,
   ZodSafeParsedData,
 } from "../types";
+import { helloRoute } from "../utils/routing";
 
 // SCHEMATA --------------------
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
@@ -27,6 +28,7 @@ export type PayloadUnion =
 // ROUTES --------------------
 
 export const routes: Route[] = [
+  helloRoute("open"),
   {
     path: "open/daily-note",
     schema: DailyNotePayload,
