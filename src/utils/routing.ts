@@ -5,7 +5,7 @@ import {
   AnyHandlerResult,
   HandlerTextSuccess,
   Route,
-  ZodSafeParseSuccessData,
+  ZodSafeParsedData,
 } from "../types";
 import { showBrandedNotice } from "./grabbag";
 
@@ -18,7 +18,7 @@ export function helloRoute(path: string): Route {
 }
 
 async function handleHello(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   showBrandedNotice("… is ready for action 🚀");

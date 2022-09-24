@@ -6,7 +6,7 @@ import {
   HandlerFailure,
   HandlerSuccess,
   Route,
-  ZodSafeParseSuccessData,
+  ZodSafeParsedData,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
 import { showBrandedNotice } from "./utils/grabbag";
@@ -50,10 +50,10 @@ export default class ActionsURI extends Plugin {
             if (parsedPayload.success) {
               const result = await handler
                 .apply(this, [
-                  parsedPayload.data as ZodSafeParseSuccessData,
+                  <ZodSafeParsedData> parsedPayload.data,
                   this.app.vault,
                 ]);
-
+              console.log(result);
               this.sendUrlCallbackIfNeeded(result);
             } else {
               this.handleParseError(parsedPayload.error);

@@ -5,7 +5,7 @@ import {
   HandlerFailure,
   HandlerTextSuccess,
   Route,
-  ZodSafeParseSuccessData,
+  ZodSafeParsedData,
 } from "../types";
 
 // SCHEMATA --------------------
@@ -40,7 +40,7 @@ export const routes: Route[] = [
 
 // TODO: handleOpenDailyNote()
 async function handleOpenDailyNote(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof DailyNotePayload>;
   console.log("handleOpenDailyNote", payload);
@@ -53,7 +53,7 @@ async function handleOpenDailyNote(
 
 // TODO: handleOpenNote()
 async function handleOpenNote(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof NotePayload>;
   console.log("handleOpenNote", payload);
@@ -66,7 +66,7 @@ async function handleOpenNote(
 
 // TODO: handleOpenSearch()
 async function handleOpenSearch(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof SearchPayload>;
   console.log("handleOpenSearch", payload);

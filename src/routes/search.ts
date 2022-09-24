@@ -5,7 +5,7 @@ import {
   HandlerFailure,
   HandlerTextSuccess,
   Route,
-  ZodSafeParseSuccessData,
+  ZodSafeParsedData,
 } from "../types";
 
 // SCHEMATA --------------------
@@ -27,7 +27,7 @@ export const routes: Route[] = [
 
 // TODO: handleSearch()
 async function handleSearch(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof Payload>;
   console.log("handleSearch", payload);

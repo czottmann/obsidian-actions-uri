@@ -1,7 +1,7 @@
 import { Vault } from "obsidian";
 import { AnyZodObject } from "zod";
 
-export type ZodSafeParseSuccessData = Record<string, any>;
+export type ZodSafeParsedData = Record<string, any>;
 
 export type Result = {
   success: false;
@@ -15,13 +15,13 @@ export type Route = {
   path: string | string[];
   schema: AnyZodObject;
   handler: (
-    data: ZodSafeParseSuccessData,
+    data: ZodSafeParsedData,
     vault: Vault,
   ) => Promise<AnyHandlerResult>;
 };
 
 interface HandlerResult {
-  input: ZodSafeParseSuccessData;
+  input: ZodSafeParsedData;
   success: boolean;
 }
 

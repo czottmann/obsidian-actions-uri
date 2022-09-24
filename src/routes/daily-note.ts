@@ -7,7 +7,7 @@ import {
   HandlerSuccess,
   HandlerTextSuccess,
   Route,
-  ZodSafeParseSuccessData,
+  ZodSafeParsedData,
 } from "../types";
 import { helloRoute } from "../utils/routing";
 
@@ -88,7 +88,7 @@ export const routes: Route[] = [
 
 // TODO: handleDailyNoteGetCurrent()
 async function handleDailyNoteGetCurrent(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof ReadPayload>;
   console.log("handleDailyNoteGetCurrent", payload);
@@ -101,7 +101,7 @@ async function handleDailyNoteGetCurrent(
 
 // TODO: handleDailyNoteGetMostRecent()
 async function handleDailyNoteGetMostRecent(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof ReadPayload>;
   console.log("handleDailyNoteGetMostRecent", payload);
@@ -114,7 +114,7 @@ async function handleDailyNoteGetMostRecent(
 
 // TODO: handleDailyNoteCreate()
 async function handleDailyNoteCreate(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof CreatePayload>;
   console.log("handleDailyNoteCreate", payload);
@@ -127,7 +127,7 @@ async function handleDailyNoteCreate(
 
 // TODO: handleDailyNoteAppend()
 async function handleDailyNoteAppend(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof WritePayload>;
   console.log("handleDailyNotePrepend", payload);
@@ -140,7 +140,7 @@ async function handleDailyNoteAppend(
 
 // TODO: handleDailyNotePrepend()
 async function handleDailyNotePrepend(
-  data: ZodSafeParseSuccessData,
+  data: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof WritePayload>;
   console.log("handleDailyNotePrepend", payload);
