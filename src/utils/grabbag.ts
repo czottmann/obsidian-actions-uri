@@ -9,3 +9,13 @@ import { Notice } from "obsidian";
 export function showBrandedNotice(msg: string) {
   new Notice(`[Actions URI] ${msg}`);
 }
+
+/**
+ * Makes sure the passed-in string ends in a newline.
+ *
+ * @param str - The string that should end in a newline
+ * @returns String ending in a newline
+ */
+export function ensureNewline(str: string = ""): string {
+  return str.endsWith("\n") ? str : `${str}\n`;
+}
