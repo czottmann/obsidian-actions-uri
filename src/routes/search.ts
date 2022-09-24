@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { basePayload } from "../schemata";
 import {
-  AnyResult,
+  AnyHandlerResult,
+  HandlerFailure,
+  HandlerTextSuccess,
   Route,
-  SuccessfulStringResult,
-  UnsuccessfulResult,
   ZodSafeParseSuccessData,
 } from "../types";
 
@@ -26,10 +26,12 @@ export const routes: Route[] = [
 // HANDLERS --------------------
 
 // TODO: handleSearch()
-async function handleSearch(data: ZodSafeParseSuccessData): Promise<AnyResult> {
+async function handleSearch(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof SearchPayload>;
   console.log("handleSearch", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,

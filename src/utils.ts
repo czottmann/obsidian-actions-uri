@@ -1,5 +1,5 @@
 import { Notice } from "obsidian";
-import { AnyResult, SuccessfulResult, UnsuccessfulResult } from "./types";
+import { AnyHandlerResult, HandlerFailure, HandlerSuccess } from "./types";
 
 /**
  * Displays a `Notice` inside Obsidian. The notice is prefixed with
@@ -17,19 +17,19 @@ export function showBrandedNotice(msg: string) {
  * "another-app://success"
  * @param result - Any route handler result object
  *
- * @see {@link AnyResult}
+ * @see {@link AnyHandlerResult}
  */
 export function sendUrlCallback(
   baseURL: string,
-  result: SuccessfulResult | UnsuccessfulResult,
+  result: HandlerSuccess | HandlerFailure,
 ) {
   const url = new URL(baseURL);
   addObjectToUrlSearchParams(result.input, url, "input");
 
   if (result.hasOwnProperty("error")) {
-    url.searchParams.set("error", (<UnsuccessfulResult> result).error);
+    url.searchParams.set("error", (<HandlerFailure> result).error);
   } else if (result.hasOwnProperty("data")) {
-    addObjectToUrlSearchParams((<SuccessfulResult> result).data, url);
+    addObjectToUrlSearchParams((<HandlerSuccess> result).data, url);
   }
 
   window.open(url.toString());

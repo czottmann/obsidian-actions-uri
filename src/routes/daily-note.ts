@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { basePayload, zodOptionalBoolean } from "../schemata";
 import {
-  AnyResult,
+  AnyHandlerResult,
+  HandlerFailure,
+  HandlerFileSuccess,
+  HandlerSuccess,
+  HandlerTextSuccess,
   Route,
-  SuccessfulFileResult,
-  SuccessfulResult,
-  SuccessfulStringResult,
-  UnsuccessfulResult,
   ZodSafeParseSuccessData,
 } from "../types";
 
@@ -82,10 +82,10 @@ export const routes: Route[] = [
 // TODO: handleDailyNoteGet()
 async function handleDailyNoteGet(
   data: ZodSafeParseSuccessData,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof DailyNoteReadPayload>;
   console.log("handleDailyNoteGet", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -95,10 +95,10 @@ async function handleDailyNoteGet(
 // TODO: handleDailyNoteCreate()
 async function handleDailyNoteCreate(
   data: ZodSafeParseSuccessData,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof DailyNoteCreatePayload>;
   console.log("handleDailyNoteCreate", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -108,10 +108,10 @@ async function handleDailyNoteCreate(
 // TODO: handleDailyNoteAppend()
 async function handleDailyNoteAppend(
   data: ZodSafeParseSuccessData,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -121,10 +121,10 @@ async function handleDailyNoteAppend(
 // TODO: handleDailyNotePrepend()
 async function handleDailyNotePrepend(
   data: ZodSafeParseSuccessData,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof DailyNoteWritePayload>;
   console.log("handleDailyNotePrepend", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,

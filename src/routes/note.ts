@@ -11,11 +11,11 @@ import {
   zodSanitizedFilePath,
 } from "../schemata";
 import {
-  AnyResult,
+  AnyHandlerResult,
+  HandlerFailure,
+  HandlerFileSuccess,
+  HandlerTextSuccess,
   Route,
-  SuccessfulFileResult,
-  SuccessfulStringResult,
-  UnsuccessfulResult,
   ZodSafeParseSuccessData,
 } from "../types";
 
@@ -53,7 +53,7 @@ const NotePrependPayload = z.object({
   "ignore-front-matter": zodOptionalBoolean,
 });
 
-const NoteSearchPayload = z.object({
+const NoteSearchAndReplacePayload = z.object({
   ...basePayload,
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
@@ -66,7 +66,7 @@ export type PayloadUnion =
   | z.infer<typeof NoteReadPayload>
   | z.infer<typeof NoteWritePayload>
   | z.infer<typeof NotePrependPayload>
-  | z.infer<typeof NoteSearchPayload>;
+  | z.infer<typeof NoteSearchAndReplacePayload>;
 
 // ROUTES --------------------
 
@@ -93,12 +93,12 @@ export const routes: Route[] = [
   },
   {
     path: "note/search-string-and-replace",
-    schema: NoteSearchPayload,
+    schema: NoteSearchAndReplacePayload,
     handler: handleNoteSearchStringAndReplace,
   },
   {
     path: "note/search-regex-and-replace",
-    schema: NoteSearchPayload,
+    schema: NoteSearchAndReplacePayload,
     handler: handleNoteSearchRegexAndReplace,
   },
 ];
@@ -108,18 +108,18 @@ export const routes: Route[] = [
 async function handleNoteGet(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof NoteReadPayload>;
   const { file } = payload;
   const content = await getNoteContent(file, vault);
 
   return content
-    ? <SuccessfulFileResult> {
+    ? <HandlerFileSuccess> {
       success: true,
       data: { file, content },
       input: payload,
     }
-    : <UnsuccessfulResult> {
+    : <HandlerFailure> {
       success: false,
       error: "Note not found",
       input: payload,
@@ -129,7 +129,7 @@ async function handleNoteGet(
 async function handleNoteCreate(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof NoteCreatePayload>;
   const { file, content, overwrite } = payload;
 
@@ -138,12 +138,12 @@ async function handleNoteCreate(
     : await createNote(file, content || "", vault);
 
   return result
-    ? <SuccessfulStringResult> {
+    ? <HandlerTextSuccess> {
       success: true,
       data: { result: file },
       input: payload,
     }
-    : <UnsuccessfulResult> {
+    : <HandlerFailure> {
       success: false,
       error: "Note couldn't be written",
       input: payload,
@@ -154,10 +154,10 @@ async function handleNoteCreate(
 async function handleNoteAppend(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -168,10 +168,10 @@ async function handleNoteAppend(
 async function handleNotePrepend(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof NoteWritePayload>;
   console.log("handleNotePrepend", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -182,10 +182,10 @@ async function handleNotePrepend(
 async function handleNoteSearchStringAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-): Promise<AnyResult> {
-  const payload = data as z.infer<typeof NoteSearchPayload>;
+): Promise<AnyHandlerResult> {
+  const payload = data as z.infer<typeof NoteSearchAndReplacePayload>;
   console.log("handleNoteSearchStringAndReplace", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -196,10 +196,10 @@ async function handleNoteSearchStringAndReplace(
 async function handleNoteSearchRegexAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
-): Promise<AnyResult> {
-  const payload = data as z.infer<typeof NoteSearchPayload>;
+): Promise<AnyHandlerResult> {
+  const payload = data as z.infer<typeof NoteSearchAndReplacePayload>;
   console.log("handleNoteSearchRegexAndReplace", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,

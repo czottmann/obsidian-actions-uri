@@ -1,41 +1,44 @@
 import { Vault } from "obsidian";
 import { AnyZodObject } from "zod";
 
+export type ZodSafeParseSuccessData = Record<string, any>;
+
 export type Route = {
   path: string | string[];
   schema: AnyZodObject;
-  handler: (data: ZodSafeParseSuccessData, vault: Vault) => Promise<AnyResult>;
+  handler: (
+    data: ZodSafeParseSuccessData,
+    vault: Vault,
+  ) => Promise<AnyHandlerResult>;
 };
 
-export type ZodSafeParseSuccessData = Record<string, any>;
-
-interface Result {
+interface HandlerResult {
   input: ZodSafeParseSuccessData;
   success: boolean;
 }
 
-export interface SuccessfulResult extends Result {
+export interface HandlerSuccess extends HandlerResult {
   data: Record<string, string>;
 }
 
-export interface UnsuccessfulResult extends Result {
+export interface HandlerFailure extends HandlerResult {
   error: string;
 }
 
-export interface SuccessfulStringResult extends SuccessfulResult {
+export interface HandlerTextSuccess extends HandlerSuccess {
   data: {
     result: string;
   };
 }
 
-export interface SuccessfulFileResult extends SuccessfulResult {
+export interface HandlerFileSuccess extends HandlerSuccess {
   data: {
     file: string;
     content: string;
   };
 }
 
-export type AnyResult =
-  | SuccessfulStringResult
-  | SuccessfulFileResult
-  | UnsuccessfulResult;
+export type AnyHandlerResult =
+  | HandlerTextSuccess
+  | HandlerFileSuccess
+  | HandlerFailure;

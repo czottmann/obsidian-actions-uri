@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { basePayload } from "../schemata";
 import {
-  AnyResult,
+  AnyHandlerResult,
+  HandlerFailure,
+  HandlerTextSuccess,
   Route,
-  SuccessfulStringResult,
-  UnsuccessfulResult,
   ZodSafeParseSuccessData,
 } from "../types";
 
@@ -41,10 +41,10 @@ export const routes: Route[] = [
 // TODO: handleOpenDailyNote()
 async function handleOpenDailyNote(
   data: ZodSafeParseSuccessData,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof OpenDailyNotePayload>;
   console.log("handleOpenDailyNote", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -54,10 +54,10 @@ async function handleOpenDailyNote(
 // TODO: handleOpenNote()
 async function handleOpenNote(
   data: ZodSafeParseSuccessData,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof OpenNotePayload>;
   console.log("handleOpenNote", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
@@ -67,10 +67,10 @@ async function handleOpenNote(
 // TODO: handleOpenSearch()
 async function handleOpenSearch(
   data: ZodSafeParseSuccessData,
-): Promise<AnyResult> {
+): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof OpenSearchPayload>;
   console.log("handleOpenSearch", payload);
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,

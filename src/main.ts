@@ -2,10 +2,10 @@ import { Plugin } from "obsidian";
 import { ZodError } from "zod";
 import { PayloadUnion, routes } from "./routes";
 import {
-  AnyResult,
+  AnyHandlerResult,
+  HandlerFailure,
+  HandlerSuccess,
   Route,
-  SuccessfulResult,
-  UnsuccessfulResult,
   ZodSafeParseSuccessData,
 } from "./types";
 import { sendUrlCallback, showBrandedNotice } from "./utils";
@@ -121,7 +121,7 @@ export default class ActionsURI extends Plugin {
    *
    * @see {@link sendUrlCallback}
    */
-  private sendUrlCallbackIfNeeded(result: AnyResult) {
+  private sendUrlCallbackIfNeeded(result: AnyHandlerResult) {
     const { success } = result;
     const input = result.input as PayloadUnion;
 
@@ -137,11 +137,11 @@ export default class ActionsURI extends Plugin {
 
     if (success) {
       if (input["x-success"]) {
-        sendUrlCallback(input["x-success"], <SuccessfulResult> result);
+        sendUrlCallback(input["x-success"], <HandlerSuccess> result);
       }
     } else {
       if (input["x-error"]) {
-        sendUrlCallback(input["x-error"], <UnsuccessfulResult> result);
+        sendUrlCallback(input["x-error"], <HandlerFailure> result);
       }
     }
   }

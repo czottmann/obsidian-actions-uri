@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { basePayload } from "../schemata";
-import { AnyResult, Route, SuccessfulStringResult } from "../types";
+import { AnyHandlerResult, HandlerTextSuccess, Route } from "../types";
 import { showBrandedNotice } from "../utils";
 
 // SCHEMATA --------------------
@@ -17,9 +17,9 @@ export const routes: Route[] = [
 
 // HANDLERS --------------------
 
-async function handleRoot(payload: {}): Promise<AnyResult> {
+async function handleRoot(payload: {}): Promise<AnyHandlerResult> {
   showBrandedNotice("… is ready for action 🚀");
-  return <SuccessfulStringResult> {
+  return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
     input: payload,
