@@ -1,6 +1,7 @@
 import { Plugin } from "obsidian";
+import { normalize } from "path";
 import { ZodError } from "zod";
-import { PayloadUnion, routes } from "./routes";
+import { routes } from "./routes";
 import {
   AnyHandlerResult,
   HandlerFailure,
@@ -46,14 +47,12 @@ export default class ActionsURI extends Plugin {
           actionPath,
           async (incoming) => {
             const parsedPayload = schema.safeParse(incoming);
-
             if (parsedPayload.success) {
               const result = await handler
                 .apply(this, [
                   <ZodSafeParsedData> parsedPayload.data,
                   this.app.vault,
                 ]);
-              console.log(result);
               this.sendUrlCallbackIfNeeded(result);
             } else {
               this.handleParseError(parsedPayload.error);
@@ -81,12 +80,11 @@ export default class ActionsURI extends Plugin {
    * - `buildActionPath("herp")` // → "actions-uri/herp"
    * - `buildActionPath("herp/derp")` // → "actions-uri/herp/derp"
    * - `buildActionPath("/herp//derp")` // → "actions-uri/herp/derp"
+   * - `buildActionPath(".././herp/../derp")` // → "actions-uri/derp"
    */
   private buildActionPath(path: string) {
-    return [ActionsURI.URI_NAMESPACE, path.split("/")]
-      .flat()
-      .filter((x) => !!x)
-      .join("/");
+    return `${ActionsURI.URI_NAMESPACE}/` +
+      normalize(path).replace(/^[\.\/]+/g, "");
   }
 
   /**
