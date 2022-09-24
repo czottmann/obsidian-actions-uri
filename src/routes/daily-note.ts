@@ -52,9 +52,14 @@ export type PayloadUnion =
 export const routes: Route[] = [
   helloRoute("daily-note"),
   {
-    path: "daily-note/get",
+    path: "daily-note/get-current",
     schema: ReadPayload,
-    handler: handleDailyNoteGet,
+    handler: handleDailyNoteGetCurrent,
+  },
+  {
+    path: "daily-note/get-most-recent",
+    schema: ReadPayload,
+    handler: handleDailyNoteGetMostRecent,
   },
   {
     path: "daily-note/create",
@@ -81,12 +86,25 @@ export const routes: Route[] = [
 //   // createDailyNote(window.moment()),
 // );
 
-// TODO: handleDailyNoteGet()
-async function handleDailyNoteGet(
+// TODO: handleDailyNoteGetCurrent()
+async function handleDailyNoteGetCurrent(
   data: ZodSafeParseSuccessData,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof ReadPayload>;
-  console.log("handleDailyNoteGet", payload);
+  console.log("handleDailyNoteGetCurrent", payload);
+  return <HandlerTextSuccess> {
+    success: true,
+    data: { result: "" },
+    input: payload,
+  };
+}
+
+// TODO: handleDailyNoteGetMostRecent()
+async function handleDailyNoteGetMostRecent(
+  data: ZodSafeParseSuccessData,
+): Promise<AnyHandlerResult> {
+  const payload = data as z.infer<typeof ReadPayload>;
+  console.log("handleDailyNoteGetMostRecent", payload);
   return <HandlerTextSuccess> {
     success: true,
     data: { result: "" },
