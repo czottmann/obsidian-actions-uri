@@ -4,9 +4,11 @@ import { AnyZodObject } from "zod";
 export type ZodSafeParseSuccessData = Record<string, any>;
 
 export type Result = {
-  success: boolean;
-  error?: string;
-  result?: any;
+  success: false;
+  error: string;
+} | {
+  success: true;
+  result: any;
 };
 
 export type Route = {
