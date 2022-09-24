@@ -3,6 +3,12 @@ import { AnyZodObject } from "zod";
 
 export type ZodSafeParseSuccessData = Record<string, any>;
 
+export type Result = {
+  success: boolean;
+  error?: string;
+  result?: any;
+};
+
 export type Route = {
   path: string | string[];
   schema: AnyZodObject;
