@@ -16,9 +16,21 @@ import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
+  Result,
   Route,
   ZodSafeParseSuccessData,
 } from "../types";
+
+const RESULT_STRINGS = {
+  note_not_found: "Note couldn't be found",
+  replacement_done: "Replacement done",
+  search_pattern_empty: "Search pattern is empty",
+  search_pattern_invalid: "Search pattern must start with a forward slash",
+  search_pattern_not_found: "Search pattern wasn't found, nothing replaced",
+  search_pattern_unparseable: "Search pattern is not correctly formed",
+  search_string_not_found: "Search string wasn't found, nothing replaced",
+  unable_to_write_note: "Can't write note file",
+};
 
 // SCHEMATA --------------------
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
@@ -71,8 +83,6 @@ export type PayloadUnion =
 
 // ROUTES --------------------
 
-console.log(basePayloadSchema);
-
 export const routes: Route[] = [
   helloRoute("note"),
   { path: "note/get", schema: ReadPayload, handler: handleNoteGet },
@@ -101,7 +111,7 @@ async function handleNoteGet(
   const { file } = payload;
   const content = await getNoteContent(file, vault);
 
-  return content
+  return (typeof content !== "undefined")
     ? <HandlerFileSuccess> {
       success: true,
       data: { file, content },
@@ -109,7 +119,7 @@ async function handleNoteGet(
     }
     : <HandlerFailure> {
       success: false,
-      error: "Note not found",
+      error: RESULT_STRINGS.note_not_found,
       input: payload,
     };
 }
@@ -133,7 +143,7 @@ async function handleNoteCreate(
     }
     : <HandlerFailure> {
       success: false,
-      error: "Note couldn't be written",
+      error: RESULT_STRINGS.unable_to_write_note,
       input: payload,
     };
 }
@@ -166,30 +176,114 @@ async function handleNotePrepend(
   };
 }
 
-// TODO: handleNoteSearchStringAndReplace()
 async function handleNoteSearchStringAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof SearchAndReplacePayload>;
-  console.log("handleNoteSearchStringAndReplace", payload);
-  return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
-    input: payload,
-  };
+  const { search } = payload;
+  return await searchAndReplaceInNote(data, new RegExp(search, "g"), vault);
 }
 
-// TODO: handleNoteSearchRegexAndReplace()
 async function handleNoteSearchRegexAndReplace(
   data: ZodSafeParseSuccessData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof SearchAndReplacePayload>;
-  console.log("handleNoteSearchRegexAndReplace", payload);
-  return <HandlerTextSuccess> {
+  const { search } = payload;
+  const res = parseStringIntoRegex(search);
+
+  return res.success
+    ? await searchAndReplaceInNote(data, res.result, vault)
+    : <HandlerFailure> {
+      success: false,
+      error: res.error,
+      input: payload,
+    };
+}
+
+// HELPERS --------------------
+
+async function searchAndReplaceInNote(
+  data: ZodSafeParseSuccessData,
+  search: string | RegExp,
+  vault: Vault,
+): Promise<AnyHandlerResult> {
+  const payload = data as z.infer<typeof SearchAndReplacePayload>;
+  const { file, replace } = payload;
+  const content = await getNoteContent(file, vault);
+
+  if (typeof content === "undefined") {
+    return <HandlerFailure> {
+      success: false,
+      error: RESULT_STRINGS.note_not_found,
+      input: payload,
+    };
+  }
+
+  const newContent = content.replace(search, replace);
+  if (content === newContent) {
+    return <HandlerTextSuccess> {
+      success: true,
+      data: {
+        result: typeof search === "string"
+          ? RESULT_STRINGS.search_string_not_found
+          : RESULT_STRINGS.search_pattern_not_found,
+      },
+      input: payload,
+    };
+  } else {
+    const updatedFile = await createOrOverwriteNote(file, newContent, vault);
+
+    return (typeof updatedFile === "undefined")
+      ? <HandlerTextSuccess> {
+        success: true,
+        data: { result: RESULT_STRINGS.replacement_done },
+        input: payload,
+      }
+      : <HandlerFailure> {
+        success: false,
+        error: RESULT_STRINGS.unable_to_write_note,
+        input: payload,
+      };
+  }
+}
+
+function parseStringIntoRegex(search: string): Result {
+  let searchPattern: RegExp;
+
+  if (!search.startsWith("/")) {
+    return <Result> {
+      success: false,
+      error: RESULT_STRINGS.search_pattern_invalid,
+    };
+  }
+
+  // Starts to look like a regex, let's try to parse it.
+  let re = search.slice(1);
+  const lastSlashIdx = re.lastIndexOf("/");
+
+  if (lastSlashIdx === 0) {
+    return <Result> {
+      success: false,
+      error: RESULT_STRINGS.search_pattern_empty,
+    };
+  }
+
+  let flags = re.slice(lastSlashIdx + 1);
+  re = re.slice(0, lastSlashIdx);
+
+  try {
+    searchPattern = new RegExp(re, flags);
+  } catch (e) {
+    return <Result> {
+      success: false,
+      error: RESULT_STRINGS.search_pattern_unparseable,
+    };
+  }
+
+  return <Result> {
     success: true,
-    data: { result: "" },
-    input: payload,
+    result: searchPattern,
   };
 }
