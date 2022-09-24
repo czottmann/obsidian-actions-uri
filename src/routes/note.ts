@@ -1,5 +1,6 @@
-import { Vault } from "obsidian";
+import { TFile, Vault } from "obsidian";
 import { z } from "zod";
+import { STRINGS } from "../constants";
 import {
   createNote,
   createOrOverwriteNote,
@@ -20,17 +21,6 @@ import {
   Route,
   ZodSafeParsedData,
 } from "../types";
-
-const RESULT_STRINGS = {
-  note_not_found: "Note couldn't be found",
-  replacement_done: "Replacement done, note updated",
-  search_pattern_empty: "Search pattern is empty",
-  search_pattern_invalid: "Search pattern must start with a forward slash",
-  search_pattern_not_found: "Search pattern wasn't found, nothing replaced",
-  search_pattern_unparseable: "Search pattern is not correctly formed",
-  search_string_not_found: "Search string wasn't found, nothing replaced",
-  unable_to_write_note: "Can't write note file",
-};
 
 // SCHEMATA --------------------
 // NOTE: I don't use zod's `.extend()` method below because I find the VS Code
@@ -109,17 +99,17 @@ async function handleNoteGet(
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof ReadPayload>;
   const { file } = payload;
-  const content = await getNoteContent(file, vault);
+  const res = await getNoteContent(file, vault);
 
-  return (typeof content !== "undefined")
+  return (res.success)
     ? <HandlerFileSuccess> {
       success: true,
-      data: { file, content },
+      data: { file, content: res.result },
       input: payload,
     }
     : <HandlerFailure> {
       success: false,
-      error: RESULT_STRINGS.note_not_found,
+      error: res.error,
       input: payload,
     };
 }
@@ -143,23 +133,42 @@ async function handleNoteCreate(
     }
     : <HandlerFailure> {
       success: false,
-      error: RESULT_STRINGS.unable_to_write_note,
+      error: STRINGS.unable_to_write_note,
       input: payload,
     };
 }
 
-// TODO: handleNoteAppend()
 async function handleNoteAppend(
   data: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof WritePayload>;
-  console.log("handleNotePrepend", payload);
-  return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
-    input: payload,
-  };
+  const { file, content } = payload;
+  const res = await getNoteContent(file, vault);
+
+  if (!res.success) {
+    return <HandlerFailure> {
+      success: false,
+      error: res.error,
+      input: payload,
+    };
+  }
+
+  const noteContent = res.result;
+  const newContent = noteContent + content;
+  const updatedFile = await createOrOverwriteNote(file, newContent, vault);
+
+  return (updatedFile instanceof TFile)
+    ? <HandlerTextSuccess> {
+      success: true,
+      data: { result: STRINGS.append_done },
+      input: payload,
+    }
+    : <HandlerFailure> {
+      success: false,
+      error: STRINGS.unable_to_write_note,
+      input: payload,
+    };
 }
 
 // TODO: handleNotePrepend()
@@ -211,42 +220,44 @@ async function searchAndReplaceInNote(
 ): Promise<AnyHandlerResult> {
   const payload = data as z.infer<typeof SearchAndReplacePayload>;
   const { file, replace } = payload;
-  const content = await getNoteContent(file, vault);
+  const res = await getNoteContent(file, vault);
 
-  if (typeof content === "undefined") {
+  if (!res.success) {
     return <HandlerFailure> {
       success: false,
-      error: RESULT_STRINGS.note_not_found,
+      error: res.error,
       input: payload,
     };
   }
 
-  const newContent = content.replace(search, replace);
-  if (content === newContent) {
+  const noteContent = res.result;
+  const newContent = noteContent.replace(search, replace);
+
+  if (noteContent === newContent) {
     return <HandlerTextSuccess> {
       success: true,
       data: {
         result: typeof search === "string"
-          ? RESULT_STRINGS.search_string_not_found
-          : RESULT_STRINGS.search_pattern_not_found,
+          ? STRINGS.search_string_not_found
+          : STRINGS.search_pattern_not_found,
       },
       input: payload,
     };
-  } else {
-    const updatedFile = await createOrOverwriteNote(file, newContent, vault);
-
-    return (typeof updatedFile === "undefined")
-      ? <HandlerTextSuccess> {
-        success: true,
-        data: { result: RESULT_STRINGS.replacement_done },
-        input: payload,
-      }
-      : <HandlerFailure> {
-        success: false,
-        error: RESULT_STRINGS.unable_to_write_note,
-        input: payload,
-      };
   }
+
+  const updatedFile = await createOrOverwriteNote(file, newContent, vault);
+
+  return (updatedFile instanceof TFile)
+    ? <HandlerTextSuccess> {
+      success: true,
+      data: { result: STRINGS.replacement_done },
+      input: payload,
+    }
+    : <HandlerFailure> {
+      success: false,
+      error: STRINGS.unable_to_write_note,
+      input: payload,
+    };
 }
 
 function parseStringIntoRegex(search: string): Result {
@@ -255,7 +266,7 @@ function parseStringIntoRegex(search: string): Result {
   if (!search.startsWith("/")) {
     return <Result> {
       success: false,
-      error: RESULT_STRINGS.search_pattern_invalid,
+      error: STRINGS.search_pattern_invalid,
     };
   }
 
@@ -266,7 +277,7 @@ function parseStringIntoRegex(search: string): Result {
   if (lastSlashIdx === 0) {
     return <Result> {
       success: false,
-      error: RESULT_STRINGS.search_pattern_empty,
+      error: STRINGS.search_pattern_empty,
     };
   }
 
@@ -278,7 +289,7 @@ function parseStringIntoRegex(search: string): Result {
   } catch (e) {
     return <Result> {
       success: false,
-      error: RESULT_STRINGS.search_pattern_unparseable,
+      error: STRINGS.search_pattern_unparseable,
     };
   }
 

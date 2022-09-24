@@ -1,5 +1,7 @@
 import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
+import { STRINGS } from "../constants";
+import { Result } from "../types";
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -100,16 +102,27 @@ export async function createOrOverwriteNote(
 export async function getNoteContent(
   filename: string,
   vault: Vault,
-): Promise<string | undefined> {
-  filename = sanitizeFilePath(filename);
-  const file = vault.getAbstractFileByPath(filename);
+): Promise<Result> {
+  const file = vault.getAbstractFileByPath(sanitizeFilePath(filename));
   const doesFileExist = file instanceof TFile;
 
-  if (doesFileExist) {
-    return await vault.read(file);
+  if (!doesFileExist) {
+    return <Result> {
+      success: false,
+      error: STRINGS.note_not_found,
+    };
   }
 
-  return undefined;
+  const noteContent = await vault.read(file);
+  return (typeof noteContent === "string")
+    ? <Result> {
+      success: true,
+      result: noteContent,
+    }
+    : <Result> {
+      success: false,
+      error: STRINGS.unable_to_read_note,
+    };
 }
 
 /**
