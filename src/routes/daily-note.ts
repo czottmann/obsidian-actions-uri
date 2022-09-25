@@ -27,23 +27,27 @@ const readParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
+type ReadParams = z.infer<typeof readParams>;
 
 const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
   overwrite: zodOptionalBoolean,
   silent: zodOptionalBoolean,
 });
+type CreateParams = z.infer<typeof createParams>;
 
 const writeParams = incomingBaseParams.extend({
   content: z.string().optional(),
   silent: zodOptionalBoolean,
 });
+type WriteParams = z.infer<typeof writeParams>;
 
 const appendParams = incomingBaseParams.extend({
   content: z.string(),
   silent: zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
 });
+type AppendParams = z.infer<typeof appendParams>;
 
 const prependParams = incomingBaseParams.extend({
   content: z.string().optional(),
@@ -51,13 +55,14 @@ const prependParams = incomingBaseParams.extend({
   "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
+type PrependParams = z.infer<typeof prependParams>;
 
 export type ParamsUnion =
-  | z.infer<typeof createParams>
-  | z.infer<typeof readParams>
-  | z.infer<typeof writeParams>
-  | z.infer<typeof appendParams>
-  | z.infer<typeof prependParams>;
+  | CreateParams
+  | ReadParams
+  | WriteParams
+  | AppendParams
+  | PrependParams;
 
 // ROUTES --------------------
 
@@ -84,7 +89,7 @@ async function handleGetCurrent(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof readParams>;
+  const params = <ReadParams> incomingParams;
 
   // - official Daily Notes on: `true`
   // - official Daily Notes off: null
@@ -112,10 +117,7 @@ async function handleGetCurrent(
   return res.isSuccess
     ? <HandlerFileSuccess> {
       isSuccess: true,
-      result: {
-        filepath: dailyNote.path,
-        content: res.result,
-      },
+      result: { filepath: dailyNote.path, content: res.result },
       input: params,
     }
     : <HandlerFailure> {
@@ -129,7 +131,7 @@ async function handleGetMostRecent(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof readParams>;
+  const params = <ReadParams> incomingParams;
 
   if (!appHasDailyNotesPluginLoaded()) {
     return <HandlerFailure> {
@@ -168,7 +170,7 @@ async function handleCreate(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof createParams>;
+  const params = <CreateParams> incomingParams;
   const { content } = params;
   const dailyNote = getDailyNote(window.moment(), getAllDailyNotes());
 
@@ -248,7 +250,7 @@ async function handleAppend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof writeParams>;
+  const payload = <WriteParams> incomingParams;
   console.log("handlePrepend", payload);
   return <HandlerTextSuccess> {
     isSuccess: true,
@@ -262,7 +264,7 @@ async function handlePrepend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof writeParams>;
+  const payload = <WriteParams> incomingParams;
   console.log("handlePrepend", payload);
   return <HandlerTextSuccess> {
     isSuccess: true,
