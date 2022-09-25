@@ -108,20 +108,20 @@ async function handleNoteGet(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof ReadPayload>;
-  const { file } = payload;
+  const params = incomingParams as z.infer<typeof ReadPayload>;
+  const { file } = params;
   const res = await getNoteContent(file, vault);
 
   return (res.isSuccess)
     ? <HandlerFileSuccess> {
       isSuccess: true,
       result: { file, content: res.result },
-      input: payload,
+      input: params,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: payload,
+      input: params,
     };
 }
 
@@ -129,8 +129,8 @@ async function handleNoteCreate(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof CreatePayload>;
-  const { file, content, overwrite } = payload;
+  const params = incomingParams as z.infer<typeof CreatePayload>;
+  const { file, content, overwrite } = params;
 
   const result = overwrite
     ? await createOrOverwriteNote(file, vault, content || "")
@@ -140,12 +140,12 @@ async function handleNoteCreate(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: file },
-      input: payload,
+      input: params,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.unable_to_write_note,
-      input: payload,
+      input: params,
     };
 }
 
@@ -153,20 +153,20 @@ async function handleNoteAppend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof AppendPayload>;
-  const { file } = payload;
-  let { content } = payload;
+  const params = incomingParams as z.infer<typeof AppendPayload>;
+  const { file } = params;
+  let { content } = params;
   const res = await getNoteContent(file, vault);
 
   if (!res.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: payload,
+      input: params,
     };
   }
 
-  if (payload["ensure-newline"]) {
+  if (params["ensure-newline"]) {
     content = ensureNewline(content);
   }
 
@@ -178,12 +178,12 @@ async function handleNoteAppend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: STRINGS.append_done },
-      input: payload,
+      input: params,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.unable_to_write_note,
-      input: payload,
+      input: params,
     };
 }
 
@@ -191,16 +191,16 @@ async function handleNotePrepend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof PrependPayload>;
-  const { file } = payload;
-  let { content } = payload;
+  const params = incomingParams as z.infer<typeof PrependPayload>;
+  const { file } = params;
+  let { content } = params;
   const res = await getNoteContent(file, vault);
 
   if (!res.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: payload,
+      input: params,
     };
   }
 
@@ -209,13 +209,13 @@ async function handleNotePrepend(
   const hasFrontMatter = noteContent.startsWith("---\n") &&
     (noteContent.indexOf("---\n", 4) > -1);
 
-  if (hasFrontMatter && !payload["ignore-front-matter"]) {
+  if (hasFrontMatter && !params["ignore-front-matter"]) {
     const bodyStartPos = noteContent.indexOf("---\n", 4) + 4;
     const frontMatter = noteContent.slice(0, bodyStartPos);
     const noteBody = noteContent.slice(bodyStartPos);
     newContent = frontMatter + ensureNewline(content) + noteBody;
   } else {
-    if (payload["ensure-newline"]) {
+    if (params["ensure-newline"]) {
       content = ensureNewline(content);
     }
     newContent = content + noteContent;
@@ -227,12 +227,12 @@ async function handleNotePrepend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: STRINGS.prepend_done },
-      input: payload,
+      input: params,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.unable_to_write_note,
-      input: payload,
+      input: params,
     };
 }
 
@@ -240,8 +240,8 @@ async function handleNoteSearchStringAndReplace(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof SearchAndReplacePayload>;
-  const { search, file, replace } = payload;
+  const params = incomingParams as z.infer<typeof SearchAndReplacePayload>;
+  const { search, file, replace } = params;
   const regex = new RegExp(search, "g");
   const res = await searchAndReplaceInNote(file, vault, regex, replace);
 
@@ -249,12 +249,12 @@ async function handleNoteSearchStringAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: payload,
+      input: params,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: payload,
+      input: params,
     };
 }
 
@@ -262,15 +262,15 @@ async function handleNoteSearchRegexAndReplace(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof SearchAndReplacePayload>;
-  const { search, file, replace } = payload;
+  const params = incomingParams as z.infer<typeof SearchAndReplacePayload>;
+  const { search, file, replace } = params;
   const resSir = parseStringIntoRegex(search);
 
   if (!resSir.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
       error: resSir.error,
-      input: payload,
+      input: params,
     };
   }
 
@@ -280,11 +280,11 @@ async function handleNoteSearchRegexAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: payload,
+      input: params,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: payload,
+      input: params,
     };
 }
