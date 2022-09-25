@@ -1,6 +1,7 @@
 import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
 import { STRINGS } from "../constants";
+import { ensureNewline } from "./grabbag";
 import { SimpleResult } from "../types";
 
 /**
@@ -181,6 +182,81 @@ export async function searchAndReplaceInNote(
   return (updatedFile instanceof TFile)
     ? <SimpleResult> { isSuccess: true, result: STRINGS.replacement_done }
     : <SimpleResult> { isSuccess: false, error: STRINGS.unable_to_write_note };
+}
+
+export async function appendNote(
+  filepath: string,
+  vault: Vault,
+  textToAppend: string,
+  shouldEnsureNewline: boolean = false,
+): Promise<SimpleResult> {
+  const res = await getNoteContent(filepath, vault);
+
+  if (!res.isSuccess) {
+    return <SimpleResult> {
+      isSuccess: false,
+      error: res.error,
+    };
+  }
+
+  const newContent = res.result +
+    (shouldEnsureNewline ? ensureNewline(textToAppend) : textToAppend);
+  const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
+
+  return (updatedFile instanceof TFile)
+    ? <SimpleResult> {
+      isSuccess: true,
+      result: STRINGS.append_done,
+    }
+    : <SimpleResult> {
+      isSuccess: false,
+      error: STRINGS.unable_to_write_note,
+    };
+}
+
+export async function prependNote(
+  filepath: string,
+  vault: Vault,
+  textToAppend: string,
+  shouldEnsureNewline: boolean = false,
+  shouldIgnoreFrontMatter: boolean = false,
+): Promise<SimpleResult> {
+  const res = await getNoteContent(filepath, vault);
+
+  if (!res.isSuccess) {
+    return <SimpleResult> {
+      isSuccess: false,
+      error: res.error,
+    };
+  }
+
+  let newContent: string;
+  const noteContent = res.result.trimStart();
+  const hasFrontMatter = noteContent.startsWith("---\n") &&
+    (noteContent.indexOf("---\n", 4) > -1);
+
+  if (hasFrontMatter && !shouldIgnoreFrontMatter) {
+    const bodyStartPos = noteContent.indexOf("---\n", 4) + 4;
+    const frontMatter = noteContent.slice(0, bodyStartPos);
+    const noteBody = noteContent.slice(bodyStartPos);
+    newContent = frontMatter + ensureNewline(textToAppend) + noteBody;
+  } else {
+    newContent =
+      (shouldEnsureNewline ? ensureNewline(textToAppend) : textToAppend) +
+      noteContent;
+  }
+
+  const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
+
+  return (updatedFile instanceof TFile)
+    ? <SimpleResult> {
+      isSuccess: true,
+      result: STRINGS.prepend_done,
+    }
+    : <SimpleResult> {
+      isSuccess: false,
+      error: STRINGS.unable_to_write_note,
+    };
 }
 
 // HELPERS ----------------------------------------
