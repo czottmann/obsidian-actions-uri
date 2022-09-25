@@ -15,7 +15,7 @@ export const zodSanitizedFilePath = z.string()
   .min(1, { message: "can't be empty" })
   .transform((file) => sanitizeFilePath(file));
 
-export const basePayloadSchema = {
+export const incomingBaseParams = z.object({
   action: z.string(),
   vault: z.string().min(1, { message: "can't be empty" }),
 
@@ -31,6 +31,5 @@ export const basePayloadSchema = {
 
   "x-error": z.string().url().optional(),
   "x-success": z.string().url().optional(),
-};
-
-export const basePayload = z.object(basePayloadSchema);
+});
+export type IncomingBaseParams = z.infer<typeof incomingBaseParams>;

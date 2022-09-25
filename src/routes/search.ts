@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { basePayloadSchema } from "../schemata";
+import { incomingBaseParams } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerFailure,
@@ -10,30 +10,29 @@ import {
 
 // SCHEMATA --------------------
 
-const Payload = z.object({
-  ...basePayloadSchema,
+const defaultParams = incomingBaseParams.extend({
   query: z.string().min(1, { message: "can't be empty" }),
 });
 
-export type PayloadUnion = z.infer<typeof Payload>;
+export type ParamsUnion = z.infer<typeof defaultParams>;
 
 // ROUTES --------------------
 
 export const routes: Route[] = [
-  { path: "search", schema: Payload, handler: handleSearch },
+  { path: "search", schema: defaultParams, handler: handleSearch },
 ];
 
 // HANDLERS --------------------
 
 // TODO: handleSearch()
 async function handleSearch(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof Payload>;
-  console.log("handleSearch", payload);
+  const params = incomingParams as z.infer<typeof defaultParams>;
+  console.log("handleSearch", params);
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
-    input: payload,
+    input: params,
   };
 }

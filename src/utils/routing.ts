@@ -1,6 +1,6 @@
 import { Vault } from "obsidian";
 import { z } from "zod";
-import { basePayload } from "../schemata";
+import { IncomingBaseParams, incomingBaseParams } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerTextSuccess,
@@ -10,11 +10,7 @@ import {
 import { showBrandedNotice } from "./grabbag";
 
 export function helloRoute(path: string): Route {
-  return {
-    path,
-    schema: z.object({}),
-    handler: handleHello,
-  };
+  return { path, schema: z.object({}), handler: handleHello };
 }
 
 async function handleHello(
@@ -26,6 +22,6 @@ async function handleHello(
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
-    input: data as z.infer<typeof basePayload>,
+    input: data as IncomingBaseParams,
   };
 }

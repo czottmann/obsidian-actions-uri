@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { basePayloadSchema, zodOptionalBoolean } from "../schemata";
+import { incomingBaseParams, zodOptionalBoolean } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerFailure,
@@ -12,40 +12,42 @@ import {
 import { helloRoute } from "../utils/routing";
 
 // SCHEMATA --------------------
-// NOTE: I don't use zod's `.extend()` method below because I find the VS Code
-// lookups easier to read when the objects are defined using spread syntax. 🤷🏻‍♂️
 
-const CreatePayload = z.object({
-  ...basePayloadSchema,
+const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
   overwrite: zodOptionalBoolean,
   silent: zodOptionalBoolean,
 });
 
-const ReadPayload = z.object({
-  ...basePayloadSchema,
+const readParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
 
-const WritePayload = z.object({
-  ...basePayloadSchema,
+const writeParams = incomingBaseParams.extend({
   content: z.string().optional(),
   silent: zodOptionalBoolean,
 });
 
-const PrependPayload = z.object({
-  ...basePayloadSchema,
+const appendParams = incomingBaseParams.extend({
+  content: z.string(),
+  silent: zodOptionalBoolean,
+  "ensure-newline": zodOptionalBoolean,
+});
+
+const prependParams = incomingBaseParams.extend({
   content: z.string().optional(),
   silent: zodOptionalBoolean,
+  "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
 
-export type PayloadUnion =
-  | z.infer<typeof CreatePayload>
-  | z.infer<typeof ReadPayload>
-  | z.infer<typeof WritePayload>
-  | z.infer<typeof PrependPayload>;
+export type ParamsUnion =
+  | z.infer<typeof createParams>
+  | z.infer<typeof readParams>
+  | z.infer<typeof writeParams>
+  | z.infer<typeof appendParams>
+  | z.infer<typeof prependParams>;
 
 // ROUTES --------------------
 
@@ -53,29 +55,17 @@ export const routes: Route[] = [
   helloRoute("daily-note"),
   {
     path: "daily-note/get-current",
-    schema: ReadPayload,
-    handler: handleDailyNoteGetCurrent,
+    schema: readParams,
+    handler: handleGetCurrent,
   },
   {
     path: "daily-note/get-most-recent",
-    schema: ReadPayload,
-    handler: handleDailyNoteGetMostRecent,
+    schema: readParams,
+    handler: handleGetMostRecent,
   },
-  {
-    path: "daily-note/create",
-    schema: CreatePayload,
-    handler: handleDailyNoteCreate,
-  },
-  {
-    path: "daily-note/append",
-    schema: WritePayload,
-    handler: handleDailyNoteAppend,
-  },
-  {
-    path: "daily-note/prepend",
-    schema: PrependPayload,
-    handler: handleDailyNotePrepend,
-  },
+  { path: "daily-note/create", schema: createParams, handler: handleCreate },
+  { path: "daily-note/append", schema: appendParams, handler: handleAppend },
+  { path: "daily-note/prepend", schema: prependParams, handler: handlePrepend },
 ];
 
 // HANDLERS --------------------
@@ -86,12 +76,12 @@ export const routes: Route[] = [
 //   // createDailyNote(window.moment()),
 // );
 
-// TODO: handleDailyNoteGetCurrent()
-async function handleDailyNoteGetCurrent(
+// TODO: handleGetCurrent()
+async function handleGetCurrent(
   incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof ReadPayload>;
-  console.log("handleDailyNoteGetCurrent", payload);
+  const payload = incomingParams as z.infer<typeof readParams>;
+  console.log("handleGetCurrent", payload);
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
@@ -99,12 +89,12 @@ async function handleDailyNoteGetCurrent(
   };
 }
 
-// TODO: handleDailyNoteGetMostRecent()
-async function handleDailyNoteGetMostRecent(
+// TODO: handleGetMostRecent()
+async function handleGetMostRecent(
   incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof ReadPayload>;
-  console.log("handleDailyNoteGetMostRecent", payload);
+  const payload = incomingParams as z.infer<typeof readParams>;
+  console.log("handleGetMostRecent", payload);
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
@@ -112,12 +102,12 @@ async function handleDailyNoteGetMostRecent(
   };
 }
 
-// TODO: handleDailyNoteCreate()
-async function handleDailyNoteCreate(
+// TODO: handleCreate()
+async function handleCreate(
   incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof CreatePayload>;
-  console.log("handleDailyNoteCreate", payload);
+  const payload = incomingParams as z.infer<typeof createParams>;
+  console.log("handleCreate", payload);
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
@@ -125,12 +115,12 @@ async function handleDailyNoteCreate(
   };
 }
 
-// TODO: handleDailyNoteAppend()
-async function handleDailyNoteAppend(
+// TODO: handleAppend()
+async function handleAppend(
   incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof WritePayload>;
-  console.log("handleDailyNotePrepend", payload);
+  const payload = incomingParams as z.infer<typeof writeParams>;
+  console.log("handlePrepend", payload);
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
@@ -138,12 +128,12 @@ async function handleDailyNoteAppend(
   };
 }
 
-// TODO: handleDailyNotePrepend()
-async function handleDailyNotePrepend(
+// TODO: handlePrepend()
+async function handlePrepend(
   incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = incomingParams as z.infer<typeof WritePayload>;
-  console.log("handleDailyNotePrepend", payload);
+  const payload = incomingParams as z.infer<typeof writeParams>;
+  console.log("handlePrepend", payload);
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },

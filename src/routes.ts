@@ -1,30 +1,29 @@
-import { z } from "zod";
 import {
-  PayloadUnion as DailyNotePayloadUnion,
+  ParamsUnion as DailyNoteParamsUnion,
   routes as dailyNoteRoutes,
 } from "./routes/daily-note";
 import {
-  PayloadUnion as NotePayloadUnion,
+  ParamsUnion as NoteParamsUnion,
   routes as noteRoutes,
 } from "./routes/note";
 import {
-  PayloadUnion as OpenPayloadUnion,
+  ParamsUnion as OpenParamsUnion,
   routes as openRoutes,
 } from "./routes/open";
 import { routes as rootRoutes } from "./routes/root";
 import {
-  PayloadUnion as SearchPayloadUnion,
+  ParamsUnion as SearchParamsUnion,
   routes as searchRoutes,
 } from "./routes/search";
-import { basePayload } from "./schemata";
+import { IncomingBaseParams } from "./schemata";
 import { Route } from "./types";
 
-export type PayloadUnion =
-  | z.infer<typeof basePayload>
-  | DailyNotePayloadUnion
-  | NotePayloadUnion
-  | OpenPayloadUnion
-  | SearchPayloadUnion;
+export type ParamsUnion =
+  | IncomingBaseParams
+  | DailyNoteParamsUnion
+  | NoteParamsUnion
+  | OpenParamsUnion
+  | SearchParamsUnion;
 
 export const routes: Route[] = [
   ...rootRoutes,

@@ -2,7 +2,7 @@ import { Vault } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import {
-  basePayloadSchema,
+  incomingBaseParams,
   zodOptionalBoolean,
   zodSanitizedFilePath,
 } from "../schemata";
@@ -26,41 +26,34 @@ import { parseStringIntoRegex } from "../utils/grabbag";
 import { helloRoute } from "../utils/routing";
 
 // SCHEMATA --------------------
-// NOTE: I don't use zod's `.extend()` method below because I find the VS Code
-// lookups easier to read when the objects are defined using spread syntax. 🤷🏻‍♂️
 
-const CreatePayload = z.object({
-  ...basePayloadSchema,
+const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
   file: zodSanitizedFilePath,
   overwrite: zodOptionalBoolean,
   silent: zodOptionalBoolean,
 });
 
-const ReadPayload = z.object({
-  ...basePayloadSchema,
+const readParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
 
-const WritePayload = z.object({
-  ...basePayloadSchema,
+const writeParams = incomingBaseParams.extend({
   content: z.string().optional(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
 });
 
-const AppendPayload = z.object({
-  ...basePayloadSchema,
+const appendParams = incomingBaseParams.extend({
   content: z.string(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
 });
 
-const PrependPayload = z.object({
-  ...basePayloadSchema,
+const prependParams = incomingBaseParams.extend({
   content: z.string(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
@@ -68,38 +61,37 @@ const PrependPayload = z.object({
   "ignore-front-matter": zodOptionalBoolean,
 });
 
-const SearchAndReplacePayload = z.object({
-  ...basePayloadSchema,
+const searchAndReplaceParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
   search: z.string().min(1, { message: "can't be empty" }),
   replace: z.string(),
 });
 
-export type PayloadUnion =
-  | z.infer<typeof CreatePayload>
-  | z.infer<typeof ReadPayload>
-  | z.infer<typeof WritePayload>
-  | z.infer<typeof AppendPayload>
-  | z.infer<typeof PrependPayload>
-  | z.infer<typeof SearchAndReplacePayload>;
+export type ParamsUnion =
+  | z.infer<typeof createParams>
+  | z.infer<typeof readParams>
+  | z.infer<typeof writeParams>
+  | z.infer<typeof appendParams>
+  | z.infer<typeof prependParams>
+  | z.infer<typeof searchAndReplaceParams>;
 
 // ROUTES --------------------
 
 export const routes: Route[] = [
   helloRoute("note"),
-  { path: "note/get", schema: ReadPayload, handler: handleGet },
-  { path: "note/create", schema: CreatePayload, handler: handleCreate },
-  { path: "note/append", schema: AppendPayload, handler: handleAppend },
-  { path: "note/prepend", schema: PrependPayload, handler: handlePrepend },
+  { path: "note/get", schema: readParams, handler: handleGet },
+  { path: "note/create", schema: createParams, handler: handleCreate },
+  { path: "note/append", schema: appendParams, handler: handleAppend },
+  { path: "note/prepend", schema: prependParams, handler: handlePrepend },
   {
     path: "note/search-string-and-replace",
-    schema: SearchAndReplacePayload,
+    schema: searchAndReplaceParams,
     handler: handleSearchStringAndReplace,
   },
   {
     path: "note/search-regex-and-replace",
-    schema: SearchAndReplacePayload,
+    schema: searchAndReplaceParams,
     handler: handleSearchRegexAndReplace,
   },
 ];
@@ -110,7 +102,7 @@ async function handleGet(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof ReadPayload>;
+  const params = incomingParams as z.infer<typeof readParams>;
   const { file } = params;
   const res = await getNoteContent(file, vault);
 
@@ -131,7 +123,7 @@ async function handleCreate(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof CreatePayload>;
+  const params = incomingParams as z.infer<typeof createParams>;
   const { file, content, overwrite } = params;
 
   const result = overwrite
@@ -155,7 +147,7 @@ async function handleAppend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof AppendPayload>;
+  const params = incomingParams as z.infer<typeof appendParams>;
   const { file, content } = params;
   const res = await appendNote(file, vault, content, params["ensure-newline"]);
 
@@ -176,7 +168,7 @@ async function handlePrepend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof PrependPayload>;
+  const params = incomingParams as z.infer<typeof prependParams>;
   const { file, content } = params;
   const res = await prependNote(
     file,
@@ -203,7 +195,7 @@ async function handleSearchStringAndReplace(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof SearchAndReplacePayload>;
+  const params = incomingParams as z.infer<typeof searchAndReplaceParams>;
   const { search, file, replace } = params;
   const regex = new RegExp(search, "g");
   const res = await searchAndReplaceInNote(file, vault, regex, replace);
@@ -225,7 +217,7 @@ async function handleSearchRegexAndReplace(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const params = incomingParams as z.infer<typeof SearchAndReplacePayload>;
+  const params = incomingParams as z.infer<typeof searchAndReplaceParams>;
   const { search, file, replace } = params;
   const resSir = parseStringIntoRegex(search);
 
