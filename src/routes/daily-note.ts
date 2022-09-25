@@ -220,9 +220,9 @@ async function handleCreate(
     // The note was written, but we need to write content to it. Do we have
     // content?  If not then we're done already.
     if (typeof content !== "string" || content === "") {
-      return <HandlerTextSuccess> {
+      return <HandlerFileSuccess> {
         isSuccess: true,
-        result: { message: newNote.path },
+        result: { filepath: newNote.path, content: "" },
         input: params,
       };
     }
