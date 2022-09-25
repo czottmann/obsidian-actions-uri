@@ -32,8 +32,8 @@ async function handleSearch(
   const payload = data as z.infer<typeof Payload>;
   console.log("handleSearch", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }

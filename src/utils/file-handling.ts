@@ -1,7 +1,7 @@
 import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
 import { STRINGS } from "../constants";
-import { Result } from "../types";
+import { SimpleResult } from "../types";
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -11,7 +11,7 @@ import { Result } from "../types";
  * - `test.md` exists → `test 1.md`
  * - `test 1.md` exists → `test 2.md`
  *
- * @param filename - A full filename, including the path relative from vault
+ * @param filepath - A full filename, relative from vault root
  * root
  * @param content - The body of the note to be created
  * @param vault - The vault to create the note in
@@ -23,12 +23,12 @@ import { Result } from "../types";
  * extension `.md` if it is not already present.
  */
 export async function createNote(
-  filename: string,
-  content: string,
+  filepath: string,
   vault: Vault,
+  content: string,
 ): Promise<TFile> {
-  filename = sanitizeFilePath(filename);
-  let file = vault.getAbstractFileByPath(filename);
+  filepath = sanitizeFilePath(filepath);
+  let file = vault.getAbstractFileByPath(filepath);
   let doesFileExist = file instanceof TFile;
 
   if (doesFileExist) {
@@ -37,29 +37,29 @@ export async function createNote(
     // starting to increment from there, eg. `test.md` → `test 1.md`,
     // `test 17.md` → `test 18.md`, etc.
     const currentNumSuffix: string | undefined =
-      (filename.match(/( (\d+))?\.md$/) as RegExpMatchArray)[2];
+      (filepath.match(/( (\d+))?\.md$/) as RegExpMatchArray)[2];
     let numSuffix = currentNumSuffix ? +currentNumSuffix : 0;
 
     do {
       numSuffix++;
-      filename = filename.replace(/( \d+)?\.md$/, ` ${numSuffix}.md`);
-      file = vault.getAbstractFileByPath(filename);
+      filepath = filepath.replace(/( \d+)?\.md$/, ` ${numSuffix}.md`);
+      file = vault.getAbstractFileByPath(filepath);
       doesFileExist = file instanceof TFile;
     } while (doesFileExist);
   }
 
   // Create folder if necessary
-  await createFolderIfNecessary(dirname(filename), vault);
+  await createFolderIfNecessary(dirname(filepath), vault);
 
   // Create the new note
-  await vault.create(filename, content);
-  return vault.getAbstractFileByPath(filename) as TFile;
+  await vault.create(filepath, content);
+  return vault.getAbstractFileByPath(filepath) as TFile;
 }
 
 /**
  * Create a new note. If the note already exists, overwrite its content.
  *
- * @param filename - A full filename, including the path relative from vault
+ * @param filepath - A full filename, including the path relative from vault
  * root
  * @param content - The body of the note to be created
  * @param vault - The vault to create the note in
@@ -71,56 +71,57 @@ export async function createNote(
  * extension `.md` if it is not already present.
  */
 export async function createOrOverwriteNote(
-  filename: string,
-  content: string,
+  filepath: string,
   vault: Vault,
+  content: string,
 ): Promise<TFile> {
-  filename = sanitizeFilePath(filename);
-  const file = vault.getAbstractFileByPath(filename);
+  filepath = sanitizeFilePath(filepath);
+  const file = vault.getAbstractFileByPath(filepath);
   const doesFileExist = file instanceof TFile;
 
   // Update the file if it already exists
   if (doesFileExist) {
     await vault.modify(file, content);
-    return vault.getAbstractFileByPath(filename) as TFile;
+    return vault.getAbstractFileByPath(filepath) as TFile;
   }
 
   // Create the new note
-  await createFolderIfNecessary(dirname(filename), vault);
-  await vault.create(filename, content);
-  return vault.getAbstractFileByPath(filename) as TFile;
+  await createFolderIfNecessary(dirname(filepath), vault);
+  await vault.create(filepath, content);
+  return vault.getAbstractFileByPath(filepath) as TFile;
 }
 
 /**
  * Fetches an existing note and returns its content.
  *
- * @param filename - A full filename, including the path relative from vault
+ * @param filepath - A full filename, relative from vault root
  * @param vault - The vault to search for the note in
  *
- * @returns The note body, or `undefined` if the note does not exist
+ * @returns A result object. Success case: note body, failure case: readable
+ * error message
  */
 export async function getNoteContent(
-  filename: string,
+  filepath: string,
   vault: Vault,
-): Promise<Result> {
-  const file = vault.getAbstractFileByPath(sanitizeFilePath(filename));
+): Promise<SimpleResult> {
+  const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
   const doesFileExist = file instanceof TFile;
 
   if (!doesFileExist) {
-    return <Result> {
-      success: false,
+    return <SimpleResult> {
+      isSuccess: false,
       error: STRINGS.note_not_found,
     };
   }
 
   const noteContent = await vault.read(file);
   return (typeof noteContent === "string")
-    ? <Result> {
-      success: true,
+    ? <SimpleResult> {
+      isSuccess: true,
       result: noteContent,
     }
-    : <Result> {
-      success: false,
+    : <SimpleResult> {
+      isSuccess: false,
       error: STRINGS.unable_to_read_note,
     };
 }
@@ -142,6 +143,44 @@ export function sanitizeFilePath(filename: string): string {
     ? filename
     : `${filename}.md`;
   return filename;
+}
+
+/**
+ * @param filepath - A full filename, relative from vault root
+ * @param vault - The vault of the note
+ * @param searchTerm - The term to search for
+ * @param replacement - The term to replace the search term with
+ * @returns A `SimpleResult` object containing either an `error` string or a
+ * `result` string
+ */
+export async function searchAndReplaceInNote(
+  filepath: string,
+  vault: Vault,
+  searchTerm: string | RegExp,
+  replacement: string,
+): Promise<SimpleResult> {
+  const res = await getNoteContent(filepath, vault);
+
+  if (!res.isSuccess) {
+    return <SimpleResult> { isSuccess: false, error: res.error };
+  }
+
+  const noteContent = res.result;
+  const newContent = noteContent.replace(searchTerm, replacement);
+
+  if (noteContent === newContent) {
+    return <SimpleResult> {
+      isSuccess: true,
+      result: typeof searchTerm === "string"
+        ? STRINGS.search_string_not_found
+        : STRINGS.search_pattern_not_found,
+    };
+  }
+
+  const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
+  return (updatedFile instanceof TFile)
+    ? <SimpleResult> { isSuccess: true, result: STRINGS.replacement_done }
+    : <SimpleResult> { isSuccess: false, error: STRINGS.unable_to_write_note };
 }
 
 // HELPERS ----------------------------------------

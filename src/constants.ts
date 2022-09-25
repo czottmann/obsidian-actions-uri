@@ -11,3 +11,5 @@ export const STRINGS = {
   unable_to_read_note: "Can't read note file",
   unable_to_write_note: "Can't write note file",
 };
+
+export const XCALLBACK_RESULT_PREFIX = "result";

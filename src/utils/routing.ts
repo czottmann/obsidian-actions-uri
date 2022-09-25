@@ -24,8 +24,8 @@ async function handleHello(
   showBrandedNotice("… is ready for action 🚀");
 
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: data as z.infer<typeof basePayload>,
   };
 }

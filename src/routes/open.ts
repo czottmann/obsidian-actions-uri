@@ -47,8 +47,8 @@ async function handleOpenDailyNote(
   const payload = data as z.infer<typeof DailyNotePayload>;
   console.log("handleOpenDailyNote", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }
@@ -60,8 +60,8 @@ async function handleOpenNote(
   const payload = data as z.infer<typeof NotePayload>;
   console.log("handleOpenNote", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }
@@ -73,8 +73,8 @@ async function handleOpenSearch(
   const payload = data as z.infer<typeof SearchPayload>;
   console.log("handleOpenSearch", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }

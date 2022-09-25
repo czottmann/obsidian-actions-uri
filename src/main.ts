@@ -34,40 +34,31 @@ export default class ActionsURI extends Plugin {
    * @param routes - An array of route objects
    */
   private registerRoutes(routes: Route[]) {
-    const registeredRoutes: string[] = [];
+    const regdRoutes: string[] = [];
+    const { vault } = this.app;
 
     for (const route of routes) {
       const { path, schema, handler } = route;
-      const paths = Array.isArray(path) ? path : [path];
+      const fullPath = this.buildFullPath(path);
 
-      for (const p of paths) {
-        const actionPath = this.buildActionPath(p);
-
-        this.registerObsidianProtocolHandler(
-          actionPath,
-          async (incoming) => {
-            const parsedPayload = schema.safeParse(incoming);
-            if (parsedPayload.success) {
-              const result = await handler
-                .apply(this, [
-                  <ZodSafeParsedData> parsedPayload.data,
-                  this.app.vault,
-                ]);
-              this.sendUrlCallbackIfNeeded(result);
-            } else {
-              this.handleParseError(parsedPayload.error);
-            }
-          },
-        );
-
-        registeredRoutes.push(actionPath);
-      }
+      this.registerObsidianProtocolHandler(
+        fullPath,
+        async (incomingParams) => {
+          const parsedPayload = schema.safeParse(incomingParams);
+          if (parsedPayload.success) {
+            const result = await handler
+              .apply(this, [parsedPayload.data as ZodSafeParsedData, vault]);
+            this.sendUrlCallbackIfNeeded(result);
+          } else {
+            this.handleParseError(parsedPayload.error);
+          }
+        },
+      );
+      regdRoutes.push(fullPath);
     }
 
     console.info("Registered URI handlers:");
-    console.info(
-      registeredRoutes.map((path) => `- obsidian://${path}`).join("\n"),
-    );
+    console.info(regdRoutes.map((path) => `- obsidian://${path}`).join("\n"));
   }
 
   /**
@@ -82,7 +73,7 @@ export default class ActionsURI extends Plugin {
    * - `buildActionPath("/herp//derp")` // → "actions-uri/herp/derp"
    * - `buildActionPath(".././herp/../derp")` // → "actions-uri/derp"
    */
-  private buildActionPath(path: string) {
+  private buildFullPath(path: string) {
     return `${ActionsURI.URI_NAMESPACE}/` +
       normalize(path).replace(/^[\.\/]+/g, "");
   }
@@ -116,12 +107,12 @@ export default class ActionsURI extends Plugin {
    * - the result object contains a success and a `x-success` parameter
    * - the result object contains a failure and a `x-error` parameter
    *
-   * @param result - A `*Result` object returned by a route handler
+   * @param handlerRes - A `*Result` object returned by a route handler
    *
    * @see {@link sendUrlCallback}
    */
-  private sendUrlCallbackIfNeeded(result: AnyHandlerResult) {
-    const { success, input } = result;
+  private sendUrlCallbackIfNeeded(handlerRes: AnyHandlerResult) {
+    const { isSuccess, input } = handlerRes;
 
     if (input.silent) {
       console.log("Silent call, not sending callback");
@@ -133,13 +124,13 @@ export default class ActionsURI extends Plugin {
       return;
     }
 
-    if (success) {
+    if (isSuccess) {
       if (input["x-success"]) {
-        sendUrlCallback(input["x-success"], <HandlerSuccess> result);
+        sendUrlCallback(input["x-success"], <HandlerSuccess> handlerRes);
       }
     } else {
       if (input["x-error"]) {
-        sendUrlCallback(input["x-error"], <HandlerFailure> result);
+        sendUrlCallback(input["x-error"], <HandlerFailure> handlerRes);
       }
     }
   }

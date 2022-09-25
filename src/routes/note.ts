@@ -5,20 +5,20 @@ import {
   createNote,
   createOrOverwriteNote,
   getNoteContent,
+  searchAndReplaceInNote,
 } from "../utils/file-handling";
 import {
   basePayloadSchema,
   zodOptionalBoolean,
   zodSanitizedFilePath,
 } from "../schemata";
-import { ensureNewline } from "../utils/grabbag";
+import { ensureNewline, parseStringIntoRegex } from "../utils/grabbag";
 import { helloRoute } from "../utils/routing";
 import {
   AnyHandlerResult,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
-  Result,
   Route,
   ZodSafeParsedData,
 } from "../types";
@@ -105,62 +105,62 @@ export const routes: Route[] = [
 // HANDLERS --------------------
 
 async function handleNoteGet(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof ReadPayload>;
+  const payload = incomingParams as z.infer<typeof ReadPayload>;
   const { file } = payload;
   const res = await getNoteContent(file, vault);
 
-  return (res.success)
+  return (res.isSuccess)
     ? <HandlerFileSuccess> {
-      success: true,
-      data: { file, content: res.result },
+      isSuccess: true,
+      result: { file, content: res.result },
       input: payload,
     }
     : <HandlerFailure> {
-      success: false,
+      isSuccess: false,
       error: res.error,
       input: payload,
     };
 }
 
 async function handleNoteCreate(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof CreatePayload>;
+  const payload = incomingParams as z.infer<typeof CreatePayload>;
   const { file, content, overwrite } = payload;
 
   const result = overwrite
-    ? await createOrOverwriteNote(file, content || "", vault)
-    : await createNote(file, content || "", vault);
+    ? await createOrOverwriteNote(file, vault, content || "")
+    : await createNote(file, vault, content || "");
 
   return result
     ? <HandlerTextSuccess> {
-      success: true,
-      data: { result: file },
+      isSuccess: true,
+      result: { message: file },
       input: payload,
     }
     : <HandlerFailure> {
-      success: false,
+      isSuccess: false,
       error: STRINGS.unable_to_write_note,
       input: payload,
     };
 }
 
 async function handleNoteAppend(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof AppendPayload>;
+  const payload = incomingParams as z.infer<typeof AppendPayload>;
   const { file } = payload;
   let { content } = payload;
   const res = await getNoteContent(file, vault);
 
-  if (!res.success) {
+  if (!res.isSuccess) {
     return <HandlerFailure> {
-      success: false,
+      isSuccess: false,
       error: res.error,
       input: payload,
     };
@@ -172,33 +172,33 @@ async function handleNoteAppend(
 
   const noteContent = res.result;
   const newContent = noteContent + content;
-  const updatedFile = await createOrOverwriteNote(file, newContent, vault);
+  const updatedFile = await createOrOverwriteNote(file, vault, newContent);
 
   return (updatedFile instanceof TFile)
     ? <HandlerTextSuccess> {
-      success: true,
-      data: { result: STRINGS.append_done },
+      isSuccess: true,
+      result: { message: STRINGS.append_done },
       input: payload,
     }
     : <HandlerFailure> {
-      success: false,
+      isSuccess: false,
       error: STRINGS.unable_to_write_note,
       input: payload,
     };
 }
 
 async function handleNotePrepend(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof PrependPayload>;
+  const payload = incomingParams as z.infer<typeof PrependPayload>;
   const { file } = payload;
   let { content } = payload;
   const res = await getNoteContent(file, vault);
 
-  if (!res.success) {
+  if (!res.isSuccess) {
     return <HandlerFailure> {
-      success: false,
+      isSuccess: false,
       error: res.error,
       input: payload,
     };
@@ -221,131 +221,70 @@ async function handleNotePrepend(
     newContent = content + noteContent;
   }
 
-  const updatedFile = await createOrOverwriteNote(file, newContent, vault);
+  const updatedFile = await createOrOverwriteNote(file, vault, newContent);
 
   return (updatedFile instanceof TFile)
     ? <HandlerTextSuccess> {
-      success: true,
-      data: { result: STRINGS.prepend_done },
+      isSuccess: true,
+      result: { message: STRINGS.prepend_done },
       input: payload,
     }
     : <HandlerFailure> {
-      success: false,
+      isSuccess: false,
       error: STRINGS.unable_to_write_note,
       input: payload,
     };
 }
 
 async function handleNoteSearchStringAndReplace(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof SearchAndReplacePayload>;
-  const { search } = payload;
-  return await searchAndReplaceInNote(data, new RegExp(search, "g"), vault);
-}
+  const payload = incomingParams as z.infer<typeof SearchAndReplacePayload>;
+  const { search, file, replace } = payload;
+  const regex = new RegExp(search, "g");
+  const res = await searchAndReplaceInNote(file, vault, regex, replace);
 
-async function handleNoteSearchRegexAndReplace(
-  data: ZodSafeParsedData,
-  vault: Vault,
-): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof SearchAndReplacePayload>;
-  const { search } = payload;
-  const res = parseStringIntoRegex(search);
-
-  return res.success
-    ? await searchAndReplaceInNote(data, res.result, vault)
-    : <HandlerFailure> {
-      success: false,
-      error: res.error,
-      input: payload,
-    };
-}
-
-// HELPERS --------------------
-
-async function searchAndReplaceInNote(
-  data: ZodSafeParsedData,
-  search: string | RegExp,
-  vault: Vault,
-): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof SearchAndReplacePayload>;
-  const { file, replace } = payload;
-  const res = await getNoteContent(file, vault);
-
-  if (!res.success) {
-    return <HandlerFailure> {
-      success: false,
-      error: res.error,
-      input: payload,
-    };
-  }
-
-  const noteContent = res.result;
-  const newContent = noteContent.replace(search, replace);
-
-  if (noteContent === newContent) {
-    return <HandlerTextSuccess> {
-      success: true,
-      data: {
-        result: typeof search === "string"
-          ? STRINGS.search_string_not_found
-          : STRINGS.search_pattern_not_found,
-      },
-      input: payload,
-    };
-  }
-
-  const updatedFile = await createOrOverwriteNote(file, newContent, vault);
-
-  return (updatedFile instanceof TFile)
+  return res.isSuccess
     ? <HandlerTextSuccess> {
-      success: true,
-      data: { result: STRINGS.replacement_done },
+      isSuccess: true,
+      result: { message: res.result },
       input: payload,
     }
     : <HandlerFailure> {
-      success: false,
-      error: STRINGS.unable_to_write_note,
+      isSuccess: false,
+      error: res.error,
       input: payload,
     };
 }
 
-function parseStringIntoRegex(search: string): Result {
-  let searchPattern: RegExp;
+async function handleNoteSearchRegexAndReplace(
+  incomingParams: ZodSafeParsedData,
+  vault: Vault,
+): Promise<AnyHandlerResult> {
+  const payload = incomingParams as z.infer<typeof SearchAndReplacePayload>;
+  const { search, file, replace } = payload;
+  const resSir = parseStringIntoRegex(search);
 
-  if (!search.startsWith("/")) {
-    return <Result> {
-      success: false,
-      error: STRINGS.search_pattern_invalid,
+  if (!resSir.isSuccess) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: resSir.error,
+      input: payload,
     };
   }
 
-  // Starts to look like a regex, let's try to parse it.
-  let re = search.slice(1);
-  const lastSlashIdx = re.lastIndexOf("/");
+  const res = await searchAndReplaceInNote(file, vault, resSir.result, replace);
 
-  if (lastSlashIdx === 0) {
-    return <Result> {
-      success: false,
-      error: STRINGS.search_pattern_empty,
+  return res.isSuccess
+    ? <HandlerTextSuccess> {
+      isSuccess: true,
+      result: { message: res.result },
+      input: payload,
+    }
+    : <HandlerFailure> {
+      isSuccess: false,
+      error: res.error,
+      input: payload,
     };
-  }
-
-  let flags = re.slice(lastSlashIdx + 1);
-  re = re.slice(0, lastSlashIdx);
-
-  try {
-    searchPattern = new RegExp(re, flags);
-  } catch (e) {
-    return <Result> {
-      success: false,
-      error: STRINGS.search_pattern_unparseable,
-    };
-  }
-
-  return <Result> {
-    success: true,
-    result: searchPattern,
-  };
 }

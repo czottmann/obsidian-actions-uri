@@ -88,65 +88,65 @@ export const routes: Route[] = [
 
 // TODO: handleDailyNoteGetCurrent()
 async function handleDailyNoteGetCurrent(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof ReadPayload>;
+  const payload = incomingParams as z.infer<typeof ReadPayload>;
   console.log("handleDailyNoteGetCurrent", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }
 
 // TODO: handleDailyNoteGetMostRecent()
 async function handleDailyNoteGetMostRecent(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof ReadPayload>;
+  const payload = incomingParams as z.infer<typeof ReadPayload>;
   console.log("handleDailyNoteGetMostRecent", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }
 
 // TODO: handleDailyNoteCreate()
 async function handleDailyNoteCreate(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof CreatePayload>;
+  const payload = incomingParams as z.infer<typeof CreatePayload>;
   console.log("handleDailyNoteCreate", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }
 
 // TODO: handleDailyNoteAppend()
 async function handleDailyNoteAppend(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof WritePayload>;
+  const payload = incomingParams as z.infer<typeof WritePayload>;
   console.log("handleDailyNotePrepend", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }
 
 // TODO: handleDailyNotePrepend()
 async function handleDailyNotePrepend(
-  data: ZodSafeParsedData,
+  incomingParams: ZodSafeParsedData,
 ): Promise<AnyHandlerResult> {
-  const payload = data as z.infer<typeof WritePayload>;
+  const payload = incomingParams as z.infer<typeof WritePayload>;
   console.log("handleDailyNotePrepend", payload);
   return <HandlerTextSuccess> {
-    success: true,
-    data: { result: "" },
+    isSuccess: true,
+    result: { message: "" },
     input: payload,
   };
 }
