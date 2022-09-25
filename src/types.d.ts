@@ -65,7 +65,7 @@ export interface HandlerTextSuccess extends HandlerSuccess {
 
 export interface HandlerFileSuccess extends HandlerSuccess {
   result: {
-    file: string;
+    filepath: string;
     content: string;
   };
 }

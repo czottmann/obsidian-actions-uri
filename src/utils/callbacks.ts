@@ -22,7 +22,7 @@ export function sendUrlCallback(
 
   if (handlerRes.hasOwnProperty("error")) {
     url.searchParams.set("error", (<HandlerFailure> handlerRes).error);
-  } else if (handlerRes.hasOwnProperty("data")) {
+  } else if (handlerRes.hasOwnProperty("result")) {
     addObjectToUrlSearchParams((<HandlerSuccess> handlerRes).result, url);
   }
 

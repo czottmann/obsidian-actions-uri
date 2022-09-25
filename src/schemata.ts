@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { sanitizeFilePath } from "./utils/file-handling";
 
+// The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
+// should all be treated as `false`. I shall be a merciful god.
 export const zodOptionalBoolean = z.preprocess(
   (param: unknown): boolean => {
     if (typeof param === "string") {
-      return (param === "false" || param === "") ? false : true;
+      return param !== "false" && param !== "";
     }
     return false;
   },

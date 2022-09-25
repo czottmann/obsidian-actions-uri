@@ -109,7 +109,7 @@ async function handleGet(
   return (res.isSuccess)
     ? <HandlerFileSuccess> {
       isSuccess: true,
-      result: { file, content: res.result },
+      result: { filepath: file, content: res.result },
       input: params,
     }
     : <HandlerFailure> {
