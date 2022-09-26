@@ -22,8 +22,8 @@ import {
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { parseStringIntoRegex } from "../utils/grabbag";
 import { helloRoute } from "../utils/routing";
+import { parseStringIntoRegex } from "../utils/string-handling";
 
 // SCHEMATA --------------------
 

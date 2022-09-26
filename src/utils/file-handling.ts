@@ -1,7 +1,11 @@
 import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
 import { STRINGS } from "../constants";
-import { ensureNewline } from "./grabbag";
+import {
+  containsFrontMatter,
+  ensureNewline,
+  extractNoteContentParts,
+} from "./string-handling";
 import { SimpleResult } from "../types";
 
 /**
@@ -217,7 +221,7 @@ export async function appendNote(
 export async function prependNote(
   filepath: string,
   vault: Vault,
-  textToAppend: string,
+  textToPrepend: string,
   shouldEnsureNewline: boolean = false,
   shouldIgnoreFrontMatter: boolean = false,
 ): Promise<SimpleResult> {
@@ -230,24 +234,21 @@ export async function prependNote(
     };
   }
 
+  const noteContent = res.result;
   let newContent: string;
-  const noteContent = res.result.trimStart();
-  const hasFrontMatter = noteContent.startsWith("---\n") &&
-    (noteContent.indexOf("---\n", 4) > -1);
 
-  if (hasFrontMatter && !shouldIgnoreFrontMatter) {
-    const bodyStartPos = noteContent.indexOf("---\n", 4) + 4;
-    const frontMatter = noteContent.slice(0, bodyStartPos);
-    const noteBody = noteContent.slice(bodyStartPos);
-    newContent = frontMatter + ensureNewline(textToAppend) + noteBody;
+  if (shouldEnsureNewline) {
+    textToPrepend = ensureNewline(textToPrepend);
+  }
+
+  if (shouldIgnoreFrontMatter) {
+    newContent = textToPrepend + noteContent;
   } else {
-    newContent =
-      (shouldEnsureNewline ? ensureNewline(textToAppend) : textToAppend) +
-      noteContent;
+    const { frontMatter, body } = extractNoteContentParts(noteContent);
+    newContent = frontMatter + textToPrepend + body;
   }
 
   const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
-
   return (updatedFile instanceof TFile)
     ? <SimpleResult> {
       isSuccess: true,

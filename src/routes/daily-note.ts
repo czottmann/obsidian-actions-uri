@@ -18,8 +18,15 @@ import {
   SimpleResult,
   ZodSafeParsedData,
 } from "../types";
-import { createOrOverwriteNote, getNoteContent } from "../utils/file-handling";
+import {
+  appendNote,
+  createOrOverwriteNote,
+  getNoteContent,
+  prependNote,
+  searchAndReplaceInNote,
+} from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
+import { parseStringIntoRegex } from "../utils/string-handling";
 
 // SCHEMATA --------------------
 
@@ -50,19 +57,27 @@ const appendParams = incomingBaseParams.extend({
 type AppendParams = z.infer<typeof appendParams>;
 
 const prependParams = incomingBaseParams.extend({
-  content: z.string().optional(),
+  content: z.string(),
   silent: zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
 type PrependParams = z.infer<typeof prependParams>;
 
+const searchAndReplaceParams = incomingBaseParams.extend({
+  silent: zodOptionalBoolean,
+  search: z.string().min(1, { message: "can't be empty" }),
+  replace: z.string(),
+});
+type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
+
 export type ParamsUnion =
   | CreateParams
   | ReadParams
   | WriteParams
   | AppendParams
-  | PrependParams;
+  | PrependParams
+  | SearchAndReplaceParams;
 
 // ROUTES --------------------
 
@@ -81,7 +96,26 @@ export const routes: Route[] = [
   { path: "daily-note/create", schema: createParams, handler: handleCreate },
   { path: "daily-note/append", schema: appendParams, handler: handleAppend },
   { path: "daily-note/prepend", schema: prependParams, handler: handlePrepend },
+  {
+    path: "daily-note/search-string-and-replace",
+    schema: searchAndReplaceParams,
+    handler: handleSearchStringAndReplace,
+  },
+  {
+    path: "daily-note/search-regex-and-replace",
+    schema: searchAndReplaceParams,
+    handler: handleSearchRegexAndReplace,
+  },
 ];
+
+// NOTES --------------------
+
+// Return values of `appHasDailyNotesPluginLoaded()`:
+//
+// - official Daily Notes on: `true`
+// - official Daily Notes off: null
+// - Periodic Notes Daily Notes on: `true`
+// - Periodic Notes Daily Notes off: `false`
 
 // HANDLERS --------------------
 
@@ -91,11 +125,6 @@ async function handleGetCurrent(
 ): Promise<AnyHandlerResult> {
   const params = <ReadParams> incomingParams;
 
-  // - official Daily Notes on: `true`
-  // - official Daily Notes off: null
-  // - Periodic Notes Daily Notes on: `true`
-  // - Periodic Notes Daily Notes off: `false`
-
   if (!appHasDailyNotesPluginLoaded()) {
     return <HandlerFailure> {
       isSuccess: false,
@@ -104,7 +133,7 @@ async function handleGetCurrent(
     };
   }
 
-  const dailyNote = getDailyNote(window.moment(), getAllDailyNotes());
+  const dailyNote = getCurrentDailyNote();
   if (!dailyNote) {
     return <HandlerFailure> {
       isSuccess: false,
@@ -171,8 +200,17 @@ async function handleCreate(
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <CreateParams> incomingParams;
+
+  if (!appHasDailyNotesPluginLoaded()) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_notes_feature_not_available,
+      input: params,
+    };
+  }
+
   const { content } = params;
-  const dailyNote = getDailyNote(window.moment(), getAllDailyNotes());
+  const dailyNote = getCurrentDailyNote();
 
   // There already is a note for today.
   if (dailyNote instanceof TFile) {
@@ -245,30 +283,192 @@ async function handleCreate(
   }
 }
 
-// TODO: handleAppend()
 async function handleAppend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = <WriteParams> incomingParams;
-  console.log("handlePrepend", payload);
-  return <HandlerTextSuccess> {
-    isSuccess: true,
-    result: { message: "" },
-    input: payload,
-  };
+  const params = <AppendParams> incomingParams;
+
+  if (!appHasDailyNotesPluginLoaded()) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_notes_feature_not_available,
+      input: params,
+    };
+  }
+
+  const dailyNote = getCurrentDailyNote();
+  if (!dailyNote) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_note.current_note_not_found,
+      input: params,
+    };
+  }
+
+  const res = await appendNote(
+    dailyNote.path,
+    vault,
+    params.content,
+    params["ensure-newline"],
+  );
+
+  return res.isSuccess
+    ? <HandlerTextSuccess> {
+      isSuccess: true,
+      result: { message: res.result },
+      input: params,
+    }
+    : <HandlerFailure> {
+      isSuccess: false,
+      error: res.error,
+      input: params,
+    };
 }
 
-// TODO: handlePrepend()
 async function handlePrepend(
   incomingParams: ZodSafeParsedData,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
-  const payload = <WriteParams> incomingParams;
-  console.log("handlePrepend", payload);
-  return <HandlerTextSuccess> {
-    isSuccess: true,
-    result: { message: "" },
-    input: payload,
-  };
+  const params = <PrependParams> incomingParams;
+
+  if (!appHasDailyNotesPluginLoaded()) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_notes_feature_not_available,
+      input: params,
+    };
+  }
+
+  const dailyNote = getCurrentDailyNote();
+  if (!dailyNote) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_note.current_note_not_found,
+      input: params,
+    };
+  }
+
+  const res = await prependNote(
+    dailyNote.path,
+    vault,
+    params.content,
+    params["ensure-newline"],
+    params["ignore-front-matter"],
+  );
+
+  return res.isSuccess
+    ? <HandlerTextSuccess> {
+      isSuccess: true,
+      result: { message: res.result },
+      input: params,
+    }
+    : <HandlerFailure> {
+      isSuccess: false,
+      error: res.error,
+      input: params,
+    };
+}
+
+async function handleSearchStringAndReplace(
+  incomingParams: ZodSafeParsedData,
+  vault: Vault,
+): Promise<AnyHandlerResult> {
+  const params = <SearchAndReplaceParams> incomingParams;
+
+  if (!appHasDailyNotesPluginLoaded()) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_notes_feature_not_available,
+      input: params,
+    };
+  }
+
+  const dailyNote = getCurrentDailyNote();
+  if (!dailyNote) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_note.current_note_not_found,
+      input: params,
+    };
+  }
+
+  const { search, replace } = params;
+  const regex = new RegExp(search, "g");
+  const res = await searchAndReplaceInNote(
+    dailyNote.path,
+    vault,
+    regex,
+    replace,
+  );
+  return res.isSuccess
+    ? <HandlerTextSuccess> {
+      isSuccess: true,
+      result: { message: res.result },
+      input: params,
+    }
+    : <HandlerFailure> {
+      isSuccess: false,
+      error: res.error,
+      input: params,
+    };
+}
+
+async function handleSearchRegexAndReplace(
+  incomingParams: ZodSafeParsedData,
+  vault: Vault,
+): Promise<AnyHandlerResult> {
+  const params = <SearchAndReplaceParams> incomingParams;
+
+  if (!appHasDailyNotesPluginLoaded()) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_notes_feature_not_available,
+      input: params,
+    };
+  }
+
+  const dailyNote = getCurrentDailyNote();
+  if (!dailyNote) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.daily_note.current_note_not_found,
+      input: params,
+    };
+  }
+
+  const { search, replace } = params;
+  const resSir = parseStringIntoRegex(search);
+
+  if (!resSir.isSuccess) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: resSir.error,
+      input: params,
+    };
+  }
+
+  const res = await searchAndReplaceInNote(
+    dailyNote.path,
+    vault,
+    resSir.result,
+    replace,
+  );
+  return res.isSuccess
+    ? <HandlerTextSuccess> {
+      isSuccess: true,
+      result: { message: res.result },
+      input: params,
+    }
+    : <HandlerFailure> {
+      isSuccess: false,
+      error: res.error,
+      input: params,
+    };
+}
+
+// HELPERS --------------------
+
+function getCurrentDailyNote(): TFile | undefined {
+  return getDailyNote(window.moment(), getAllDailyNotes());
 }
