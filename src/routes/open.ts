@@ -7,7 +7,7 @@ import {
   Route,
   ZodSafeParsedData,
 } from "../types";
-import { helloRoute } from "../utils/routing";
+import { helloRoute, namespaceRoutes } from "../utils/routing";
 
 // SCHEMATA --------------------
 
@@ -24,16 +24,16 @@ export type ParamsUnion =
 
 // ROUTES --------------------
 
-export const routes: Route[] = [
-  helloRoute("open"),
+export const routes: Route[] = namespaceRoutes("open", [
+  helloRoute(),
   {
-    path: "open/daily-note",
+    path: "daily-note",
     schema: dailyNoteParams,
     handler: handleDailyNote,
   },
-  { path: "open/note", schema: noteParams, handler: handleNote },
-  { path: "open/search", schema: searchParams, handler: handleSearch },
-];
+  { path: "note", schema: noteParams, handler: handleNote },
+  { path: "search", schema: searchParams, handler: handleSearch },
+]);
 
 // HANDLERS --------------------
 

@@ -7,12 +7,11 @@ import {
   getDailyNote,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
-import { incomingBaseParams, zodOptionalBoolean } from "../schemata";
+import { incomingBaseParams } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerFailure,
   HandlerFileSuccess,
-  HandlerSuccess,
   HandlerTextSuccess,
   Route,
   SimpleResult,
@@ -25,8 +24,9 @@ import {
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { helloRoute } from "../utils/routing";
+import { helloRoute, namespaceRoutes } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
+import { zodOptionalBoolean } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -81,32 +81,24 @@ export type ParamsUnion =
 
 // ROUTES ----------------------------------------
 
-export const routes: Route[] = [
-  helloRoute("daily-note"),
+export const routes: Route[] = namespaceRoutes("daily-note", [
+  helloRoute(),
+  { path: "get-current", schema: readParams, handler: handleGetCurrent },
+  { path: "get-most-recent", schema: readParams, handler: handleGetMostRecent },
+  { path: "create", schema: createParams, handler: handleCreate },
+  { path: "append", schema: appendParams, handler: handleAppend },
+  { path: "prepend", schema: prependParams, handler: handlePrepend },
   {
-    path: "daily-note/get-current",
-    schema: readParams,
-    handler: handleGetCurrent,
-  },
-  {
-    path: "daily-note/get-most-recent",
-    schema: readParams,
-    handler: handleGetMostRecent,
-  },
-  { path: "daily-note/create", schema: createParams, handler: handleCreate },
-  { path: "daily-note/append", schema: appendParams, handler: handleAppend },
-  { path: "daily-note/prepend", schema: prependParams, handler: handlePrepend },
-  {
-    path: "daily-note/search-string-and-replace",
+    path: "search-string-and-replace",
     schema: searchAndReplaceParams,
     handler: handleSearchStringAndReplace,
   },
   {
-    path: "daily-note/search-regex-and-replace",
+    path: "search-regex-and-replace",
     schema: searchAndReplaceParams,
     handler: handleSearchRegexAndReplace,
   },
-];
+]);
 
 // HANDLERS ----------------------------------------
 

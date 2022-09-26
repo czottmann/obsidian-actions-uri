@@ -7,6 +7,7 @@ import {
   Route,
   ZodSafeParsedData,
 } from "../types";
+import { namespaceRoutes } from "../utils/routing";
 
 // SCHEMATA --------------------
 
@@ -18,9 +19,9 @@ export type ParamsUnion = z.infer<typeof defaultParams>;
 
 // ROUTES --------------------
 
-export const routes: Route[] = [
-  { path: "search", schema: defaultParams, handler: handleSearch },
-];
+export const routes: Route[] = namespaceRoutes("search", [
+  { path: "", schema: defaultParams, handler: handleSearch },
+]);
 
 // HANDLERS --------------------
 

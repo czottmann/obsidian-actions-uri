@@ -1,11 +1,7 @@
 import { Vault } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
-import {
-  incomingBaseParams,
-  zodOptionalBoolean,
-  zodSanitizedFilePath,
-} from "../schemata";
+import { incomingBaseParams } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerFailure,
@@ -22,8 +18,9 @@ import {
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { helloRoute } from "../utils/routing";
+import { helloRoute, namespaceRoutes } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
+import { zodOptionalBoolean, zodSanitizedFilePath } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -84,23 +81,23 @@ export type ParamsUnion =
 
 // ROUTES ----------------------------------------
 
-export const routes: Route[] = [
-  helloRoute("note"),
-  { path: "note/get", schema: readParams, handler: handleGet },
-  { path: "note/create", schema: createParams, handler: handleCreate },
-  { path: "note/append", schema: appendParams, handler: handleAppend },
-  { path: "note/prepend", schema: prependParams, handler: handlePrepend },
+export const routes: Route[] = namespaceRoutes("note", [
+  helloRoute(),
+  { path: "get", schema: readParams, handler: handleGet },
+  { path: "create", schema: createParams, handler: handleCreate },
+  { path: "append", schema: appendParams, handler: handleAppend },
+  { path: "prepend", schema: prependParams, handler: handlePrepend },
   {
-    path: "note/search-string-and-replace",
+    path: "search-string-and-replace",
     schema: searchAndReplaceParams,
     handler: handleSearchStringAndReplace,
   },
   {
-    path: "note/search-regex-and-replace",
+    path: "search-regex-and-replace",
     schema: searchAndReplaceParams,
     handler: handleSearchRegexAndReplace,
   },
-];
+]);
 
 // HANDLERS ----------------------------------------
 
