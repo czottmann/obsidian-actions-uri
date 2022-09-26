@@ -2,7 +2,7 @@ import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
 import { STRINGS } from "../constants";
 import { ensureNewline, extractNoteContentParts } from "./string-handling";
-import { SimpleResult } from "../types";
+import { StringResultObject } from "../types";
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -104,12 +104,12 @@ export async function createOrOverwriteNote(
 export async function getNoteContent(
   filepath: string,
   vault: Vault,
-): Promise<SimpleResult> {
+): Promise<StringResultObject> {
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
   const doesFileExist = file instanceof TFile;
 
   if (!doesFileExist) {
-    return <SimpleResult> {
+    return <StringResultObject> {
       isSuccess: false,
       error: STRINGS.note_not_found,
     };
@@ -117,11 +117,11 @@ export async function getNoteContent(
 
   const noteContent = await vault.read(file);
   return (typeof noteContent === "string")
-    ? <SimpleResult> {
+    ? <StringResultObject> {
       isSuccess: true,
       result: noteContent,
     }
-    : <SimpleResult> {
+    : <StringResultObject> {
       isSuccess: false,
       error: STRINGS.unable_to_read_note,
     };
@@ -159,18 +159,18 @@ export async function searchAndReplaceInNote(
   vault: Vault,
   searchTerm: string | RegExp,
   replacement: string,
-): Promise<SimpleResult> {
+): Promise<StringResultObject> {
   const res = await getNoteContent(filepath, vault);
 
   if (!res.isSuccess) {
-    return <SimpleResult> { isSuccess: false, error: res.error };
+    return <StringResultObject> { isSuccess: false, error: res.error };
   }
 
   const noteContent = res.result;
   const newContent = noteContent.replace(searchTerm, replacement);
 
   if (noteContent === newContent) {
-    return <SimpleResult> {
+    return <StringResultObject> {
       isSuccess: true,
       result: typeof searchTerm === "string"
         ? STRINGS.search_string_not_found
@@ -180,8 +180,11 @@ export async function searchAndReplaceInNote(
 
   const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
   return (updatedFile instanceof TFile)
-    ? <SimpleResult> { isSuccess: true, result: STRINGS.replacement_done }
-    : <SimpleResult> { isSuccess: false, error: STRINGS.unable_to_write_note };
+    ? <StringResultObject> { isSuccess: true, result: STRINGS.replacement_done }
+    : <StringResultObject> {
+      isSuccess: false,
+      error: STRINGS.unable_to_write_note,
+    };
 }
 
 export async function appendNote(
@@ -189,11 +192,11 @@ export async function appendNote(
   vault: Vault,
   textToAppend: string,
   shouldEnsureNewline: boolean = false,
-): Promise<SimpleResult> {
+): Promise<StringResultObject> {
   const res = await getNoteContent(filepath, vault);
 
   if (!res.isSuccess) {
-    return <SimpleResult> {
+    return <StringResultObject> {
       isSuccess: false,
       error: res.error,
     };
@@ -204,11 +207,11 @@ export async function appendNote(
   const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
 
   return (updatedFile instanceof TFile)
-    ? <SimpleResult> {
+    ? <StringResultObject> {
       isSuccess: true,
       result: STRINGS.append_done,
     }
-    : <SimpleResult> {
+    : <StringResultObject> {
       isSuccess: false,
       error: STRINGS.unable_to_write_note,
     };
@@ -220,11 +223,11 @@ export async function prependNote(
   textToPrepend: string,
   shouldEnsureNewline: boolean = false,
   shouldIgnoreFrontMatter: boolean = false,
-): Promise<SimpleResult> {
+): Promise<StringResultObject> {
   const res = await getNoteContent(filepath, vault);
 
   if (!res.isSuccess) {
-    return <SimpleResult> {
+    return <StringResultObject> {
       isSuccess: false,
       error: res.error,
     };
@@ -246,11 +249,11 @@ export async function prependNote(
 
   const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
   return (updatedFile instanceof TFile)
-    ? <SimpleResult> {
+    ? <StringResultObject> {
       isSuccess: true,
       result: STRINGS.prepend_done,
     }
-    : <SimpleResult> {
+    : <StringResultObject> {
       isSuccess: false,
       error: STRINGS.unable_to_write_note,
     };

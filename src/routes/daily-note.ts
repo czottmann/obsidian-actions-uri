@@ -14,7 +14,7 @@ import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
-  SimpleResult,
+  StringResultObject,
 } from "../types";
 import {
   appendNote,
@@ -416,9 +416,9 @@ function getCurrentDailyNote(): TFile | undefined {
  * functionality is available and there is a current daily note. Unsuccessful
  * `SimpleResult` if it isn't.
  */
-function getDailyNotePathIfPluginIsAvailable(): SimpleResult {
+function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
   if (!appHasDailyNotesPluginLoaded()) {
-    return <SimpleResult> {
+    return <StringResultObject> {
       isSuccess: false,
       error: STRINGS.daily_notes_feature_not_available,
     };
@@ -426,8 +426,8 @@ function getDailyNotePathIfPluginIsAvailable(): SimpleResult {
 
   const dailyNote = getCurrentDailyNote();
   return dailyNote
-    ? <SimpleResult> { isSuccess: true, result: dailyNote.path }
-    : <SimpleResult> {
+    ? <StringResultObject> { isSuccess: true, result: dailyNote.path }
+    : <StringResultObject> {
       isSuccess: false,
       error: STRINGS.daily_note.current_note_not_found,
     };
