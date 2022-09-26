@@ -25,7 +25,7 @@ import {
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
 
-// SCHEMATA --------------------
+// SCHEMATA ----------------------------------------
 
 const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
@@ -82,7 +82,7 @@ export type ParamsUnion =
   | PrependParams
   | SearchAndReplaceParams;
 
-// ROUTES --------------------
+// ROUTES ----------------------------------------
 
 export const routes: Route[] = [
   helloRoute("note"),
@@ -102,7 +102,7 @@ export const routes: Route[] = [
   },
 ];
 
-// HANDLERS --------------------
+// HANDLERS ----------------------------------------
 
 async function handleGet(
   incomingParams: ZodSafeParsedData,
