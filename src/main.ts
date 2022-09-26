@@ -1,4 +1,4 @@
-import { Plugin, Workspace } from "obsidian";
+import { Plugin } from "obsidian";
 import { normalize } from "path";
 import { ZodError } from "zod";
 import { AnyParams, Route, routes } from "./routes";
@@ -9,7 +9,7 @@ import {
   HandlerTextSuccess,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
-import { focusLeafWithFile, showBrandedNotice } from "./utils/ui";
+import { focusOrOpenNote, showBrandedNotice } from "./utils/ui";
 
 export default class ActionsURI extends Plugin {
   static readonly URI_NAMESPACE = "actions-uri";
@@ -45,7 +45,7 @@ export default class ActionsURI extends Plugin {
           const params = schema.safeParse(incomingParams);
           if (params.success) {
             const handlerResult = await handler
-              .apply(this, [<AnyParams> params.data, this.app.vault]);
+              .apply(this, [<AnyParams> params.data]);
 
             this.sendUrlCallbackIfNeeded(handlerResult);
             this.openFileIfNeeded(handlerResult);
@@ -135,19 +135,9 @@ export default class ActionsURI extends Plugin {
     if (!handlerResult.isSuccess || (<any> handlerResult.input).silent) return;
 
     // Do we have information what to open?
-    const { processedNote } = <HandlerFileSuccess> handlerResult;
-    const filepath = processedNote?.filepath;
-    if (!processedNote || !filepath) return;
+    const { processedFilepath } = (<HandlerFileSuccess> handlerResult);
+    if (!processedFilepath) return;
 
-    // Is this file open already? If so, can we just focus it?
-    const res = focusLeafWithFile(filepath, this.app.workspace);
-    if (res.isSuccess) return;
-
-    // Let's open the file then in the simplest way possible.
-    window.open(
-      "obsidian://open?" +
-        "vault=" + encodeURIComponent(this.app.vault.getName()) +
-        "&file=" + encodeURIComponent(processedNote.filepath),
-    );
+    focusOrOpenNote(processedFilepath);
   }
 }

@@ -1,4 +1,3 @@
-import { Vault } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import { AnyParams, Route } from "../routes";
@@ -102,18 +101,17 @@ export const routes: Route[] = namespaceRoutes("note", [
 
 async function handleGet(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <ReadParams> incomingParams;
   const { file } = params;
-  const res = await getNoteContent(file, vault);
+  const res = await getNoteContent(file);
 
   return (res.isSuccess)
     ? <HandlerFileSuccess> {
       isSuccess: true,
       result: { content: res.result, filepath: file },
       input: params,
-      processedNote: { filepath: file, vault },
+      processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -124,21 +122,20 @@ async function handleGet(
 
 async function handleCreate(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <CreateParams> incomingParams;
   const { file, content, overwrite } = params;
 
   const result = overwrite
-    ? await createOrOverwriteNote(file, vault, content || "")
-    : await createNote(file, vault, content || "");
+    ? await createOrOverwriteNote(file, content || "")
+    : await createNote(file, content || "");
 
   return result
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: file },
       input: params,
-      processedNote: { filepath: file, vault },
+      processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -149,18 +146,17 @@ async function handleCreate(
 
 async function handleAppend(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <AppendParams> incomingParams;
   const { file, content } = params;
-  const res = await appendNote(file, vault, content, params["ensure-newline"]);
+  const res = await appendNote(file, content, params["ensure-newline"]);
 
   return res.isSuccess
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath: file, vault },
+      processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -171,13 +167,11 @@ async function handleAppend(
 
 async function handlePrepend(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <PrependParams> incomingParams;
   const { file, content } = params;
   const res = await prependNote(
     file,
-    vault,
     content,
     params["ensure-newline"],
     params["ignore-front-matter"],
@@ -188,7 +182,7 @@ async function handlePrepend(
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath: file, vault },
+      processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -199,19 +193,18 @@ async function handlePrepend(
 
 async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
   const { search, file, replace } = params;
   const regex = new RegExp(search, "g");
-  const res = await searchAndReplaceInNote(file, vault, regex, replace);
+  const res = await searchAndReplaceInNote(file, regex, replace);
 
   return res.isSuccess
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath: file, vault },
+      processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -222,7 +215,6 @@ async function handleSearchStringAndReplace(
 
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
   const { search, file, replace } = params;
@@ -236,14 +228,14 @@ async function handleSearchRegexAndReplace(
     };
   }
 
-  const res = await searchAndReplaceInNote(file, vault, resSir.result, replace);
+  const res = await searchAndReplaceInNote(file, resSir.result, replace);
 
   return res.isSuccess
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath: file, vault },
+      processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,

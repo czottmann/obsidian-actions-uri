@@ -1,4 +1,3 @@
-import { Vault } from "obsidian";
 import { z } from "zod";
 import { AnyParams, Route } from "../routes";
 import { IncomingBaseParams } from "../schemata";
@@ -31,10 +30,7 @@ export function helloRoute(path: string = ""): Route {
   return { path, schema: z.object({}), handler: handleHello };
 }
 
-async function handleHello(
-  data: AnyParams,
-  vault: Vault,
-): Promise<AnyHandlerResult> {
+async function handleHello(data: AnyParams): Promise<AnyHandlerResult> {
   showBrandedNotice("… is ready for action 🚀");
 
   return <HandlerTextSuccess> {

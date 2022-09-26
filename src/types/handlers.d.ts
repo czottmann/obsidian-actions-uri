@@ -1,4 +1,3 @@
-import { Vault } from "obsidian";
 import { AnyParams } from "../routes";
 
 /**
@@ -7,13 +6,11 @@ import { AnyParams } from "../routes";
  * `x-callback-url` call) and a vault and returns any handler result object.
  *
  * @param incomingParams - The parameters from the incoming `x-callback-url`
- * @param vault - The `Vault` instance the plugin is running in
  *
  * @returns A handler result object
  */
 export type HandlerFunction = (
   incomingParams: AnyParams,
-  vault: Vault,
 ) => Promise<AnyHandlerResult>;
 
 type HandlerResult = {
@@ -21,19 +18,14 @@ type HandlerResult = {
   isSuccess: boolean;
 };
 
+type HandlerSuccess =
+  & HandlerResult
+  & { processedFilepath?: string };
+
 export type HandlerFailure = Readonly<
   & HandlerResult
-  & {
-    error: string;
-  }
+  & { error: string }
 >;
-
-type HandlerSuccess = HandlerResult & {
-  processedNote?: {
-    filepath: string;
-    vault: Vault;
-  };
-};
 
 export type HandlerTextSuccess = Readonly<
   & HandlerSuccess

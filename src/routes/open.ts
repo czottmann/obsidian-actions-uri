@@ -2,6 +2,7 @@ import { z } from "zod";
 import { incomingBaseParams } from "../schemata";
 import { AnyParams, Route } from "../routes";
 import { AnyHandlerResult, HandlerFailure, HandlerTextSuccess } from "../types";
+import { getDailyNotePathIfPluginIsAvailable } from "../utils/file-handling";
 import { helloRoute, namespaceRoutes } from "../utils/routing";
 
 // SCHEMATA --------------------
@@ -36,6 +37,14 @@ export const routes: Route[] = namespaceRoutes("open", [
 async function handleDailyNote(
   data: AnyParams,
 ): Promise<AnyHandlerResult> {
+  const res = getDailyNotePathIfPluginIsAvailable();
+  if (!res.isSuccess) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: res.error,
+    };
+  }
+
   const params = data as z.infer<typeof dailyNoteParams>;
   console.log("handleDailyNote", params);
   return <HandlerTextSuccess> {

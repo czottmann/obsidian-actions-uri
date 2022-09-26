@@ -1,10 +1,9 @@
 import { z } from "zod";
-import { TFile, Vault } from "obsidian";
+import { TFile } from "obsidian";
 import {
   appHasDailyNotesPluginLoaded,
   createDailyNote,
   getAllDailyNotes,
-  getDailyNote,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { AnyParams, Route } from "../routes";
@@ -14,11 +13,12 @@ import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
-  StringResultObject,
 } from "../types";
 import {
   appendNote,
   createOrOverwriteNote,
+  getCurrentDailyNote,
+  getDailyNotePathIfPluginIsAvailable,
   getNoteContent,
   prependNote,
   searchAndReplaceInNote,
@@ -103,7 +103,6 @@ export const routes: Route[] = namespaceRoutes("daily-note", [
 
 async function handleGetCurrent(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <ReadParams> incomingParams;
 
@@ -117,13 +116,13 @@ async function handleGetCurrent(
   }
 
   const filepath = resDNP.result;
-  const res = await getNoteContent(filepath, vault);
+  const res = await getNoteContent(filepath);
   return res.isSuccess
     ? <HandlerFileSuccess> {
       isSuccess: true,
       result: { content: res.result, filepath: filepath },
       input: params,
-      processedNote: { filepath, vault },
+      processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -134,7 +133,6 @@ async function handleGetCurrent(
 
 async function handleGetMostRecent(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <ReadParams> incomingParams;
 
@@ -157,13 +155,13 @@ async function handleGetMostRecent(
   }
 
   const dailyNote = notes[mostRecentKey];
-  const res = await getNoteContent(dailyNote.path, vault);
+  const res = await getNoteContent(dailyNote.path);
   return res.isSuccess
     ? <HandlerFileSuccess> {
       isSuccess: true,
       result: { content: res.result, filepath: dailyNote.path },
       input: params,
-      processedNote: { filepath: dailyNote.path, vault },
+      processedFilepath: dailyNote.path,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -174,7 +172,6 @@ async function handleGetMostRecent(
 
 async function handleCreate(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <CreateParams> incomingParams;
 
@@ -211,13 +208,13 @@ async function handleCreate(
     }
 
     // We're allowed to overwrite it, and we got content to write.  Let's do it!
-    const file = await createOrOverwriteNote(dailyNote.path, vault, content);
+    const file = await createOrOverwriteNote(dailyNote.path, content);
     return file
       ? <HandlerFileSuccess> {
         isSuccess: true,
         result: { content, filepath: dailyNote.path },
         input: params,
-        processedNote: { filepath: dailyNote.path, vault },
+        processedFilepath: dailyNote.path,
       }
       : <HandlerFailure> {
         isSuccess: false,
@@ -242,18 +239,18 @@ async function handleCreate(
         isSuccess: true,
         result: { content: "", filepath: newNote.path },
         input: params,
-        processedNote: { filepath: newNote.path, vault },
+        processedFilepath: newNote.path,
       };
     }
 
     // We have content to write.  Let's update the note.
-    const file = await createOrOverwriteNote(newNote.path, vault, content);
+    const file = await createOrOverwriteNote(newNote.path, content);
     return (file instanceof TFile)
       ? <HandlerFileSuccess> {
         isSuccess: true,
         result: { content, filepath: newNote.path },
         input: params,
-        processedNote: { filepath: newNote.path, vault },
+        processedFilepath: newNote.path,
       }
       : <HandlerFailure> {
         isSuccess: false,
@@ -265,7 +262,6 @@ async function handleCreate(
 
 async function handleAppend(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <AppendParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
@@ -280,7 +276,6 @@ async function handleAppend(
   const filepath = resDNP.result;
   const res = await appendNote(
     filepath,
-    vault,
     params.content,
     params["ensure-newline"],
   );
@@ -290,7 +285,7 @@ async function handleAppend(
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath, vault },
+      processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -301,7 +296,6 @@ async function handleAppend(
 
 async function handlePrepend(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <PrependParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
@@ -316,7 +310,6 @@ async function handlePrepend(
   const filepath = resDNP.result;
   const res = await prependNote(
     filepath,
-    vault,
     params.content,
     params["ensure-newline"],
     params["ignore-front-matter"],
@@ -327,7 +320,7 @@ async function handlePrepend(
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath, vault },
+      processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -338,7 +331,6 @@ async function handlePrepend(
 
 async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
@@ -354,7 +346,6 @@ async function handleSearchStringAndReplace(
   const regex = new RegExp(params.search, "g");
   const res = await searchAndReplaceInNote(
     filepath,
-    vault,
     regex,
     params.replace,
   );
@@ -363,7 +354,7 @@ async function handleSearchStringAndReplace(
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath, vault },
+      processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -374,7 +365,6 @@ async function handleSearchStringAndReplace(
 
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
-  vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
@@ -398,7 +388,6 @@ async function handleSearchRegexAndReplace(
   const filepath = resDNP.result;
   const res = await searchAndReplaceInNote(
     filepath,
-    vault,
     resSir.result,
     params.replace,
   );
@@ -407,43 +396,12 @@ async function handleSearchRegexAndReplace(
       isSuccess: true,
       result: { message: res.result },
       input: params,
-      processedNote: { filepath, vault },
+      processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
       input: params,
-    };
-}
-
-// HELPERS ----------------------------------------
-
-function getCurrentDailyNote(): TFile | undefined {
-  return getDailyNote(window.moment(), getAllDailyNotes());
-}
-
-/**
- * Checks if the daily note plugin is available, and gets the path to today's
- * daily note.
- *
- * @returns Successful `SimpleResult` containing the path if the DN
- * functionality is available and there is a current daily note. Unsuccessful
- * `SimpleResult` if it isn't.
- */
-function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
-  if (!appHasDailyNotesPluginLoaded()) {
-    return <StringResultObject> {
-      isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
-    };
-  }
-
-  const dailyNote = getCurrentDailyNote();
-  return dailyNote
-    ? <StringResultObject> { isSuccess: true, result: dailyNote.path }
-    : <StringResultObject> {
-      isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
     };
 }
 

@@ -1,5 +1,10 @@
 import { dirname, extname, normalize } from "path";
-import { TFile, TFolder, Vault } from "obsidian";
+import { TFile, TFolder } from "obsidian";
+import {
+  appHasDailyNotesPluginLoaded,
+  getAllDailyNotes,
+  getDailyNote,
+} from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { ensureNewline, extractNoteContentParts } from "./string-handling";
 import { StringResultObject } from "../types";
@@ -15,7 +20,6 @@ import { StringResultObject } from "../types";
  * @param filepath - A full filename, relative from vault root
  * root
  * @param content - The body of the note to be created
- * @param vault - The vault to create the note in
  *
  * @returns The created file
  *
@@ -25,10 +29,10 @@ import { StringResultObject } from "../types";
  */
 export async function createNote(
   filepath: string,
-  vault: Vault,
   content: string,
 ): Promise<TFile> {
   filepath = sanitizeFilePath(filepath);
+  const { vault } = global.app;
   let file = vault.getAbstractFileByPath(filepath);
   let doesFileExist = file instanceof TFile;
 
@@ -50,7 +54,7 @@ export async function createNote(
   }
 
   // Create folder if necessary
-  await createFolderIfNecessary(dirname(filepath), vault);
+  await createFolderIfNecessary(dirname(filepath));
 
   // Create the new note
   await vault.create(filepath, content);
@@ -63,7 +67,6 @@ export async function createNote(
  * @param filepath - A full filename, including the path relative from vault
  * root
  * @param content - The body of the note to be created
- * @param vault - The vault to create the note in
  *
  * @returns The created file
  *
@@ -73,10 +76,10 @@ export async function createNote(
  */
 export async function createOrOverwriteNote(
   filepath: string,
-  vault: Vault,
   content: string,
 ): Promise<TFile> {
   filepath = sanitizeFilePath(filepath);
+  const { vault } = global.app;
   const file = vault.getAbstractFileByPath(filepath);
   const doesFileExist = file instanceof TFile;
 
@@ -87,7 +90,7 @@ export async function createOrOverwriteNote(
   }
 
   // Create the new note
-  await createFolderIfNecessary(dirname(filepath), vault);
+  await createFolderIfNecessary(dirname(filepath));
   await vault.create(filepath, content);
   return vault.getAbstractFileByPath(filepath) as TFile;
 }
@@ -96,15 +99,14 @@ export async function createOrOverwriteNote(
  * Fetches an existing note and returns its content.
  *
  * @param filepath - A full filename, relative from vault root
- * @param vault - The vault to search for the note in
  *
  * @returns A result object. Success case: note body, failure case: readable
  * error message
  */
 export async function getNoteContent(
   filepath: string,
-  vault: Vault,
 ): Promise<StringResultObject> {
+  const { vault } = global.app;
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
   const doesFileExist = file instanceof TFile;
 
@@ -148,7 +150,6 @@ export function sanitizeFilePath(filename: string): string {
 
 /**
  * @param filepath - A full filename, relative from vault root
- * @param vault - The vault of the note
  * @param searchTerm - The term to search for
  * @param replacement - The term to replace the search term with
  * @returns A `SimpleResult` object containing either an `error` string or a
@@ -156,11 +157,10 @@ export function sanitizeFilePath(filename: string): string {
  */
 export async function searchAndReplaceInNote(
   filepath: string,
-  vault: Vault,
   searchTerm: string | RegExp,
   replacement: string,
 ): Promise<StringResultObject> {
-  const res = await getNoteContent(filepath, vault);
+  const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
     return <StringResultObject> { isSuccess: false, error: res.error };
@@ -178,7 +178,7 @@ export async function searchAndReplaceInNote(
     };
   }
 
-  const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
+  const updatedFile = await createOrOverwriteNote(filepath, newContent);
   return (updatedFile instanceof TFile)
     ? <StringResultObject> { isSuccess: true, result: STRINGS.replacement_done }
     : <StringResultObject> {
@@ -189,11 +189,10 @@ export async function searchAndReplaceInNote(
 
 export async function appendNote(
   filepath: string,
-  vault: Vault,
   textToAppend: string,
   shouldEnsureNewline: boolean = false,
 ): Promise<StringResultObject> {
-  const res = await getNoteContent(filepath, vault);
+  const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
     return <StringResultObject> {
@@ -204,7 +203,7 @@ export async function appendNote(
 
   const newContent = res.result +
     (shouldEnsureNewline ? ensureNewline(textToAppend) : textToAppend);
-  const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
+  const updatedFile = await createOrOverwriteNote(filepath, newContent);
 
   return (updatedFile instanceof TFile)
     ? <StringResultObject> {
@@ -219,12 +218,12 @@ export async function appendNote(
 
 export async function prependNote(
   filepath: string,
-  vault: Vault,
   textToPrepend: string,
   shouldEnsureNewline: boolean = false,
   shouldIgnoreFrontMatter: boolean = false,
 ): Promise<StringResultObject> {
-  const res = await getNoteContent(filepath, vault);
+  const { vault } = global.app;
+  const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
     return <StringResultObject> {
@@ -247,7 +246,7 @@ export async function prependNote(
     newContent = frontMatter + textToPrepend + body;
   }
 
-  const updatedFile = await createOrOverwriteNote(filepath, vault, newContent);
+  const updatedFile = await createOrOverwriteNote(filepath, newContent);
   return (updatedFile instanceof TFile)
     ? <StringResultObject> {
       isSuccess: true,
@@ -259,6 +258,35 @@ export async function prependNote(
     };
 }
 
+export function getCurrentDailyNote(): TFile | undefined {
+  return getDailyNote(window.moment(), getAllDailyNotes());
+}
+
+/**
+ * Checks if the daily note plugin is available, and gets the path to today's
+ * daily note.
+ *
+ * @returns Successful `StringResultObject` containing the path if the DN
+ * functionality is available and there is a current daily note. Unsuccessful
+ * `StringResultObject` if it isn't.
+ */
+export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
+  if (!appHasDailyNotesPluginLoaded()) {
+    return <StringResultObject> {
+      isSuccess: false,
+      error: STRINGS.daily_notes_feature_not_available,
+    };
+  }
+
+  const dailyNote = getCurrentDailyNote();
+  return dailyNote
+    ? <StringResultObject> { isSuccess: true, result: dailyNote.path }
+    : <StringResultObject> {
+      isSuccess: false,
+      error: STRINGS.daily_note.current_note_not_found,
+    };
+}
+
 // HELPERS ----------------------------------------
 
 /**
@@ -266,9 +294,10 @@ export async function prependNote(
  * We're civilized people here.
  *
  * @param folder - A folder path relative from the vault root
- * @param vault - The vault to create the folder in
  */
-async function createFolderIfNecessary(folder: string, vault: Vault) {
+async function createFolderIfNecessary(folder: string) {
+  const { vault } = global.app;
+
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists
   if (vault.getAbstractFileByPath(folder) instanceof TFolder) return;
