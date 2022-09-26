@@ -1,5 +1,5 @@
 import { STRINGS } from "../constants";
-import { RegexResult } from "../types";
+import { RegexResultObject } from "../types";
 
 const FRONT_MATTER_BOUNDARY = "---\n";
 
@@ -13,11 +13,18 @@ export function ensureNewline(str: string = ""): string {
   return str.endsWith("\n") ? str : `${str}\n`;
 }
 
-export function parseStringIntoRegex(search: string): RegexResult {
-  let searchPattern: RegExp;
-
+/**
+ * Tries to parse a regular expression stored as a string into an actual, real
+ * `RegExp` object.
+ *
+ * @param search - A string containing a full regular expression, e.g. "/^herp/i"
+ *
+ * @returns A `RegexResultObject` object containing either an `error` string or
+ * a `RegExp` object
+ */
+export function parseStringIntoRegex(search: string): RegexResultObject {
   if (!search.startsWith("/")) {
-    return <RegexResult> {
+    return <RegexResultObject> {
       isSuccess: false,
       error: STRINGS.search_pattern_invalid,
     };
@@ -28,25 +35,26 @@ export function parseStringIntoRegex(search: string): RegexResult {
   const lastSlashIdx = re.lastIndexOf("/");
 
   if (lastSlashIdx === 0) {
-    return <RegexResult> {
+    return <RegexResultObject> {
       isSuccess: false,
       error: STRINGS.search_pattern_empty,
     };
   }
 
+  let searchPattern: RegExp;
   let flags = re.slice(lastSlashIdx + 1);
   re = re.slice(0, lastSlashIdx);
 
   try {
     searchPattern = new RegExp(re, flags);
   } catch (e) {
-    return <RegexResult> {
+    return <RegexResultObject> {
       isSuccess: false,
       error: STRINGS.search_pattern_unparseable,
     };
   }
 
-  return <RegexResult> {
+  return <RegexResultObject> {
     isSuccess: true,
     result: searchPattern,
   };
