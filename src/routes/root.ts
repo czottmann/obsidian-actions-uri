@@ -1,4 +1,4 @@
-import { Route } from "../types";
+import { Route } from "../routes";
 import { helloRoute } from "../utils/routing";
 
 // ROUTES --------------------

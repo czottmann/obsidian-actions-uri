@@ -1,14 +1,8 @@
 import { Plugin } from "obsidian";
 import { normalize } from "path";
 import { ZodError } from "zod";
-import { routes } from "./routes";
-import {
-  AnyHandlerResult,
-  HandlerFailure,
-  HandlerSuccess,
-  Route,
-  ZodSafeParsedData,
-} from "./types";
+import { AnyParams, Route, routes } from "./routes";
+import { AnyHandlerResult, HandlerFailure, HandlerTextSuccess } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
 import { showBrandedNotice } from "./utils/grabbag";
 
@@ -47,7 +41,7 @@ export default class ActionsURI extends Plugin {
           const parsedPayload = schema.safeParse(incomingParams);
           if (parsedPayload.success) {
             const result = await handler
-              .apply(this, [parsedPayload.data as ZodSafeParsedData, vault]);
+              .apply(this, [<AnyParams> parsedPayload.data, vault]);
             this.sendUrlCallbackIfNeeded(result);
           } else {
             this.handleParseError(parsedPayload.error);
@@ -126,7 +120,7 @@ export default class ActionsURI extends Plugin {
 
     if (isSuccess) {
       if (input["x-success"]) {
-        sendUrlCallback(input["x-success"], <HandlerSuccess> handlerRes);
+        sendUrlCallback(input["x-success"], <HandlerTextSuccess> handlerRes);
       }
     } else {
       if (input["x-error"]) {

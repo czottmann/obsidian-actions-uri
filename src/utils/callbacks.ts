@@ -1,4 +1,6 @@
-import { AnyHandlerResult, HandlerFailure, HandlerSuccess } from "../types";
+import { excludeKeys, includeKeys } from "filter-obj";
+import { AnyParams } from "../routes";
+import { AnyHandlerResult, HandlerFailure, HandlerTextSuccess } from "../types";
 import { XCALLBACK_RESULT_PREFIX } from "../constants";
 
 /**
@@ -11,20 +13,20 @@ import { XCALLBACK_RESULT_PREFIX } from "../constants";
  */
 export function sendUrlCallback(
   baseURL: string,
-  handlerRes: HandlerSuccess | HandlerFailure,
+  handlerRes: AnyHandlerResult,
 ) {
   const url = new URL(baseURL);
 
-  const inputObj = handlerRes.input["debug-mode"]
-    ? handlerRes.input
-    : { "call-id": handlerRes.input["call-id"] };
-  addObjectToUrlSearchParams(inputObj, url, "input");
-
-  if (handlerRes.hasOwnProperty("error")) {
+  if (handlerRes.isSuccess) {
+    addObjectToUrlSearchParams((<HandlerTextSuccess> handlerRes).result, url);
+  } else {
     url.searchParams.set("error", (<HandlerFailure> handlerRes).error);
-  } else if (handlerRes.hasOwnProperty("result")) {
-    addObjectToUrlSearchParams((<HandlerSuccess> handlerRes).result, url);
   }
+
+  const inputObj: Record<string, string> = handlerRes.input["debug-mode"]
+    ? excludeKeys(handlerRes.input, ["debug-mode", "x-success", "x-error"])
+    : includeKeys(handlerRes.input, ["call-id"]);
+  addObjectToUrlSearchParams(inputObj, url, "input");
 
   window.open(url.toString());
 }
@@ -34,11 +36,8 @@ function addObjectToUrlSearchParams(
   url: URL,
   prefix: string = XCALLBACK_RESULT_PREFIX,
 ) {
-  for (const key in obj) {
-    if (key === "x-success" || key === "x-error") {
-      continue;
-    }
-
+  const sortedKeys = Object.keys(obj).sort();
+  for (const key of sortedKeys) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       url.searchParams.set(`${prefix}-${key}`, obj[key]);
     }

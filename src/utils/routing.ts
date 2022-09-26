@@ -1,12 +1,8 @@
 import { Vault } from "obsidian";
 import { z } from "zod";
-import { IncomingBaseParams, incomingBaseParams } from "../schemata";
-import {
-  AnyHandlerResult,
-  HandlerTextSuccess,
-  Route,
-  ZodSafeParsedData,
-} from "../types";
+import { AnyParams, Route } from "../routes";
+import { IncomingBaseParams } from "../schemata";
+import { AnyHandlerResult, HandlerTextSuccess } from "../types";
 import { showBrandedNotice } from "./grabbag";
 
 /**
@@ -27,7 +23,7 @@ import { showBrandedNotice } from "./grabbag";
  */
 export function namespaceRoutes(namespace: string, routes: Route[]): Route[] {
   return routes.map((r) => {
-    return { ...r, path: `${namespace}${r.path}` };
+    return { ...r, path: `${namespace}/${r.path}` };
   });
 }
 
@@ -36,7 +32,7 @@ export function helloRoute(path: string = ""): Route {
 }
 
 async function handleHello(
-  data: ZodSafeParsedData,
+  data: AnyParams,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   showBrandedNotice("… is ready for action 🚀");

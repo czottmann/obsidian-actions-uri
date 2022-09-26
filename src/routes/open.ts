@@ -1,12 +1,7 @@
 import { z } from "zod";
 import { incomingBaseParams } from "../schemata";
-import {
-  AnyHandlerResult,
-  HandlerFailure,
-  HandlerTextSuccess,
-  Route,
-  ZodSafeParsedData,
-} from "../types";
+import { AnyParams, Route } from "../routes";
+import { AnyHandlerResult, HandlerFailure, HandlerTextSuccess } from "../types";
 import { helloRoute, namespaceRoutes } from "../utils/routing";
 
 // SCHEMATA --------------------
@@ -17,7 +12,7 @@ const searchParams = incomingBaseParams.extend({
   query: z.string().min(1, { message: "can't be empty" }),
 });
 
-export type ParamsUnion =
+export type AnyLocalParams =
   | z.infer<typeof dailyNoteParams>
   | z.infer<typeof noteParams>
   | z.infer<typeof searchParams>;
@@ -39,7 +34,7 @@ export const routes: Route[] = namespaceRoutes("open", [
 
 // TODO: handleDailyNote()
 async function handleDailyNote(
-  data: ZodSafeParsedData,
+  data: AnyParams,
 ): Promise<AnyHandlerResult> {
   const params = data as z.infer<typeof dailyNoteParams>;
   console.log("handleDailyNote", params);
@@ -52,7 +47,7 @@ async function handleDailyNote(
 
 // TODO: handleNote()
 async function handleNote(
-  data: ZodSafeParsedData,
+  data: AnyParams,
 ): Promise<AnyHandlerResult> {
   const params = data as z.infer<typeof noteParams>;
   console.log("handleNote", params);
@@ -65,7 +60,7 @@ async function handleNote(
 
 // TODO: handleSearch()
 async function handleSearch(
-  data: ZodSafeParsedData,
+  data: AnyParams,
 ): Promise<AnyHandlerResult> {
   const params = data as z.infer<typeof searchParams>;
   console.log("handleSearch", params);

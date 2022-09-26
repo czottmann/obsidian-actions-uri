@@ -1,14 +1,13 @@
 import { Vault } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
+import { AnyParams, Route } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
   AnyHandlerResult,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
-  Route,
-  ZodSafeParsedData,
 } from "../types";
 import {
   appendNote,
@@ -71,7 +70,7 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 });
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
-export type ParamsUnion =
+export type AnyLocalParams =
   | CreateParams
   | ReadParams
   | WriteParams
@@ -102,7 +101,7 @@ export const routes: Route[] = namespaceRoutes("note", [
 // HANDLERS ----------------------------------------
 
 async function handleGet(
-  incomingParams: ZodSafeParsedData,
+  incomingParams: AnyParams,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <ReadParams> incomingParams;
@@ -123,7 +122,7 @@ async function handleGet(
 }
 
 async function handleCreate(
-  incomingParams: ZodSafeParsedData,
+  incomingParams: AnyParams,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <CreateParams> incomingParams;
@@ -147,7 +146,7 @@ async function handleCreate(
 }
 
 async function handleAppend(
-  incomingParams: ZodSafeParsedData,
+  incomingParams: AnyParams,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <AppendParams> incomingParams;
@@ -168,7 +167,7 @@ async function handleAppend(
 }
 
 async function handlePrepend(
-  incomingParams: ZodSafeParsedData,
+  incomingParams: AnyParams,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <PrependParams> incomingParams;
@@ -195,7 +194,7 @@ async function handlePrepend(
 }
 
 async function handleSearchStringAndReplace(
-  incomingParams: ZodSafeParsedData,
+  incomingParams: AnyParams,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
@@ -217,7 +216,7 @@ async function handleSearchStringAndReplace(
 }
 
 async function handleSearchRegexAndReplace(
-  incomingParams: ZodSafeParsedData,
+  incomingParams: AnyParams,
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
