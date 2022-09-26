@@ -3,7 +3,7 @@ import { z } from "zod";
 import { AnyParams, Route } from "../routes";
 import { IncomingBaseParams } from "../schemata";
 import { AnyHandlerResult, HandlerTextSuccess } from "../types";
-import { showBrandedNotice } from "./grabbag";
+import { showBrandedNotice } from "./ui";
 
 /**
  * Prefixes the `path` value of each of the passed-in routes. Used for

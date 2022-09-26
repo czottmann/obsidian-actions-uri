@@ -1,10 +1,15 @@
-import { Plugin } from "obsidian";
+import { Plugin, Workspace } from "obsidian";
 import { normalize } from "path";
 import { ZodError } from "zod";
 import { AnyParams, Route, routes } from "./routes";
-import { AnyHandlerResult, HandlerFailure, HandlerTextSuccess } from "./types";
+import {
+  AnyHandlerResult,
+  HandlerFailure,
+  HandlerFileSuccess,
+  HandlerTextSuccess,
+} from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
-import { showBrandedNotice } from "./utils/grabbag";
+import { focusLeafWithFile, showBrandedNotice } from "./utils/ui";
 
 export default class ActionsURI extends Plugin {
   static readonly URI_NAMESPACE = "actions-uri";
@@ -29,7 +34,6 @@ export default class ActionsURI extends Plugin {
    */
   private registerRoutes(routes: Route[]) {
     const regdRoutes: string[] = [];
-    const { vault } = this.app;
 
     for (const route of routes) {
       const { path, schema, handler } = route;
@@ -38,13 +42,15 @@ export default class ActionsURI extends Plugin {
       this.registerObsidianProtocolHandler(
         fullPath,
         async (incomingParams) => {
-          const parsedPayload = schema.safeParse(incomingParams);
-          if (parsedPayload.success) {
-            const result = await handler
-              .apply(this, [<AnyParams> parsedPayload.data, vault]);
-            this.sendUrlCallbackIfNeeded(result);
+          const params = schema.safeParse(incomingParams);
+          if (params.success) {
+            const handlerResult = await handler
+              .apply(this, [<AnyParams> params.data, this.app.vault]);
+
+            this.sendUrlCallbackIfNeeded(handlerResult);
+            this.openFileIfNeeded(handlerResult);
           } else {
-            this.handleParseError(parsedPayload.error);
+            this.handleParseError(params.error);
           }
         },
       );
@@ -122,5 +128,26 @@ export default class ActionsURI extends Plugin {
         sendUrlCallback(input["x-error"], <HandlerFailure> handlerRes);
       }
     }
+  }
+
+  private openFileIfNeeded(handlerResult: AnyHandlerResult) {
+    // Do we need to open anything in general?
+    if (!handlerResult.isSuccess || (<any> handlerResult.input).silent) return;
+
+    // Do we have information what to open?
+    const { processedNote } = <HandlerFileSuccess> handlerResult;
+    const filepath = processedNote?.filepath;
+    if (!processedNote || !filepath) return;
+
+    // Is this file open already? If so, can we just focus it?
+    const res = focusLeafWithFile(filepath, this.app.workspace);
+    if (res.isSuccess) return;
+
+    // Let's open the file then in the simplest way possible.
+    window.open(
+      "obsidian://open?" +
+        "vault=" + encodeURIComponent(this.app.vault.getName()) +
+        "&file=" + encodeURIComponent(processedNote.filepath),
+    );
   }
 }

@@ -21,22 +21,38 @@ type HandlerResult = {
   isSuccess: boolean;
 };
 
-export type HandlerFailure = HandlerResult & {
-  error: string;
-};
+export type HandlerFailure = Readonly<
+  & HandlerResult
+  & {
+    error: string;
+  }
+>;
 
-export type HandlerTextSuccess = HandlerResult & {
-  result: {
-    message: string;
-  };
-};
-
-export type HandlerFileSuccess = HandlerResult & {
-  result: {
+type HandlerSuccess = HandlerResult & {
+  processedNote?: {
     filepath: string;
-    content: string;
+    vault: Vault;
   };
 };
+
+export type HandlerTextSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      message: string;
+    };
+  }
+>;
+
+export type HandlerFileSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      content: string;
+      filepath: string;
+    };
+  }
+>;
 
 export type AnyHandlerResult =
   | HandlerTextSuccess

@@ -111,8 +111,9 @@ async function handleGet(
   return (res.isSuccess)
     ? <HandlerFileSuccess> {
       isSuccess: true,
-      result: { filepath: file, content: res.result },
+      result: { content: res.result, filepath: file },
       input: params,
+      processedNote: { filepath: file, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -137,6 +138,7 @@ async function handleCreate(
       isSuccess: true,
       result: { message: file },
       input: params,
+      processedNote: { filepath: file, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -158,6 +160,7 @@ async function handleAppend(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath: file, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -185,6 +188,7 @@ async function handlePrepend(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath: file, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -207,6 +211,7 @@ async function handleSearchStringAndReplace(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath: file, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -238,6 +243,7 @@ async function handleSearchRegexAndReplace(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath: file, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,

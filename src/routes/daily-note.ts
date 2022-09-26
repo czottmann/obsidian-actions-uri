@@ -116,12 +116,14 @@ async function handleGetCurrent(
     };
   }
 
-  const res = await getNoteContent(resDNP.result, vault);
+  const filepath = resDNP.result;
+  const res = await getNoteContent(filepath, vault);
   return res.isSuccess
     ? <HandlerFileSuccess> {
       isSuccess: true,
-      result: { filepath: resDNP.result, content: res.result },
+      result: { content: res.result, filepath: filepath },
       input: params,
+      processedNote: { filepath, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -159,8 +161,9 @@ async function handleGetMostRecent(
   return res.isSuccess
     ? <HandlerFileSuccess> {
       isSuccess: true,
-      result: { filepath: dailyNote.path, content: res.result },
+      result: { content: res.result, filepath: dailyNote.path },
       input: params,
+      processedNote: { filepath: dailyNote.path, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -214,6 +217,7 @@ async function handleCreate(
         isSuccess: true,
         result: { content, filepath: dailyNote.path },
         input: params,
+        processedNote: { filepath: dailyNote.path, vault },
       }
       : <HandlerFailure> {
         isSuccess: false,
@@ -238,6 +242,7 @@ async function handleCreate(
         isSuccess: true,
         result: { content: "", filepath: newNote.path },
         input: params,
+        processedNote: { filepath: newNote.path, vault },
       };
     }
 
@@ -248,6 +253,7 @@ async function handleCreate(
         isSuccess: true,
         result: { content, filepath: newNote.path },
         input: params,
+        processedNote: { filepath: newNote.path, vault },
       }
       : <HandlerFailure> {
         isSuccess: false,
@@ -271,8 +277,9 @@ async function handleAppend(
     };
   }
 
+  const filepath = resDNP.result;
   const res = await appendNote(
-    resDNP.result,
+    filepath,
     vault,
     params.content,
     params["ensure-newline"],
@@ -283,6 +290,7 @@ async function handleAppend(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -305,8 +313,9 @@ async function handlePrepend(
     };
   }
 
+  const filepath = resDNP.result;
   const res = await prependNote(
-    resDNP.result,
+    filepath,
     vault,
     params.content,
     params["ensure-newline"],
@@ -318,6 +327,7 @@ async function handlePrepend(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -340,9 +350,10 @@ async function handleSearchStringAndReplace(
     };
   }
 
+  const filepath = resDNP.result;
   const regex = new RegExp(params.search, "g");
   const res = await searchAndReplaceInNote(
-    resDNP.result,
+    filepath,
     vault,
     regex,
     params.replace,
@@ -352,6 +363,7 @@ async function handleSearchStringAndReplace(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -383,8 +395,9 @@ async function handleSearchRegexAndReplace(
     };
   }
 
+  const filepath = resDNP.result;
   const res = await searchAndReplaceInNote(
-    resDNP.result,
+    filepath,
     vault,
     resSir.result,
     params.replace,
@@ -394,6 +407,7 @@ async function handleSearchRegexAndReplace(
       isSuccess: true,
       result: { message: res.result },
       input: params,
+      processedNote: { filepath, vault },
     }
     : <HandlerFailure> {
       isSuccess: false,
