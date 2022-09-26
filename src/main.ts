@@ -108,11 +108,6 @@ export default class ActionsURI extends Plugin {
   private sendUrlCallbackIfNeeded(handlerRes: AnyHandlerResult) {
     const { isSuccess, input } = handlerRes;
 
-    if (input.silent) {
-      console.log("Silent call, not sending callback");
-      return;
-    }
-
     if (!input["x-success"] && !input["x-error"]) {
       console.log("No callbacks specified");
       return;
