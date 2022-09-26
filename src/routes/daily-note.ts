@@ -28,7 +28,7 @@ import {
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
 
-// SCHEMATA --------------------
+// SCHEMATA ----------------------------------------
 
 const readParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
@@ -79,7 +79,7 @@ export type ParamsUnion =
   | PrependParams
   | SearchAndReplaceParams;
 
-// ROUTES --------------------
+// ROUTES ----------------------------------------
 
 export const routes: Route[] = [
   helloRoute("daily-note"),
@@ -108,16 +108,7 @@ export const routes: Route[] = [
   },
 ];
 
-// NOTES --------------------
-
-// Return values of `appHasDailyNotesPluginLoaded()`:
-//
-// - official Daily Notes on: `true`
-// - official Daily Notes off: null
-// - Periodic Notes Daily Notes on: `true`
-// - Periodic Notes Daily Notes off: `false`
-
-// HANDLERS --------------------
+// HANDLERS ----------------------------------------
 
 async function handleGetCurrent(
   incomingParams: ZodSafeParsedData,
@@ -125,28 +116,20 @@ async function handleGetCurrent(
 ): Promise<AnyHandlerResult> {
   const params = <ReadParams> incomingParams;
 
-  if (!appHasDailyNotesPluginLoaded()) {
+  const resDNP = getDailyNotePathIfPluginIsAvailable();
+  if (!resDNP.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
+      error: resDNP.error,
       input: params,
     };
   }
 
-  const dailyNote = getCurrentDailyNote();
-  if (!dailyNote) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
-      input: params,
-    };
-  }
-
-  const res = await getNoteContent(dailyNote.path, vault);
+  const res = await getNoteContent(resDNP.result, vault);
   return res.isSuccess
     ? <HandlerFileSuccess> {
       isSuccess: true,
-      result: { filepath: dailyNote.path, content: res.result },
+      result: { filepath: resDNP.result, content: res.result },
       input: params,
     }
     : <HandlerFailure> {
@@ -238,7 +221,7 @@ async function handleCreate(
     return file
       ? <HandlerFileSuccess> {
         isSuccess: true,
-        result: { filepath: dailyNote.path, content: content },
+        result: { content, filepath: dailyNote.path },
         input: params,
       }
       : <HandlerFailure> {
@@ -262,7 +245,7 @@ async function handleCreate(
     if (typeof content !== "string" || content === "") {
       return <HandlerFileSuccess> {
         isSuccess: true,
-        result: { filepath: newNote.path, content: "" },
+        result: { content: "", filepath: newNote.path },
         input: params,
       };
     }
@@ -272,7 +255,7 @@ async function handleCreate(
     return (file instanceof TFile)
       ? <HandlerFileSuccess> {
         isSuccess: true,
-        result: { filepath: newNote.path, content: content },
+        result: { content, filepath: newNote.path },
         input: params,
       }
       : <HandlerFailure> {
@@ -288,26 +271,17 @@ async function handleAppend(
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <AppendParams> incomingParams;
-
-  if (!appHasDailyNotesPluginLoaded()) {
+  const resDNP = getDailyNotePathIfPluginIsAvailable();
+  if (!resDNP.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
-      input: params,
-    };
-  }
-
-  const dailyNote = getCurrentDailyNote();
-  if (!dailyNote) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
+      error: resDNP.error,
       input: params,
     };
   }
 
   const res = await appendNote(
-    dailyNote.path,
+    resDNP.result,
     vault,
     params.content,
     params["ensure-newline"],
@@ -331,26 +305,17 @@ async function handlePrepend(
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <PrependParams> incomingParams;
-
-  if (!appHasDailyNotesPluginLoaded()) {
+  const resDNP = getDailyNotePathIfPluginIsAvailable();
+  if (!resDNP.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
-      input: params,
-    };
-  }
-
-  const dailyNote = getCurrentDailyNote();
-  if (!dailyNote) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
+      error: resDNP.error,
       input: params,
     };
   }
 
   const res = await prependNote(
-    dailyNote.path,
+    resDNP.result,
     vault,
     params.content,
     params["ensure-newline"],
@@ -375,31 +340,21 @@ async function handleSearchStringAndReplace(
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
-
-  if (!appHasDailyNotesPluginLoaded()) {
+  const resDNP = getDailyNotePathIfPluginIsAvailable();
+  if (!resDNP.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
+      error: resDNP.error,
       input: params,
     };
   }
 
-  const dailyNote = getCurrentDailyNote();
-  if (!dailyNote) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
-      input: params,
-    };
-  }
-
-  const { search, replace } = params;
-  const regex = new RegExp(search, "g");
+  const regex = new RegExp(params.search, "g");
   const res = await searchAndReplaceInNote(
-    dailyNote.path,
+    resDNP.result,
     vault,
     regex,
-    replace,
+    params.replace,
   );
   return res.isSuccess
     ? <HandlerTextSuccess> {
@@ -419,27 +374,16 @@ async function handleSearchRegexAndReplace(
   vault: Vault,
 ): Promise<AnyHandlerResult> {
   const params = <SearchAndReplaceParams> incomingParams;
-
-  if (!appHasDailyNotesPluginLoaded()) {
+  const resDNP = getDailyNotePathIfPluginIsAvailable();
+  if (!resDNP.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
+      error: resDNP.error,
       input: params,
     };
   }
 
-  const dailyNote = getCurrentDailyNote();
-  if (!dailyNote) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
-      input: params,
-    };
-  }
-
-  const { search, replace } = params;
-  const resSir = parseStringIntoRegex(search);
-
+  const resSir = parseStringIntoRegex(params.search);
   if (!resSir.isSuccess) {
     return <HandlerFailure> {
       isSuccess: false,
@@ -449,10 +393,10 @@ async function handleSearchRegexAndReplace(
   }
 
   const res = await searchAndReplaceInNote(
-    dailyNote.path,
+    resDNP.result,
     vault,
     resSir.result,
-    replace,
+    params.replace,
   );
   return res.isSuccess
     ? <HandlerTextSuccess> {
@@ -467,8 +411,42 @@ async function handleSearchRegexAndReplace(
     };
 }
 
-// HELPERS --------------------
+// HELPERS ----------------------------------------
 
 function getCurrentDailyNote(): TFile | undefined {
   return getDailyNote(window.moment(), getAllDailyNotes());
 }
+
+/**
+ * Checks if the daily note plugin is available, and gets the path to today's
+ * daily note.
+ *
+ * @returns Successful `SimpleResult` containing the path if the DN
+ * functionality is available and there is a current daily note. Unsuccessful
+ * `SimpleResult` if it isn't.
+ */
+function getDailyNotePathIfPluginIsAvailable(): SimpleResult {
+  if (!appHasDailyNotesPluginLoaded()) {
+    return <SimpleResult> {
+      isSuccess: false,
+      error: STRINGS.daily_notes_feature_not_available,
+    };
+  }
+
+  const dailyNote = getCurrentDailyNote();
+  return dailyNote
+    ? <SimpleResult> { isSuccess: true, result: dailyNote.path }
+    : <SimpleResult> {
+      isSuccess: false,
+      error: STRINGS.daily_note.current_note_not_found,
+    };
+}
+
+// NOTES ----------------------------------------
+
+// Return values of `appHasDailyNotesPluginLoaded()`:
+//
+// - official Daily Notes on: `true`
+// - official Daily Notes off: null
+// - Periodic Notes Daily Notes on: `true`
+// - Periodic Notes Daily Notes off: `false`
