@@ -1,11 +1,7 @@
 import { dirname, extname, normalize } from "path";
 import { TFile, TFolder, Vault } from "obsidian";
 import { STRINGS } from "../constants";
-import {
-  containsFrontMatter,
-  ensureNewline,
-  extractNoteContentParts,
-} from "./string-handling";
+import { ensureNewline, extractNoteContentParts } from "./string-handling";
 import { SimpleResult } from "../types";
 
 /**
