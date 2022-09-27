@@ -43,7 +43,7 @@ export function logErrorToConsole(...data: any[]) {
 export function focusLeafWithFile(filepath: string): StringResultObject {
   const { workspace } = global.app;
   const leaf = workspace.getLeavesOfType("markdown")
-    .find((leaf) => (<FileView> leaf.view).file.path === filepath);
+    .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
 
   if (!leaf) {
     return <StringResultObject> {
@@ -52,7 +52,7 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
     };
   }
 
-  workspace.setActiveLeaf(leaf, true, true);
+  workspace.setActiveLeaf(leaf, { focus: true });
   return <StringResultObject> {
     isSuccess: true,
     result: "Open file found and focussed",
