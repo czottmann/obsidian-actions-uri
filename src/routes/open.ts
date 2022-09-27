@@ -90,14 +90,20 @@ async function handleNote(
     };
 }
 
-// TODO: handleSearch()
 async function handleSearch(
   incomingParams: AnyParams,
 ): Promise<AnyHandlerResult> {
   const params = <SearchParams> incomingParams;
-  console.log("handleSearch", params);
+
+  // Let's open the search in the simplest way possible.
+  window.open(
+    "obsidian://search?" +
+      "vault=" + encodeURIComponent(global.app.vault.getName()) +
+      "&query=" + encodeURIComponent(params.query.trim()),
+  );
+
   return <HandlerTextSuccess> {
     isSuccess: true,
-    result: { message: "" },
+    result: { message: "Opened search" },
   };
 }
