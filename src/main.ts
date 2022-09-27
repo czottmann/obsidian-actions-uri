@@ -79,18 +79,13 @@ export default class ActionsURI extends Plugin {
     params: AnyParams,
   ): Promise<ProcessingResult> {
     const handlerResult = await handlerFunc(params);
-    const sendCallbackResult = this.sendUrlCallbackIfNeeded(
-      handlerResult,
-      params,
-    );
-    const openResult = this.openFileIfNeeded(handlerResult, params);
-
     const res = <ProcessingResult> {
       params,
       handlerResult,
-      sendCallbackResult,
-      openResult,
+      sendCallbackResult: this.sendUrlCallbackIfNeeded(handlerResult, params),
+      openResult: this.openFileIfNeeded(handlerResult, params),
     };
+
     logToConsole("Call handled:", res);
     return res;
   }
