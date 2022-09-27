@@ -29,6 +29,5 @@ async function handleSearch(
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
-    input: params,
   };
 }

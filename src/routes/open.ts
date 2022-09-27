@@ -65,7 +65,6 @@ async function handleDailyNote(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: STRINGS.open.note_opened },
-      input: params,
       processedFilepath: res.result,
     }
     : <HandlerFailure> {
@@ -83,7 +82,6 @@ async function handleNote(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: STRINGS.open.note_opened },
-      input: params,
       processedFilepath: res.result.path,
     }
     : <HandlerFailure> {
@@ -101,6 +99,5 @@ async function handleSearch(
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
-    input: params,
   };
 }

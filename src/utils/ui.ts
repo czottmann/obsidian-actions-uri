@@ -39,10 +39,12 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
   };
 }
 
-export function focusOrOpenNote(filepath: string) {
+export function focusOrOpenNote(filepath: string): StringResultObject {
   // Is this file open already? If so, can we just focus it?
   const res = focusLeafWithFile(filepath);
-  if (res.isSuccess) return;
+  if (res.isSuccess) {
+    return res;
+  }
 
   // Let's open the file then in the simplest way possible.
   window.open(
@@ -50,4 +52,17 @@ export function focusOrOpenNote(filepath: string) {
       "vault=" + encodeURIComponent(global.app.vault.getName()) +
       "&file=" + encodeURIComponent(filepath),
   );
+
+  return <StringResultObject> {
+    isSuccess: true,
+    result: "File was opened",
+  };
+}
+
+export function logToConsole(...data: any[]) {
+  console.log("[Actions URI]", ...data);
+}
+
+export function logErrorToConsole(...data: any[]) {
+  console.error("[Actions URI]", ...data);
 }

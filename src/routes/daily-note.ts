@@ -111,7 +111,6 @@ async function handleGetCurrent(
     return <HandlerFailure> {
       isSuccess: false,
       error: resDNP.error,
-      input: params,
     };
   }
 
@@ -121,13 +120,11 @@ async function handleGetCurrent(
     ? <HandlerFileSuccess> {
       isSuccess: true,
       result: { content: res.result, filepath: filepath },
-      input: params,
       processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.daily_note.current_note_not_found,
-      input: params,
     };
 }
 
@@ -140,7 +137,6 @@ async function handleGetMostRecent(
     return <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.daily_notes_feature_not_available,
-      input: params,
     };
   }
 
@@ -150,7 +146,6 @@ async function handleGetMostRecent(
     return <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.daily_note.most_recent_note_not_found,
-      input: params,
     };
   }
 
@@ -160,13 +155,11 @@ async function handleGetMostRecent(
     ? <HandlerFileSuccess> {
       isSuccess: true,
       result: { content: res.result, filepath: dailyNote.path },
-      input: params,
       processedFilepath: dailyNote.path,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.daily_note.most_recent_note_not_found,
-      input: params,
     };
 }
 
@@ -179,7 +172,6 @@ async function handleCreate(
     return <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.daily_notes_feature_not_available,
-      input: params,
     };
   }
 
@@ -193,7 +185,6 @@ async function handleCreate(
       return <HandlerFailure> {
         isSuccess: false,
         error: STRINGS.daily_note.create_note_already_exists,
-        input: params,
       };
     }
 
@@ -203,7 +194,6 @@ async function handleCreate(
       return <HandlerFailure> {
         isSuccess: false,
         error: STRINGS.daily_note.create_note_no_content,
-        input: params,
       };
     }
 
@@ -213,13 +203,11 @@ async function handleCreate(
       ? <HandlerFileSuccess> {
         isSuccess: true,
         result: { content, filepath: dailyNote.path },
-        input: params,
         processedFilepath: dailyNote.path,
       }
       : <HandlerFailure> {
         isSuccess: false,
         error: STRINGS.daily_note.create_note_failed,
-        input: params,
       };
   } else {
     // There is no note for today.  Let's create one!
@@ -228,7 +216,6 @@ async function handleCreate(
       <HandlerFailure> {
         isSuccess: false,
         error: STRINGS.unable_to_write_note,
-        input: params,
       };
     }
 
@@ -238,7 +225,6 @@ async function handleCreate(
       return <HandlerFileSuccess> {
         isSuccess: true,
         result: { content: "", filepath: newNote.path },
-        input: params,
         processedFilepath: newNote.path,
       };
     }
@@ -249,13 +235,11 @@ async function handleCreate(
       ? <HandlerFileSuccess> {
         isSuccess: true,
         result: { content, filepath: newNote.path },
-        input: params,
         processedFilepath: newNote.path,
       }
       : <HandlerFailure> {
         isSuccess: false,
         error: STRINGS.daily_note.unable_to_update_note,
-        input: params,
       };
   }
 }
@@ -269,7 +253,6 @@ async function handleAppend(
     return <HandlerFailure> {
       isSuccess: false,
       error: resDNP.error,
-      input: params,
     };
   }
 
@@ -284,13 +267,11 @@ async function handleAppend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
       processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 
@@ -303,7 +284,6 @@ async function handlePrepend(
     return <HandlerFailure> {
       isSuccess: false,
       error: resDNP.error,
-      input: params,
     };
   }
 
@@ -319,13 +299,11 @@ async function handlePrepend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
       processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 
@@ -338,7 +316,6 @@ async function handleSearchStringAndReplace(
     return <HandlerFailure> {
       isSuccess: false,
       error: resDNP.error,
-      input: params,
     };
   }
 
@@ -353,13 +330,11 @@ async function handleSearchStringAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
       processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 
@@ -372,7 +347,6 @@ async function handleSearchRegexAndReplace(
     return <HandlerFailure> {
       isSuccess: false,
       error: resDNP.error,
-      input: params,
     };
   }
 
@@ -381,7 +355,6 @@ async function handleSearchRegexAndReplace(
     return <HandlerFailure> {
       isSuccess: false,
       error: resSir.error,
-      input: params,
     };
   }
 
@@ -395,13 +368,11 @@ async function handleSearchRegexAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
       processedFilepath: filepath,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 

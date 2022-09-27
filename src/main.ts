@@ -7,10 +7,17 @@ import {
   HandlerFileSuccess,
   HandlerFunction,
   HandlerTextSuccess,
+  ProcessingResult,
+  StringResultObject,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
 import { buildFullPath } from "./utils/string-handling";
-import { focusOrOpenNote, showBrandedNotice } from "./utils/ui";
+import {
+  focusOrOpenNote,
+  logErrorToConsole,
+  logToConsole,
+  showBrandedNotice,
+} from "./utils/ui";
 
 export default class ActionsURI extends Plugin {
   async onload() {
@@ -18,6 +25,7 @@ export default class ActionsURI extends Plugin {
   }
 
   onunload() {
+    // Just act natural.
   }
 
   /**
@@ -51,8 +59,7 @@ export default class ActionsURI extends Plugin {
       regdRoutes.push(fullPath);
     }
 
-    console.info("Registered URI handlers:");
-    console.info(regdRoutes.map((path) => `- obsidian://${path}`).join("\n"));
+    logToConsole("Registered URI handlers:", regdRoutes);
   }
 
   /**
@@ -60,17 +67,32 @@ export default class ActionsURI extends Plugin {
    * handler and sends out a callback (if necessary) and opens the processed
    * note (if necessary).
    *
-   * @param handler - A route handler function
-   * @param incomingParams - Parameters from the incoming `x-callback-url` call
-   * after being parsed & validated by Zod
+   * @param handlerFunc - A route handler function
+   * @param params - Parameters from the incoming `x-callback-url` call after
+   * being parsed & validated by Zod
+   *
+   * @returns A `ProcessingResult` object containing the incoming parameters,
+   * results from the handler, the callback sending and the note opening
    */
   private async handleIncomingCall(
-    handler: HandlerFunction,
-    incomingParams: AnyParams,
-  ) {
-    const res = await handler(incomingParams);
-    this.sendUrlCallbackIfNeeded(res);
-    this.openFileIfNeeded(res);
+    handlerFunc: HandlerFunction,
+    params: AnyParams,
+  ): Promise<ProcessingResult> {
+    const handlerResult = await handlerFunc(params);
+    const sendCallbackResult = this.sendUrlCallbackIfNeeded(
+      handlerResult,
+      params,
+    );
+    const openResult = this.openFileIfNeeded(handlerResult, params);
+
+    const res = <ProcessingResult> {
+      params,
+      handlerResult,
+      sendCallbackResult,
+      openResult,
+    };
+    logToConsole("Call handled:", res);
+    return res;
   }
 
   /**
@@ -80,6 +102,8 @@ export default class ActionsURI extends Plugin {
    *
    * @param parseError - The error object returned from Zod's `.safeParse`
    * method
+   * @param params - Parameters from the incoming `x-callback-url` call after
+   * being parsed & validated by Zod
    */
   private handleParseError(parseError: ZodError) {
     const msg = [
@@ -88,8 +112,8 @@ export default class ActionsURI extends Plugin {
         .map((error) => `- ${error.path.join(".")}: ${error.message}`),
     ].flat().join("\n");
 
-    console.error(msg);
     showBrandedNotice(msg);
+    logErrorToConsole(msg);
   }
 
   /**
@@ -107,33 +131,64 @@ export default class ActionsURI extends Plugin {
    *
    * @see {@link sendUrlCallback}
    */
-  private sendUrlCallbackIfNeeded(handlerRes: AnyHandlerResult) {
-    const { isSuccess, input } = handlerRes;
-
-    if (!input["x-success"] && !input["x-error"]) {
-      console.log("No callbacks specified");
-      return;
+  private sendUrlCallbackIfNeeded(
+    handlerRes: AnyHandlerResult,
+    params: AnyParams,
+  ): StringResultObject {
+    if (handlerRes.isSuccess) {
+      return params["x-success"]
+        ? sendUrlCallback(
+          params["x-success"],
+          <HandlerTextSuccess> handlerRes,
+          params,
+        )
+        : <StringResultObject> {
+          isSuccess: true,
+          result: "No `x-success` callback URL provided",
+        };
     }
 
-    if (isSuccess) {
-      if (input["x-success"]) {
-        sendUrlCallback(input["x-success"], <HandlerTextSuccess> handlerRes);
-      }
-    } else {
-      if (input["x-error"]) {
-        sendUrlCallback(input["x-error"], <HandlerFailure> handlerRes);
-      }
-    }
+    return params["x-error"]
+      ? sendUrlCallback(
+        params["x-error"],
+        <HandlerFailure> handlerRes,
+        params,
+      )
+      : <StringResultObject> {
+        isSuccess: true,
+        result: "No `x-error` callback URL provided",
+      };
   }
 
-  private openFileIfNeeded(handlerResult: AnyHandlerResult) {
+  private openFileIfNeeded(
+    handlerResult: AnyHandlerResult,
+    params: AnyParams,
+  ): StringResultObject {
     // Do we need to open anything in general?
-    if (!handlerResult.isSuccess || (<any> handlerResult.input).silent) return;
+    if (!handlerResult.isSuccess) {
+      return <StringResultObject> {
+        isSuccess: true,
+        result: "No file to open, the handler failed",
+      };
+    }
+
+    if ((<any> params).silent) {
+      return <StringResultObject> {
+        isSuccess: true,
+        result: "No file to open, the `silent` parameter was set",
+      };
+    }
 
     // Do we have information what to open?
     const { processedFilepath } = (<HandlerFileSuccess> handlerResult);
-    if (!processedFilepath) return;
+    if (!processedFilepath) {
+      return <StringResultObject> {
+        isSuccess: true,
+        result:
+          "No file to open, handler didn't return a `processedFilepath` property",
+      };
+    }
 
-    focusOrOpenNote(processedFilepath);
+    return focusOrOpenNote(processedFilepath);
   }
 }

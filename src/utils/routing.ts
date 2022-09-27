@@ -36,6 +36,5 @@ async function handleHello(data: AnyParams): Promise<AnyHandlerResult> {
   return <HandlerTextSuccess> {
     isSuccess: true,
     result: { message: "" },
-    input: data as IncomingBaseParams,
   };
 }

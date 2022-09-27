@@ -14,7 +14,6 @@ export type HandlerFunction = (
 ) => Promise<AnyHandlerResult>;
 
 type HandlerResult = {
-  input: AnyParams;
   isSuccess: boolean;
 };
 

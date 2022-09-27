@@ -102,13 +102,12 @@ async function handleGet(
     ? <HandlerFileSuccess> {
       isSuccess: true,
       result: { content: res.result, filepath: file },
-      input: params,
+
       processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 
@@ -126,13 +125,12 @@ async function handleCreate(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: file },
-      input: params,
+
       processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.unable_to_write_note,
-      input: params,
     };
 }
 
@@ -147,13 +145,12 @@ async function handleAppend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
+
       processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 
@@ -173,13 +170,12 @@ async function handlePrepend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
+
       processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 
@@ -195,13 +191,12 @@ async function handleSearchStringAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
+
       processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
 
@@ -216,7 +211,6 @@ async function handleSearchRegexAndReplace(
     return <HandlerFailure> {
       isSuccess: false,
       error: resSir.error,
-      input: params,
     };
   }
 
@@ -226,12 +220,11 @@ async function handleSearchRegexAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-      input: params,
+
       processedFilepath: file,
     }
     : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
-      input: params,
     };
 }
