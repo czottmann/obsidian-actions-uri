@@ -5,6 +5,7 @@ import {
   AnyHandlerResult,
   HandlerFailure,
   HandlerFileSuccess,
+  HandlerFunction,
   HandlerTextSuccess,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
@@ -41,14 +42,10 @@ export default class ActionsURI extends Plugin {
       this.registerObsidianProtocolHandler(
         fullPath,
         async (incomingParams) => {
-          const params = schema.safeParse(incomingParams);
-          if (params.success) {
-            const handlerResult = await handler(<AnyParams> params.data);
-            this.sendUrlCallbackIfNeeded(handlerResult);
-            this.openFileIfNeeded(handlerResult);
-          } else {
-            this.handleParseError(params.error);
-          }
+          const res = schema.safeParse(incomingParams);
+          res.success
+            ? await this.handleIncomingCall(handler, <AnyParams> res.data)
+            : this.handleParseError(res.error);
         },
       );
       regdRoutes.push(fullPath);
@@ -59,8 +56,27 @@ export default class ActionsURI extends Plugin {
   }
 
   /**
-   * When a payload failed to parse and can't be further processed, we show an
-   * Obsidian notice to the user, conveying the error message.
+   * This function deals with valid incoming calls. It calls the responsible
+   * handler and sends out a callback (if necessary) and opens the processed
+   * note (if necessary).
+   *
+   * @param handler - A route handler function
+   * @param incomingParams - Parameters from the incoming `x-callback-url` call
+   * after being parsed & validated by Zod
+   */
+  private async handleIncomingCall(
+    handler: HandlerFunction,
+    incomingParams: AnyParams,
+  ) {
+    const res = await handler(incomingParams);
+    this.sendUrlCallbackIfNeeded(res);
+    this.openFileIfNeeded(res);
+  }
+
+  /**
+   * When the parameters of an incoming `x-callback-url` call fail to parse or
+   * validate, and thus can't be further processed, we have to inform the user,
+   * conveying the error message.
    *
    * @param parseError - The error object returned from Zod's `.safeParse`
    * method
