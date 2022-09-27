@@ -7,7 +7,7 @@ import {
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { ensureNewline, extractNoteContentParts } from "./string-handling";
-import { StringResultObject } from "../types";
+import { StringResultObject, TFileResultObject } from "../types";
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -285,6 +285,25 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
       isSuccess: false,
       error: STRINGS.daily_note.current_note_not_found,
     };
+}
+
+/**
+ * Checks whether a particular file exists and when it does, returns its `TFile`
+ * instance.
+ *
+ * @param filepath - A full filename
+ *
+ * @returns A result object containing either an error string or the `TFile`.
+ */
+export async function getNoteFile(
+  filepath: string,
+): Promise<TFileResultObject> {
+  const { vault } = global.app;
+  const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
+
+  return file instanceof TFile
+    ? <TFileResultObject> { isSuccess: true, result: file }
+    : <TFileResultObject> { isSuccess: false, error: STRINGS.note_not_found };
 }
 
 // HELPERS ----------------------------------------

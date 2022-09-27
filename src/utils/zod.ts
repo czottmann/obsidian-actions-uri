@@ -16,3 +16,12 @@ export const zodOptionalBoolean = z.preprocess(
 export const zodSanitizedFilePath = z.string()
   .min(1, { message: "can't be empty" })
   .transform((file) => sanitizeFilePath(file));
+
+/**
+ * An always-false boolean. Looks stupid but it's used by the handlers in
+ * `../routes/open.ts`, see section "HANDLERS" there.
+ */
+export const zodAlwaysFalse = z.preprocess(
+  (param: unknown): boolean => false,
+  z.boolean().optional(),
+);

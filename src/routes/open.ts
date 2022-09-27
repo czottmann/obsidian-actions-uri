@@ -2,21 +2,37 @@ import { z } from "zod";
 import { incomingBaseParams } from "../schemata";
 import { AnyParams, Route } from "../routes";
 import { AnyHandlerResult, HandlerFailure, HandlerTextSuccess } from "../types";
-import { getDailyNotePathIfPluginIsAvailable } from "../utils/file-handling";
+import {
+  getDailyNotePathIfPluginIsAvailable,
+  getNoteFile,
+} from "../utils/file-handling";
 import { helloRoute, namespaceRoutes } from "../utils/routing";
+import { STRINGS } from "src/constants";
+import { zodAlwaysFalse, zodSanitizedFilePath } from "../utils/zod";
 
 // SCHEMATA --------------------
 
-const dailyNoteParams = incomingBaseParams.extend({});
-const noteParams = incomingBaseParams.extend({});
+const dailyNoteParams = incomingBaseParams.extend({
+  silent: zodAlwaysFalse,
+});
+type DailyNoteParams = z.infer<typeof dailyNoteParams>;
+
+const noteParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  silent: zodAlwaysFalse,
+});
+type NoteParams = z.infer<typeof noteParams>;
+
 const searchParams = incomingBaseParams.extend({
   query: z.string().min(1, { message: "can't be empty" }),
+  silent: zodAlwaysFalse,
 });
+type SearchParams = z.infer<typeof searchParams>;
 
 export type AnyLocalParams =
-  | z.infer<typeof dailyNoteParams>
-  | z.infer<typeof noteParams>
-  | z.infer<typeof searchParams>;
+  | DailyNoteParams
+  | NoteParams
+  | SearchParams;
 
 // ROUTES --------------------
 
@@ -33,45 +49,54 @@ export const routes: Route[] = namespaceRoutes("open", [
 
 // HANDLERS --------------------
 
-// TODO: handleDailyNote()
+/**
+ * Since we force the `silent` param to be `false` (see section "SCHEMATA"
+ * above), all these handlers need to do is find the requested note path and
+ * hand it back to the calling `handleIncomingCall()` (see `main.ts`) which will
+ * take care of the rest.
+ */
+
 async function handleDailyNote(
-  data: AnyParams,
+  incomingParams: AnyParams,
 ): Promise<AnyHandlerResult> {
+  const params = <DailyNoteParams> incomingParams;
   const res = getDailyNotePathIfPluginIsAvailable();
-  if (!res.isSuccess) {
-    return <HandlerFailure> {
+  return res.isSuccess
+    ? <HandlerTextSuccess> {
+      isSuccess: true,
+      result: { message: STRINGS.open.note_opened },
+      input: params,
+      processedFilepath: res.result,
+    }
+    : <HandlerFailure> {
       isSuccess: false,
       error: res.error,
     };
-  }
-
-  const params = data as z.infer<typeof dailyNoteParams>;
-  console.log("handleDailyNote", params);
-  return <HandlerTextSuccess> {
-    isSuccess: true,
-    result: { message: "" },
-    input: params,
-  };
 }
 
-// TODO: handleNote()
 async function handleNote(
-  data: AnyParams,
+  incomingParams: AnyParams,
 ): Promise<AnyHandlerResult> {
-  const params = data as z.infer<typeof noteParams>;
-  console.log("handleNote", params);
-  return <HandlerTextSuccess> {
-    isSuccess: true,
-    result: { message: "" },
-    input: params,
-  };
+  const params = <NoteParams> incomingParams;
+  const res = await getNoteFile(params.file);
+  return res.isSuccess
+    ? <HandlerTextSuccess> {
+      isSuccess: true,
+      result: { message: STRINGS.open.note_opened },
+      input: params,
+      processedFilepath: res.result.path,
+    }
+    : <HandlerFailure> {
+      isSuccess: false,
+      error: res.error,
+    };
 }
 
 // TODO: handleSearch()
 async function handleSearch(
-  data: AnyParams,
+  incomingParams: AnyParams,
 ): Promise<AnyHandlerResult> {
-  const params = data as z.infer<typeof searchParams>;
+  const params = <SearchParams> incomingParams;
   console.log("handleSearch", params);
   return <HandlerTextSuccess> {
     isSuccess: true,

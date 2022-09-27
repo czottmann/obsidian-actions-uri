@@ -22,6 +22,10 @@ export const STRINGS = {
     most_recent_note_not_found: "No current daily note found",
     unable_to_update_note: "Can't update daily note",
   },
+  open: {
+    note_opened: "Note opened",
+    note_focussed: "Note already open, focussed it",
+  },
 };
 
 export const XCALLBACK_RESULT_PREFIX = "result";
