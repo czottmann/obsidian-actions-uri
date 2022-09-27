@@ -1,3 +1,5 @@
+export const URI_NAMESPACE = "actions-uri";
+
 export const STRINGS = {
   append_done: "Note was appended",
   daily_notes_feature_not_available: "Daily Notes plugin is not active",

@@ -1,5 +1,4 @@
 import { Plugin } from "obsidian";
-import { normalize } from "path";
 import { ZodError } from "zod";
 import { AnyParams, Route, routes } from "./routes";
 import {
@@ -9,11 +8,10 @@ import {
   HandlerTextSuccess,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
+import { buildFullPath } from "./utils/string-handling";
 import { focusOrOpenNote, showBrandedNotice } from "./utils/ui";
 
 export default class ActionsURI extends Plugin {
-  static readonly URI_NAMESPACE = "actions-uri";
-
   async onload() {
     this.app.workspace.onLayoutReady(() => this.registerRoutes(routes));
   }
@@ -26,8 +24,9 @@ export default class ActionsURI extends Plugin {
    * Obsidian.
    *
    * Each incoming call is first validated against the route's schema; if it
-   * passes, its handler is called and a `x-success`/`x-error` callback is sent
-   * out if needed. If the validation fails, an error message is shown to the
+   * passes, its handler is called, then a `x-success`/`x-error` callback is
+   * sent out (if necessary) and the processed note is opened in Obsidian (if
+   * necessary). If the validation fails, an error message is shown to the
    * user.
    *
    * @param routes - An array of route objects
@@ -37,16 +36,14 @@ export default class ActionsURI extends Plugin {
 
     for (const route of routes) {
       const { path, schema, handler } = route;
-      const fullPath = this.buildFullPath(path);
+      const fullPath = buildFullPath(path);
 
       this.registerObsidianProtocolHandler(
         fullPath,
         async (incomingParams) => {
           const params = schema.safeParse(incomingParams);
           if (params.success) {
-            const handlerResult = await handler
-              .apply(this, [<AnyParams> params.data]);
-
+            const handlerResult = await handler(<AnyParams> params.data);
             this.sendUrlCallbackIfNeeded(handlerResult);
             this.openFileIfNeeded(handlerResult);
           } else {
@@ -59,23 +56,6 @@ export default class ActionsURI extends Plugin {
 
     console.info("Registered URI handlers:");
     console.info(regdRoutes.map((path) => `- obsidian://${path}`).join("\n"));
-  }
-
-  /**
-   * Building a namespaced action string used in the Obsidian protocol handler.
-   * The input is normalized.
-   *
-   * @param path - The last segment of the action string
-   *
-   * @example
-   * - `buildActionPath("herp")` // → "actions-uri/herp"
-   * - `buildActionPath("herp/derp")` // → "actions-uri/herp/derp"
-   * - `buildActionPath("/herp//derp")` // → "actions-uri/herp/derp"
-   * - `buildActionPath(".././herp/../derp")` // → "actions-uri/derp"
-   */
-  private buildFullPath(path: string) {
-    return `${ActionsURI.URI_NAMESPACE}/` +
-      normalize(path).replace(/^[\.\/]+/g, "");
   }
 
   /**
