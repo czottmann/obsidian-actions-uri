@@ -37,13 +37,6 @@ const readParams = incomingBaseParams.extend({
 });
 type ReadParams = z.infer<typeof readParams>;
 
-const writeParams = incomingBaseParams.extend({
-  content: z.string().optional(),
-  file: zodSanitizedFilePath,
-  silent: zodOptionalBoolean,
-});
-type WriteParams = z.infer<typeof writeParams>;
-
 const appendParams = incomingBaseParams.extend({
   content: z.string(),
   file: zodSanitizedFilePath,
@@ -72,7 +65,6 @@ type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 export type AnyLocalParams =
   | CreateParams
   | ReadParams
-  | WriteParams
   | AppendParams
   | PrependParams
   | SearchAndReplaceParams;
