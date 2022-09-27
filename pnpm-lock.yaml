@@ -7,7 +7,7 @@ specifiers:
   builtin-modules: 3.3.0
   esbuild: 0.14.47
   filter-obj: ^5.1.0
-  obsidian: 0.15.9
+  obsidian: latest
   obsidian-daily-notes-interface: ^0.9.4
   tslib: 2.4.0
   typescript: 4.7.4
@@ -20,7 +20,7 @@ devDependencies:
   builtin-modules: 3.3.0
   esbuild: 0.14.47
   filter-obj: 5.1.0
-  obsidian: 0.15.9_michkwnirgfdv23qrytelgbfcu
+  obsidian: 0.16.3_michkwnirgfdv23qrytelgbfcu
   obsidian-daily-notes-interface: 0.9.4_michkwnirgfdv23qrytelgbfcu
   tslib: 2.4.0
   typescript: 4.7.4
@@ -983,8 +983,8 @@ packages:
       - '@codemirror/view'
     dev: true
 
-  /obsidian/0.15.9_michkwnirgfdv23qrytelgbfcu:
-    resolution: {integrity: sha512-w3JL/IM3/U61rjFSFIFDSv+pcHn3mH1EIRN40kBkC/lGYqjFSPbr6daQe08QkskBz/GAYIeBoaKQIcgU9vV3LQ==}
+  /obsidian/0.16.3_michkwnirgfdv23qrytelgbfcu:
+    resolution: {integrity: sha512-hal9qk1A0GMhHSeLr2/+o3OpLmImiP+Y+sx2ewP13ds76KXsziG96n+IPFT0mSkup1zSwhEu+DeRhmbcyCCXWw==}
     peerDependencies:
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
