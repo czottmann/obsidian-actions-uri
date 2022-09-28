@@ -115,3 +115,14 @@ export function extractNoteContentParts(
       body: noteContent,
     };
 }
+
+/**
+ * Removes the YAML boundary lines from a passed-in front matter block.
+ *
+ * @param frontMatter - A full YAML front matter string, including the boundary lines
+ *
+ * @returns The YAML front matter string without the boundary lines
+ */
+export function unwrapFrontMatter(frontMatter: string): string {
+  return frontMatter.replace(/^---\n/, "").replace(/---\n$/, "");
+}

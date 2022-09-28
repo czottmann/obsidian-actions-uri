@@ -17,7 +17,11 @@ import {
   searchAndReplaceInNote,
 } from "../utils/file-handling";
 import { helloRoute, namespaceRoutes } from "../utils/routing";
-import { parseStringIntoRegex } from "../utils/string-handling";
+import {
+  extractNoteContentParts,
+  parseStringIntoRegex,
+  unwrapFrontMatter,
+} from "../utils/string-handling";
 import { zodOptionalBoolean, zodSanitizedFilePath } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
@@ -98,17 +102,26 @@ async function handleGet(
   const { file } = params;
   const res = await getNoteContent(file);
 
-  return (res.isSuccess)
-    ? <HandlerFileSuccess> {
-      isSuccess: true,
-      result: { content: res.result, filepath: file },
+  if (res.isSuccess) {
+    const content = res.result;
+    const { body, frontMatter } = extractNoteContentParts(content);
 
+    return <HandlerFileSuccess> {
+      isSuccess: true,
+      result: {
+        filepath: file,
+        content,
+        body,
+        "front-matter": unwrapFrontMatter(frontMatter),
+      },
       processedFilepath: file,
-    }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
     };
+  }
+
+  return <HandlerFailure> {
+    isSuccess: false,
+    error: res.error,
+  };
 }
 
 async function handleCreate(
@@ -117,16 +130,15 @@ async function handleCreate(
   const params = <CreateParams> incomingParams;
   const { file, content, overwrite } = params;
 
-  const result = overwrite
+  const res = overwrite
     ? await createOrOverwriteNote(file, content || "")
     : await createNote(file, content || "");
 
-  return result
+  return res.isSuccess
     ? <HandlerTextSuccess> {
       isSuccess: true,
-      result: { message: file },
-
-      processedFilepath: file,
+      result: { message: res.result.path },
+      processedFilepath: res.result.path,
     }
     : <HandlerFailure> {
       isSuccess: false,
@@ -145,7 +157,6 @@ async function handleAppend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-
       processedFilepath: file,
     }
     : <HandlerFailure> {
@@ -170,7 +181,6 @@ async function handlePrepend(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-
       processedFilepath: file,
     }
     : <HandlerFailure> {
@@ -191,7 +201,6 @@ async function handleSearchStringAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-
       processedFilepath: file,
     }
     : <HandlerFailure> {
@@ -220,7 +229,6 @@ async function handleSearchRegexAndReplace(
     ? <HandlerTextSuccess> {
       isSuccess: true,
       result: { message: res.result },
-
       processedFilepath: file,
     }
     : <HandlerFailure> {

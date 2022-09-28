@@ -41,6 +41,8 @@ export type HandlerFileSuccess = Readonly<
     result: {
       content: string;
       filepath: string;
+      body?: string;
+      "front-matter"?: string;
     };
   }
 >;

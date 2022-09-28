@@ -24,7 +24,11 @@ import {
   searchAndReplaceInNote,
 } from "../utils/file-handling";
 import { helloRoute, namespaceRoutes } from "../utils/routing";
-import { parseStringIntoRegex } from "../utils/string-handling";
+import {
+  extractNoteContentParts,
+  parseStringIntoRegex,
+  unwrapFrontMatter,
+} from "../utils/string-handling";
 import { zodOptionalBoolean } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
@@ -104,8 +108,6 @@ export const routes: Route[] = namespaceRoutes("daily-note", [
 async function handleGetCurrent(
   incomingParams: AnyParams,
 ): Promise<AnyHandlerResult> {
-  const params = <ReadParams> incomingParams;
-
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
     return <HandlerFailure> {
@@ -116,23 +118,32 @@ async function handleGetCurrent(
 
   const filepath = resDNP.result;
   const res = await getNoteContent(filepath);
-  return res.isSuccess
-    ? <HandlerFileSuccess> {
+
+  if (res.isSuccess) {
+    const content = res.result;
+    const { body, frontMatter } = extractNoteContentParts(content);
+
+    return <HandlerFileSuccess> {
       isSuccess: true,
-      result: { content: res.result, filepath: filepath },
+      result: {
+        filepath,
+        content,
+        body,
+        "front-matter": unwrapFrontMatter(frontMatter),
+      },
       processedFilepath: filepath,
-    }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
     };
+  }
+
+  return <HandlerFailure> {
+    isSuccess: false,
+    error: STRINGS.daily_note.current_note_not_found,
+  };
 }
 
 async function handleGetMostRecent(
   incomingParams: AnyParams,
 ): Promise<AnyHandlerResult> {
-  const params = <ReadParams> incomingParams;
-
   if (!appHasDailyNotesPluginLoaded()) {
     return <HandlerFailure> {
       isSuccess: false,
@@ -151,16 +162,27 @@ async function handleGetMostRecent(
 
   const dailyNote = notes[mostRecentKey];
   const res = await getNoteContent(dailyNote.path);
-  return res.isSuccess
-    ? <HandlerFileSuccess> {
+
+  if (res.isSuccess) {
+    const content = res.result;
+    const { body, frontMatter } = extractNoteContentParts(content);
+
+    return <HandlerFileSuccess> {
       isSuccess: true,
-      result: { content: res.result, filepath: dailyNote.path },
+      result: {
+        filepath: dailyNote.path,
+        content,
+        body,
+        "front-matter": unwrapFrontMatter(frontMatter),
+      },
       processedFilepath: dailyNote.path,
-    }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.daily_note.most_recent_note_not_found,
     };
+  }
+
+  return <HandlerFailure> {
+    isSuccess: false,
+    error: STRINGS.daily_note.most_recent_note_not_found,
+  };
 }
 
 async function handleCreate(
