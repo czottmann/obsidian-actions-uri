@@ -47,7 +47,21 @@ export type HandlerFileSuccess = Readonly<
   }
 >;
 
+export type HandlerInfoSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      pluginVersion: string;
+      pluginReleasedAt: string;
+      obsidianVersion: string;
+      nodeVersion: string;
+      os: string;
+    };
+  }
+>;
+
 export type AnyHandlerResult =
   | HandlerTextSuccess
   | HandlerFileSuccess
-  | HandlerFailure;
+  | HandlerFailure
+  | HandlerInfoSuccess;

@@ -49,10 +49,11 @@ then
   jq ". += {\"${NEW_VERSION}\": \"${MIN_OBSIDIAN_VERSION}\"}" versions.json > "$TEMP_FILE" || exit 1
   mv "$TEMP_FILE" versions.json
 
-  echo "Updating src/info.json"
+  echo "Updating src/plugin-info.json & src/plugin-info.ts"
   TEMP_FILE=$(mktemp)
-  jq ".version |= \"${NEW_VERSION}\" | .releasedAt |= \"${DATE_NOW}\"" src/info.json > "$TEMP_FILE" || exit 1
-  mv "$TEMP_FILE" src/info.json
+  jq ".pluginVersion |= \"${NEW_VERSION}\" | .pluginReleasedAt |= \"${DATE_NOW}\"" src/plugin-info.json > "$TEMP_FILE" || exit 1
+  mv "$TEMP_FILE" src/plugin-info.json
+  echo "/* File will be overwritten by bin/release.sh! */export const PLUGIN_INFO = $(cat src/plugin-info.json)" > src/plugin-info.ts
 
   read -p "Create git commit, tag, and push? [y/N] " -n 1 -r
   echo

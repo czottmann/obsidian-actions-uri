@@ -18,6 +18,10 @@ import {
   AnyLocalParams as AnySearchParams,
   routes as searchRoutes,
 } from "./routes/search";
+import {
+  AnyLocalParams as AnyInfoParams,
+  routes as infoRoutes,
+} from "./routes/info";
 import { IncomingBaseParams } from "./schemata";
 
 export const routes: Route[] = [
@@ -26,6 +30,7 @@ export const routes: Route[] = [
   ...noteRoutes,
   ...openRoutes,
   ...searchRoutes,
+  ...infoRoutes,
 ];
 
 /**
@@ -43,4 +48,5 @@ export type AnyParams =
   | AnyDailyNoteParams
   | AnyNoteParams
   | AnyOpenParams
-  | AnySearchParams;
+  | AnySearchParams
+  | AnyInfoParams;
