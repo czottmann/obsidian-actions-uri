@@ -21,9 +21,10 @@ import { showBrandedNotice } from "./ui";
  * - Out: `[ { path: "herp/derp", schema: …, handler: … }, … ]`
  */
 export function namespaceRoutes(namespace: string, routes: Route[]): Route[] {
-  return routes.map((r) => {
-    return { ...r, path: `${namespace}/${r.path}` };
-  });
+  return routes.map((r) => ({
+    ...r,
+    path: `${namespace}/${r.path}`.split("/").filter((p) => !!p).join("/"),
+  }));
 }
 
 export function helloRoute(path: string = ""): Route {
