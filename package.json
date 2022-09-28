@@ -15,6 +15,7 @@
     "@typescript-eslint/eslint-plugin": "5.29.0",
     "@typescript-eslint/parser": "5.29.0",
     "builtin-modules": "3.3.0",
+    "decamelize": "^6.0.0",
     "esbuild": "0.14.47",
     "filter-obj": "^5.1.0",
     "obsidian": "latest",
