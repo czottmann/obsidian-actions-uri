@@ -25,9 +25,10 @@ if [[ $(git status --porcelain) ]]; then
 fi
 
 NEW_VERSION=$1
-MINIMUM_OBSIDIAN_VERSION=$2
+MIN_OBSIDIAN_VERSION=$2
+DATE_NOW=$(date +%FT%T%z)
 
-echo "Updating to version ${NEW_VERSION} with minimum Obsidian version ${MINIMUM_OBSIDIAN_VERSION}"
+echo "Updating to version ${NEW_VERSION} with minimum Obsidian version ${MIN_OBSIDIAN_VERSION}"
 
 read -p "Continue? [y/N] " -n 1 -r
 echo
@@ -40,13 +41,18 @@ then
 
   echo "Updating manifest.json"
   TEMP_FILE=$(mktemp)
-  jq ".version |= \"${NEW_VERSION}\" | .minAppVersion |= \"${MINIMUM_OBSIDIAN_VERSION}\"" manifest.json > "$TEMP_FILE" || exit 1
+  jq ".version |= \"${NEW_VERSION}\" | .minAppVersion |= \"${MIN_OBSIDIAN_VERSION}\"" manifest.json > "$TEMP_FILE" || exit 1
   mv "$TEMP_FILE" manifest.json
 
   echo "Updating versions.json"
   TEMP_FILE=$(mktemp)
-  jq ". += {\"${NEW_VERSION}\": \"${MINIMUM_OBSIDIAN_VERSION}\"}" versions.json > "$TEMP_FILE" || exit 1
+  jq ". += {\"${NEW_VERSION}\": \"${MIN_OBSIDIAN_VERSION}\"}" versions.json > "$TEMP_FILE" || exit 1
   mv "$TEMP_FILE" versions.json
+
+  echo "Updating src/info.json"
+  TEMP_FILE=$(mktemp)
+  jq ".version |= \"${NEW_VERSION}\" | .releasedAt |= \"${DATE_NOW}\"" src/info.json > "$TEMP_FILE" || exit 1
+  mv "$TEMP_FILE" src/info.json
 
   read -p "Create git commit, tag, and push? [y/N] " -n 1 -r
   echo
