@@ -26,6 +26,13 @@ import { zodOptionalBoolean, zodSanitizedFilePath } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
+const readParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ReadParams = z.infer<typeof readParams>;
+
 const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
   file: zodSanitizedFilePath,
@@ -33,13 +40,6 @@ const createParams = incomingBaseParams.extend({
   silent: zodOptionalBoolean,
 });
 type CreateParams = z.infer<typeof createParams>;
-
-const readParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
-});
-type ReadParams = z.infer<typeof readParams>;
 
 const appendParams = incomingBaseParams.extend({
   content: z.string(),
@@ -67,8 +67,8 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 export type AnyLocalParams =
-  | CreateParams
   | ReadParams
+  | CreateParams
   | AppendParams
   | PrependParams
   | SearchAndReplaceParams;
