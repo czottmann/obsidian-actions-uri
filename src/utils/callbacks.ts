@@ -8,6 +8,7 @@ import {
   HandlerTextSuccess,
   StringResultObject,
 } from "../types";
+
 /**
  * @param baseURL - The base `x-callback-url` of the receiver, e.g.
  * "another-app://", "another-app://x-callback-url/success" or
@@ -45,6 +46,16 @@ export function sendUrlCallback(
   };
 }
 
+/**
+ * Adds properties of an object as search params to a `URL` instance. The keys
+ * of the object will be normalized to kebab case.
+ *
+ * @param obj - An object whose properties are to be added an `URL` object as
+ * search parameters
+ * @param url - The `URL` target object
+ * @param prefix - An optional prefix to be added to the parameter names,
+ * defaults to `XCALLBACK_RESULT_PREFIX`
+ */
 function addObjectToUrlSearchParams(
   obj: Record<string, string>,
   url: URL,
