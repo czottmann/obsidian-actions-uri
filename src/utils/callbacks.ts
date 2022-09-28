@@ -1,4 +1,5 @@
 import { excludeKeys, includeKeys } from "filter-obj";
+import decamelize from "decamelize";
 import { XCALLBACK_RESULT_PREFIX } from "../constants";
 import { AnyParams } from "../routes";
 import {
@@ -52,7 +53,10 @@ function addObjectToUrlSearchParams(
   const sortedKeys = Object.keys(obj).sort();
   for (const key of sortedKeys) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      url.searchParams.set(`${prefix}-${key}`, obj[key]);
+      url.searchParams.set(
+        decamelize(`${prefix}-${key}`, { separator: "-" }),
+        obj[key],
+      );
     }
   }
 }
