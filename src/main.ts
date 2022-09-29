@@ -155,6 +155,15 @@ export default class ActionsURI extends Plugin {
       };
   }
 
+  /**
+   * @param handlerResult - Any handler result object
+   * @param params - Parameters from the incoming `x-callback-url` call after
+   * being parsed & validated by Zod
+   *
+   * @returns A successful `StringResultObject` object, the `result` prop
+   * containing information on what was done. This function won't return a
+   * failure.
+   */
   private openFileIfNeeded(
     handlerResult: AnyHandlerResult,
     params: AnyParams,
