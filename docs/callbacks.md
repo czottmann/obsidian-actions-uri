@@ -1,4 +1,4 @@
-# [Actions URI](index.html) 〉 Getting data back from Actions URI
+# [Actions URI](index.md) 〉 Getting data back from Actions URI
 
 All routes support return calls back to the sender. This is done by passing callback URLs as parameters, e.g.:
 

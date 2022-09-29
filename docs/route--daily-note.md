@@ -1,4 +1,4 @@
-# [Actions URI](index.html) 〉 Route `/daily-note`
+# [Actions URI](index.md) 〉 Route `/daily-note`
 Calls going to `obsidian://actions-uri/daily-note/…`
 
 
