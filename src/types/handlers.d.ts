@@ -47,6 +47,15 @@ export type HandlerFileSuccess = Readonly<
   }
 >;
 
+export type HandlerSearchSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      hits: string[];
+    };
+  }
+>;
+
 export type HandlerInfoSuccess = Readonly<
   & HandlerSuccess
   & {
@@ -60,8 +69,12 @@ export type HandlerInfoSuccess = Readonly<
   }
 >;
 
-export type AnyHandlerResult =
+export type AnyHandlerSuccess =
   | HandlerTextSuccess
   | HandlerFileSuccess
-  | HandlerFailure
+  | HandlerSearchSuccess
   | HandlerInfoSuccess;
+
+export type AnyHandlerResult =
+  | AnyHandlerSuccess
+  | HandlerFailure;

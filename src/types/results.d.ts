@@ -7,20 +7,17 @@ type ErrorObject = {
   error: string;
 };
 
-export type StringResultObject = {
+type ResultObject<T> = {
   isSuccess: true;
-  result: string;
-} | ErrorObject;
+  result: T;
+};
 
-export type RegexResultObject = {
-  isSuccess: true;
-  result: RegExp;
-} | ErrorObject;
-
-export type TFileResultObject = {
-  isSuccess: true;
-  result: TFile;
-} | ErrorObject;
+export type TFileResultObject = ResultObject<TFile> | ErrorObject;
+export type RegexResultObject = ResultObject<RegExp> | ErrorObject;
+export type SearchResultObject =
+  | ResultObject<{ hits: string[] }>
+  | ErrorObject;
+export type StringResultObject = ResultObject<string> | ErrorObject;
 
 export type ProcessingResult = {
   params: AnyParams;

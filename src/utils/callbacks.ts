@@ -4,8 +4,8 @@ import { XCALLBACK_RESULT_PREFIX } from "../constants";
 import { AnyParams } from "../routes";
 import {
   AnyHandlerResult,
+  AnyHandlerSuccess,
   HandlerFailure,
-  HandlerTextSuccess,
   StringResultObject,
 } from "../types";
 
@@ -28,7 +28,10 @@ export function sendUrlCallback(
   const url = new URL(baseURL);
 
   if (handlerRes.isSuccess) {
-    addObjectToUrlSearchParams((<HandlerTextSuccess> handlerRes).result, url);
+    addObjectToUrlSearchParams(
+      (<AnyHandlerSuccess> handlerRes).result,
+      url,
+    );
   } else {
     url.searchParams.set("error", (<HandlerFailure> handlerRes).error);
   }
@@ -57,17 +60,21 @@ export function sendUrlCallback(
  * defaults to `XCALLBACK_RESULT_PREFIX`
  */
 function addObjectToUrlSearchParams(
-  obj: Record<string, string>,
+  obj: Record<string, string | string[]>,
   url: URL,
   prefix: string = XCALLBACK_RESULT_PREFIX,
 ) {
   const sortedKeys = Object.keys(obj).sort();
   for (const key of sortedKeys) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      url.searchParams.set(
-        decamelize(`${prefix}-${key}`, { separator: "-" }),
-        obj[key],
-      );
-    }
+    if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+
+    const val = (typeof obj[key] === "string")
+      ? <string> obj[key]
+      : JSON.stringify(obj[key]);
+
+    url.searchParams.set(
+      decamelize(`${prefix}-${key}`, { separator: "-" }),
+      val,
+    );
   }
 }

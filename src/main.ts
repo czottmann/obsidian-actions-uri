@@ -3,10 +3,10 @@ import { ZodError } from "zod";
 import { AnyParams, Route, routes } from "./routes";
 import {
   AnyHandlerResult,
+  AnyHandlerSuccess,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerFunction,
-  HandlerTextSuccess,
   ProcessingResult,
   StringResultObject,
 } from "./types";
@@ -134,7 +134,7 @@ export default class ActionsURI extends Plugin {
       return params["x-success"]
         ? sendUrlCallback(
           params["x-success"],
-          <HandlerTextSuccess> handlerRes,
+          <AnyHandlerSuccess> handlerRes,
           params,
         )
         : <StringResultObject> {
