@@ -1,109 +1,130 @@
-## `/daily-note`
+# [Actions URI](index.html) 〉 Route `/daily-note`
+Calls going to `obsidian://actions-uri/daily-note/…`
+
+
+## Root, i.e. `/daily-note`
 
 Does nothing but say hello.
+
+### Parameters
+Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)).
+
+### Return values
+=> HandlerTextSuccess
+
+---
+
 ## `/daily-note/get-current`
+Returns today's daily note.
 
-TODO
-| Parameter | Value | optional | |
-| --- | --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `action` | string |  |
-| `vault` | string |  |
-| `x-error` | string |  |
-| `x-success` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
 
+| Parameter    | Value   | optional | Description                                   |
+| ------------ | ------- | -------- | --------------------------------------------- |
+| `x-success`  | string  |          | base URL for on-success callbacks             |
+| `x-error`    | string  |          | base URL for on-error callbacks               |
+
+### Return values
 => HandlerFileSuccess | HandlerFailure
-## `/daily-note/get-current`
 
-TODO
-| Parameter | Value | optional | |
-| --- | --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string |  |
-| `x-success` | string |  |
-| `action` | string |  |
-| `vault` | string |  |
+---
 
+## `/daily-note/get-most-recent`
+Returns the most recent daily note.
+
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+
+| Parameter    | Value   | optional | Description                                   |
+| ------------ | ------- | -------- | --------------------------------------------- |
+| `x-success`  | string  |          | base URL for on-error callbacks               |
+| `x-error`    | string  |          | base URL for on-error callbacks               |
+
+### Return values
 => HandlerFileSuccess | HandlerFailure
+
+---
+
 ## `/daily-note/create`
+Creates a new daily note. In case of an already existing current daily note, it will be overwritten **only** if the related parameter is set.
 
-TODO
-| Parameter | Value | optional | |
-| --- | --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `content` | string | yes |
-| `overwrite` | boolean | yes |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
 
+| Parameter    | Value   | optional | Description                                   |
+| ------------ | ------- | -------- | --------------------------------------------- |
+| `content`    | string  | yes      |                                               |
+| `overwrite`  | boolean | yes      |                                               |
+| `silent`     | boolean | yes      |                                               |
+
+### Return values
 => HandlerFileSuccess | HandlerFailure
+
+---
+
 ## `/daily-note/append`
+Appends today's daily note with a string.
 
-TODO
-| Parameter | Value | optional | |
-| --- | --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `ensure-newline` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `content` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
 
+| Parameter        | Value   | optional | Description                                   |
+| ---------------- | ------- | -------- | --------------------------------------------- |
+| `content`        | string  |          |                                               |
+| `ensure-newline` | boolean | yes      |                                               |
+| `silent`         | boolean | yes      |                                               |
+
+### Return values
 => HandlerTextSuccess | HandlerFailure
+
+---
+
 ## `/daily-note/prepend`
+Prepends today's daily note with a string.  Front matter is honored (i.e. the new text will be added to the note body below the front matter) unless explicity stated.
 
-TODO
-| Parameter | Value | optional | |
-| --- | --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `ensure-newline` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `content` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
 
+| Parameter        | Value   | optional | Description                                   |
+| ---------------- | ------- | -------- | --------------------------------------------- |
+| `content`        | string  |          |                                               |
+| `ensure-newline` | boolean | yes      |                                               |
+| `silent`         | boolean | yes      |                                               |
+
+### Return values
 => HandlerTextSuccess | HandlerFailure
+
+---
+
 ## `/daily-note/search-string-and-replace`
+Does a text replacement in today's daily note.  The search term is used as-is, i.e. it's a string search.
 
-TODO
-| Parameter | Value | optional | |
-| --- | --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `replace` | string |  |
-| `search` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
 
+| Parameter    | Value   | optional | Description                                   |
+| ------------ | ------- | -------- | --------------------------------------------- |
+| `replace`    | string  |          |                                               |
+| `search`     | string  |          |                                               |
+| `silent`     | boolean | yes      |                                               |
+
+### Return values
 => HandlerTextSuccess | HandlerFailure
+
+---
+
 ## `/daily-note/search-regex-and-replace`
+Does a text replacement in today's daily note.  The search term is used as a pattern, i.e. it's a regular expression search.
 
-TODO
-| Parameter | Value | optional | |
-| --- | --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `replace` | string |  |
-| `search` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
 
+| Parameter    | Value   | optional | Description                                   |
+| ------------ | ------- | -------- | --------------------------------------------- |
+| `replace`    | string  |          |                                               |
+| `search`     | string  |          |                                               |
+| `silent`     | boolean | yes      |                                               |
+
+### Return values
 => HandlerTextSuccess | HandlerFailure

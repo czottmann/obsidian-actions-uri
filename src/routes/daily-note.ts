@@ -105,7 +105,7 @@ export const routes: Route[] = namespaceRoutes("daily-note", [
   // => HandlerFileSuccess | HandlerFailure
   { path: "get-current", schema: readParams, handler: handleGetCurrent },
 
-  // ## `/daily-note/get-current`
+  // ## `/daily-note/get-most-recent`
   //
   // TODO
   //

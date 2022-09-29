@@ -1,11 +1,12 @@
 ## `/open`
-
 Does nothing but say hello.
-## `/open/daily-note`
 
+
+## `/open/daily-note`
 Opens today's daily note in Obsidian.
+
 | Parameter | Value | optional | |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | `call-id` | string | yes |
 | `debug-mode` | boolean | yes |
 | `x-error` | string | yes |
@@ -15,11 +16,13 @@ Opens today's daily note in Obsidian.
 | `vault` | string |  |
 
 => HandlerTextSuccess | HandlerFailure
-## `/open/note`
 
+
+## `/open/note`
 Opens a particular note in Obsidian.
+
 | Parameter | Value | optional | |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | `call-id` | string | yes |
 | `debug-mode` | boolean | yes |
 | `x-error` | string | yes |
@@ -30,11 +33,13 @@ Opens a particular note in Obsidian.
 | `vault` | string |  |
 
 => HandlerTextSuccess | HandlerFailure
-## `/open/search`
 
+
+## `/open/search`
 Opens the search for a given query in Obsidian.
+
 | Parameter | Value | optional | |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | `call-id` | string | yes |
 | `debug-mode` | boolean | yes |
 | `x-error` | string | yes |
@@ -45,3 +50,4 @@ Opens the search for a given query in Obsidian.
 | `vault` | string |  |
 
 => HandlerTextSuccess
+

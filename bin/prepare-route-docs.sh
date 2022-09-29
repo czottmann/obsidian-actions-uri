@@ -7,7 +7,7 @@ ls $F
   grep '  \/\/' $F \
     | sd ' //' '' \
     | sd '^\s*\}' '' \
-    | sd '^\s*\{' "| Parameter | Value | optional | |\n| --- | --- | --- | --- |" \
+    | sd '^\s*\{' "\n| Parameter | Value | optional | |\n| --- | --- | --- |" \
     | sd '^\s*"*(.+?)"*(\?*): (.+);' '| `$1` | $3 | $2 |' \
     | sd --string-mode '| undefined ' '' \
     | sd --string-mode '| ? |' '| yes |' \
