@@ -1,7 +1,6 @@
-import { z } from "zod";
 import { AnyParams, Route } from "../routes";
-import { IncomingBaseParams } from "../schemata";
-import { AnyHandlerResult, HandlerTextSuccess } from "../types";
+import { incomingBaseParams } from "../schemata";
+import { HandlerTextSuccess } from "../types";
 import { showBrandedNotice } from "./ui";
 
 /**
@@ -28,7 +27,7 @@ export function namespaceRoutes(namespace: string, routes: Route[]): Route[] {
 }
 
 export function helloRoute(path: string = ""): Route {
-  return { path, schema: z.object({}), handler: handleHello };
+  return { path, schema: incomingBaseParams.extend({}), handler: handleHello };
 }
 
 async function handleHello(data: AnyParams): Promise<HandlerTextSuccess> {
