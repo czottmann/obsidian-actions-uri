@@ -7,7 +7,7 @@ Calls going to `obsidian://actions-uri/daily-note/…`
 Does nothing but say hello.
 
 ### Parameters
-Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)).
 
 ### Return values
 => HandlerTextSuccess
@@ -18,7 +18,7 @@ Only supports the base parameters (see section "Parameters required in/ accepted
 Returns today's daily note.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter    | Value   | optional | Description                                   |
 | ------------ | ------- | -------- | --------------------------------------------- |
@@ -34,7 +34,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 Returns the most recent daily note.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter    | Value   | optional | Description                                   |
 | ------------ | ------- | -------- | --------------------------------------------- |
@@ -50,7 +50,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 Creates a new daily note. In case of an already existing current daily note, it will be overwritten **only** if the related parameter is set.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter    | Value   | optional | Description                                   |
 | ------------ | ------- | -------- | --------------------------------------------- |
@@ -67,7 +67,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 Appends today's daily note with a string.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter        | Value   | optional | Description                                   |
 | ---------------- | ------- | -------- | --------------------------------------------- |
@@ -84,7 +84,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 Prepends today's daily note with a string.  Front matter is honored (i.e. the new text will be added to the note body below the front matter) unless explicity stated.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter        | Value   | optional | Description                                   |
 | ---------------- | ------- | -------- | --------------------------------------------- |
@@ -101,7 +101,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 Does a text replacement in today's daily note.  The search term is used as-is, i.e. it's a string search.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter    | Value   | optional | Description                                   |
 | ------------ | ------- | -------- | --------------------------------------------- |
@@ -118,7 +118,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 Does a text replacement in today's daily note.  The search term is used as a pattern, i.e. it's a regular expression search.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.html#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter    | Value   | optional | Description                                   |
 | ------------ | ------- | -------- | --------------------------------------------- |
