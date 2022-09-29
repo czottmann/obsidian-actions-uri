@@ -7,7 +7,7 @@ import {
   getNoteFile,
 } from "../utils/file-handling";
 import { helloRoute, namespaceRoutes } from "../utils/routing";
-import { STRINGS } from "src/constants";
+import { STRINGS } from "../constants";
 import { zodAlwaysFalse, zodSanitizedFilePath } from "../utils/zod";
 
 // SCHEMATA --------------------
