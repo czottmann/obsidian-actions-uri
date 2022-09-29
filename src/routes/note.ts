@@ -77,16 +77,124 @@ export type AnyLocalParams =
 // ROUTES ----------------------------------------
 
 export const routes: Route[] = namespaceRoutes("note", [
+  // ## `/note`
+  //
+  // Does nothing but say hello.
   helloRoute(),
+
+  // ## `/note/get`
+  //
+  // TODO
+  //
+  // {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error": string;
+  //     "x-success": string;
+  //     action: string;
+  //     file: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerFileSuccess | HandlerFailure
   { path: "get", schema: readParams, handler: handleGet },
+
+  // ## `/note/create`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     content?: string | undefined;
+  //     file: string;
+  //     overwrite?: boolean | undefined;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   { path: "create", schema: createParams, handler: handleCreate },
+
+  // ## `/note/append`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "ensure-newline"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     content: string;
+  //     file: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   { path: "append", schema: appendParams, handler: handleAppend },
+
+  // ## `/note/prepend`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "ensure-newline"?: boolean | undefined;
+  //     "ignore-front-matter": boolean;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     content: string;
+  //     file: string;
+  //     silent?: boolean | undefined;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   { path: "prepend", schema: prependParams, handler: handlePrepend },
+
+  // ## `/note/search-and-replace`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     file: string;
+  //     replace: string;
+  //     search: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   {
     path: "search-string-and-replace",
     schema: searchAndReplaceParams,
     handler: handleSearchStringAndReplace,
   },
+
+  // ## `/note/search-and-replace-regex`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     file: string;
+  //     replace: string;
+  //     search: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   {
     path: "search-regex-and-replace",
     schema: searchAndReplaceParams,
@@ -98,7 +206,7 @@ export const routes: Route[] = namespaceRoutes("note", [
 
 async function handleGet(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
   const { file } = params;
   const res = await getNoteContent(file);
@@ -127,7 +235,7 @@ async function handleGet(
 
 async function handleCreate(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
   const { file, content, overwrite } = params;
 
@@ -149,7 +257,7 @@ async function handleCreate(
 
 async function handleAppend(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <AppendParams> incomingParams;
   const { file, content } = params;
   const res = await appendNote(file, content, params["ensure-newline"]);
@@ -168,7 +276,7 @@ async function handleAppend(
 
 async function handlePrepend(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <PrependParams> incomingParams;
   const { file, content } = params;
   const res = await prependNote(
@@ -192,7 +300,7 @@ async function handlePrepend(
 
 async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <SearchAndReplaceParams> incomingParams;
   const { search, file, replace } = params;
   const regex = new RegExp(search, "g");
@@ -212,7 +320,7 @@ async function handleSearchStringAndReplace(
 
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <SearchAndReplaceParams> incomingParams;
   const { search, file, replace } = params;
   const resSir = parseStringIntoRegex(search);

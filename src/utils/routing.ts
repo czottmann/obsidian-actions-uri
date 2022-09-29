@@ -31,7 +31,7 @@ export function helloRoute(path: string = ""): Route {
   return { path, schema: z.object({}), handler: handleHello };
 }
 
-async function handleHello(data: AnyParams): Promise<AnyHandlerResult> {
+async function handleHello(data: AnyParams): Promise<HandlerTextSuccess> {
   showBrandedNotice("… is ready for action 🚀");
 
   return <HandlerTextSuccess> {

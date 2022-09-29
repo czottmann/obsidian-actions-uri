@@ -19,15 +19,27 @@ export type AnyLocalParams = DefaultParams;
 // ROUTES --------------------
 
 export const routes: Route[] = namespaceRoutes("info", [
+  // ## `/info`
+  //
+  // Returns information about the plugin and the current Obsidian instance.
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error": string;
+  //     "x-success": string;
+  //     action: string;
+  //     vault: string;
+  // }
+  // => HandlerInfoSuccess
   { path: "", schema: defaultParams, handler: handleInfo },
 ]);
 
 // HANDLERS --------------------
 
-// TODO: handleInfo()
 async function handleInfo(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerInfoSuccess> {
   const uaMatch = navigator.userAgent.match(/\((.+?)\).+obsidian\/(\S+)/);
   let platform: string = "";
   let obsidianVersion: string = "";

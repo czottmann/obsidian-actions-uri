@@ -23,7 +23,25 @@ export type AnyLocalParams = DefaultParams;
 // ROUTES --------------------
 
 export const routes: Route[] = namespaceRoutes("search", [
+  // ## `/search`
+  //
+  // Does nothing but say hello.
   helloRoute(),
+
+  // ## `/search/all-notes`
+  //
+  // Returns search results (file paths) for a given search query.
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error": string;
+  //     "x-success": string;
+  //     action: string;
+  //     query: string;
+  //     vault: string;
+  // }
+  // => HandlerSearchSuccess | HandlerFailure
   { path: "all-notes", schema: defaultParams, handler: handleSearch },
 ]);
 
@@ -31,7 +49,7 @@ export const routes: Route[] = namespaceRoutes("search", [
 
 async function handleSearch(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerSearchSuccess | HandlerFailure> {
   const params = <DefaultParams> incomingParams;
   const res = await doSearch(params.query);
 

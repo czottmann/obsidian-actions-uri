@@ -75,8 +75,8 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 export type AnyLocalParams =
-  | CreateParams
   | ReadParams
+  | CreateParams
   | WriteParams
   | AppendParams
   | PrependParams
@@ -85,17 +85,133 @@ export type AnyLocalParams =
 // ROUTES ----------------------------------------
 
 export const routes: Route[] = namespaceRoutes("daily-note", [
+  // ## `/daily-note`
+  //
+  // Does nothing but say hello.
   helloRoute(),
+
+  // ## `/daily-note/get-current`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     action: string;
+  //     vault: string;
+  //     "x-error": string;
+  //     "x-success": string;
+  // }
+  // => HandlerFileSuccess | HandlerFailure
   { path: "get-current", schema: readParams, handler: handleGetCurrent },
+
+  // ## `/daily-note/get-current`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error": string;
+  //     "x-success": string;
+  //     action: string;
+  //     vault: string;
+  // }
+  // => HandlerFileSuccess | HandlerFailure
   { path: "get-most-recent", schema: readParams, handler: handleGetMostRecent },
+
+  // ## `/daily-note/create`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     content?: string | undefined;
+  //     overwrite?: boolean | undefined;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerFileSuccess | HandlerFailure
   { path: "create", schema: createParams, handler: handleCreate },
+
+  // ## `/daily-note/append`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "ensure-newline"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     content: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   { path: "append", schema: appendParams, handler: handleAppend },
+
+  // ## `/daily-note/prepend`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "ensure-newline"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     content: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   { path: "prepend", schema: prependParams, handler: handlePrepend },
+
+  // ## `/daily-note/search-string-and-replace`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     replace: string;
+  //     search: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   {
     path: "search-string-and-replace",
     schema: searchAndReplaceParams,
     handler: handleSearchStringAndReplace,
   },
+
+  // ## `/daily-note/search-regex-and-replace`
+  //
+  // TODO
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     replace: string;
+  //     search: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   {
     path: "search-regex-and-replace",
     schema: searchAndReplaceParams,
@@ -107,7 +223,7 @@ export const routes: Route[] = namespaceRoutes("daily-note", [
 
 async function handleGetCurrent(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerFileSuccess | HandlerFailure> {
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
     return <HandlerFailure> {
@@ -143,7 +259,7 @@ async function handleGetCurrent(
 
 async function handleGetMostRecent(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerFileSuccess | HandlerFailure> {
   if (!appHasDailyNotesPluginLoaded()) {
     return <HandlerFailure> {
       isSuccess: false,
@@ -187,7 +303,7 @@ async function handleGetMostRecent(
 
 async function handleCreate(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
 
   if (!appHasDailyNotesPluginLoaded()) {
@@ -268,7 +384,7 @@ async function handleCreate(
 
 async function handleAppend(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <AppendParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
@@ -299,7 +415,7 @@ async function handleAppend(
 
 async function handlePrepend(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <PrependParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
@@ -331,7 +447,7 @@ async function handlePrepend(
 
 async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
@@ -362,7 +478,7 @@ async function handleSearchStringAndReplace(
 
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {

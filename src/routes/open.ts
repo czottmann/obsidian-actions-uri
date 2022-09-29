@@ -37,13 +37,59 @@ export type AnyLocalParams =
 // ROUTES --------------------
 
 export const routes: Route[] = namespaceRoutes("open", [
+  // ## `/open`
+  //
+  // Does nothing but say hello.
   helloRoute(),
-  {
-    path: "daily-note",
-    schema: dailyNoteParams,
-    handler: handleDailyNote,
-  },
+
+  // ## `/open/daily-note`
+  //
+  // Opens today's daily note in Obsidian.
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
+  { path: "daily-note", schema: dailyNoteParams, handler: handleDailyNote },
+
+  // ## `/open/note`
+  //
+  // Opens a particular note in Obsidian.
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     file: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess | HandlerFailure
   { path: "note", schema: noteParams, handler: handleNote },
+
+  // ## `/open/search`
+  //
+  // Opens the search for a given query in Obsidian.
+  //
+  //   {
+  //     "call-id"?: string | undefined;
+  //     "debug-mode"?: boolean | undefined;
+  //     "x-error"?: string | undefined;
+  //     "x-success"?: string | undefined;
+  //     action: string;
+  //     query: string;
+  //     silent?: boolean | undefined;
+  //     vault: string;
+  // }
+  // => HandlerTextSuccess
   { path: "search", schema: searchParams, handler: handleSearch },
 ]);
 
@@ -58,7 +104,7 @@ export const routes: Route[] = namespaceRoutes("open", [
 
 async function handleDailyNote(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <DailyNoteParams> incomingParams;
   const res = getDailyNotePathIfPluginIsAvailable();
   return res.isSuccess
@@ -75,7 +121,7 @@ async function handleDailyNote(
 
 async function handleNote(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <NoteParams> incomingParams;
   const res = await getNoteFile(params.file);
   return res.isSuccess
@@ -92,7 +138,7 @@ async function handleNote(
 
 async function handleSearch(
   incomingParams: AnyParams,
-): Promise<AnyHandlerResult> {
+): Promise<HandlerTextSuccess> {
   const params = <SearchParams> incomingParams;
 
   // Let's open the search in the simplest way possible.
