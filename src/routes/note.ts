@@ -28,6 +28,7 @@ import { zodOptionalBoolean, zodSanitizedFilePath } from "../utils/zod";
 
 const readParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
+  silent: zodOptionalBoolean,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
