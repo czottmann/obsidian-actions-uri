@@ -30,6 +30,8 @@ my-app://success
   &input-call-id=9c2d1bff
 ```
 
+The successful callback contains the full note content (`result-content`), the note body (`result-body`), the note's file path (`result-filepath`) and its front matter (`result-front-matter`) as well as the aforementioned call ID.
+
 But assuming the note does **not** exist, the resulting call would be:
 
 ```
@@ -37,3 +39,28 @@ my-app://error
   ?error=Note+couldn%27t+be+found
   &input-call-id=9c2d1bff
 ```
+
+
+## Important note on callback parameters
+**The on-success callback parameter structure varies depending on the endpoints.** See the relevant [endpoint descriptions](README.md#routes-added-by-actions-uri) for details.
+
+On-error callbacks always have the same parameter structure.
+
+
+## Debug mode
+With `debug-mode` enabled in the incoming request (see section ["Parameters required in/ accepted by all calls" in the main doc](README.md#parameters-required-in-accepted-by-all-calls)), the on-success callback of the above example would look like this:
+
+```
+my-app://success
+  ?result-body=%0AActions+URI+is+ready+for+action%21
+  &result-content=---%0Atags%3A+test%0A---%0A%0AActions+URI+is+ready+for+action%21
+  &result-filepath=My+super+note.md
+  &result-front-matter=tags%3A+test%0A
+  &input-action=actions-uri%2Fnote%2Fget
+  &input-call-id=9c2d1bff
+  &input-file=My+super+note.md
+  &input-silent=false
+  &input-vault=Testbed
+```
+
+It's called "debug mode" because it's good for when you develop an external *whatever* communicating with Obsidian via Actions URI.  In production you'll probably want to pair the callbacks to the original requests using the call ID.  I'm not aware of any drawbacks keeping debug mode on in live code, however.  You do you! 🖖🏼

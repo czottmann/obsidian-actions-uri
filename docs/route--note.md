@@ -7,119 +7,215 @@ Calls going to `obsidian://actions-uri/note/…`
 Does nothing but say hello.
 
 ### Parameters
-Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)).
 
 ### Return values
-=> HandlerTextSuccess
+These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
 
----
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+
+&nbsp;
+
 
 ## `/note/get`
-TODO
+Returns the most recent daily note.
 
-| Parameter | Value | optional | |
-| --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string |  |
-| `x-success` | string |  |
-| `action` | string |  |
-| `file` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
 
-=> HandlerFileSuccess | HandlerFailure
+| Parameter   | Value type | Optional? | Description                                                                                    |
+| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
+| `x-success` | string     |           | base URL for on-error callbacks                                                                | 
+| `x-error`   | string     |           | base URL for on-error callbacks                                                                |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+
+On success:
+
+| Parameter             | Description                                                              |
+| --------------------- | ------------------------------------------------------------------------ |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
+| `result-content`      | The entire content of the note file.                                     |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.          |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. | 
+
+On failure:
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `error`   | A short summary of what went wrong. | 
+
+
+&nbsp;
 
 
 ## `/note/create`
-TODO
+Creates a new note. In case there's already a note with the same name / at the requested file path, it will be overwritten **only** if the related parameter is set.
 
-| Parameter | Value | optional | |
-| --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `content` | string | yes |
-| `file` | string |  |
-| `overwrite` | boolean | yes |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
 
-=> HandlerTextSuccess | HandlerFailure
+| Parameter   | Value type | Optional? | Description                                                                                    |
+| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `content`   | string     |    ✅     | The initial body of the note                                                                   |
+| `overwrite` | boolean    |    ✅     | *"If this note file already exists, it should be overwritten."* Defaults to `false`.           | 
+| `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+
+On success:
+
+| Parameter             | Description                                                              |
+| --------------------- | ------------------------------------------------------------------------ |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
+| `result-content`      | The entire content of the note file.                                     |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.          |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. | 
+
+On failure:
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `error`   | A short summary of what went wrong. | 
+
+
+&nbsp;
 
 
 ## `/note/append`
-TODO
+Appends today's daily note with a string.
 
-| Parameter | Value | optional | |
-| --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `ensure-newline` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `content` | string |  |
-| `file` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
 
-=> HandlerTextSuccess | HandlerFailure
+| Parameter        | Value type | Optional? | Description                                                                                    |
+| ---------------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`           | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `content`        | string     |           | The text to be added at the end of the note.                                                   | 
+| `ensure-newline` | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                            |
+| `silent`         | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+On failure:
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `error`   | A short summary of what went wrong. | 
+
+
+&nbsp;
 
 
 ## `/note/prepend`
-TODO
+Prepends a note with a string.  Front matter is honored (i.e. the new text will be added to the note body below the front matter) unless explicity stated otherwise.
 
-| Parameter | Value | optional | |
-| --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `ensure-newline` | boolean | yes |
-| `ignore-front-matter` | boolean |  |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `content` | string |  |
-| `file` | string |  |
-| `silent` | boolean | yes |
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
 
-=> HandlerTextSuccess | HandlerFailure
+| Parameter             | Value type | Optional? | Description                                                                                                   |
+| --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
+| `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                |
+| `content`             | string     |           | The text to be added at the beginning of the note.                                                            |
+| `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
+| `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
+| `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
 
 
-## `/note/search-and-replace`
-TODO
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
 
-| Parameter | Value | optional | |
-| --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `file` | string |  |
-| `replace` | string |  |
-| `search` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
+On success:
 
-=> HandlerTextSuccess | HandlerFailure
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+On failure:
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `error`   | A short summary of what went wrong. | 
 
 
-## `/note/search-and-replace-regex`
-TODO
+&nbsp;
 
-| Parameter | Value | optional | |
-| --- | --- | --- |
-| `call-id` | string | yes |
-| `debug-mode` | boolean | yes |
-| `x-error` | string | yes |
-| `x-success` | string | yes |
-| `action` | string |  |
-| `file` | string |  |
-| `replace` | string |  |
-| `search` | string |  |
-| `silent` | boolean | yes |
-| `vault` | string |  |
 
-=> HandlerTextSuccess | HandlerFailure
+## `/note/search-string-and-replace`
+Does text replacement in a note.  The search term is used as-is, i.e. it's a string search.
+
+### Parameters
+In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+
+| Parameter | Value type | Optional? | Description                                                                                    |
+| --------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `search`  | string     |           | Text string that should be replaced.                                                           |
+| `replace` | string     |           | Replacement text.                                                                              |
+| `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+On failure:
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `error`   | A short summary of what went wrong. | 
+
+
+&nbsp;
+
+
+## `/note/search-regex-and-replace`
+Does a text replacement in a note.  The search term is used as a pattern, i.e. it's a regular expression search.
+
+Capturing is supported. Example: the note contains the text *"and it was good"*, the `search` value is `/(it) (was)/` and the `replace` value is `$2 $1` — after the replacement the note would be changed to *"and was it good"*.
+
+Modifiers for case-insensitive and global search (`/…/i`, `/…/g`, `/…/gi`) are supported as well. See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#using_the_global_and_ignorecase_flags_with_replace) for examples.
+
+### Parameters
+| Parameter | Value type | Optional? | Description                                                                                    |
+| --------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `search`  | string     |           | Text pattern that should be replaced.                                                          |
+| `replace` | string     |           | Replacement text.                                                                              |
+| `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+On failure:
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `error`   | A short summary of what went wrong. | 

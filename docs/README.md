@@ -32,13 +32,13 @@ An Action URI-provided URL doesn't look much different from a standard Obsidian 
 
 
 ## Parameters required in/ accepted by all calls
-| Parameter    | Value              | optional | Description                                                                                                                                                   |
-| ------------ | ------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `vault`      | string             |          | the name of the target vault                                                                                                                                  |
-| `x-success`  | string             | mostly   | base URL for on-success callbacks, see [Getting data back from Actions URI](callbacks.md)                                                                     |
-| `x-error`    | string             | mostly   | base URL for on-error callbacks, see [Getting data back from Actions URI](callbacks.md)                                                                       |
-| `call-id`    | string             | yes      | unique ID for pairing request & callback, see [Getting data back from Actions URI](callbacks.md)                                                              |
-| `debug-mode` | benevolent boolean | yes      | when enabled will include not just the `call-id` in the return calls but all parameters of the original request, prefixed with `input-`. Disabled by default. |
+| Parameter    | Value type | Optional? | Description                                                                                                                                                                |
+| ------------ | ---------- |:---------:| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vault`      | string     |           | The name of the target vault.                                                                                                                                              |
+| `x-success`  | string     |  mostly   | Base URL for on-success callbacks, see [Getting data back from Actions URI](callbacks.md).                                                                                 |
+| `x-error`    | string     |  mostly   | Base URL for on-error callbacks, see [Getting data back from Actions URI](callbacks.md).                                                                                   |
+| `call-id`    | string     |    ✅     | Unique ID for pairing request & callback, see [Getting data back from Actions URI](callbacks.md).                                                                          |
+| `debug-mode` | boolean    |    ✅     | When enabled, Actions URI will include not just the `call-id` in the return calls but all parameters of the original request, prefixed with `input-`. Defaults to `false`. | 
 
 ### Notes about parameters
 
