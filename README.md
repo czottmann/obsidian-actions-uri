@@ -1,13 +1,14 @@
+<base href="https://github.com/czottmann/obsidian-actions-uri/" />
 <img src="readme-assets/actions-uri-256.png" align="left" height="128" alt="Plugin logo thingie: an app icon, a two-way communications icon, a note icon">
 
 # Actions URI
 
-This plugin adds additional `x-callback-url` endpoints to [Obsidian](https://obsidian.md) for common actions — it's a clean, super-charged addition to the built-in [Obsidian URIs](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs), for working with daily notes, notes, getting search results etc.
+This plugin adds additional `x-callback-url` endpoints to [Obsidian](https://obsidian.md) for common actions — it's a clean, super-charged addition to the built-in [Obsidian URIs](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs), for working with [daily notes, notes, getting search results](docs/) etc.
 
 
 ## Documentation
 
-See [`docs/`](docs/README.md).
+For information about available features and routes please see the [`docs/` folder](docs/).
 
 
 ## Installation
@@ -40,7 +41,7 @@ Clone the repository, run `pnpm install` OR `npm install` to install the depende
 
 ## Author
 
-Carlo Zottmann, <carlo@zottmann.org>, https://zottmann.org/
+Carlo Zottmann, <carlo@zottmann.co>, https://zottmann.co/, https://github.com/czottmann
 
 
 ## License
