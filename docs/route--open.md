@@ -1,4 +1,4 @@
-# [Actions URI](index.md) ≫ Route `/open`
+# [Actions URI](README.md) ≫ Route `/open`
 Calls going to `obsidian://actions-uri/open/…`
 
 
@@ -7,7 +7,7 @@ Calls going to `obsidian://actions-uri/open/…`
 Does nothing but say hello.
 
 ### Parameters
-Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)).
 
 ### Return values
 => HandlerTextSuccess
