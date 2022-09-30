@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { incomingBaseParams } from "../schemata";
-import { AnyParams, Route } from "../routes";
-import { AnyHandlerResult, HandlerFailure, HandlerTextSuccess } from "../types";
+import { AnyParams, RoutePath } from "../routes";
+import { HandlerFailure, HandlerTextSuccess } from "../types";
 import {
   getDailyNotePathIfPluginIsAvailable,
   getNoteFile,
 } from "../utils/file-handling";
-import { helloRoute, namespaceRoutes } from "../utils/routing";
+import { helloRoute } from "../utils/routing";
 import { STRINGS } from "../constants";
 import { zodAlwaysFalse, zodSanitizedFilePath } from "../utils/zod";
 
@@ -36,62 +36,64 @@ export type AnyLocalParams =
 
 // ROUTES --------------------
 
-export const routes: Route[] = namespaceRoutes("open", [
-  // ## `/open`
-  //
-  // Does nothing but say hello.
-  helloRoute(),
+export const routePath: RoutePath = {
+  "/open": [
+    // ## `/open`
+    //
+    // Does nothing but say hello.
+    helloRoute(),
 
-  // ## `/open/daily-note`
-  //
-  // Opens today's daily note in Obsidian.
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  { path: "daily-note", schema: dailyNoteParams, handler: handleDailyNote },
+    // ## `/open/daily-note`
+    //
+    // Opens today's daily note in Obsidian.
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/daily-note", schema: dailyNoteParams, handler: handleDailyNote },
 
-  // ## `/open/note`
-  //
-  // Opens a particular note in Obsidian.
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     file: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  { path: "note", schema: noteParams, handler: handleNote },
+    // ## `/open/note`
+    //
+    // Opens a particular note in Obsidian.
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     file: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/note", schema: noteParams, handler: handleNote },
 
-  // ## `/open/search`
-  //
-  // Opens the search for a given query in Obsidian.
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     query: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess
-  { path: "search", schema: searchParams, handler: handleSearch },
-]);
+    // ## `/open/search`
+    //
+    // Opens the search for a given query in Obsidian.
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     query: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess
+    { path: "/search", schema: searchParams, handler: handleSearch },
+  ],
+};
 
 // HANDLERS --------------------
 

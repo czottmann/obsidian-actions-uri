@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { STRINGS } from "../constants";
-import { AnyParams, Route } from "../routes";
+import { AnyParams, RoutePath, RouteSubpath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
-  AnyHandlerResult,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
@@ -16,7 +15,7 @@ import {
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { helloRoute, namespaceRoutes } from "../utils/routing";
+import { helloRoute } from "../utils/routing";
 import {
   extractNoteContentParts,
   parseStringIntoRegex,
@@ -76,131 +75,133 @@ export type AnyLocalParams =
 
 // ROUTES ----------------------------------------
 
-export const routes: Route[] = namespaceRoutes("note", [
-  // ## `/note`
-  //
-  // Does nothing but say hello.
-  helloRoute(),
+export const routePath: RoutePath = {
+  "/note": [
+    // ## `/note`
+    //
+    // Does nothing but say hello.
+    helloRoute(),
 
-  // ## `/note/get`
-  //
-  // TODO
-  //
-  // {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error": string;
-  //     "x-success": string;
-  //     action: string;
-  //     file: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerFileSuccess | HandlerFailure
-  { path: "get", schema: readParams, handler: handleGet },
+    // ## `/note/get`
+    //
+    // TODO
+    //
+    // {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error": string;
+    //     "x-success": string;
+    //     action: string;
+    //     file: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerFileSuccess | HandlerFailure
+    { path: "/get", schema: readParams, handler: handleGet },
 
-  // ## `/note/create`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     content?: string | undefined;
-  //     file: string;
-  //     overwrite?: boolean | undefined;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  { path: "create", schema: createParams, handler: handleCreate },
+    // ## `/note/create`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     content?: string | undefined;
+    //     file: string;
+    //     overwrite?: boolean | undefined;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/create", schema: createParams, handler: handleCreate },
 
-  // ## `/note/append`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "ensure-newline"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     content: string;
-  //     file: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  { path: "append", schema: appendParams, handler: handleAppend },
+    // ## `/note/append`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "ensure-newline"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     content: string;
+    //     file: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/append", schema: appendParams, handler: handleAppend },
 
-  // ## `/note/prepend`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "ensure-newline"?: boolean | undefined;
-  //     "ignore-front-matter": boolean;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     content: string;
-  //     file: string;
-  //     silent?: boolean | undefined;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  { path: "prepend", schema: prependParams, handler: handlePrepend },
+    // ## `/note/prepend`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "ensure-newline"?: boolean | undefined;
+    //     "ignore-front-matter": boolean;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     content: string;
+    //     file: string;
+    //     silent?: boolean | undefined;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/prepend", schema: prependParams, handler: handlePrepend },
 
-  // ## `/note/search-string-and-replace`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     file: string;
-  //     replace: string;
-  //     search: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  {
-    path: "search-string-and-replace",
-    schema: searchAndReplaceParams,
-    handler: handleSearchStringAndReplace,
-  },
+    // ## `/note/search-string-and-replace`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     file: string;
+    //     replace: string;
+    //     search: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    {
+      path: "/search-string-and-replace",
+      schema: searchAndReplaceParams,
+      handler: handleSearchStringAndReplace,
+    },
 
-  // ## `/note/search-regex-and-replace`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     file: string;
-  //     replace: string;
-  //     search: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  {
-    path: "search-regex-and-replace",
-    schema: searchAndReplaceParams,
-    handler: handleSearchRegexAndReplace,
-  },
-]);
+    // ## `/note/search-regex-and-replace`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     file: string;
+    //     replace: string;
+    //     search: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    {
+      path: "/search-regex-and-replace",
+      schema: searchAndReplaceParams,
+      handler: handleSearchRegexAndReplace,
+    },
+  ],
+};
 
 // HANDLERS ----------------------------------------
 

@@ -6,10 +6,9 @@ import {
   getAllDailyNotes,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
-import { AnyParams, Route } from "../routes";
+import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
-  AnyHandlerResult,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
@@ -23,7 +22,7 @@ import {
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { helloRoute, namespaceRoutes } from "../utils/routing";
+import { helloRoute } from "../utils/routing";
 import {
   extractNoteContentParts,
   parseStringIntoRegex,
@@ -85,140 +84,146 @@ export type AnyLocalParams =
 
 // ROUTES ----------------------------------------
 
-export const routes: Route[] = namespaceRoutes("daily-note", [
-  // ## `/daily-note`
-  //
-  // Does nothing but say hello.
-  helloRoute(),
+export const routePath: RoutePath = {
+  "/daily-note": [
+    // ## `/daily-note`
+    //
+    // Does nothing but say hello.
+    helloRoute(),
 
-  // ## `/daily-note/get-current`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     action: string;
-  //     vault: string;
-  //     "x-error": string;
-  //     "x-success": string;
-  // }
-  // => HandlerFileSuccess | HandlerFailure
-  { path: "get-current", schema: readParams, handler: handleGetCurrent },
+    // ## `/daily-note/get-current`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     action: string;
+    //     vault: string;
+    //     "x-error": string;
+    //     "x-success": string;
+    // }
+    // => HandlerFileSuccess | HandlerFailure
+    { path: "/get-current", schema: readParams, handler: handleGetCurrent },
 
-  // ## `/daily-note/get-most-recent`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error": string;
-  //     "x-success": string;
-  //     action: string;
-  //     vault: string;
-  // }
-  // => HandlerFileSuccess | HandlerFailure
-  { path: "get-most-recent", schema: readParams, handler: handleGetMostRecent },
+    // ## `/daily-note/get-most-recent`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error": string;
+    //     "x-success": string;
+    //     action: string;
+    //     vault: string;
+    // }
+    // => HandlerFileSuccess | HandlerFailure
+    {
+      path: "/get-most-recent",
+      schema: readParams,
+      handler: handleGetMostRecent,
+    },
 
-  // ## `/daily-note/create`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     content?: string | undefined;
-  //     overwrite?: boolean | undefined;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerFileSuccess | HandlerFailure
-  { path: "create", schema: createParams, handler: handleCreate },
+    // ## `/daily-note/create`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     content?: string | undefined;
+    //     overwrite?: boolean | undefined;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerFileSuccess | HandlerFailure
+    { path: "/create", schema: createParams, handler: handleCreate },
 
-  // ## `/daily-note/append`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "ensure-newline"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     content: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  { path: "append", schema: appendParams, handler: handleAppend },
+    // ## `/daily-note/append`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "ensure-newline"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     content: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/append", schema: appendParams, handler: handleAppend },
 
-  // ## `/daily-note/prepend`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "ensure-newline"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     content: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  { path: "prepend", schema: prependParams, handler: handlePrepend },
+    // ## `/daily-note/prepend`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "ensure-newline"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     content: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/prepend", schema: prependParams, handler: handlePrepend },
 
-  // ## `/daily-note/search-string-and-replace`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     replace: string;
-  //     search: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  {
-    path: "search-string-and-replace",
-    schema: searchAndReplaceParams,
-    handler: handleSearchStringAndReplace,
-  },
+    // ## `/daily-note/search-string-and-replace`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     replace: string;
+    //     search: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    {
+      path: "/search-string-and-replace",
+      schema: searchAndReplaceParams,
+      handler: handleSearchStringAndReplace,
+    },
 
-  // ## `/daily-note/search-regex-and-replace`
-  //
-  // TODO
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error"?: string | undefined;
-  //     "x-success"?: string | undefined;
-  //     action: string;
-  //     replace: string;
-  //     search: string;
-  //     silent?: boolean | undefined;
-  //     vault: string;
-  // }
-  // => HandlerTextSuccess | HandlerFailure
-  {
-    path: "search-regex-and-replace",
-    schema: searchAndReplaceParams,
-    handler: handleSearchRegexAndReplace,
-  },
-]);
+    // ## `/daily-note/search-regex-and-replace`
+    //
+    // TODO
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     replace: string;
+    //     search: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    {
+      path: "/search-regex-and-replace",
+      schema: searchAndReplaceParams,
+      handler: handleSearchRegexAndReplace,
+    },
+  ],
+};
 
 // HANDLERS ----------------------------------------
 

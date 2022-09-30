@@ -1,12 +1,8 @@
 import { z } from "zod";
-import { AnyParams, Route } from "../routes";
+import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
-import {
-  AnyHandlerResult,
-  HandlerFailure,
-  HandlerSearchSuccess,
-} from "../types";
-import { helloRoute, namespaceRoutes } from "../utils/routing";
+import { HandlerFailure, HandlerSearchSuccess } from "../types";
+import { helloRoute } from "../utils/routing";
 import { doSearch } from "../utils/search";
 
 // SCHEMATA --------------------
@@ -22,28 +18,30 @@ export type AnyLocalParams = DefaultParams;
 
 // ROUTES --------------------
 
-export const routes: Route[] = namespaceRoutes("search", [
-  // ## `/search`
-  //
-  // Does nothing but say hello.
-  helloRoute(),
+export const routePath: RoutePath = {
+  "/search": [
+    // ## `/search`
+    //
+    // Does nothing but say hello.
+    helloRoute(),
 
-  // ## `/search/all-notes`
-  //
-  // Returns search results (file paths) for a given search query.
-  //
-  //   {
-  //     "call-id"?: string | undefined;
-  //     "debug-mode"?: boolean | undefined;
-  //     "x-error": string;
-  //     "x-success": string;
-  //     action: string;
-  //     query: string;
-  //     vault: string;
-  // }
-  // => HandlerSearchSuccess | HandlerFailure
-  { path: "all-notes", schema: defaultParams, handler: handleSearch },
-]);
+    // ## `/search/all-notes`
+    //
+    // Returns search results (file paths) for a given search query.
+    //
+    //   {
+    //     "call-id"?: string | undefined;
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error": string;
+    //     "x-success": string;
+    //     action: string;
+    //     query: string;
+    //     vault: string;
+    // }
+    // => HandlerSearchSuccess | HandlerFailure
+    { path: "/all-notes", schema: defaultParams, handler: handleSearch },
+  ],
+};
 
 // HANDLERS --------------------
 

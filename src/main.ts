@@ -1,6 +1,8 @@
 import { Plugin } from "obsidian";
+import { normalize } from "path";
 import { ZodError } from "zod";
-import { AnyParams, Route, routes } from "./routes";
+import { URI_NAMESPACE } from "./constants";
+import { AnyParams, RoutePath, routes } from "./routes";
 import {
   AnyHandlerResult,
   AnyHandlerSuccess,
@@ -37,27 +39,33 @@ export default class ActionsURI extends Plugin {
    * necessary). If the validation fails, an error message is shown to the
    * user.
    *
-   * @param routes - An array of route objects
+   * @param routeTree - A `RoutePath` object containing information about the
+   * route tree
    */
-  private registerRoutes(routes: Route[]) {
-    const regdRoutes: string[] = [];
+  private registerRoutes(routeTree: RoutePath) {
+    const registeredRoutes: string[] = [];
 
-    for (const route of routes) {
-      const { path, schema, handler } = route;
+    for (const [routePath, routeSubpaths] of Object.entries(routeTree)) {
+      for (const route of routeSubpaths) {
+        const { path, schema, handler } = route;
+        const fullPath = normalize(`${URI_NAMESPACE}/${routePath}/${path}`)
+          .replace(/\/$/, "");
 
-      this.registerObsidianProtocolHandler(
-        path,
-        async (incomingParams) => {
-          const res = schema.safeParse(incomingParams);
-          res.success
-            ? await this.handleIncomingCall(handler, <AnyParams> res.data)
-            : this.handleParseError(res.error);
-        },
-      );
-      regdRoutes.push(path);
+        this.registerObsidianProtocolHandler(
+          fullPath,
+          async (incomingParams) => {
+            const res = schema.safeParse(incomingParams);
+            res.success
+              ? await this.handleIncomingCall(handler, <AnyParams> res.data)
+              : this.handleParseError(res.error);
+          },
+        );
+
+        registeredRoutes.push(fullPath);
+      }
     }
 
-    logToConsole("Registered URI handlers:", regdRoutes);
+    logToConsole("Registered URI handlers:", registeredRoutes);
   }
 
   /**
