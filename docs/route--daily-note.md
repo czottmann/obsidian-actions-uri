@@ -28,7 +28,7 @@ On success:
 Returns today's daily note.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter   | Value type | Optional? | Description                                                    |
 | ----------- | ---------- |:---------:| -------------------------------------------------------------- |
@@ -62,7 +62,7 @@ On failure:
 Returns the most recent daily note.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter   | Value type | Optional? | Description                                                    |
 | ----------- | ---------- |:---------:| -------------------------------------------------------------- |
@@ -96,7 +96,7 @@ On failure:
 Creates a new daily note. An existing current daily note **will not** be overwritten **unless** the related parameter is explicitly set.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter   | Value type | Optional? | Description                                                                              |
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------- |
@@ -130,7 +130,7 @@ On failure:
 Appends today's daily note with a string.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter        | Value type | Optional? | Description                                                                       |
 | ---------------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
@@ -161,7 +161,7 @@ On failure:
 Prepends today's daily note with a string.  Front matter is honored (i.e. the new text will be added to the note body below the front matter) unless explicity stated otherwise.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter             | Value type | Optional? | Description                                                                                                   |
 | --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
@@ -193,7 +193,7 @@ On failure:
 Does text replacement in today's daily note.  The search term is used as-is, i.e. it's a string search.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter | Value type | Optional? | Description                                                                       |
 | --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
@@ -228,7 +228,7 @@ Capturing is supported. Example: the note contains the text *"and it was good"*,
 Modifiers for case-insensitive and global search (`/…/i`, `/…/g`, `/…/gi`) are supported as well. See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#using_the_global_and_ignorecase_flags_with_replace) for examples.
 
 ### Parameters
-In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter | Value type | Optional? | Description                                                                       |
 | --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
