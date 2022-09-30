@@ -2,9 +2,12 @@
 
 # Actions URI
 
-This plugin adds additional `x-callback-url` endpoints to
-[Obsidian](https://obsidian.md) for common actions — it's a clean, super-charged
-addition to the built-in [Obsidian URIs](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs).
+This plugin adds additional `x-callback-url` endpoints to [Obsidian](https://obsidian.md) for common actions — it's a clean, super-charged addition to the built-in [Obsidian URIs](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs), for working with daily notes, notes, getting search results etc.
+
+
+## Documentation
+
+See [`docs/`](docs/README.md).
 
 
 ## Installation
@@ -25,23 +28,14 @@ That's it.
 3. Enable "Actions URI" under Settings → Options → Community Plugins
 
 
-## New `x-callback-url` Endpoints
-
-TODO
-
-
 ## Development
 
-Clone the repository, run `pnpm install` OR `npm install` to install the
-dependencies.  Afterwards, run `pnpm dev` OR `npm run dev` to compile and have
-it watch for file changes.
+Clone the repository, run `pnpm install` OR `npm install` to install the dependencies.  Afterwards, run `pnpm dev` OR `npm run dev` to compile and have it watch for file changes.
 
 
 ## Thanks to …
 
-- the [obsidian-tasks](https://github.com/obsidian-tasks-group/obsidian-tasks)
-  crew for the "starter templates" for the GitHub Action workflow and the handy
-  `release.sh` script
+- the [obsidian-tasks](https://github.com/obsidian-tasks-group/obsidian-tasks) crew for the "starter templates" for the GitHub Action workflow and the handy `release.sh` script
 
 
 ## Author
