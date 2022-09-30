@@ -59,7 +59,7 @@ On failure:
 
 
 ## `/daily-note/get-most-recent`
-Returns the most recent daily note.
+Returns the most recent daily note.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
 
 ### Parameters
 In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
@@ -93,7 +93,7 @@ On failure:
 
 
 ## `/daily-note/create`
-Creates a new daily note. In case of an already existing current daily note, it will be overwritten **only** if the related parameter is set.
+Creates a new daily note. An existing current daily note **will not** be overwritten **unless** the related parameter is explicitly set.
 
 ### Parameters
 In addition to the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](README.md#parameters-required-in-accepted-by-all-calls)):
