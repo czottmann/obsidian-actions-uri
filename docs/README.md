@@ -40,12 +40,13 @@ An Action URI-provided URL doesn't look much different from a standard Obsidian 
 | `call-id`    | string             | yes      | unique ID for pairing request & callback, see [Getting data back from Actions URI](callbacks.md)                                                              |
 | `debug-mode` | benevolent boolean | yes      | when enabled will include not just the `call-id` in the return calls but all parameters of the original request, prefixed with `input-`. Disabled by default. |
 
-### Terms
+### Notes about parameters
+
 <dl>
   <dt>"mostly"</dt>
   <dd>optional unless specified otherwise in the detailed route description</dd>
-  <dt>"benevolent boolean"</dt>
-  <dd>the absence of the parameter, an empty string or the string "false" are considered <code>false</code>, everything else is <code>true</code></dd>
+  <dt>"boolean"</dt>
+  <dd>Actions URI uses what I call "benevolent booleans": the absence of the parameter, an empty string or the string "false" are considered <code>false</code>, everything else is <code>true</code></dd>
 </dl>
 
 
