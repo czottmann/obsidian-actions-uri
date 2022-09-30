@@ -2,6 +2,7 @@ import { AnyParams, Route } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import { HandlerTextSuccess } from "../types";
 import { showBrandedNotice } from "./ui";
+import { URI_NAMESPACE } from "../constants";
 
 /**
  * Prefixes the `path` value of each of the passed-in routes. Used for
@@ -17,12 +18,15 @@ import { showBrandedNotice } from "./ui";
  * For a `namespace` of "herp":
  *
  * - In: `[ { path: "derp", schema: …, handler: … }, … ]`
- * - Out: `[ { path: "herp/derp", schema: …, handler: … }, … ]`
+ * - Out: `[ { path: "actions-uri/herp/derp", schema: …, handler: … }, … ]`
  */
 export function namespaceRoutes(namespace: string, routes: Route[]): Route[] {
   return routes.map((r) => ({
     ...r,
-    path: `${namespace}/${r.path}`.split("/").filter((p) => !!p).join("/"),
+    path: `${URI_NAMESPACE}/${namespace}/${r.path}`
+      .split("/")
+      .filter((p) => !!p)
+      .join("/"),
   }));
 }
 

@@ -5,22 +5,6 @@ import { RegexResultObject } from "../types";
 const FRONT_MATTER_BOUNDARY = "---\n";
 
 /**
- * Building a namespaced action string used in the Obsidian protocol handler.
- * The input is normalized.
- *
- * @param path - The last segment of the action string
- *
- * @example
- * - `buildActionPath("herp")` // → "actions-uri/herp"
- * - `buildActionPath("herp/derp")` // → "actions-uri/herp/derp"
- * - `buildActionPath("/herp//derp")` // → "actions-uri/herp/derp"
- * - `buildActionPath(".././herp/../derp")` // → "actions-uri/derp"
- */
-export function buildFullPath(path: string) {
-  return `${URI_NAMESPACE}/` + normalize(path).replace(/^[\.\/]+/g, "");
-}
-
-/**
  * Makes sure the passed-in string ends in a newline.
  *
  * @param str - The string that should end in a newline

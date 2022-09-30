@@ -11,7 +11,6 @@ import {
   StringResultObject,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
-import { buildFullPath } from "./utils/string-handling";
 import {
   focusOrOpenNote,
   logErrorToConsole,
@@ -45,10 +44,9 @@ export default class ActionsURI extends Plugin {
 
     for (const route of routes) {
       const { path, schema, handler } = route;
-      const fullPath = buildFullPath(path);
 
       this.registerObsidianProtocolHandler(
-        fullPath,
+        path,
         async (incomingParams) => {
           const res = schema.safeParse(incomingParams);
           res.success
@@ -56,7 +54,7 @@ export default class ActionsURI extends Plugin {
             : this.handleParseError(res.error);
         },
       );
-      regdRoutes.push(fullPath);
+      regdRoutes.push(path);
     }
 
     logToConsole("Registered URI handlers:", regdRoutes);

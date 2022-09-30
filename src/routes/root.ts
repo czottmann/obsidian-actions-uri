@@ -1,11 +1,11 @@
 import { Route } from "../routes";
-import { helloRoute } from "../utils/routing";
+import { helloRoute, namespaceRoutes } from "../utils/routing";
 
 // ROUTES --------------------
 
-export const routes: Route[] = [
+export const routes: Route[] = namespaceRoutes("", [
   // ## `/`
   //
   // Does nothing but say hello.
   helloRoute(),
-];
+]);
