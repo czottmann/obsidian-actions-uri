@@ -1,13 +1,22 @@
 # Actions URI
 Obsidian natively supports a custom URI protocol `obsidian://` which can be used to trigger various actions within the app.  This is commonly used on macOS and mobile apps for automation and cross-app workflows.
 
-**This plugin adds new `x-callback-url` endpoints** to Obsidian so that external sources can interact with an Obsidian instance in a programmatic way by making `GET` requests to a `obsidian://actions-uri/*` URL.  All new routes support `x-success` and `x-error` parameters as a way of communicating back to the sender.  See below for detailed documentation.
+**This plugin adds new `x-callback-url` endpoints** to Obsidian so that external sources can better interact with an Obsidian instance in a programmatic way by making `GET` requests to a `obsidian://actions-uri/*` URL.  All new routes support `x-success` and `x-error` parameters as a way of communicating back to the sender.  See below for detailed documentation.
 
-It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs).  
+It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs).
+
+
+## Routes added by Actions URI
+- [`/daily-note`](route--daily-note.md): Reading, writing, updating daily notes.
+- [`/info`](route--info.md): Plugin & Obsidian environment info.
+- [`/note`](route--note.md): Reading, writing, updating any notes.
+- [`/open`](route--open.md): Opening notes, daily notes and searches in Obsidian.
+- [`/search`](route--search.md): Running searches in Obsidian.
+- [`/`](route--root.md): The root note. Not much is happening here.
 
 
 ## Anatomy of an Actions URI route
-An Action URI-provided URL doesn't look much different from a standard Obsidian URI.  It adds a new namespace:
+An Action URI-provided URL doesn't look much different from a standard Obsidian URI.  It adds a new namespace that tells Obsidian which plugin is taking care of the incoming call:
 
 > obsidian://`actions-uri`/daily-note/get-current?parameter=value
 
@@ -15,20 +24,11 @@ An Action URI-provided URL doesn't look much different from a standard Obsidian 
 
 > obsidian://actions-uri/`daily-note/get-current`?parameter=value
 
-Both data and configuration is passed as URL search parameters:
+(In this context, the part `daily-note/get-current` is also called an "action".)  Both data and configuration is passed as URL search parameters:
 
 > obsidian://actions-uri/daily-note/get-current?`parameter=value`
 
-**Please note:** all parameter data must be properly encoded.  (See [Wikipedia](https://en.wikipedia.org/wiki/Percent-encoding) for a short intro.)
-
-
-## Routes added by Actions URI
-- [`/`](route--root.md): The root note. Not much is happening here.
-- [`/daily-note`](route--daily-note.md): Reading, writing, updating daily notes.
-- [`/info`](route--info.md): Plugin & Obsidian environment info.
-- [`/note`](route--note.md): Reading, writing, updating any notes.
-- [`/open`](route--open.md): Opening notes, daily notes and searches in Obsidian.
-- [`/search`](route--search.md): Running searches in Obsidian.
+**Please note:** all parameter data must be properly encoded (see [Wikipedia](https://en.wikipedia.org/wiki/Percent-encoding) for a short intro), as Actions URI will make no attempts to correct malformed input.
 
 
 ## Parameters required in/ accepted by all calls
