@@ -1,5 +1,5 @@
-# [Actions URI](README.md) ≫ Route `/note`
-Calls going to `obsidian://actions-uri/note/…`
+# [Actions URI](README.md) ≫ Routes ≫ `/note`
+These routes deal with reading, writing and updating notes.  Their URLs start with `obsidian://actions-uri/note/…`.
 
 
 ## Root, i.e. `/note`
@@ -31,9 +31,9 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | Parameter   | Value type | Optional? | Description                                                                                    |
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
 | `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
 | `x-success` | string     |           | base URL for on-error callbacks                                                                | 
 | `x-error`   | string     |           | base URL for on-error callbacks                                                                |
+| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).

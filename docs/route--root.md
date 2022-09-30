@@ -1,5 +1,5 @@
 # [Actions URI](README.md) ≫ Route `/`
-Calls going to `obsidian://actions-uri`
+All URLs start with `obsidian://actions-uri`.
 
 
 ## `obsidian://actions-uri`
