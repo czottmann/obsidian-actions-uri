@@ -31,7 +31,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | Parameter   | Value type | Optional? | Description                                                                                    |
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
 | `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `x-success` | string     |           | base URL for on-error callbacks                                                                | 
+| `x-success` | string     |           | base URL for on-success callbacks                                                              |
 | `x-error`   | string     |           | base URL for on-error callbacks                                                                |
 | `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
 
@@ -45,13 +45,13 @@ On success:
 | `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. | 
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
 
 On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -67,7 +67,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
 | `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 | `content`   | string     |    ✅     | The initial body of the note                                                                   |
-| `overwrite` | boolean    |    ✅     | *"If this note file already exists, it should be overwritten."* Defaults to `false`.           | 
+| `overwrite` | boolean    |    ✅     | *"If this note file already exists, it should be overwritten."* Defaults to `false`.           |
 | `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
 
 ### Return values
@@ -80,13 +80,13 @@ On success:
 | `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. | 
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
 
 On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -101,7 +101,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | Parameter        | Value type | Optional? | Description                                                                                    |
 | ---------------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
 | `file`           | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `content`        | string     |           | The text to be added at the end of the note.                                                   | 
+| `content`        | string     |           | The text to be added at the end of the note.                                                   |
 | `ensure-newline` | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                            |
 | `silent`         | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
 
@@ -118,7 +118,7 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -152,7 +152,7 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -184,7 +184,7 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -218,4 +218,4 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |

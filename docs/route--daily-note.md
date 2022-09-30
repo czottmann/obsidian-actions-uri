@@ -34,7 +34,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | ----------- | ---------- |:---------:| -------------------------------------------------------------- |
 | `x-success` | string     |           | base URL for on-success callbacks                              |
 | `x-error`   | string     |           | base URL for on-error callbacks                                |
-| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`. | 
+| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
@@ -46,13 +46,13 @@ On success:
 | `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. | 
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
 
 On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -66,7 +66,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 
 | Parameter   | Value type | Optional? | Description                                                    |
 | ----------- | ---------- |:---------:| -------------------------------------------------------------- |
-| `x-success` | string     |           | base URL for on-error callbacks                                |
+| `x-success` | string     |           | base URL for on-success callbacks                              |
 | `x-error`   | string     |           | base URL for on-error callbacks                                |
 | `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
 
@@ -80,13 +80,13 @@ On success:
 | `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. | 
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
 
 On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -102,7 +102,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------- |
 | `content`   | string     |    ✅     | The initial body of the note                                                             |
 | `overwrite` | boolean    |    ✅     | *"If today's daily note already exists, it should be overwritten."* Defaults to `false`. |
-| `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.        | 
+| `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.        |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
@@ -114,13 +114,13 @@ On success:
 | `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. | 
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
 
 On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -135,7 +135,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | Parameter        | Value type | Optional? | Description                                                                       |
 | ---------------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
 | `content`        | string     |           | The text to be added at the end of today's daily note.                                              |
-| `ensure-newline` | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.               | 
+| `ensure-newline` | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.               |
 | `silent`         | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
 ### Return values
@@ -151,7 +151,7 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -167,7 +167,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
 | `content`             | string     |           | The text to be added at the beginning of today's daily note.                                                  |
 | `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
-| `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. | 
+| `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
 | `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
 
 ### Return values
@@ -183,7 +183,7 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -198,7 +198,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 | Parameter | Value type | Optional? | Description                                                                       |
 | --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
 | `search`  | string     |           | Text string that should be replaced.                                              |
-| `replace` | string     |           | Replacement text.                                                                 | 
+| `replace` | string     |           | Replacement text.                                                                 |
 | `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
 ### Return values
@@ -214,7 +214,7 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -232,7 +232,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 
 | Parameter | Value type | Optional? | Description                                                                       |
 | --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
-| `search`  | string     |           | Text pattern that should be replaced.                                             | 
+| `search`  | string     |           | Text pattern that should be replaced.                                             |
 | `replace` | string     |           | Replacement text.                                                                 |
 | `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
@@ -249,4 +249,4 @@ On failure:
 
 | Parameter | Description                         |
 | --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| `error`   | A short summary of what went wrong. |
