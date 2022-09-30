@@ -34,6 +34,7 @@ import { zodOptionalBoolean } from "../utils/zod";
 // SCHEMATA ----------------------------------------
 
 const readParams = incomingBaseParams.extend({
+  silent: zodOptionalBoolean,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });

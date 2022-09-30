@@ -25,6 +25,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 
 | Parameter    | Value   | optional | Description                                   |
 | ------------ | ------- | -------- | --------------------------------------------- |
+| `silent`     | boolean | yes      |                                               |
 | `x-success`  | string  |          | base URL for on-success callbacks             |
 | `x-error`    | string  |          | base URL for on-error callbacks               |
 
@@ -44,6 +45,7 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 
 | Parameter    | Value   | optional | Description                                   |
 | ------------ | ------- | -------- | --------------------------------------------- |
+| `silent`     | boolean | yes      |                                               |
 | `x-success`  | string  |          | base URL for on-error callbacks               |
 | `x-error`    | string  |          | base URL for on-error callbacks               |
 
