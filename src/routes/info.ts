@@ -1,10 +1,10 @@
+import { apiVersion } from "obsidian";
 import { z } from "zod";
 import { PLUGIN_INFO } from "../plugin-info";
 import { AnyParams, Route } from "../routes";
 import { incomingBaseParams } from "../schemata";
-import { AnyHandlerResult, HandlerInfoSuccess } from "../types";
+import { HandlerInfoSuccess } from "../types";
 import { namespaceRoutes } from "../utils/routing";
-import { logToConsole } from "../utils/ui";
 
 // SCHEMATA --------------------
 
@@ -40,21 +40,16 @@ export const routes: Route[] = namespaceRoutes("info", [
 async function handleInfo(
   incomingParams: AnyParams,
 ): Promise<HandlerInfoSuccess> {
-  const uaMatch = navigator.userAgent.match(/\((.+?)\).+obsidian\/(\S+)/);
-  let platform: string = "";
-  let obsidianVersion: string = "";
-
-  if (uaMatch) {
-    [, platform, obsidianVersion] = uaMatch;
-  }
+  const uaMatch = navigator.userAgent.match(/\((.+?)\)/);
+  const os: string = uaMatch ? uaMatch[1] : "unknown";
 
   return <HandlerInfoSuccess> {
     isSuccess: true,
     result: {
       ...PLUGIN_INFO,
-      obsidianVersion,
-      nodeVersion: process.version,
-      os: platform,
+      apiVersion,
+      nodeVersion: process.version.replace(/^v/, ""),
+      os,
     },
   };
 }

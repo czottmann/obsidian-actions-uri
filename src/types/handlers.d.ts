@@ -62,7 +62,7 @@ export type HandlerInfoSuccess = Readonly<
     result: {
       pluginVersion: string;
       pluginReleasedAt: string;
-      obsidianVersion: string;
+      apiVersion: string;
       nodeVersion: string;
       os: string;
     };
