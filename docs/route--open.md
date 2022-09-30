@@ -39,9 +39,9 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| Parameter | Description                                                                  |
+| --------- | ---------------------------------------------------------------------------- |
+| `error`   | A short summary of what went wrong. Example: today's note couldn't be found. | 
 
 
 &nbsp;
@@ -65,9 +65,9 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. | 
+| Parameter | Description                                                                |
+| --------- | -------------------------------------------------------------------------- |
+| `error`   | A short summary of what went wrong. Example: requested note doesn't exist. | 
 
 
 &nbsp;
