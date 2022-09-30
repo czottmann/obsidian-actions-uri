@@ -155,7 +155,7 @@ export const routes: Route[] = namespaceRoutes("note", [
   // => HandlerTextSuccess | HandlerFailure
   { path: "prepend", schema: prependParams, handler: handlePrepend },
 
-  // ## `/note/search-and-replace`
+  // ## `/note/search-string-and-replace`
   //
   // TODO
   //
@@ -178,7 +178,7 @@ export const routes: Route[] = namespaceRoutes("note", [
     handler: handleSearchStringAndReplace,
   },
 
-  // ## `/note/search-and-replace-regex`
+  // ## `/note/search-regex-and-replace`
   //
   // TODO
   //
@@ -235,24 +235,37 @@ async function handleGet(
 
 async function handleCreate(
   incomingParams: AnyParams,
-): Promise<HandlerTextSuccess | HandlerFailure> {
+): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
   const { file, content, overwrite } = params;
 
   const res = overwrite
     ? await createOrOverwriteNote(file, content || "")
     : await createNote(file, content || "");
-
-  return res.isSuccess
-    ? <HandlerTextSuccess> {
-      isSuccess: true,
-      result: { message: res.result.path },
-      processedFilepath: res.result.path,
-    }
-    : <HandlerFailure> {
+  if (!res.isSuccess) {
+    return <HandlerFailure> {
       isSuccess: false,
       error: STRINGS.unable_to_write_note,
     };
+  }
+
+  const newNoteRes = await getNoteContent(file);
+  if (!newNoteRes.isSuccess) {
+    return <HandlerFailure> {
+      isSuccess: false,
+      error: STRINGS.unable_to_read_note,
+    };
+  }
+
+  return <HandlerFileSuccess> {
+    isSuccess: true,
+    result: {
+      ...extractNoteContentParts(newNoteRes.result),
+      content: newNoteRes.result,
+      filepath: file,
+    },
+    processedFilepath: file,
+  };
 }
 
 async function handleAppend(
