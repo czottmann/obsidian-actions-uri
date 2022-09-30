@@ -1,7 +1,7 @@
 # Actions URI
 Obsidian natively supports a custom URI protocol `obsidian://` which can be used to trigger various actions within the app.  This is commonly used on macOS and mobile apps for automation and cross-app workflows.
 
-**This plugin adds new `x-callback-url` endpoints** to Obsidian so that external sources can better interact with an Obsidian instance in a programmatic way by making `GET` requests to a `obsidian://actions-uri/*` URL.  All new routes support `x-success` and `x-error` parameters as a way of communicating back to the sender.  See below for detailed documentation.
+**This plugin adds new `x-callback-url` endpoints** to Obsidian so that external sources can better interact with an Obsidian instance by making `GET` requests to a `obsidian://actions-uri/*` URL.  All new routes support `x-success` and `x-error` parameters as a way of communicating back to the sender.  See below for detailed documentation.
 
 It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs).
 
@@ -38,7 +38,7 @@ An Action URI-provided URL doesn't look much different from a standard Obsidian 
 | `x-success`  | string     |  mostly   | Base URL for on-success callbacks, see [Getting data back from Actions URI](callbacks.md).                                                                                 |
 | `x-error`    | string     |  mostly   | Base URL for on-error callbacks, see [Getting data back from Actions URI](callbacks.md).                                                                                   |
 | `call-id`    | string     |    ✅     | Unique ID for pairing request & callback, see [Getting data back from Actions URI](callbacks.md).                                                                          |
-| `debug-mode` | boolean    |    ✅     | When enabled, Actions URI will include not just the `call-id` in the return calls but all parameters of the original request, prefixed with `input-`. Defaults to `false`. | 
+| `debug-mode` | boolean    |    ✅     | When enabled, Actions URI will include not just the `call-id` in the return calls but all parameters of the original request, prefixed with `input-`. Defaults to `false`. |
 
 ### Notes about parameters
 
