@@ -1,6 +1,21 @@
-## `/search`
+# [Actions URI](index.md) ≫ Route `/search`
+Calls going to `obsidian://actions-uri/search/…`
+
+
+## Root, i.e. `/search`
+
 Does nothing but say hello.
 
+### Parameters
+Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)).
+
+### Return values
+=> HandlerTextSuccess
+
+### Example
+TODO
+
+---
 
 ## `/search/all-notes`
 Returns search results (file paths) for a given search query.

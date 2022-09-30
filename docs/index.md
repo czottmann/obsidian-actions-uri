@@ -9,15 +9,15 @@ It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](ht
 ## Anatomy of an Actions URI route
 An Action URI-provided URL doesn't look much different from a standard Obsidian URI.  It adds a new namespace:
 
-> obsidian://`actions-uri`/note?parameter=value
+> obsidian://`actions-uri`/daily-note/get-current?parameter=value
 
 … and routes in that namespace:
 
-> obsidian://actions-uri/`daily-note`?parameter=value
+> obsidian://actions-uri/`daily-note/get-current`?parameter=value
 
 Both data and configuration is passed as URL search parameters:
 
-> obsidian://actions-uri/daily-note?`parameter=value`
+> obsidian://actions-uri/daily-note/get-current?`parameter=value`
 
 **Please note:** all parameter data must be properly encoded.  (See [Wikipedia](https://en.wikipedia.org/wiki/Percent-encoding) for a short intro.)
 
@@ -42,10 +42,10 @@ Both data and configuration is passed as URL search parameters:
 
 ### Terms
 <dl>
-<dt>"mostly"</dt>
-<dd>optional unless specified otherwise in the detailed route description</dd>
-<dt>"benevolent boolean"</dt>
-<dd>the absence of the parameter, an empty string ("") or the string "false" are considered `false`, everything else is `true`</dd>
+  <dt>"mostly"</dt>
+  <dd>optional unless specified otherwise in the detailed route description</dd>
+  <dt>"benevolent boolean"</dt>
+  <dd>the absence of the parameter, an empty string or the string "false" are considered <code>false</code>, everything else is <code>true</code></dd>
 </dl>
 
 

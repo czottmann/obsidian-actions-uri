@@ -1,6 +1,21 @@
-## `/open`
+# [Actions URI](index.md) ≫ Route `/open`
+Calls going to `obsidian://actions-uri/open/…`
+
+
+## Root, i.e. `/open`
+
 Does nothing but say hello.
 
+### Parameters
+Only supports the base parameters (see section "Parameters required in/ accepted by all calls") [in main doc](index.md#parameters-required-in-accepted-by-all-calls)).
+
+### Return values
+=> HandlerTextSuccess
+
+### Example
+TODO
+
+---
 
 ## `/open/daily-note`
 Opens today's daily note in Obsidian.

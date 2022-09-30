@@ -1,4 +1,4 @@
-# [Actions URI](index.md) 〉 Route `/daily-note`
+# [Actions URI](index.md) ≫ Route `/daily-note`
 Calls going to `obsidian://actions-uri/daily-note/…`
 
 
@@ -11,6 +11,9 @@ Only supports the base parameters (see section "Parameters required in/ accepted
 
 ### Return values
 => HandlerTextSuccess
+
+### Example
+TODO
 
 ---
 
@@ -28,6 +31,9 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 ### Return values
 => HandlerFileSuccess | HandlerFailure
 
+### Example
+TODO
+
 ---
 
 ## `/daily-note/get-most-recent`
@@ -43,6 +49,9 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 
 ### Return values
 => HandlerFileSuccess | HandlerFailure
+
+### Example
+TODO
 
 ---
 
@@ -61,6 +70,9 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 ### Return values
 => HandlerFileSuccess | HandlerFailure
 
+### Example
+TODO
+
 ---
 
 ## `/daily-note/append`
@@ -77,6 +89,9 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 
 ### Return values
 => HandlerTextSuccess | HandlerFailure
+
+### Example
+TODO
 
 ---
 
@@ -95,6 +110,9 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 ### Return values
 => HandlerTextSuccess | HandlerFailure
 
+### Example
+TODO
+
 ---
 
 ## `/daily-note/search-string-and-replace`
@@ -111,6 +129,9 @@ In addition to the base parameters (see section "Parameters required in/ accepte
 
 ### Return values
 => HandlerTextSuccess | HandlerFailure
+
+### Example
+TODO
 
 ---
 
