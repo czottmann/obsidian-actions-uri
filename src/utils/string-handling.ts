@@ -1,5 +1,4 @@
-import { normalize } from "path";
-import { STRINGS, URI_NAMESPACE } from "../constants";
+import { STRINGS } from "../constants";
 import { RegexResultObject } from "../types";
 
 const FRONT_MATTER_BOUNDARY = "---\n";
