@@ -1,4 +1,4 @@
-import { dirname, extname, normalize } from "path";
+import normalizePath from "path-normalize";
 import { TFile, TFolder } from "obsidian";
 import {
   appHasDailyNotesPluginLoaded,
@@ -153,7 +153,7 @@ export async function getNoteContent(
  * @returns A normalized file path relative to the vault root
  */
 export function sanitizeFilePath(filename: string): string {
-  filename = normalize(filename)
+  filename = normalizePath(filename)
     .replace(/^[\/\.]+/, "")
     .trim();
   filename = extname(filename).toLowerCase() === ".md"
@@ -335,4 +335,32 @@ async function createFolderIfNecessary(folder: string) {
   // Back off if the folder already exists
   if (vault.getAbstractFileByPath(folder) instanceof TFolder) return;
   await vault.createFolder(folder);
+}
+
+/**
+ * Returns the directory name of a `path`, as a bare-bones replacement for
+ * Node's `path.dirname`.
+ *
+ * @param path - A file path
+ *
+ * @returns Directory name of the input `path`
+ */
+function dirname(path: string) {
+  return normalizePath(path).replace(/\/[^\/]*$/, "");
+}
+
+/**
+ * Returns the extension of the `path`, from the last occurrence of the `.`
+ * (period) character to end of string in the last portion of the `path`. If
+ * there is no `.` in the last portion of the `path`, or if there are no `.`
+ * characters other than the first character of the basename of `path`, an empty
+ * string is returned.
+ *
+ * @param path - A file path
+ *
+ * @returns Filename extension of the input `path`
+ */
+function extname(path: string) {
+  const filename = (normalizePath(path).split("/").pop() || "");
+  return filename.includes(".") ? `.${filename.split(".").pop()}` : "";
 }

@@ -1,5 +1,5 @@
+import normalizePath from "path-normalize";
 import { Plugin } from "obsidian";
-import { normalize } from "path";
 import { ZodError } from "zod";
 import { URI_NAMESPACE } from "./constants";
 import { AnyParams, RoutePath, routes } from "./routes";
@@ -48,7 +48,7 @@ export default class ActionsURI extends Plugin {
     for (const [routePath, routeSubpaths] of Object.entries(routeTree)) {
       for (const route of routeSubpaths) {
         const { path, schema, handler } = route;
-        const fullPath = normalize(`${URI_NAMESPACE}/${routePath}/${path}`)
+        const fullPath = normalizePath(`${URI_NAMESPACE}/${routePath}/${path}`)
           .replace(/\/$/, "");
 
         this.registerObsidianProtocolHandler(
