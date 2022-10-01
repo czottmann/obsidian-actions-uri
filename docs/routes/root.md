@@ -1,3 +1,7 @@
+---
+parent: Routes added by Actions URI
+---
+
 # Route: `/`
 All URLs start with `obsidian://actions-uri`.
 

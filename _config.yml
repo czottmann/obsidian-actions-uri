@@ -17,6 +17,10 @@ nav_external_links:
     url: "https://github.com/czottmann/obsidian-actions-uri"
   - title: "Actions URI in Community Plugins"
     url: "https://obsidian.md/plugins?id=actions-uri"
+  - title: 🪳 Issues or Bugs?
+    url: "https://github.com/czottmann/obsidian-actions-uri/issues"
+  - title: 💡 Ideas & suggestions?
+    - url: "https://github.com/czottmann/obsidian-actions-uri/discussions/categories/ideas"
 
 include:
   - LICENSE.md

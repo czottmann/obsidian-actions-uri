@@ -1,3 +1,7 @@
+---
+parent: Routes added by Actions URI
+---
+
 # Route: `/open`
 These routes deal with opening notes and searches in Obsidian.  Their URLs start with `obsidian://actions-uri/open/…`.
 
