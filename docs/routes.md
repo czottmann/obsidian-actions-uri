@@ -13,3 +13,5 @@ has_toc: false
 - [`/search`](routes/-search.md): Running searches in Obsidian.
 - [`/`](routes/root.md): The root note. Not much is happening here.
 
+**Please note:** These are the routes in Actions URI v0.10.  There might be changes to this API in the run-up to its release (v1.0).
+
