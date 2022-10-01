@@ -3,7 +3,11 @@ parent: New Routes
 ---
 
 # `/`
+
 All URLs start with `obsidian://actions-uri`.
+
+
+&nbsp;
 
 
 ## `obsidian://actions-uri`

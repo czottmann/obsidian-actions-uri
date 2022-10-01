@@ -3,7 +3,11 @@ parent: New Routes
 ---
 
 # `/info`
+
 These routes deal with plugin & Obsidian environment info.  Their URLs start with `obsidian://actions-uri/info`.
+
+
+&nbsp;
 
 
 ## `/info`

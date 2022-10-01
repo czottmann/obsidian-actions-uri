@@ -3,7 +3,11 @@ parent: New Routes
 ---
 
 # `/note`
+
 These routes deal with reading, writing and updating notes.  Their URLs start with `obsidian://actions-uri/note/…`.
+
+
+&nbsp;
 
 
 ## Root, i.e. `/note`

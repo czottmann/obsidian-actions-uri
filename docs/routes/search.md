@@ -3,7 +3,11 @@ parent: New Routes
 ---
 
 # `/search`
+
 These routes deal with running searches in Obsidian.  Their URLs start with `obsidian://actions-uri/search/…`.
+
+
+&nbsp;
 
 
 ## Root, i.e. `/search`

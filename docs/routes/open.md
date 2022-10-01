@@ -3,7 +3,11 @@ parent: New Routes
 ---
 
 # `/open`
+
 These routes deal with opening notes and searches in Obsidian.  Their URLs start with `obsidian://actions-uri/open/…`.
+
+
+&nbsp;
 
 
 ## Root, i.e. `/open`
