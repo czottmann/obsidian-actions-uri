@@ -1,5 +1,6 @@
 ---
 parent: Routes added by Actions URI
+description: Reading, writing, updating daily notes.
 ---
 
 # `/daily-note`
