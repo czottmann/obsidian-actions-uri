@@ -1,4 +1,5 @@
-# Actions URI
+# Documentation
+
 Obsidian natively supports a custom URI protocol `obsidian://` which can be used to trigger various actions within the app.  This is commonly used on macOS and mobile apps for automation and cross-app workflows.
 
 **This plugin adds new `x-callback-url` endpoints** to Obsidian so that external sources can better interact with an Obsidian instance by making `GET` requests to a `obsidian://actions-uri/*` URL.  All new routes support `x-success` and `x-error` parameters as a way of communicating back to the sender.  See below for detailed documentation.
@@ -7,12 +8,12 @@ It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](ht
 
 
 ## Routes added by Actions URI
-- [`/daily-note`](route--daily-note.md): Reading, writing, updating daily notes.
-- [`/info`](route--info.md): Plugin & Obsidian environment info.
-- [`/note`](route--note.md): Reading, writing, updating any notes.
-- [`/open`](route--open.md): Opening notes, daily notes and searches in Obsidian.
-- [`/search`](route--search.md): Running searches in Obsidian.
-- [`/`](route--root.md): The root note. Not much is happening here.
+- [`/daily-note`](routes/daily-note.md): Reading, writing, updating daily notes.
+- [`/info`](routes/info.md): Plugin & Obsidian environment info.
+- [`/note`](routes/note.md): Reading, writing, updating any notes.
+- [`/open`](routes/open.md): Opening notes, daily notes and searches in Obsidian.
+- [`/search`](routs/-search.md): Running searches in Obsidian.
+- [`/`](route-s/oot.md): The root note. Not much is happening here.
 
 
 ## Anatomy of an Actions URI… URL
@@ -53,23 +54,3 @@ Both data and configuration is passed as URL search parameters:
 
 ## Getting data back from Actions URI
 See [Getting data back from Actions URI](callbacks.md).
-
-
-## FAQs
-
-### Why does this exist?
-One major reason is an upcoming project of mine, for which I need a way to access my vault data from "the outside".  The existing options either didn't fully cut it — like [Obsidian URI](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI) — or we're pretty full of features but left me wanting anyways, like [Advanced URI](https://github.com/Vinzent03/obsidian-advanced-uri) which does *a lot* but in a way and format that didn't quite gel with me. (Additionally, its author doesn't actually use it anymore themself[^1] which in my eyes makes it a gamble to rely on it for a new project.)  This is not meant as a diss, mind; it's just not the right thing for me, personally.
-
-[^1]: Source: https://vinzent03.github.io/obsidian-advanced-uri/
-
-So, here we are! 😀 
-
-
-### *"I have an idea for this!"*
-Cool!  If you want to discuss it, either [post it to the Ideas discussion board](https://github.com/czottmann/obsidian-actions-uri/discussions/categories/ideas) or [hit me up on Twitter](https://twitter.com/municode).  I'm all ears! 👂🏼
-
-
-### *"There's a bug!"*, *"There's something wrong"* etc.
-Oh no!  Please [file a bug report](https://github.com/czottmann/obsidian-actions-uri/issues) here or (if you're unsure about it) [ping me on Twitter](https://twitter.com/municode).
-
-

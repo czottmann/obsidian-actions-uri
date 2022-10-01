@@ -1,3 +1,19 @@
 remote_theme: just-the-docs/just-the-docs
 title: Actions URI
 description: A plugin for Obsidian.md adding additional `x-callback-url` endpoints to the app for common actions — it's a clean, super-charged addition to Obsidian URI.
+
+baseurl: "/obsidian-actions-uri"
+url: "https://czottmann.github.io"
+
+permalink: pretty
+
+aux_links:
+  "Actions URI on GitHub":
+    - "https://github.com/czottmann/obsidian-actions-uri"
+
+# External navigation links
+nav_external_links:
+  - title: "Actions URI on GitHub"
+    url: "https://github.com/czottmann/obsidian-actions-uri"
+  - title: "Actions URI in Community Plugins"
+    url: "https://obsidian.md/plugins?id=actions-uri"
