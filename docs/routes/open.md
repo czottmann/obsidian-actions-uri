@@ -11,10 +11,10 @@ These routes deal with opening notes and searches in Obsidian.  Their URLs start
 Does nothing but say hello.
 
 ### Parameters
-Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -30,10 +30,10 @@ On success:
 Opens today's daily note in Obsidian.
 
 ### Parameters
-Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -59,7 +59,7 @@ Opens a particular note in Obsidian.
 | `file`    | string |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -85,7 +85,7 @@ Opens the search for a given query in Obsidian.
 | `query`   | string |           | A valid Obsidian search query |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 

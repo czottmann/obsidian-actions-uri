@@ -15,7 +15,7 @@ Returns information about the plugin and the current Obsidian instance.
 | `x-error`   | string |           | base URL for on-error callbacks   |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 

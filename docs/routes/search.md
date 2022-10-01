@@ -11,10 +11,10 @@ These routes deal with running searches in Obsidian.  Their URLs start with `obs
 Does nothing but say hello.
 
 ### Parameters
-Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -36,7 +36,7 @@ Returns search results (file paths) for a given search query.
 | `x-error`   | string |           | base URL for on-error callbacks   |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 

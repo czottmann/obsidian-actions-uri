@@ -13,10 +13,10 @@ All routes listed here will test whether Daily Note functionality is enabled in 
 Does nothing but say hello.
 
 ### Parameters
-Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -32,7 +32,7 @@ On success:
 Returns today's daily note.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter   | Value type | Optional? | Description                                                    |
 | ----------- | ---------- |:---------:| -------------------------------------------------------------- |
@@ -41,7 +41,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -66,7 +66,7 @@ On failure:
 Returns the most recent daily note.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter   | Value type | Optional? | Description                                                    |
 | ----------- | ---------- |:---------:| -------------------------------------------------------------- |
@@ -75,7 +75,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -100,7 +100,7 @@ On failure:
 Creates a new daily note. An existing current daily note **will not** be overwritten **unless** the related parameter is explicitly set.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter   | Value type | Optional? | Description                                                                              |
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------- |
@@ -109,7 +109,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.        |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -134,7 +134,7 @@ On failure:
 Appends today's daily note with a string.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter        | Value type | Optional? | Description                                                                       |
 | ---------------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
@@ -143,7 +143,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `silent`         | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -165,7 +165,7 @@ On failure:
 Prepends today's daily note with a string.  Front matter is honored (i.e. the new text will be added to the note body below the front matter) unless explicity stated otherwise.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter             | Value type | Optional? | Description                                                                                                   |
 | --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
@@ -175,7 +175,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -197,7 +197,7 @@ On failure:
 Does text replacement in today's daily note.  The search term is used as-is, i.e. it's a string search.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description                                                                       |
 | --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
@@ -206,7 +206,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
@@ -232,7 +232,7 @@ Capturing is supported. Example: the note contains the text *"and it was good"*,
 Modifiers for case-insensitive and global search (`/…/i`, `/…/g`, `/…/gi`) are supported as well. See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#using_the_global_and_ignorecase_flags_with_replace) for examples.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description                                                                       |
 | --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
@@ -241,7 +241,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
 ### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
