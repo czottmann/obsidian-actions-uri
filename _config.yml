@@ -20,7 +20,7 @@ nav_external_links:
   - title: "🪳 Issues or Bugs?"
     url: "https://github.com/czottmann/obsidian-actions-uri/issues"
   - title: "💡 Ideas & suggestions?"
-    - url: "https://github.com/czottmann/obsidian-actions-uri/discussions/categories/ideas"
+    url: "https://github.com/czottmann/obsidian-actions-uri/discussions/categories/ideas"
 
 include:
   - LICENSE.md
