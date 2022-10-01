@@ -49,7 +49,7 @@ async function handleInfo(
     result: {
       ...PLUGIN_INFO,
       apiVersion,
-      nodeVersion: process.version.replace(/^v/, ""),
+      nodeVersion: global.process?.version?.replace(/^v/, "") || "N/A",
       os,
     },
   };
