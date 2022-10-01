@@ -12,8 +12,8 @@ It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](ht
 - [`/info`](routes/info.md): Plugin & Obsidian environment info.
 - [`/note`](routes/note.md): Reading, writing, updating any notes.
 - [`/open`](routes/open.md): Opening notes, daily notes and searches in Obsidian.
-- [`/search`](routs/-search.md): Running searches in Obsidian.
-- [`/`](route-s/oot.md): The root note. Not much is happening here.
+- [`/search`](routes/-search.md): Running searches in Obsidian.
+- [`/`](routes/root.md): The root note. Not much is happening here.
 
 
 ## Anatomy of an Actions URI… URL

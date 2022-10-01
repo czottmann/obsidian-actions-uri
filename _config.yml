@@ -17,3 +17,18 @@ nav_external_links:
     url: "https://github.com/czottmann/obsidian-actions-uri"
   - title: "Actions URI in Community Plugins"
     url: "https://obsidian.md/plugins?id=actions-uri"
+
+just_the_docs:
+  # Define which collections are used in just-the-docs
+  collections:
+    # Reference the "tests" collection
+    routes:
+      # Give the collection a name
+      name: Routes
+      nav_fold: true
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+footer_content: 'Copyright &copy; 2022 <a href="https://github.com/czottmann">Carlo Zottmann</a>. <a href="https://github.com/czottmann/obsidian-actions-uri/tree/main/LICENSE.txt">MIT licensed.</a>'
