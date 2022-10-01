@@ -18,14 +18,9 @@ nav_external_links:
   - title: "Actions URI in Community Plugins"
     url: "https://obsidian.md/plugins?id=actions-uri"
 
-just_the_docs:
-  # Define which collections are used in just-the-docs
-  collections:
-    # Reference the "tests" collection
-    routes:
-      # Give the collection a name
-      name: Routes
-      nav_fold: true
+include:
+  - LICENSE.md
+  - CHANGELOG.md
 
 # Back to top link
 back_to_top: true
