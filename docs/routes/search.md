@@ -2,7 +2,7 @@
 parent: Routes added by Actions URI
 ---
 
-# Route: `/search`
+# `/search`
 These routes deal with running searches in Obsidian.  Their URLs start with `obsidian://actions-uri/search/…`.
 
 

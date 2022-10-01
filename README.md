@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/czottmann/obsidian-actions-uri/main/readme-assets/actions-uri-256.png" align="left" height="128" alt="Plugin logo thingie: an app icon, a two-way communications icon, a note icon">
+<img src="https://raw.githubusercontent.com/czottmann/obsidian-actions-uri/main/readme-assets/actions-uri-256.png" align="left" height="64" alt="Plugin logo thingie: an app icon, a two-way communications icon, a note icon">
 
 # Actions URI
 
