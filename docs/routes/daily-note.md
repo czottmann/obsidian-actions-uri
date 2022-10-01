@@ -1,6 +1,5 @@
 ---
 parent: New Routes
-description: Reading, writing, updating daily notes.
 ---
 
 # `/daily-note`
