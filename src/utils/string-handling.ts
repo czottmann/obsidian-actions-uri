@@ -109,3 +109,19 @@ export function extractNoteContentParts(
 export function unwrapFrontMatter(frontMatter: string): string {
   return frontMatter.replace(/^---\n/, "").replace(/---\n$/, "");
 }
+
+/**
+ * Returns the kebab-cased version of a passed-in string.
+ *
+ * @param text - The text to be turned kebab-case
+ *
+ * @returns Text in kebab-case
+ *
+ * @example "hello you veryNice" -> "hello-you-very-nice"
+ */
+export function toKebabCase(text: string): string {
+  return text
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/\s+/g, "-")
+    .toLowerCase();
+}

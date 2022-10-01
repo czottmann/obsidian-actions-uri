@@ -1,7 +1,7 @@
-import decamelize from "decamelize";
 import { excludeKeys, includeKeys } from "filter-obj";
 import { XCALLBACK_RESULT_PREFIX } from "../constants";
 import { AnyParams } from "../routes";
+import { toKebabCase } from "./string-handling";
 import {
   AnyHandlerResult,
   AnyHandlerSuccess,
@@ -73,7 +73,7 @@ function addObjectToUrlSearchParams(
       : JSON.stringify(obj[key]);
 
     url.searchParams.set(
-      decamelize(`${prefix}-${key}`, { separator: "-" }),
+      toKebabCase(`${prefix}-${key}`),
       val,
     );
   }
