@@ -2,7 +2,7 @@
 nav_order: 0
 ---
 
-# Documentation
+# What does Actions URI do?
 
 Obsidian natively supports a custom URI protocol `obsidian://` which can be used to trigger various actions within the app.  This is commonly used on macOS and mobile apps for automation and cross-app workflows.
 
