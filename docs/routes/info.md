@@ -26,7 +26,8 @@ On success:
 | Parameter                   | Description                                                                                           |
 | --------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `result-plugin-version`     | The version of the responding Action URI plugin                                                       |
-| `result-plugin-released-at` | The release timestamp of the responding Action URI plugin (ISO 8601)                                             |
+| `result-plugin-released-at` | The release timestamp of the responding Action URI plugin (ISO 8601)                                  |
 | `result-api-version`        | The API version of the app, which follows the release cycle of the desktop app                        |
-| `result-node-version`       | The version of Node running the plugin, e.g. "16.13.2"                                                                |
-| `result-os`                 | OS information gathered from Obsidian's user agent string, e.g. "Macintosh; Intel Mac OS X 10_15_7" |
+| `result-node-version`       | The version of Node running the plugin, e.g. "16.13.2"                                                |
+| `result-os`                 | OS information gathered from Obsidian's user agent string, e.g. "Macintosh; Intel Mac OS X 10_15_7"   |
+| `result-platform`           | Returns "macOS", "Windows/Linux" "iOS" or "Android"                                                   |

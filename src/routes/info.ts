@@ -1,4 +1,4 @@
-import { apiVersion } from "obsidian";
+import { apiVersion, Platform } from "obsidian";
 import { z } from "zod";
 import { PLUGIN_INFO } from "../plugin-info";
 import { AnyParams, RoutePath } from "../routes";
@@ -43,6 +43,18 @@ async function handleInfo(
 ): Promise<HandlerInfoSuccess> {
   const uaMatch = navigator.userAgent.match(/\((.+?)\)/);
   const os: string = uaMatch ? uaMatch[1] : "unknown";
+  const { isAndroidApp, isDesktopApp, isIosApp, isMacOS, isMobile } = Platform;
+
+  let platform = "";
+  if (isDesktopApp && isMacOS) {
+    platform = "macOS";
+  } else if (isDesktopApp) {
+    platform = "Windows/Linux";
+  } else if (isIosApp) {
+    platform = "iOS";
+  } else if (isAndroidApp) {
+    platform = "Android";
+  }
 
   return <HandlerInfoSuccess> {
     isSuccess: true,
@@ -50,6 +62,7 @@ async function handleInfo(
       ...PLUGIN_INFO,
       apiVersion,
       nodeVersion: global.process?.version?.replace(/^v/, "") || "N/A",
+      platform,
       os,
     },
   };
