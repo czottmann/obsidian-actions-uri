@@ -1,5 +1,4 @@
-/* File will be overwritten by bin/release.sh on next release! */ export const PLUGIN_INFO =
-  {
-    "pluginVersion": "0.9.0",
-    "pluginReleasedAt": "2022-09-28T19:38:08+0200",
-  };
+/* File will be overwritten by bin/release.sh! */export const PLUGIN_INFO = {
+  "pluginVersion": "0.10.0",
+  "pluginReleasedAt": "2022-10-01T13:07:47+0200"
+}
