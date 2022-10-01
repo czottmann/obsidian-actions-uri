@@ -1,5 +1,4 @@
-import normalizePath from "path-normalize";
-import { TFile, TFolder } from "obsidian";
+import { normalizePath, TFile, TFolder } from "obsidian";
 import {
   appHasDailyNotesPluginLoaded,
   getAllDailyNotes,

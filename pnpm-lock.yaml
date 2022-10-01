@@ -10,7 +10,6 @@ specifiers:
   filter-obj: ^5.1.0
   obsidian: latest
   obsidian-daily-notes-interface: ^0.9.4
-  path-normalize: ^6.0.7
   tslib: 2.4.0
   typescript: 4.7.4
   zod: ^3.19.1
@@ -25,7 +24,6 @@ devDependencies:
   filter-obj: 5.1.0
   obsidian: 0.16.3_michkwnirgfdv23qrytelgbfcu
   obsidian-daily-notes-interface: 0.9.4_michkwnirgfdv23qrytelgbfcu
-  path-normalize: 6.0.7
   tslib: 2.4.0
   typescript: 4.7.4
   zod: 3.19.1
@@ -1056,11 +1054,6 @@ packages:
   /path-key/3.1.1:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
     engines: {node: '>=8'}
-    dev: true
-
-  /path-normalize/6.0.7:
-    resolution: {integrity: sha512-cu9hyWU8URbzM/c5qZh2ol1epIFRK5GFE2TY4QzFgdJBwh9NVIQ9BLAbVdPkPj1OiztL9yFjRLEJcy/HoauW2w==}
-    engines: {node: '>=16.0.0'}
     dev: true
 
   /path-type/4.0.0:

@@ -1,5 +1,4 @@
-import normalizePath from "path-normalize";
-import { Plugin } from "obsidian";
+import { normalizePath, Plugin } from "obsidian";
 import { ZodError } from "zod";
 import { URI_NAMESPACE } from "./constants";
 import { AnyParams, RoutePath, routes } from "./routes";
