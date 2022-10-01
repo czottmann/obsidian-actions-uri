@@ -1,4 +1,4 @@
-# [Actions URI](README.md) ≫ Routes ≫ `/note`
+# Route: `/note`
 These routes deal with reading, writing and updating notes.  Their URLs start with `obsidian://actions-uri/note/…`.
 
 
@@ -7,7 +7,7 @@ These routes deal with reading, writing and updating notes.  Their URLs start wi
 Does nothing but say hello.
 
 ### Parameters
-Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)).
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)).
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](callbacks.md).
@@ -26,7 +26,7 @@ On success:
 Returns the most recent daily note.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter   | Value type | Optional? | Description                                                                                    |
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
@@ -61,7 +61,7 @@ On failure:
 Creates a new note. In case there's already a note with the same name / at the requested file path, it will be overwritten **only** if the related parameter is set.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter   | Value type | Optional? | Description                                                                                    |
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
@@ -96,7 +96,7 @@ On failure:
 Appends today's daily note with a string.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter        | Value type | Optional? | Description                                                                                    |
 | ---------------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
@@ -128,7 +128,7 @@ On failure:
 Prepends a note with a string.  Front matter is honored (i.e. the new text will be added to the note body below the front matter) unless explicity stated otherwise.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter             | Value type | Optional? | Description                                                                                                   |
 | --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
@@ -162,7 +162,7 @@ On failure:
 Does text replacement in a note.  The search term is used as-is, i.e. it's a string search.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](README.md#parameters-required-in-accepted-by-all-calls)):
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](index.md#parameters-required-in-accepted-by-all-calls)):
 
 | Parameter | Value type | Optional? | Description                                                                                    |
 | --------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |

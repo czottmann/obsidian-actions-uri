@@ -1,0 +1,3 @@
+remote_theme: just-the-docs/just-the-docs
+title: Actions URI
+description: A plugin for Obsidian.md adding additional `x-callback-url` endpoints to the app for common actions — it's a clean, super-charged addition to Obsidian URI.

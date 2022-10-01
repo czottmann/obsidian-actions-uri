@@ -32,6 +32,7 @@ Both data and configuration is passed as URL search parameters:
 
 
 ## Parameters required in/ accepted by all calls
+
 | Parameter    | Value type | Optional? | Description                                                                                                                                                                |
 | ------------ | ---------- |:---------:| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `vault`      | string     |           | The name of the target vault.                                                                                                                                              |
