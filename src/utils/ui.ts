@@ -1,6 +1,6 @@
+import { apiVersion } from "obsidian";
 import { FileView, Notice } from "obsidian";
 import { StringResultObject } from "../types";
-import { getNoteFile } from "./file-handling";
 
 /**
  * Displays a `Notice` inside Obsidian. The notice is prefixed with
@@ -52,7 +52,12 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
     };
   }
 
-  workspace.setActiveLeaf(leaf, { focus: true });
+  if (apiVersion < "0.16.0") {
+    workspace.setActiveLeaf(leaf, true, true);
+  } else {
+    workspace.setActiveLeaf(leaf, { focus: true });
+  }
+
   return <StringResultObject> {
     isSuccess: true,
     result: "Open file found and focussed",
