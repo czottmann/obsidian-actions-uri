@@ -30,4 +30,4 @@ include:
 back_to_top: true
 back_to_top_text: "Back to top"
 
-footer_content: 'Copyright &copy; 2022 <a href="https://github.com/czottmann" rel="me">Carlo Zottmann</a>. <a href="https://github.com/czottmann/obsidian-actions-uri/tree/main/LICENSE.md">MIT licensed.</a> This plugin and its author are neiter affiliated with nor endorsed by <a href="https://obsidian.md/">Obsidian</a>.<style>#main-content img[align="left"] { margin-right: 1em; } td:first-child { white-space: nowrap; }</style>'
+footer_content: 'Copyright &copy; 2022 <a href="https://github.com/czottmann" rel="me">Carlo Zottmann</a>. <a href="https://github.com/czottmann/obsidian-actions-uri/tree/main/LICENSE.md">MIT licensed.</a> This plugin and its author are neither affiliated with nor endorsed by <a href="https://obsidian.md/">Obsidian</a>.<style>#main-content img[align="left"] { margin-right: 1em; } td:first-child { white-space: nowrap; }</style>'

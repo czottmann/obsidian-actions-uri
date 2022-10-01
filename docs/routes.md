@@ -4,7 +4,7 @@ has_children: true
 has_toc: false
 ---
 
-# Routes added by Actions URI
+# New Routes
 
 - [`/daily-note`](routes/daily-note.md): Reading, writing, updating daily notes.
 - [`/info`](routes/info.md): Plugin & Obsidian environment info.
