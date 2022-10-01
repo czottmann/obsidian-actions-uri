@@ -1,5 +1,5 @@
 ---
-parent: Routes added by Actions URI
+parent: New Routes
 ---
 
 # `/`
