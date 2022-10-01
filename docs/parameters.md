@@ -2,7 +2,7 @@
 nav_order: 3
 ---
 
-# Parameters required in/ accepted by all calls
+# Parameters required & accepted by all endpoints
 
 | Parameter    | Value type | Optional? | Description                                                                                                                                                                |
 | ------------ | ---------- |:---------:| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
