@@ -46,13 +46,13 @@ my-app://error
 
 
 ## Important note on callback parameters
-**The on-success callback parameter structure varies depending on the endpoints.** See the relevant [endpoint descriptions](index.md#routes-added-by-actions-uri) for details.
+**The on-success callback parameter structure varies depending on the endpoints.** See the relevant [routes descriptions](routes.md) for details.
 
 On-error callbacks always have the same parameter structure.
 
 
 ## Debug mode
-With `debug-mode` enabled in the incoming request (see section ["Parameters required in/ accepted by all calls" in the main doc](index.md#parameters-required-in-accepted-by-all-calls)), the on-success callback of the above example would look like this:
+With `debug-mode` enabled in the incoming request (see ["Parameters required in/ accepted by all calls"](parameters.md)), the on-success callback of the above example would look like this:
 
 ```
 my-app://success
