@@ -17,7 +17,7 @@ It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](ht
 
 Carlo Zottmann, <carlo@zottmann.co>
 
-- [github.com/czottmann](https://github.com/czottmann)
+- [GitHub: @czottmann](https://github.com/czottmann)
+- [Twitter: @municode](https://twitter.com/municode)
+- [Obsidian: @czottmann](https://forum.obsidian.md/u/czottmann)
 - [zottmann.co](https://zottmann.co/)
-- [@municode](https://twitter.com/municode)
-- [@czottmann@norden.social](https://norden.social/@czottmann)
