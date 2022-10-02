@@ -11,3 +11,13 @@ Obsidian natively supports a custom URI protocol `obsidian://` which can be us
 **This plugin adds new `x-callback-url` endpoints** to Obsidian so that external sources can better interact with an Obsidian instance by making `GET` requests to a `obsidian://actions-uri/*` URL.  All new routes support `x-success` and `x-error` parameters as a way of communicating back to the sender.
 
 It is a clean, somewhat super-charged addition to Obsidian's [own URI scheme](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs).
+
+
+## Author
+
+Carlo Zottmann, <carlo@zottmann.co>
+
+- [github.com/czottmann](https://github.com/czottmann)
+- [zottmann.co](https://zottmann.co/)
+- [@municode](https://twitter.com/municode)
+- [@czottmann@norden.social](https://norden.social/@czottmann)
