@@ -2,7 +2,9 @@
 nav_order: 0
 ---
 
-# What does Actions URI do?
+<img src="https://raw.githubusercontent.com/czottmann/obsidian-actions-uri/main/readme-assets/actions-uri-128.png" align="left" alt="Plugin logo thingie: an app icon, a two-way communications icon, a note icon">
+
+# Actions URI
 
 Obsidian natively supports a custom URI protocol `obsidian://` which can be used to trigger various actions within the app.  This is commonly used on macOS and mobile apps for automation and cross-app workflows.
 
