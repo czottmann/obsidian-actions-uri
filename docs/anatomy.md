@@ -1,8 +1,9 @@
 ---
-nav_order: 1
+nav_order: 5
 ---
 
 # Anatomy of an Actions URI… URL
+
 An Action URI-provided URL doesn't look much different from a standard Obsidian URI.  It adds a new namespace that tells Obsidian which plugin is taking care of the incoming call:
 
 > obsidian://`actions-uri`/daily-note/get-current?parameter=value
