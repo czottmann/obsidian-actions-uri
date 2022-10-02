@@ -26,7 +26,7 @@ include:
   - license.md
 
 # Back to top link
-back_to_top: true
+back_to_top: false
 back_to_top_text: "Back to top"
 
 footer_content: 'Copyright &copy; 2022 <a href="https://github.com/czottmann" rel="me">Carlo Zottmann</a>. <a href="https://github.com/czottmann/obsidian-actions-uri/tree/main/LICENSE.md">MIT licensed.</a> This plugin and its author are neither affiliated with nor endorsed by <a href="https://obsidian.md/">Obsidian</a>.'
