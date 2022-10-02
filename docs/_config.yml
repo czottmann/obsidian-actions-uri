@@ -23,8 +23,7 @@ nav_external_links:
     url: "https://github.com/czottmann/obsidian-actions-uri/discussions/categories/ideas"
 
 include:
-  - LICENSE.md
-  - CHANGELOG.md
+  - license.md
 
 # Back to top link
 back_to_top: true
