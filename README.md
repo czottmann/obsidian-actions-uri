@@ -12,7 +12,7 @@ For information about available features and routes please see the [documentatio
 
 ## Installation
 
-1. Search for "Actions URI" in Obsidian's community plugins browser. ([This like should bring it up.](https://obsidian.md/plugins?id=zottmann))
+1. Search for "Actions URI" in Obsidian's community plugins browser. ([This link should bring it up.](https://obsidian.md/plugins?id=zottmann))
 2. Install it.
 3. Enable the plugin in your Obsidian settings under "Community plugins".
 
