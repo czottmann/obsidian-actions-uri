@@ -5,7 +5,7 @@ nav_order: 99
 # FAQ
 
 ## Why does this exist?
-One major reason is an upcoming project of mine, for which I need a way to access my vault data from "the outside".  The existing options either didn't fully cut it — like [Obsidian URI](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI) — or we're pretty full of features but left me wanting anyways, like [Advanced URI](https://github.com/Vinzent03/obsidian-advanced-uri) which does *a lot* but in a way and format that didn't quite gel with me. (Additionally, its author doesn't actually use it anymore themself[^1] which in my eyes makes it a gamble to rely on it for a new project.)  This is not meant as a diss, mind; it's just not the right thing for me, personally.
+One major reason is an upcoming project of mine, for which I need a way to access my vault data from "the outside".  The existing options either didn't fully cut it — like [Obsidian URI](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI) — or were pretty full of features but left me wanting anyways, like [Advanced URI](https://github.com/Vinzent03/obsidian-advanced-uri) which does *a lot* but in a way and format that didn't quite gel with me. (Additionally, its author doesn't actually use it anymore themselves[^1] which in my eyes makes it a gamble to rely on it for a new project.)  This is not meant as a diss, mind; it's just not the right thing for me, personally.
 
 [^1]: Source: [vinzent03.github.io/obsidian-advanced-uri](https://vinzent03.github.io/obsidian-advanced-uri/)
 
