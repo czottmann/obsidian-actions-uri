@@ -342,8 +342,8 @@ async function handleCreate(
     }
 
     // We're allowed to overwrite it, and we got content to write.  Let's do it!
-    const file = await createOrOverwriteNote(dailyNote.path, content);
-    return file
+    const resFile = await createOrOverwriteNote(dailyNote.path, content);
+    return resFile.isSuccess
       ? <HandlerFileSuccess> {
         isSuccess: true,
         result: { content, filepath: dailyNote.path },
@@ -374,8 +374,8 @@ async function handleCreate(
     }
 
     // We have content to write.  Let's update the note.
-    const file = await createOrOverwriteNote(newNote.path, content);
-    return (file instanceof TFile)
+    const resFile = await createOrOverwriteNote(newNote.path, content);
+    return resFile.isSuccess
       ? <HandlerFileSuccess> {
         isSuccess: true,
         result: { content, filepath: newNote.path },

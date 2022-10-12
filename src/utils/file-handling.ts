@@ -191,8 +191,8 @@ export async function searchAndReplaceInNote(
     };
   }
 
-  const updatedFile = await createOrOverwriteNote(filepath, newContent);
-  return (updatedFile instanceof TFile)
+  const resFile = await createOrOverwriteNote(filepath, newContent);
+  return resFile.isSuccess
     ? <StringResultObject> { isSuccess: true, result: STRINGS.replacement_done }
     : <StringResultObject> {
       isSuccess: false,
@@ -216,9 +216,9 @@ export async function appendNote(
 
   const newContent = res.result +
     (shouldEnsureNewline ? ensureNewline(textToAppend) : textToAppend);
-  const updatedFile = await createOrOverwriteNote(filepath, newContent);
+  const resFile = await createOrOverwriteNote(filepath, newContent);
 
-  return (updatedFile instanceof TFile)
+  return resFile.isSuccess
     ? <StringResultObject> {
       isSuccess: true,
       result: STRINGS.append_done,
@@ -259,8 +259,8 @@ export async function prependNote(
     newContent = frontMatter + textToPrepend + body;
   }
 
-  const updatedFile = await createOrOverwriteNote(filepath, newContent);
-  return (updatedFile instanceof TFile)
+  const resFile = await createOrOverwriteNote(filepath, newContent);
+  return resFile.isSuccess
     ? <StringResultObject> {
       isSuccess: true,
       result: STRINGS.prepend_done,
