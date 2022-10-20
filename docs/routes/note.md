@@ -66,7 +66,7 @@ On failure:
 
 
 ## `/note/create`
-Creates a new note. In case there's already a note with the same name / at the requested file path, it will be overwritten **only** if the related parameter is set.
+Creates a new note. In case there's already a note with the same name / at the requested file path, it will be overwritten **only** if the related parameter is set.  Otherwise, the base file name will be suffixed with a number: if the desired file name is `My Note.md` but that file already exists, the note will be saved as `My Note 1.md`; if the desired file `a/Folder/Another Note 17.md` already exists, the note will be saved under `a/Folder/Another Note 18.md`.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
