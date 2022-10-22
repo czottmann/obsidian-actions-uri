@@ -33,7 +33,9 @@ export function sendUrlCallback(
       url,
     );
   } else {
-    url.searchParams.set("error", (<HandlerFailure> handlerRes).error);
+    const { errorCode, errorMessage } = <HandlerFailure> handlerRes;
+    url.searchParams.set("errorCode", errorCode.toString());
+    url.searchParams.set("errorMessage", errorMessage);
   }
 
   const returnParams: Record<string, string> = params["debug-mode"]

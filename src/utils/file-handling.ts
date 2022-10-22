@@ -41,7 +41,7 @@ export async function createNote(
     // starting to increment from there, eg. `test.md` → `test 1.md`,
     // `test 17.md` → `test 18.md`, etc.
     const currentNumSuffix: string | undefined =
-      (filepath.match(/( (\d+))?\.md$/) as RegExpMatchArray)[2];
+      (<RegExpMatchArray> filepath.match(/( (\d+))?\.md$/))[2];
     let numSuffix = currentNumSuffix ? +currentNumSuffix : 0;
 
     do {
@@ -62,7 +62,8 @@ export async function createNote(
     ? <TFileResultObject> { isSuccess: true, result: newFile }
     : <TFileResultObject> {
       isSuccess: false,
-      error: STRINGS.unable_to_write_note,
+      errorCode: 400,
+      errorMessage: STRINGS.unable_to_write_note,
     };
 }
 
@@ -104,7 +105,8 @@ export async function createOrOverwriteNote(
     ? <TFileResultObject> { isSuccess: true, result: newFile }
     : <TFileResultObject> {
       isSuccess: false,
-      error: STRINGS.unable_to_write_note,
+      errorCode: 400,
+      errorMessage: STRINGS.unable_to_write_note,
     };
 }
 
@@ -126,7 +128,8 @@ export async function getNoteContent(
   if (!doesFileExist) {
     return <StringResultObject> {
       isSuccess: false,
-      error: STRINGS.note_not_found,
+      errorCode: 404,
+      errorMessage: STRINGS.note_not_found,
     };
   }
 
@@ -138,7 +141,8 @@ export async function getNoteContent(
     }
     : <StringResultObject> {
       isSuccess: false,
-      error: STRINGS.unable_to_read_note,
+      errorCode: 400,
+      errorMessage: STRINGS.unable_to_read_note,
     };
 }
 
@@ -176,7 +180,7 @@ export async function searchAndReplaceInNote(
   const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
-    return <StringResultObject> { isSuccess: false, error: res.error };
+    return <StringResultObject> res;
   }
 
   const noteContent = res.result;
@@ -194,10 +198,7 @@ export async function searchAndReplaceInNote(
   const resFile = await createOrOverwriteNote(filepath, newContent);
   return resFile.isSuccess
     ? <StringResultObject> { isSuccess: true, result: STRINGS.replacement_done }
-    : <StringResultObject> {
-      isSuccess: false,
-      error: STRINGS.unable_to_write_note,
-    };
+    : <StringResultObject> resFile;
 }
 
 export async function appendNote(
@@ -208,25 +209,21 @@ export async function appendNote(
   const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
-    return <StringResultObject> {
-      isSuccess: false,
-      error: res.error,
-    };
+    return <StringResultObject> res;
   }
 
   const newContent = res.result +
     (shouldEnsureNewline ? ensureNewline(textToAppend) : textToAppend);
   const resFile = await createOrOverwriteNote(filepath, newContent);
 
-  return resFile.isSuccess
-    ? <StringResultObject> {
+  if (resFile.isSuccess) {
+    return <StringResultObject> {
       isSuccess: true,
       result: STRINGS.append_done,
-    }
-    : <StringResultObject> {
-      isSuccess: false,
-      error: STRINGS.unable_to_write_note,
     };
+  }
+
+  return <StringResultObject> resFile;
 }
 
 export async function prependNote(
@@ -235,14 +232,10 @@ export async function prependNote(
   shouldEnsureNewline: boolean = false,
   shouldIgnoreFrontMatter: boolean = false,
 ): Promise<StringResultObject> {
-  const { vault } = global.app;
   const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
-    return <StringResultObject> {
-      isSuccess: false,
-      error: res.error,
-    };
+    return <StringResultObject> res;
   }
 
   const noteContent = res.result;
@@ -260,15 +253,14 @@ export async function prependNote(
   }
 
   const resFile = await createOrOverwriteNote(filepath, newContent);
-  return resFile.isSuccess
-    ? <StringResultObject> {
+  if (resFile.isSuccess) {
+    return <StringResultObject> {
       isSuccess: true,
       result: STRINGS.prepend_done,
-    }
-    : <StringResultObject> {
-      isSuccess: false,
-      error: STRINGS.unable_to_write_note,
     };
+  }
+
+  return <StringResultObject> resFile;
 }
 
 export function getCurrentDailyNote(): TFile | undefined {
@@ -287,7 +279,8 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
   if (!appHasDailyNotesPluginLoaded()) {
     return <StringResultObject> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
+      errorCode: 412,
+      errorMessage: STRINGS.daily_notes_feature_not_available,
     };
   }
 
@@ -296,7 +289,8 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
     ? <StringResultObject> { isSuccess: true, result: dailyNote.path }
     : <StringResultObject> {
       isSuccess: false,
-      error: STRINGS.daily_note.current_note_not_found,
+      errorCode: 404,
+      errorMessage: STRINGS.daily_note.current_note_not_found,
     };
 }
 
@@ -316,7 +310,11 @@ export async function getNoteFile(
 
   return file instanceof TFile
     ? <TFileResultObject> { isSuccess: true, result: file }
-    : <TFileResultObject> { isSuccess: false, error: STRINGS.note_not_found };
+    : <TFileResultObject> {
+      isSuccess: false,
+      errorCode: 404,
+      errorMessage: STRINGS.note_not_found,
+    };
 }
 
 // HELPERS ----------------------------------------

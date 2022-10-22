@@ -232,34 +232,28 @@ async function handleGetCurrent(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: resDNP.error,
-    };
+    return <HandlerFailure> resDNP;
   }
 
   const filepath = resDNP.result;
   const res = await getNoteContent(filepath);
 
-  if (res.isSuccess) {
-    const content = res.result;
-    const { body, frontMatter } = extractNoteContentParts(content);
-
-    return <HandlerFileSuccess> {
-      isSuccess: true,
-      result: {
-        filepath,
-        content,
-        body,
-        "front-matter": unwrapFrontMatter(frontMatter),
-      },
-      processedFilepath: filepath,
-    };
+  if (!res.isSuccess) {
+    return <HandlerFailure> res;
   }
 
-  return <HandlerFailure> {
-    isSuccess: false,
-    error: STRINGS.daily_note.current_note_not_found,
+  const content = res.result;
+  const { body, frontMatter } = extractNoteContentParts(content);
+
+  return <HandlerFileSuccess> {
+    isSuccess: true,
+    result: {
+      filepath,
+      content,
+      body,
+      "front-matter": unwrapFrontMatter(frontMatter),
+    },
+    processedFilepath: filepath,
   };
 }
 
@@ -269,7 +263,8 @@ async function handleGetMostRecent(
   if (!appHasDailyNotesPluginLoaded()) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
+      errorCode: 412,
+      errorMessage: STRINGS.daily_notes_feature_not_available,
     };
   }
 
@@ -278,32 +273,30 @@ async function handleGetMostRecent(
   if (!mostRecentKey) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_note.most_recent_note_not_found,
+      errorCode: 404,
+      errorMessage: STRINGS.daily_note.most_recent_note_not_found,
     };
   }
 
   const dailyNote = notes[mostRecentKey];
   const res = await getNoteContent(dailyNote.path);
 
-  if (res.isSuccess) {
-    const content = res.result;
-    const { body, frontMatter } = extractNoteContentParts(content);
-
-    return <HandlerFileSuccess> {
-      isSuccess: true,
-      result: {
-        filepath: dailyNote.path,
-        content,
-        body,
-        "front-matter": unwrapFrontMatter(frontMatter),
-      },
-      processedFilepath: dailyNote.path,
-    };
+  if (!res.isSuccess) {
+    return <HandlerFailure> res;
   }
 
-  return <HandlerFailure> {
-    isSuccess: false,
-    error: STRINGS.daily_note.most_recent_note_not_found,
+  const content = res.result;
+  const { body, frontMatter } = extractNoteContentParts(content);
+
+  return <HandlerFileSuccess> {
+    isSuccess: true,
+    result: {
+      filepath: dailyNote.path,
+      content,
+      body,
+      "front-matter": unwrapFrontMatter(frontMatter),
+    },
+    processedFilepath: dailyNote.path,
   };
 }
 
@@ -315,7 +308,8 @@ async function handleCreate(
   if (!appHasDailyNotesPluginLoaded()) {
     return <HandlerFailure> {
       isSuccess: false,
-      error: STRINGS.daily_notes_feature_not_available,
+      errorCode: 412,
+      errorMessage: STRINGS.daily_notes_feature_not_available,
     };
   }
 
@@ -328,7 +322,8 @@ async function handleCreate(
     if (!params.overwrite) {
       return <HandlerFailure> {
         isSuccess: false,
-        error: STRINGS.daily_note.create_note_already_exists,
+        errorCode: 405,
+        errorMessage: STRINGS.daily_note.create_note_already_exists,
       };
     }
 
@@ -337,7 +332,8 @@ async function handleCreate(
     if (typeof content !== "string") {
       return <HandlerFailure> {
         isSuccess: false,
-        error: STRINGS.daily_note.create_note_no_content,
+        errorCode: 406,
+        errorMessage: STRINGS.daily_note.create_note_no_content,
       };
     }
 
@@ -349,17 +345,15 @@ async function handleCreate(
         result: { content, filepath: dailyNote.path },
         processedFilepath: dailyNote.path,
       }
-      : <HandlerFailure> {
-        isSuccess: false,
-        error: STRINGS.daily_note.create_note_failed,
-      };
+      : <HandlerFailure> resFile;
   } else {
     // There is no note for today.  Let's create one!
     const newNote = await createDailyNote(window.moment());
     if (!(newNote instanceof TFile)) {
       <HandlerFailure> {
         isSuccess: false,
-        error: STRINGS.unable_to_write_note,
+        errorCode: 400,
+        errorMessage: STRINGS.unable_to_write_note,
       };
     }
 
@@ -381,10 +375,7 @@ async function handleCreate(
         result: { content, filepath: newNote.path },
         processedFilepath: newNote.path,
       }
-      : <HandlerFailure> {
-        isSuccess: false,
-        error: STRINGS.daily_note.unable_to_update_note,
-      };
+      : <HandlerFailure> resFile;
   }
 }
 
@@ -394,10 +385,7 @@ async function handleAppend(
   const params = <AppendParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: resDNP.error,
-    };
+    return <HandlerFailure> resDNP;
   }
 
   const filepath = resDNP.result;
@@ -413,10 +401,7 @@ async function handleAppend(
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handlePrepend(
@@ -425,10 +410,7 @@ async function handlePrepend(
   const params = <PrependParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: resDNP.error,
-    };
+    return <HandlerFailure> resDNP;
   }
 
   const filepath = resDNP.result;
@@ -445,10 +427,7 @@ async function handlePrepend(
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handleSearchStringAndReplace(
@@ -457,10 +436,7 @@ async function handleSearchStringAndReplace(
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: resDNP.error,
-    };
+    return <HandlerFailure> resDNP;
   }
 
   const filepath = resDNP.result;
@@ -476,10 +452,7 @@ async function handleSearchStringAndReplace(
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handleSearchRegexAndReplace(
@@ -488,18 +461,12 @@ async function handleSearchRegexAndReplace(
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: resDNP.error,
-    };
+    return <HandlerFailure> resDNP;
   }
 
   const resSir = parseStringIntoRegex(params.search);
   if (!resSir.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: resSir.error,
-    };
+    return <HandlerFailure> resSir;
   }
 
   const filepath = resDNP.result;
@@ -514,10 +481,7 @@ async function handleSearchRegexAndReplace(
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 // NOTES ----------------------------------------

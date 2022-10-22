@@ -4,7 +4,8 @@ import { AnyHandlerResult } from "./handlers";
 
 type ErrorObject = {
   isSuccess: false;
-  error: string;
+  errorCode: number;
+  errorMessage: string;
 };
 
 type ResultObject<T> = {

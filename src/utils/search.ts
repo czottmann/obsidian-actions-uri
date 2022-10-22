@@ -9,7 +9,8 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   if (!searchPlugin.enabled) {
     return <SearchResultObject> {
       isSuccess: false,
-      error: STRINGS.global_search_feature_not_available,
+      errorCode: 412,
+      errorMessage: STRINGS.global_search_feature_not_available,
     };
   }
 

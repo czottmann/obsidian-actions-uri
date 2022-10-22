@@ -26,7 +26,8 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   if (!search.startsWith("/")) {
     return <RegexResultObject> {
       isSuccess: false,
-      error: STRINGS.search_pattern_invalid,
+      errorCode: 422,
+      errorMessage: STRINGS.search_pattern_invalid,
     };
   }
 
@@ -37,7 +38,8 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   if (lastSlashIdx === 0) {
     return <RegexResultObject> {
       isSuccess: false,
-      error: STRINGS.search_pattern_empty,
+      errorCode: 406,
+      errorMessage: STRINGS.search_pattern_empty,
     };
   }
 
@@ -50,7 +52,8 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   } catch (e) {
     return <RegexResultObject> {
       isSuccess: false,
-      error: STRINGS.search_pattern_unparseable,
+      errorCode: 422,
+      errorMessage: STRINGS.search_pattern_unparseable,
     };
   }
 

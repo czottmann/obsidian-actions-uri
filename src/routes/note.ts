@@ -228,10 +228,7 @@ async function handleGet(
     };
   }
 
-  return <HandlerFailure> {
-    isSuccess: false,
-    error: res.error,
-  };
+  return <HandlerFailure> res;
 }
 
 async function handleCreate(
@@ -244,18 +241,12 @@ async function handleCreate(
     ? await createOrOverwriteNote(file, content || "")
     : await createNote(file, content || "");
   if (!res.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.unable_to_write_note,
-    };
+    return <HandlerFailure> res;
   }
 
   const newNoteRes = await getNoteContent(file);
   if (!newNoteRes.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: STRINGS.unable_to_read_note,
-    };
+    return <HandlerFailure> newNoteRes;
   }
 
   return <HandlerFileSuccess> {
@@ -282,10 +273,7 @@ async function handleAppend(
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handlePrepend(
@@ -306,10 +294,7 @@ async function handlePrepend(
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handleSearchStringAndReplace(
@@ -326,10 +311,7 @@ async function handleSearchStringAndReplace(
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handleSearchRegexAndReplace(
@@ -340,10 +322,7 @@ async function handleSearchRegexAndReplace(
   const resSir = parseStringIntoRegex(search);
 
   if (!resSir.isSuccess) {
-    return <HandlerFailure> {
-      isSuccess: false,
-      error: resSir.error,
-    };
+    return <HandlerFailure> resSir;
   }
 
   const res = await searchAndReplaceInNote(file, resSir.result, replace);
@@ -354,8 +333,5 @@ async function handleSearchRegexAndReplace(
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }

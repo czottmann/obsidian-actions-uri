@@ -48,7 +48,8 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
   if (!leaf) {
     return <StringResultObject> {
       isSuccess: false,
-      error: "File currently not open",
+      errorCode: 405,
+      errorMessage: "File currently not open",
     };
   }
 

@@ -56,8 +56,5 @@ async function handleSearch(
       isSuccess: true,
       result: res.result,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }

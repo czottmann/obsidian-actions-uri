@@ -23,7 +23,10 @@ type HandlerSuccess =
 
 export type HandlerFailure = Readonly<
   & HandlerResult
-  & { error: string }
+  & {
+    errorCode: number;
+    errorMessage: string;
+  }
 >;
 
 export type HandlerTextSuccess = Readonly<

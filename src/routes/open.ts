@@ -115,10 +115,7 @@ async function handleDailyNote(
       result: { message: STRINGS.open.note_opened },
       processedFilepath: res.result,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handleNote(
@@ -132,10 +129,7 @@ async function handleNote(
       result: { message: STRINGS.open.note_opened },
       processedFilepath: res.result.path,
     }
-    : <HandlerFailure> {
-      isSuccess: false,
-      error: res.error,
-    };
+    : <HandlerFailure> res;
 }
 
 async function handleSearch(
