@@ -41,11 +41,12 @@ export function sendUrlCallback(
     : includeKeys(params, ["call-id"]);
   addObjectToUrlSearchParams(returnParams, url, "input");
 
-  window.open(url.toString());
+  const callbackURL = url.toString().replace(/\+/g, "%20");
+  window.open(callbackURL);
 
   return <StringResultObject> {
     isSuccess: true,
-    result: url.toString(),
+    result: callbackURL,
   };
 }
 
