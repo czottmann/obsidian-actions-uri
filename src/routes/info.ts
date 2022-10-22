@@ -56,7 +56,7 @@ async function handleInfo(
     platform = "Android";
   }
 
-  return <HandlerInfoSuccess> {
+  return {
     isSuccess: true,
     result: {
       ...PLUGIN_INFO,

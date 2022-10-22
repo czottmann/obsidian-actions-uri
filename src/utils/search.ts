@@ -7,7 +7,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   const searchPlugin = (<any> app).internalPlugins?.plugins["global-search"];
 
   if (!searchPlugin.enabled) {
-    return <SearchResultObject> {
+    return {
       isSuccess: false,
       errorCode: 412,
       errorMessage: STRINGS.global_search_feature_not_available,
@@ -25,11 +25,9 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   );
   const hits = Array.from(rawSearchResult.keys()).map((tfile) => tfile.path);
 
-  return <SearchResultObject> {
+  return {
     isSuccess: true,
-    result: {
-      hits,
-    },
+    result: { hits },
   };
 }
 

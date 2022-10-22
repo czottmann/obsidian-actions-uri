@@ -9,9 +9,5 @@ export function helloRoute(path: string = "/"): RouteSubpath {
 
 async function handleHello(data: AnyParams): Promise<HandlerTextSuccess> {
   showBrandedNotice("… is ready for action 🚀");
-
-  return <HandlerTextSuccess> {
-    isSuccess: true,
-    result: { message: "" },
-  };
+  return { isSuccess: true, result: { message: "" } };
 }

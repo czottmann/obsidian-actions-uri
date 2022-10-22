@@ -46,7 +46,7 @@ export function sendUrlCallback(
   const callbackURL = url.toString().replace(/\+/g, "%20");
   window.open(callbackURL);
 
-  return <StringResultObject> {
+  return {
     isSuccess: true,
     result: callbackURL,
   };

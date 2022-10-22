@@ -52,9 +52,9 @@ async function handleSearch(
   const res = await doSearch(params.query);
 
   return res.isSuccess
-    ? <HandlerSearchSuccess> {
+    ? {
       isSuccess: true,
       result: res.result,
     }
-    : <HandlerFailure> res;
+    : res;
 }

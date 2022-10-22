@@ -142,7 +142,7 @@ export default class ActionsURI extends Plugin {
           <AnyHandlerSuccess> handlerRes,
           params,
         )
-        : <StringResultObject> {
+        : {
           isSuccess: true,
           result: "No `x-success` callback URL provided",
         };
@@ -154,7 +154,7 @@ export default class ActionsURI extends Plugin {
         <HandlerFailure> handlerRes,
         params,
       )
-      : <StringResultObject> {
+      : {
         isSuccess: true,
         result: "No `x-error` callback URL provided",
       };
@@ -175,14 +175,14 @@ export default class ActionsURI extends Plugin {
   ): StringResultObject {
     // Do we need to open anything in general?
     if (!handlerResult.isSuccess) {
-      return <StringResultObject> {
+      return {
         isSuccess: true,
         result: "No file to open, the handler failed",
       };
     }
 
     if ((<any> params).silent) {
-      return <StringResultObject> {
+      return {
         isSuccess: true,
         result: "No file to open, the `silent` parameter was set",
       };
@@ -191,7 +191,7 @@ export default class ActionsURI extends Plugin {
     // Do we have information what to open?
     const { processedFilepath } = (<HandlerFileSuccess> handlerResult);
     if (!processedFilepath) {
-      return <StringResultObject> {
+      return {
         isSuccess: true,
         result:
           "No file to open, handler didn't return a `processedFilepath` property",

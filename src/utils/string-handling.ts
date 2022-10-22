@@ -24,7 +24,7 @@ export function ensureNewline(str: string = ""): string {
  */
 export function parseStringIntoRegex(search: string): RegexResultObject {
   if (!search.startsWith("/")) {
-    return <RegexResultObject> {
+    return {
       isSuccess: false,
       errorCode: 422,
       errorMessage: STRINGS.search_pattern_invalid,
@@ -36,7 +36,7 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   const lastSlashIdx = re.lastIndexOf("/");
 
   if (lastSlashIdx === 0) {
-    return <RegexResultObject> {
+    return {
       isSuccess: false,
       errorCode: 406,
       errorMessage: STRINGS.search_pattern_empty,
@@ -50,14 +50,14 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   try {
     searchPattern = new RegExp(re, flags);
   } catch (e) {
-    return <RegexResultObject> {
+    return {
       isSuccess: false,
       errorCode: 422,
       errorMessage: STRINGS.search_pattern_unparseable,
     };
   }
 
-  return <RegexResultObject> {
+  return {
     isSuccess: true,
     result: searchPattern,
   };

@@ -68,6 +68,7 @@ export type HandlerInfoSuccess = Readonly<
       apiVersion: string;
       nodeVersion: string;
       os: string;
+      platform: string;
     };
   }
 >;

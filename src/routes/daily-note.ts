@@ -232,20 +232,20 @@ async function handleGetCurrent(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> resDNP;
+    return resDNP;
   }
 
   const filepath = resDNP.result;
   const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
-    return <HandlerFailure> res;
+    return res;
   }
 
   const content = res.result;
   const { body, frontMatter } = extractNoteContentParts(content);
 
-  return <HandlerFileSuccess> {
+  return {
     isSuccess: true,
     result: {
       filepath,
@@ -261,7 +261,7 @@ async function handleGetMostRecent(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   if (!appHasDailyNotesPluginLoaded()) {
-    return <HandlerFailure> {
+    return {
       isSuccess: false,
       errorCode: 412,
       errorMessage: STRINGS.daily_notes_feature_not_available,
@@ -271,7 +271,7 @@ async function handleGetMostRecent(
   const notes = getAllDailyNotes();
   const mostRecentKey = Object.keys(notes).sort().last();
   if (!mostRecentKey) {
-    return <HandlerFailure> {
+    return {
       isSuccess: false,
       errorCode: 404,
       errorMessage: STRINGS.daily_note.most_recent_note_not_found,
@@ -282,13 +282,13 @@ async function handleGetMostRecent(
   const res = await getNoteContent(dailyNote.path);
 
   if (!res.isSuccess) {
-    return <HandlerFailure> res;
+    return res;
   }
 
   const content = res.result;
   const { body, frontMatter } = extractNoteContentParts(content);
 
-  return <HandlerFileSuccess> {
+  return {
     isSuccess: true,
     result: {
       filepath: dailyNote.path,
@@ -306,7 +306,7 @@ async function handleCreate(
   const params = <CreateParams> incomingParams;
 
   if (!appHasDailyNotesPluginLoaded()) {
-    return <HandlerFailure> {
+    return {
       isSuccess: false,
       errorCode: 412,
       errorMessage: STRINGS.daily_notes_feature_not_available,
@@ -320,7 +320,7 @@ async function handleCreate(
   if (dailyNote instanceof TFile) {
     // Back off unless we're allowed to overwrite it.
     if (!params.overwrite) {
-      return <HandlerFailure> {
+      return {
         isSuccess: false,
         errorCode: 405,
         errorMessage: STRINGS.daily_note.create_note_already_exists,
@@ -330,7 +330,7 @@ async function handleCreate(
     // We're allowed to overwrite it!  But let's not unless we got any content
     // to write.
     if (typeof content !== "string") {
-      return <HandlerFailure> {
+      return {
         isSuccess: false,
         errorCode: 406,
         errorMessage: STRINGS.daily_note.create_note_no_content,
@@ -340,17 +340,17 @@ async function handleCreate(
     // We're allowed to overwrite it, and we got content to write.  Let's do it!
     const resFile = await createOrOverwriteNote(dailyNote.path, content);
     return resFile.isSuccess
-      ? <HandlerFileSuccess> {
+      ? {
         isSuccess: true,
         result: { content, filepath: dailyNote.path },
         processedFilepath: dailyNote.path,
       }
-      : <HandlerFailure> resFile;
+      : resFile;
   } else {
     // There is no note for today.  Let's create one!
     const newNote = await createDailyNote(window.moment());
     if (!(newNote instanceof TFile)) {
-      <HandlerFailure> {
+      return {
         isSuccess: false,
         errorCode: 400,
         errorMessage: STRINGS.unable_to_write_note,
@@ -360,7 +360,7 @@ async function handleCreate(
     // The note was written, but we need to write content to it. Do we have
     // content?  If not then we're done already.
     if (typeof content !== "string" || content === "") {
-      return <HandlerFileSuccess> {
+      return {
         isSuccess: true,
         result: { content: "", filepath: newNote.path },
         processedFilepath: newNote.path,
@@ -370,12 +370,12 @@ async function handleCreate(
     // We have content to write.  Let's update the note.
     const resFile = await createOrOverwriteNote(newNote.path, content);
     return resFile.isSuccess
-      ? <HandlerFileSuccess> {
+      ? {
         isSuccess: true,
         result: { content, filepath: newNote.path },
         processedFilepath: newNote.path,
       }
-      : <HandlerFailure> resFile;
+      : resFile;
   }
 }
 
@@ -385,7 +385,7 @@ async function handleAppend(
   const params = <AppendParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> resDNP;
+    return resDNP;
   }
 
   const filepath = resDNP.result;
@@ -396,12 +396,12 @@ async function handleAppend(
   );
 
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handlePrepend(
@@ -410,7 +410,7 @@ async function handlePrepend(
   const params = <PrependParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> resDNP;
+    return resDNP;
   }
 
   const filepath = resDNP.result;
@@ -422,12 +422,12 @@ async function handlePrepend(
   );
 
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handleSearchStringAndReplace(
@@ -436,7 +436,7 @@ async function handleSearchStringAndReplace(
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> resDNP;
+    return resDNP;
   }
 
   const filepath = resDNP.result;
@@ -447,12 +447,12 @@ async function handleSearchStringAndReplace(
     params.replace,
   );
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handleSearchRegexAndReplace(
@@ -461,12 +461,12 @@ async function handleSearchRegexAndReplace(
   const params = <SearchAndReplaceParams> incomingParams;
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (!resDNP.isSuccess) {
-    return <HandlerFailure> resDNP;
+    return resDNP;
   }
 
   const resSir = parseStringIntoRegex(params.search);
   if (!resSir.isSuccess) {
-    return <HandlerFailure> resSir;
+    return resSir;
   }
 
   const filepath = resDNP.result;
@@ -476,12 +476,12 @@ async function handleSearchRegexAndReplace(
     params.replace,
   );
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: filepath,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 // NOTES ----------------------------------------

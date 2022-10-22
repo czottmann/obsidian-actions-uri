@@ -110,12 +110,12 @@ async function handleDailyNote(
   const params = <DailyNoteParams> incomingParams;
   const res = getDailyNotePathIfPluginIsAvailable();
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: STRINGS.open.note_opened },
       processedFilepath: res.result,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handleNote(
@@ -124,12 +124,12 @@ async function handleNote(
   const params = <NoteParams> incomingParams;
   const res = await getNoteFile(params.file);
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: STRINGS.open.note_opened },
       processedFilepath: res.result.path,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handleSearch(
@@ -144,7 +144,7 @@ async function handleSearch(
       "&query=" + encodeURIComponent(params.query.trim()),
   );
 
-  return <HandlerTextSuccess> {
+  return {
     isSuccess: true,
     result: { message: "Opened search" },
   };

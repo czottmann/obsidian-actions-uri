@@ -59,8 +59,11 @@ export async function createNote(
   await vault.create(filepath, content);
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
-    ? <TFileResultObject> { isSuccess: true, result: newFile }
-    : <TFileResultObject> {
+    ? {
+      isSuccess: true,
+      result: newFile,
+    }
+    : {
       isSuccess: false,
       errorCode: 400,
       errorMessage: STRINGS.unable_to_write_note,
@@ -91,9 +94,9 @@ export async function createOrOverwriteNote(
   // Update the file if it already exists
   if (file instanceof TFile) {
     await vault.modify(file, content);
-    return <TFileResultObject> {
+    return {
       isSuccess: true,
-      result: vault.getAbstractFileByPath(filepath),
+      result: <TFile> vault.getAbstractFileByPath(filepath),
     };
   }
 
@@ -102,8 +105,11 @@ export async function createOrOverwriteNote(
   await vault.create(filepath, content);
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
-    ? <TFileResultObject> { isSuccess: true, result: newFile }
-    : <TFileResultObject> {
+    ? {
+      isSuccess: true,
+      result: newFile,
+    }
+    : {
       isSuccess: false,
       errorCode: 400,
       errorMessage: STRINGS.unable_to_write_note,
@@ -126,7 +132,7 @@ export async function getNoteContent(
   const doesFileExist = file instanceof TFile;
 
   if (!doesFileExist) {
-    return <StringResultObject> {
+    return {
       isSuccess: false,
       errorCode: 404,
       errorMessage: STRINGS.note_not_found,
@@ -135,11 +141,11 @@ export async function getNoteContent(
 
   const noteContent = await vault.read(file);
   return (typeof noteContent === "string")
-    ? <StringResultObject> {
+    ? {
       isSuccess: true,
       result: noteContent,
     }
-    : <StringResultObject> {
+    : {
       isSuccess: false,
       errorCode: 400,
       errorMessage: STRINGS.unable_to_read_note,
@@ -180,14 +186,14 @@ export async function searchAndReplaceInNote(
   const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
-    return <StringResultObject> res;
+    return res;
   }
 
   const noteContent = res.result;
   const newContent = noteContent.replace(searchTerm, replacement);
 
   if (noteContent === newContent) {
-    return <StringResultObject> {
+    return {
       isSuccess: true,
       result: typeof searchTerm === "string"
         ? STRINGS.search_string_not_found
@@ -197,8 +203,8 @@ export async function searchAndReplaceInNote(
 
   const resFile = await createOrOverwriteNote(filepath, newContent);
   return resFile.isSuccess
-    ? <StringResultObject> { isSuccess: true, result: STRINGS.replacement_done }
-    : <StringResultObject> resFile;
+    ? { isSuccess: true, result: STRINGS.replacement_done }
+    : resFile;
 }
 
 export async function appendNote(
@@ -209,7 +215,7 @@ export async function appendNote(
   const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
-    return <StringResultObject> res;
+    return res;
   }
 
   const newContent = res.result +
@@ -217,13 +223,13 @@ export async function appendNote(
   const resFile = await createOrOverwriteNote(filepath, newContent);
 
   if (resFile.isSuccess) {
-    return <StringResultObject> {
+    return {
       isSuccess: true,
       result: STRINGS.append_done,
     };
   }
 
-  return <StringResultObject> resFile;
+  return resFile;
 }
 
 export async function prependNote(
@@ -235,7 +241,7 @@ export async function prependNote(
   const res = await getNoteContent(filepath);
 
   if (!res.isSuccess) {
-    return <StringResultObject> res;
+    return res;
   }
 
   const noteContent = res.result;
@@ -253,14 +259,9 @@ export async function prependNote(
   }
 
   const resFile = await createOrOverwriteNote(filepath, newContent);
-  if (resFile.isSuccess) {
-    return <StringResultObject> {
-      isSuccess: true,
-      result: STRINGS.prepend_done,
-    };
-  }
-
-  return <StringResultObject> resFile;
+  return resFile.isSuccess
+    ? { isSuccess: true, result: STRINGS.prepend_done }
+    : resFile;
 }
 
 export function getCurrentDailyNote(): TFile | undefined {
@@ -277,7 +278,7 @@ export function getCurrentDailyNote(): TFile | undefined {
  */
 export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
   if (!appHasDailyNotesPluginLoaded()) {
-    return <StringResultObject> {
+    return {
       isSuccess: false,
       errorCode: 412,
       errorMessage: STRINGS.daily_notes_feature_not_available,
@@ -286,8 +287,11 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
 
   const dailyNote = getCurrentDailyNote();
   return dailyNote
-    ? <StringResultObject> { isSuccess: true, result: dailyNote.path }
-    : <StringResultObject> {
+    ? {
+      isSuccess: true,
+      result: dailyNote.path,
+    }
+    : {
       isSuccess: false,
       errorCode: 404,
       errorMessage: STRINGS.daily_note.current_note_not_found,
@@ -309,8 +313,11 @@ export async function getNoteFile(
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
 
   return file instanceof TFile
-    ? <TFileResultObject> { isSuccess: true, result: file }
-    : <TFileResultObject> {
+    ? {
+      isSuccess: true,
+      result: file,
+    }
+    : {
       isSuccess: false,
       errorCode: 404,
       errorMessage: STRINGS.note_not_found,

@@ -46,7 +46,7 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
     .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
 
   if (!leaf) {
-    return <StringResultObject> {
+    return {
       isSuccess: false,
       errorCode: 405,
       errorMessage: "File currently not open",
@@ -59,7 +59,7 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
     workspace.setActiveLeaf(leaf, { focus: true });
   }
 
-  return <StringResultObject> {
+  return {
     isSuccess: true,
     result: "Open file found and focussed",
   };
@@ -95,7 +95,7 @@ export function focusOrOpenNote(filepath: string): StringResultObject {
   //   newLeaf.openFile(fileRes.result);
   // }
 
-  return <StringResultObject> {
+  return {
     isSuccess: true,
     result: "File was opened",
   };

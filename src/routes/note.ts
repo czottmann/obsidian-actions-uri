@@ -216,7 +216,7 @@ async function handleGet(
     const content = res.result;
     const { body, frontMatter } = extractNoteContentParts(content);
 
-    return <HandlerFileSuccess> {
+    return {
       isSuccess: true,
       result: {
         filepath: file,
@@ -228,7 +228,7 @@ async function handleGet(
     };
   }
 
-  return <HandlerFailure> res;
+  return res;
 }
 
 async function handleCreate(
@@ -241,15 +241,15 @@ async function handleCreate(
     ? await createOrOverwriteNote(file, content || "")
     : await createNote(file, content || "");
   if (!res.isSuccess) {
-    return <HandlerFailure> res;
+    return res;
   }
 
   const newNoteRes = await getNoteContent(file);
   if (!newNoteRes.isSuccess) {
-    return <HandlerFailure> newNoteRes;
+    return newNoteRes;
   }
 
-  return <HandlerFileSuccess> {
+  return {
     isSuccess: true,
     result: {
       ...extractNoteContentParts(newNoteRes.result),
@@ -268,12 +268,12 @@ async function handleAppend(
   const res = await appendNote(file, content, params["ensure-newline"]);
 
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handlePrepend(
@@ -289,12 +289,12 @@ async function handlePrepend(
   );
 
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handleSearchStringAndReplace(
@@ -306,12 +306,12 @@ async function handleSearchStringAndReplace(
   const res = await searchAndReplaceInNote(file, regex, replace);
 
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> res;
+    : res;
 }
 
 async function handleSearchRegexAndReplace(
@@ -322,16 +322,16 @@ async function handleSearchRegexAndReplace(
   const resSir = parseStringIntoRegex(search);
 
   if (!resSir.isSuccess) {
-    return <HandlerFailure> resSir;
+    return resSir;
   }
 
   const res = await searchAndReplaceInNote(file, resSir.result, replace);
 
   return res.isSuccess
-    ? <HandlerTextSuccess> {
+    ? {
       isSuccess: true,
       result: { message: res.result },
       processedFilepath: file,
     }
-    : <HandlerFailure> res;
+    : res;
 }
