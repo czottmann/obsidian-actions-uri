@@ -19,7 +19,7 @@ For information about available features and routes please see the [documentatio
 That's it.
 
 
-## Installation via BRAT (for pre-releases or betas)
+## Installation via <abbr title="Beta Reviewers Auto-update Tester">BRAT</abbr> (for pre-releases or betas)
 
 1. Install [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 2. Add "Actions URI" to BRAT:
@@ -34,14 +34,21 @@ That's it.
 Clone the repository, run `pnpm install` OR `npm install` to install the dependencies.  Afterwards, run `pnpm dev` OR `npm run dev` to compile and have it watch for file changes.
 
 
-## Thanks to …
-
-- the [obsidian-tasks](https://github.com/obsidian-tasks-group/obsidian-tasks) crew for the "starter templates" for the GitHub Action workflow and the handy `release.sh` script
-
-
 ## Author
 
 Carlo Zottmann, <carlo@zottmann.co>, https://zottmann.co/, https://github.com/czottmann
+
+
+## Projects using Actions URI
+
+- [Actions for Obsidian](https://obsidian.actions.work/): Useful new Obsidian actions for the Shortcuts app on macOS and iOS, bridging the gap between your notes and your workflows.
+
+Want to see your project here? Drop me a line! (See "Author" section.)
+
+
+## Thanks to …
+
+- the [obsidian-tasks](https://github.com/obsidian-tasks-group/obsidian-tasks) crew for the "starter templates" for the GitHub Action workflow and the handy `release.sh` script
 
 
 ## License
