@@ -31,7 +31,7 @@ export async function createNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const { vault } = global.app;
+  const { vault } = window.app;
   let file = vault.getAbstractFileByPath(filepath);
   let doesFileExist = file instanceof TFile;
 
@@ -88,7 +88,7 @@ export async function createOrOverwriteNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const { vault } = global.app;
+  const { vault } = window.app;
   const file = vault.getAbstractFileByPath(filepath);
 
   // Update the file if it already exists
@@ -127,7 +127,7 @@ export async function createOrOverwriteNote(
 export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
-  const { vault } = global.app;
+  const { vault } = window.app;
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
   const doesFileExist = file instanceof TFile;
 
@@ -309,7 +309,7 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
 export async function getNoteFile(
   filepath: string,
 ): Promise<TFileResultObject> {
-  const { vault } = global.app;
+  const { vault } = window.app;
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
 
   return file instanceof TFile
@@ -333,7 +333,7 @@ export async function getNoteFile(
  * @param folder - A folder path relative from the vault root
  */
 async function createFolderIfNecessary(folder: string) {
-  const { vault } = global.app;
+  const { vault } = window.app;
 
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists

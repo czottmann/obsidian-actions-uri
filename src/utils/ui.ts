@@ -41,7 +41,7 @@ export function logErrorToConsole(...data: any[]) {
  * @returns Success when file could be found and focussed, error otherwise
  */
 export function focusLeafWithFile(filepath: string): StringResultObject {
-  const { workspace } = global.app;
+  const { workspace } = window.app;
   const leaf = workspace.getLeavesOfType("markdown")
     .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
 
@@ -83,13 +83,13 @@ export function focusOrOpenNote(filepath: string): StringResultObject {
   // Let's open the file then in the simplest way possible.
   window.open(
     "obsidian://open?" +
-      "vault=" + encodeURIComponent(global.app.vault.getName()) +
+      "vault=" + encodeURIComponent(window.app.vault.getName()) +
       "&file=" + encodeURIComponent(filepath),
   );
 
   // // For later consideration:
   //
-  // const newLeaf = global.app.workspace.getLeaf(true);
+  // const newLeaf = window.app.workspace.getLeaf(true);
   // const fileRes = await getNoteFile(filepath);
   // if (fileRes.isSuccess) {
   //   newLeaf.openFile(fileRes.result);

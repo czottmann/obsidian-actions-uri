@@ -137,7 +137,7 @@ async function handleSearch(
   // Let's open the search in the simplest way possible.
   window.open(
     "obsidian://search?" +
-      "vault=" + encodeURIComponent(global.app.vault.getName()) +
+      "vault=" + encodeURIComponent(window.app.vault.getName()) +
       "&query=" + encodeURIComponent(params.query.trim()),
   );
 
