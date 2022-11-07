@@ -16,16 +16,11 @@ export const STRINGS = {
   unable_to_write_note: "Can't write note file",
   daily_note: {
     create_note_already_exists: "Daily note already exists",
-    create_note_failed: "Can't write daily note",
     create_note_no_content:
       "Daily note couldn't be overwritten, no content specified",
-    current_note_not_found: "No current daily note found",
-    most_recent_note_not_found: "No current daily note found",
-    unable_to_update_note: "Can't update daily note",
   },
   open: {
     note_opened: "Note opened",
-    note_focussed: "Note already open, focussed it",
   },
 };
 

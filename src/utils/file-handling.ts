@@ -294,7 +294,7 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
     : {
       isSuccess: false,
       errorCode: 404,
-      errorMessage: STRINGS.daily_note.current_note_not_found,
+      errorMessage: STRINGS.note_not_found,
     };
 }
 

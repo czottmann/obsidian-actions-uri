@@ -274,7 +274,7 @@ async function handleGetMostRecent(
     return {
       isSuccess: false,
       errorCode: 404,
-      errorMessage: STRINGS.daily_note.most_recent_note_not_found,
+      errorMessage: STRINGS.note_not_found,
     };
   }
 
@@ -346,37 +346,37 @@ async function handleCreate(
         processedFilepath: dailyNote.path,
       }
       : resFile;
-  } else {
-    // There is no note for today.  Let's create one!
-    const newNote = await createDailyNote(window.moment());
-    if (!(newNote instanceof TFile)) {
-      return {
-        isSuccess: false,
-        errorCode: 400,
-        errorMessage: STRINGS.unable_to_write_note,
-      };
-    }
-
-    // The note was written, but we need to write content to it. Do we have
-    // content?  If not then we're done already.
-    if (typeof content !== "string" || content === "") {
-      return {
-        isSuccess: true,
-        result: { content: "", filepath: newNote.path },
-        processedFilepath: newNote.path,
-      };
-    }
-
-    // We have content to write.  Let's update the note.
-    const resFile = await createOrOverwriteNote(newNote.path, content);
-    return resFile.isSuccess
-      ? {
-        isSuccess: true,
-        result: { content, filepath: newNote.path },
-        processedFilepath: newNote.path,
-      }
-      : resFile;
   }
+
+  // There is no note for today.  Let's create one!
+  const newNote = await createDailyNote(window.moment());
+  if (!(newNote instanceof TFile)) {
+    return {
+      isSuccess: false,
+      errorCode: 400,
+      errorMessage: STRINGS.unable_to_write_note,
+    };
+  }
+
+  // The note was written, but we need to write content to it. Do we have
+  // content?  If not then we're done already.
+  if (typeof content !== "string" || content === "") {
+    return {
+      isSuccess: true,
+      result: { content: "", filepath: newNote.path },
+      processedFilepath: newNote.path,
+    };
+  }
+
+  // We have content to write.  Let's update the note.
+  const resFile = await createOrOverwriteNote(newNote.path, content);
+  return resFile.isSuccess
+    ? {
+      isSuccess: true,
+      result: { content, filepath: newNote.path },
+      processedFilepath: newNote.path,
+    }
+    : resFile;
 }
 
 async function handleAppend(
