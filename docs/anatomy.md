@@ -16,4 +16,4 @@ Both data and configuration are passed as URL search parameters:
 
 > obsidian://actions-uri/daily-note/get-current?`parameter=value`
 
-**Please note:** all parameter data must be properly encoded (see [Wikipedia](https://en.wikipedia.org/wiki/Percent-encoding) for a short intro), as Actions URI will make no attempts to correct malformed input.
+**Please note:** all parameter data must be properly encoded (see [Wikipedia](https://en.wikipedia.org/wiki/Percent-encoding) for a short intro), as Actions URI makes no attempts to correct malformed input.

@@ -24,7 +24,6 @@ export const routePath: RoutePath = {
     // Returns information about the plugin and the current Obsidian instance.
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error": string;
     //     "x-success": string;

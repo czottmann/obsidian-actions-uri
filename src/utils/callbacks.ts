@@ -40,7 +40,7 @@ export function sendUrlCallback(
 
   const returnParams: Record<string, string> = params["debug-mode"]
     ? excludeKeys(params, ["debug-mode", "x-success", "x-error"])
-    : includeKeys(params, ["call-id"]);
+    : {};
   addObjectToUrlSearchParams(returnParams, url, "input");
 
   const callbackURL = url.toString().replace(/\+/g, "%20");

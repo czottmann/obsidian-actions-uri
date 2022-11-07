@@ -87,7 +87,6 @@ export const routePath: RoutePath = {
     // TODO
     //
     // {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error": string;
     //     "x-success": string;
@@ -104,7 +103,6 @@ export const routePath: RoutePath = {
     // TODO
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error"?: string | undefined;
     //     "x-success"?: string | undefined;
@@ -123,7 +121,6 @@ export const routePath: RoutePath = {
     // TODO
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "ensure-newline"?: boolean | undefined;
     //     "x-error"?: string | undefined;
@@ -142,7 +139,6 @@ export const routePath: RoutePath = {
     // TODO
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "ensure-newline"?: boolean | undefined;
     //     "ignore-front-matter": boolean;
@@ -160,7 +156,6 @@ export const routePath: RoutePath = {
     // TODO
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error"?: string | undefined;
     //     "x-success"?: string | undefined;
@@ -183,7 +178,6 @@ export const routePath: RoutePath = {
     // TODO
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error"?: string | undefined;
     //     "x-success"?: string | undefined;

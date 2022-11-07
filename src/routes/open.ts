@@ -48,7 +48,6 @@ export const routePath: RoutePath = {
     // Opens today's daily note in Obsidian.
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error"?: string | undefined;
     //     "x-success"?: string | undefined;
@@ -64,7 +63,6 @@ export const routePath: RoutePath = {
     // Opens a particular note in Obsidian.
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error"?: string | undefined;
     //     "x-success"?: string | undefined;
@@ -81,7 +79,6 @@ export const routePath: RoutePath = {
     // Opens the search for a given query in Obsidian.
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error"?: string | undefined;
     //     "x-success"?: string | undefined;

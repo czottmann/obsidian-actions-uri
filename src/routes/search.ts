@@ -30,7 +30,6 @@ export const routePath: RoutePath = {
     // Returns search results (file paths) for a given search query.
     //
     //   {
-    //     "call-id"?: string | undefined;
     //     "debug-mode"?: boolean | undefined;
     //     "x-error": string;
     //     "x-success": string;
