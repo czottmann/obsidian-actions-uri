@@ -101,7 +101,7 @@ On failure:
 
 
 ## `/note/append`
-Appends today's daily note with a string.
+Appends a note with a string.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
