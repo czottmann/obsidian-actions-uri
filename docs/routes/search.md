@@ -50,6 +50,7 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
