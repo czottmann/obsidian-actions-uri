@@ -243,6 +243,8 @@ Capturing is supported. Example: the note contains the text *"and it was good"*,
 Modifiers for case-insensitive and global search (`/…/i`, `/…/g`, `/…/gi`) are supported as well. See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#using_the_global_and_ignorecase_flags_with_replace) for examples.
 
 ### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
 | Parameter | Value type | Optional? | Description                                                                                    |
 | --------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
 | `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
