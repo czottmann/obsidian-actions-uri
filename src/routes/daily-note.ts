@@ -433,12 +433,9 @@ async function handleSearchStringAndReplace(
   }
 
   const filepath = resDNP.result;
-  const regex = new RegExp(params.search, "g");
-  const res = await searchAndReplaceInNote(
-    filepath,
-    regex,
-    params.replace,
-  );
+  const { search, replace } = params;
+  const res = await searchAndReplaceInNote(filepath, search, replace);
+
   return res.isSuccess
     ? {
       isSuccess: true,

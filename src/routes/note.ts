@@ -295,8 +295,7 @@ async function handleSearchStringAndReplace(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <SearchAndReplaceParams> incomingParams;
   const { search, file, replace } = params;
-  const regex = new RegExp(search, "g");
-  const res = await searchAndReplaceInNote(file, regex, replace);
+  const res = await searchAndReplaceInNote(file, search, replace);
 
   return res.isSuccess
     ? {
