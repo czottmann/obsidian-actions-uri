@@ -12,6 +12,7 @@ import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
+  TFileResultObject,
 } from "../types";
 import {
   appendNote,
@@ -19,6 +20,7 @@ import {
   getCurrentDailyNote,
   getDailyNotePathIfPluginIsAvailable,
   getNoteContent,
+  getNoteFile,
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
@@ -28,7 +30,7 @@ import {
   parseStringIntoRegex,
   unwrapFrontMatter,
 } from "../utils/string-handling";
-import { zodOptionalBoolean } from "../utils/zod";
+import { zodAlwaysFalse, zodOptionalBoolean } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -38,6 +40,11 @@ const readParams = incomingBaseParams.extend({
   "x-success": z.string().url(),
 });
 type ReadParams = z.infer<typeof readParams>;
+
+const openParams = incomingBaseParams.extend({
+  silent: zodAlwaysFalse,
+});
+type OpenParams = z.infer<typeof openParams>;
 
 const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
@@ -76,6 +83,7 @@ type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 export type AnyLocalParams =
   | ReadParams
+  | OpenParams
   | CreateParams
   | WriteParams
   | AppendParams
@@ -121,6 +129,38 @@ export const routePath: RoutePath = {
       path: "/get-most-recent",
       schema: readParams,
       handler: handleGetMostRecent,
+    },
+
+    // ## `/daily-note/open-current`
+    //
+    // Opens today's daily note in Obsidian.
+    //
+    //   {
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/open-current", schema: openParams, handler: handleOpenCurrent },
+
+    // ## `/daily-note/open-most-recent`
+    //
+    // TODO
+    //
+    //   {
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    {
+      path: "/open-most-recent",
+      schema: openParams,
+      handler: handleOpenMostRecent,
     },
 
     // ## `/daily-note/create`
@@ -253,32 +293,18 @@ async function handleGetCurrent(
 async function handleGetMostRecent(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  if (!appHasDailyNotesPluginLoaded()) {
-    return {
-      isSuccess: false,
-      errorCode: 412,
-      errorMessage: STRINGS.daily_notes_feature_not_available,
-    };
+  const res1 = await getMostRecentDailyNote();
+  if (!res1.isSuccess) {
+    return res1;
   }
 
-  const notes = getAllDailyNotes();
-  const mostRecentKey = Object.keys(notes).sort().last();
-  if (!mostRecentKey) {
-    return {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.note_not_found,
-    };
+  const dailyNote = res1.result;
+  const res2 = await getNoteContent(dailyNote.path);
+  if (!res2.isSuccess) {
+    return res2;
   }
 
-  const dailyNote = notes[mostRecentKey];
-  const res = await getNoteContent(dailyNote.path);
-
-  if (!res.isSuccess) {
-    return res;
-  }
-
-  const content = res.result;
+  const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
 
   return {
@@ -291,6 +317,42 @@ async function handleGetMostRecent(
     },
     processedFilepath: dailyNote.path,
   };
+}
+
+async function handleOpenCurrent(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  // Since we force the `silent` param to be `false` (see section "SCHEMATA"
+  // above), all this handlers needs to do is find the requested note path and
+  // hand it back to the calling `handleIncomingCall()` (see `main.ts`) which
+  // will take care of the rest.
+
+  const res = getDailyNotePathIfPluginIsAvailable();
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: STRINGS.open.note_opened },
+      processedFilepath: res.result,
+    }
+    : res;
+}
+
+async function handleOpenMostRecent(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  // Since we force the `silent` param to be `false` (see section "SCHEMATA"
+  // above), all this handlers needs to do is find the requested note path and
+  // hand it back to the calling `handleIncomingCall()` (see `main.ts`) which
+  // will take care of the rest.
+
+  const res = await getMostRecentDailyNote();
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: STRINGS.open.note_opened },
+      processedFilepath: res.result.path,
+    }
+    : res;
 }
 
 async function handleCreate(
@@ -482,3 +544,28 @@ async function handleSearchRegexAndReplace(
 // - official Daily Notes off: null
 // - Periodic Notes Daily Notes on: `true`
 // - Periodic Notes Daily Notes off: `false`
+
+// HELPERS -------------------------------------
+
+async function getMostRecentDailyNote(): Promise<TFileResultObject> {
+  if (!appHasDailyNotesPluginLoaded()) {
+    return {
+      isSuccess: false,
+      errorCode: 412,
+      errorMessage: STRINGS.daily_notes_feature_not_available,
+    };
+  }
+
+  const notes = getAllDailyNotes();
+  const mostRecentKey = Object.keys(notes).sort().last();
+  if (!mostRecentKey) {
+    return {
+      isSuccess: false,
+      errorCode: 404,
+      errorMessage: STRINGS.note_not_found,
+    };
+  }
+
+  const dailyNote = notes[mostRecentKey];
+  return await getNoteFile(dailyNote.path);
+}

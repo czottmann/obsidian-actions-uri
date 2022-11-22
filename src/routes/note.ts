@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
@@ -11,6 +12,7 @@ import {
   createNote,
   createOrOverwriteNote,
   getNoteContent,
+  getNoteFile,
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
@@ -20,7 +22,11 @@ import {
   parseStringIntoRegex,
   unwrapFrontMatter,
 } from "../utils/string-handling";
-import { zodOptionalBoolean, zodSanitizedFilePath } from "../utils/zod";
+import {
+  zodAlwaysFalse,
+  zodOptionalBoolean,
+  zodSanitizedFilePath,
+} from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -31,6 +37,12 @@ const readParams = incomingBaseParams.extend({
   "x-success": z.string().url(),
 });
 type ReadParams = z.infer<typeof readParams>;
+
+const openParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  silent: zodAlwaysFalse,
+});
+type OpenParams = z.infer<typeof openParams>;
 
 const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
@@ -67,6 +79,7 @@ type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 export type AnyLocalParams =
   | ReadParams
+  | OpenParams
   | CreateParams
   | AppendParams
   | PrependParams
@@ -96,6 +109,22 @@ export const routePath: RoutePath = {
     // }
     // => HandlerFileSuccess | HandlerFailure
     { path: "/get", schema: readParams, handler: handleGet },
+
+    // ## `/note/open`
+    //
+    // Opens a particular note in Obsidian.
+    //
+    //   {
+    //     "debug-mode"?: boolean | undefined;
+    //     "x-error"?: string | undefined;
+    //     "x-success"?: string | undefined;
+    //     action: string;
+    //     file: string;
+    //     silent?: boolean | undefined;
+    //     vault: string;
+    // }
+    // => HandlerTextSuccess | HandlerFailure
+    { path: "/open", schema: openParams, handler: handleOpen },
 
     // ## `/note/create`
     //
@@ -222,6 +251,20 @@ async function handleGet(
   }
 
   return res;
+}
+
+async function handleOpen(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const params = <CreateParams> incomingParams;
+  const res = await getNoteFile(params.file);
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: STRINGS.open.note_opened },
+      processedFilepath: res.result.path,
+    }
+    : res;
 }
 
 async function handleCreate(

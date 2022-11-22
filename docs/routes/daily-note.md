@@ -58,9 +58,10 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -92,9 +93,72 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
+## `/daily-note/open-current`
+Opens the current daily note in Obsidian.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter   | Value type | Optional? | Description                                                    |
+| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
+| `x-success` | string     |           | base URL for on-success callbacks                              |
+| `x-error`   | string     |           | base URL for on-error callbacks                                |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
+## `/daily-note/open-most-recent`
+Opens the most recent daily note in Obsidian.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter   | Value type | Optional? | Description                                                    |
+| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
+| `x-success` | string     |           | base URL for on-success callbacks                              |
+| `x-error`   | string     |           | base URL for on-error callbacks                                |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -126,9 +190,10 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -157,9 +222,10 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -189,9 +255,10 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -220,9 +287,10 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
 
 
 &nbsp;
@@ -255,6 +323,7 @@ On success:
 
 On failure:
 
-| Parameter | Description                         |
-| --------- | ----------------------------------- |
-| `error`   | A short summary of what went wrong. |
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
