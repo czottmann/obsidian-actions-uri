@@ -350,7 +350,8 @@ async function createFolderIfNecessary(folder: string) {
  * @returns Directory name of the input `path`
  */
 function dirname(path: string) {
-  return normalizePath(path).replace(/\/[^\/]*$/, "");
+  path = normalizePath(path);
+  return path.indexOf("/") === -1 ? "." : path.replace(/\/[^/]*$/, "");
 }
 
 /**
