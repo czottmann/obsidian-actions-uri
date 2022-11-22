@@ -17,11 +17,10 @@ It's a clean, somewhat super-charged addition to Obsidian's [own URI scheme](htt
 
 Carlo Zottmann, <carlo@zottmann.co>
 
-- [GitHub: @czottmann](https://github.com/czottmann)
-- [Mastodon: @czottmann@norden.social](https://norden.social/@czottmann)
-- [Twitter: @municode](https://twitter.com/municode)
-- [Obsidian: @czottmann](https://forum.obsidian.md/u/czottmann)
-- [zottmann.co](https://zottmann.co/)
+- GitHub: [@czottmann](https://github.com/czottmann)
+- Mastodon: [@czottmann@norden.social](https://norden.social/@czottmann) & [@actionsdotwork@pkm.social](https://norden.social/@czottmann)
+- Obsidian: [@czottmann](https://forum.obsidian.md/u/czottmann)
+- Website: [zottmann.co](https://zottmann.co/)
 
 
 ## Projects using Actions URI
