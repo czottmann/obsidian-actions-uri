@@ -2,7 +2,8 @@
 parent: New Routes
 ---
 
-# `/vault` <span class="tag-version">v0.12+</span>
+# `/vault`
+<span class="tag-version">v0.12+</span>
 
 These routes deal with handling an Obsidian vault.  Their URLs start with `obsidian://actions-uri/vault`.
 
