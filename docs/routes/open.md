@@ -3,7 +3,6 @@ parent: New Routes
 ---
 
 # `/open`
-<span class="tag-deprecated">Deprecated since v0.12</span>
 
 These routes deal with opening notes and searches in Obsidian.  Their URLs start with `obsidian://actions-uri/open/…`.
 
@@ -31,8 +30,10 @@ On success:
 &nbsp;
 
 
-## `/open/daily-note`
+## `/open/daily-note` <span class="tag-deprecated">Deprecated since v0.12</span>
 Opens today's daily note in Obsidian.
+
+DEPRECATED: Use `/open/daily-note` instead.
 
 ### Parameters
 Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
@@ -56,8 +57,10 @@ On failure:
 &nbsp;
 
 
-## `/open/note`
+## `/open/note` <span class="tag-deprecated">Deprecated since v0.12</span>
 Opens a particular note in Obsidian.
+
+DEPRECATED: Use `/open/note` instead.
 
 | Parameter | Value  | Optional? | Description                                                                                    |
 | --------- | ------ |:---------:| ---------------------------------------------------------------------------------------------- |
