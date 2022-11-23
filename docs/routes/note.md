@@ -66,7 +66,7 @@ On failure:
 &nbsp;
 
 
-## `/note/open`
+## `/note/open` <span class="tag-version">v0.12+</span>
 Opens a specific note in Obsidian.
 
 ### Parameters

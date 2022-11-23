@@ -2,7 +2,7 @@
 parent: New Routes
 ---
 
-# `/open`
+# `/open` <span class="tag-deprecated">Deprecated since v0.12</span>
 
 These routes deal with opening notes and searches in Obsidian.  Their URLs start with `obsidian://actions-uri/open/…`.
 

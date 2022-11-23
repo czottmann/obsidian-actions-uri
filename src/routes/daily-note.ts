@@ -9,6 +9,7 @@ import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
+  HandlerAbstractFilesSuccess,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerTextSuccess,
@@ -33,6 +34,12 @@ import {
 import { zodAlwaysFalse, zodOptionalBoolean } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
+
+const listParams = incomingBaseParams.extend({
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ListParams = z.infer<typeof listParams>;
 
 const readParams = incomingBaseParams.extend({
   silent: zodOptionalBoolean,
@@ -82,6 +89,7 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 export type AnyLocalParams =
+  | ListParams
   | ReadParams
   | OpenParams
   | CreateParams
@@ -99,157 +107,27 @@ export const routePath: RoutePath = {
     // Does nothing but say hello.
     helloRoute(),
 
-    // ## `/daily-note/get-current`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     action: string;
-    //     vault: string;
-    //     "x-error": string;
-    //     "x-success": string;
-    // }
-    // => HandlerFileSuccess | HandlerFailure
+    { path: "/list", schema: listParams, handler: handleList },
     { path: "/get-current", schema: readParams, handler: handleGetCurrent },
-
-    // ## `/daily-note/get-most-recent`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error": string;
-    //     "x-success": string;
-    //     action: string;
-    //     vault: string;
-    // }
-    // => HandlerFileSuccess | HandlerFailure
     {
       path: "/get-most-recent",
       schema: readParams,
       handler: handleGetMostRecent,
     },
-
-    // ## `/daily-note/open-current`
-    //
-    // Opens today's daily note in Obsidian.
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
     { path: "/open-current", schema: openParams, handler: handleOpenCurrent },
-
-    // ## `/daily-note/open-most-recent`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
     {
       path: "/open-most-recent",
       schema: openParams,
       handler: handleOpenMostRecent,
     },
-
-    // ## `/daily-note/create`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     content?: string | undefined;
-    //     overwrite?: boolean | undefined;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerFileSuccess | HandlerFailure
     { path: "/create", schema: createParams, handler: handleCreate },
-
-    // ## `/daily-note/append`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "ensure-newline"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     content: string;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
     { path: "/append", schema: appendParams, handler: handleAppend },
-
-    // ## `/daily-note/prepend`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "ensure-newline"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     content: string;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
     { path: "/prepend", schema: prependParams, handler: handlePrepend },
-
-    // ## `/daily-note/search-string-and-replace`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     replace: string;
-    //     search: string;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
     {
       path: "/search-string-and-replace",
       schema: searchAndReplaceParams,
       handler: handleSearchStringAndReplace,
     },
-
-    // ## `/daily-note/search-regex-and-replace`
-    //
-    // TODO
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     replace: string;
-    //     search: string;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
     {
       path: "/search-regex-and-replace",
       schema: searchAndReplaceParams,
@@ -259,6 +137,34 @@ export const routePath: RoutePath = {
 };
 
 // HANDLERS ----------------------------------------
+
+async function handleList(
+  incoming: AnyParams,
+): Promise<HandlerAbstractFilesSuccess | HandlerFailure> {
+  if (!appHasDailyNotesPluginLoaded()) {
+    return {
+      isSuccess: false,
+      errorCode: 412,
+      errorMessage: STRINGS.daily_notes_feature_not_available,
+    };
+  }
+
+  const notes = getAllDailyNotes();
+  const files = Object.keys(notes)
+    .sort()
+    .reverse()
+    .map((k) => ({
+      name: notes[k].basename,
+      filepath: notes[k].path,
+    }));
+
+  return {
+    isSuccess: true,
+    result: {
+      files,
+    },
+  };
+}
 
 async function handleGetCurrent(
   incomingParams: AnyParams,
@@ -535,15 +441,6 @@ async function handleSearchRegexAndReplace(
     }
     : res;
 }
-
-// NOTES ----------------------------------------
-
-// Return values of `appHasDailyNotesPluginLoaded()`:
-//
-// - official Daily Notes on: `true`
-// - official Daily Notes off: null
-// - Periodic Notes Daily Notes on: `true`
-// - Periodic Notes Daily Notes off: `false`
 
 // HELPERS -------------------------------------
 

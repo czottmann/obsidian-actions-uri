@@ -43,37 +43,6 @@ export const routePath: RoutePath = {
     // Does nothing but say hello.
     helloRoute(),
 
-    // ## `/open/daily-note`
-    //
-    // Opens today's daily note in Obsidian.
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
-    { path: "/daily-note", schema: dailyNoteParams, handler: handleDailyNote },
-
-    // ## `/open/note`
-    //
-    // Opens a particular note in Obsidian.
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     file: string;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess | HandlerFailure
-    { path: "/note", schema: noteParams, handler: handleNote },
-
     // ## `/open/search`
     //
     // Opens the search for a given query in Obsidian.
@@ -93,41 +62,6 @@ export const routePath: RoutePath = {
 };
 
 // HANDLERS --------------------
-
-/**
- * Since we force the `silent` param to be `false` (see section "SCHEMATA"
- * above), all these handlers need to do is find the requested note path and
- * hand it back to the calling `handleIncomingCall()` (see `main.ts`) which will
- * take care of the rest.
- */
-
-async function handleDailyNote(
-  incomingParams: AnyParams,
-): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <DailyNoteParams> incomingParams;
-  const res = getDailyNotePathIfPluginIsAvailable();
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: STRINGS.open.note_opened },
-      processedFilepath: res.result,
-    }
-    : res;
-}
-
-async function handleNote(
-  incomingParams: AnyParams,
-): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <NoteParams> incomingParams;
-  const res = await getNoteFile(params.file);
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: STRINGS.open.note_opened },
-      processedFilepath: res.result.path,
-    }
-    : res;
-}
 
 async function handleSearch(
   incomingParams: AnyParams,

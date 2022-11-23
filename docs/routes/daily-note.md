@@ -32,6 +32,37 @@ On success:
 &nbsp;
 
 
+## `/daily-note/list` <span class="tag-version">v0.12+</span>
+Returns a list of all daily notes.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter   | Value type | Optional? | Description                                                    |
+| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
+| `x-success` | string     |           | base URL for on-success callbacks                              |
+| `x-error`   | string     |           | base URL for on-error callbacks                                |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter             | Description                                                                                               |
+| --------------------- | --------------------------------------------------------------------------------------------------------- |
+| `result-files`    | JSON-encoded array containing one object per note (keys: `name`, `filepath`), sorted reverse chronologically. |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
 ## `/daily-note/get-current`
 Returns today's daily note.
 
@@ -102,7 +133,7 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-current`
+## `/daily-note/open-current` <span class="tag-version">v0.12+</span>
 Opens the current daily note in Obsidian.
 
 ### Parameters
@@ -133,7 +164,7 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-most-recent`
+## `/daily-note/open-most-recent` <span class="tag-version">v0.12+</span>
 Opens the most recent daily note in Obsidian.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
 
 ### Parameters
