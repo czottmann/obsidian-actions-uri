@@ -20,6 +20,10 @@ import {
   AnyLocalParams as AnySearchParams,
   routePath as searchRoutes,
 } from "./routes/search";
+import {
+  AnyLocalParams as AnyVaultParams,
+  routePath as vaultRoutes,
+} from "./routes/vault";
 import { IncomingBaseParams } from "./schemata";
 import { HandlerFunction } from "./types";
 
@@ -30,6 +34,7 @@ export const routes: RoutePath = {
   ...openRoutes,
   ...searchRoutes,
   ...infoRoutes,
+  ...vaultRoutes,
 };
 
 /**
@@ -60,9 +65,10 @@ export type RouteSubpath = {
 };
 
 export type AnyParams =
-  | IncomingBaseParams
   | AnyDailyNoteParams
+  | AnyInfoParams
   | AnyNoteParams
   | AnyOpenParams
   | AnySearchParams
-  | AnyInfoParams;
+  | AnyVaultParams
+  | IncomingBaseParams;

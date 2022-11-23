@@ -50,6 +50,18 @@ export type HandlerFileSuccess = Readonly<
   }
 >;
 
+export type HandlerAbstractFilesSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      files: {
+        filepath: string;
+        name: string;
+      }[];
+    };
+  }
+>;
+
 export type HandlerSearchSuccess = Readonly<
   & HandlerSuccess
   & {
@@ -73,11 +85,18 @@ export type HandlerInfoSuccess = Readonly<
   }
 >;
 
+export type HandlerVaultSuccess = Readonly<
+  & HandlerSuccess
+  & { result: {} }
+>;
+
 export type AnyHandlerSuccess =
-  | HandlerTextSuccess
+  | HandlerAbstractFilesSuccess
   | HandlerFileSuccess
+  | HandlerInfoSuccess
   | HandlerSearchSuccess
-  | HandlerInfoSuccess;
+  | HandlerTextSuccess
+  | HandlerVaultSuccess;
 
 export type AnyHandlerResult =
   | AnyHandlerSuccess
