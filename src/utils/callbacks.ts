@@ -3,6 +3,7 @@ import { XCALLBACK_RESULT_PREFIX } from "../constants";
 import { AnyParams } from "../routes";
 import { toKebabCase } from "./string-handling";
 import {
+  AbstractFile,
   AnyHandlerResult,
   AnyHandlerSuccess,
   HandlerFailure,
@@ -63,7 +64,7 @@ export function sendUrlCallback(
  * defaults to `XCALLBACK_RESULT_PREFIX`
  */
 function addObjectToUrlSearchParams(
-  obj: Record<string, string | string[]>,
+  obj: Record<string, string | string[] | AbstractFile[]>,
   url: URL,
   prefix: string = XCALLBACK_RESULT_PREFIX,
 ) {

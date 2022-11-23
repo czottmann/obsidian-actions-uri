@@ -1,4 +1,5 @@
 import { AnyParams } from "../routes";
+import { AbstractFile } from "../types";
 
 /**
  * A handler function is a function that is responsible for dealing with a
@@ -54,10 +55,7 @@ export type HandlerAbstractFilesSuccess = Readonly<
   & HandlerSuccess
   & {
     result: {
-      files: {
-        filepath: string;
-        name: string;
-      }[];
+      files: AbstractFile[];
     };
   }
 >;
