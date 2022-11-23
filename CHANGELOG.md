@@ -1,5 +1,14 @@
 # Release history
 
+## 0.12.1, 2022-11-23
+
+- [NEW] Added `/vault/open` and `/vault/close` routes [#18]
+- [CHG] Error callbacks now carry two parameters, `errorCode` and `errorMessage`, instead of just `error`.
+- [CHG] The routes `note/open` and `daily-note/open` supersede `open/note` and `open/daily-note` respectively.  The old routes have been removed.
+- [FIX] Creating a note would sometimes result in the creation of a folder and an error [#16]
+- [FIX] Searching/replacing a string would result in an error if the search term looked like a regex [#15]
+
+
 ## 0.11.0, 2022-11-07
 
 - [NEW] Refactors error callback parameters [#12]
