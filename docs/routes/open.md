@@ -33,7 +33,7 @@ On success:
 ## `/open/daily-note` <span class="tag-deprecated">Deprecated since v0.12</span>
 Opens today's daily note in Obsidian.
 
-DEPRECATED: Use `/open/daily-note` instead.
+DEPRECATED: Use `/daily-note/open-current` and `/daily-note/open-most-recent` instead.
 
 ### Parameters
 Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
@@ -60,7 +60,7 @@ On failure:
 ## `/open/note` <span class="tag-deprecated">Deprecated since v0.12</span>
 Opens a particular note in Obsidian.
 
-DEPRECATED: Use `/open/note` instead.
+DEPRECATED: Use `/note/open` instead.
 
 | Parameter | Value  | Optional? | Description                                                                                    |
 | --------- | ------ |:---------:| ---------------------------------------------------------------------------------------------- |
