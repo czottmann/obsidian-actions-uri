@@ -102,11 +102,7 @@ export type AnyLocalParams =
 
 export const routePath: RoutePath = {
   "/daily-note": [
-    // ## `/daily-note`
-    //
-    // Does nothing but say hello.
     helloRoute(),
-
     { path: "/list", schema: listParams, handler: handleList },
     { path: "/get-current", schema: readParams, handler: handleGetCurrent },
     {

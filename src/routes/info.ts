@@ -19,18 +19,6 @@ export type AnyLocalParams = DefaultParams;
 
 export const routePath: RoutePath = {
   "/info": [
-    // ## `/info`
-    //
-    // Returns information about the plugin and the current Obsidian instance.
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error": string;
-    //     "x-success": string;
-    //     action: string;
-    //     vault: string;
-    // }
-    // => HandlerInfoSuccess
     { path: "/", schema: defaultParams, handler: handleInfo },
   ],
 };

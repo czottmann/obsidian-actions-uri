@@ -20,24 +20,7 @@ export type AnyLocalParams = DefaultParams;
 
 export const routePath: RoutePath = {
   "/search": [
-    // ## `/search`
-    //
-    // Does nothing but say hello.
     helloRoute(),
-
-    // ## `/search/all-notes`
-    //
-    // Returns search results (file paths) for a given search query.
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error": string;
-    //     "x-success": string;
-    //     action: string;
-    //     query: string;
-    //     vault: string;
-    // }
-    // => HandlerSearchSuccess | HandlerFailure
     { path: "/all-notes", schema: defaultParams, handler: handleSearch },
   ],
 };
