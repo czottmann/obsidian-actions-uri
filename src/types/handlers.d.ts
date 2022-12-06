@@ -69,6 +69,15 @@ export type HandlerSearchSuccess = Readonly<
   }
 >;
 
+export type HandlerTagsSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      tags: string[];
+    };
+  }
+>;
+
 export type HandlerInfoSuccess = Readonly<
   & HandlerSuccess
   & {

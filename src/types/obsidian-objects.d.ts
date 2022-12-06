@@ -1,4 +1,4 @@
-import { DataAdapter, Vault } from "obsidian";
+import { DataAdapter, MetadataCache, Vault } from "obsidian";
 
 export interface RealLifeVault extends Vault {
   config: {
@@ -10,4 +10,8 @@ export interface RealLifeVault extends Vault {
 
 export interface RealLifeDataAdapter extends DataAdapter {
   basePath: string;
+}
+
+export interface RealLifeMetadataCache extends MetadataCache {
+  getTags(): Record<string, number>;
 }
