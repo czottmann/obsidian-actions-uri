@@ -77,3 +77,31 @@ On failure:
 | -------------- | ----------------------------------- |
 | `errorCode`    | A HTTP status code.                 |
 | `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
+## `/vault/info` <span class="tag-version">v0.13+</span>
+Returns the full filesystem paths for the vault, its media folder and the "new note" folder.
+
+### Parameters
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter                       | Description                                                |
+| ------------------------------- | ---------------------------------------------------------- |
+| `result-base-path`              | The full filesystem path to the vault.                     |
+| `result-attachment-folder-path` | The full filesystem path to the vault's media folder.      |
+| `result-new-file-folder-path`   | The full filesystem path to the vault's "new note" folder. |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |

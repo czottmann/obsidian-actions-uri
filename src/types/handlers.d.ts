@@ -88,6 +88,17 @@ export type HandlerVaultSuccess = Readonly<
   & { result: {} }
 >;
 
+export type HandlerVaultInfoSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      basePath: string;
+      attachmentFolderPath: string;
+      newFileFolderPath: string;
+    };
+  }
+>;
+
 export type AnyHandlerSuccess =
   | HandlerAbstractFilesSuccess
   | HandlerFileSuccess
