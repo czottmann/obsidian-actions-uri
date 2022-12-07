@@ -1,5 +1,13 @@
 # Release history
 
+## 0.13.0, 2022-12-07
+
+- [NEW] Adds `tags/list` route [#16]
+- [NEW] Adds `vault/info` route [#20]
+- [CHG] Makes `vault/close` desktop-only (due to the different Obsidian foundations on mobile and desktop)
+- [CHG] Replaces Twitter links w/ Mastodon links in docs
+
+
 ## 0.12.1, 2022-11-23
 
 - [NEW] Added `/vault/open` and `/vault/close` routes [#18]
