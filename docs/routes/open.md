@@ -30,7 +30,7 @@ On success:
 &nbsp;
 
 
-## `/open/daily-note` <span class="tag-deprecated">Deprecated since v0.12</span>
+## `/open/daily-note` <span class="tag tag-deprecated">Deprecated since v0.12</span>
 Opens today's daily note in Obsidian.
 
 DEPRECATED: Use `/daily-note/open-current` and `/daily-note/open-most-recent` instead.
@@ -57,7 +57,7 @@ On failure:
 &nbsp;
 
 
-## `/open/note` <span class="tag-deprecated">Deprecated since v0.12</span>
+## `/open/note` <span class="tag tag-deprecated">Deprecated since v0.12</span>
 Opens a particular note in Obsidian.
 
 DEPRECATED: Use `/note/open` instead.

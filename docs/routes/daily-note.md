@@ -32,7 +32,7 @@ On success:
 &nbsp;
 
 
-## `/daily-note/list` <span class="tag-version">v0.12+</span>
+## `/daily-note/list` <span class="tag tag-version">v0.12+</span>
 Returns a list of all daily notes.
 
 ### Parameters
@@ -133,7 +133,7 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-current` <span class="tag-version">v0.12+</span>
+## `/daily-note/open-current` <span class="tag tag-version">v0.12+</span>
 Opens the current daily note in Obsidian.
 
 ### Parameters
@@ -164,7 +164,7 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-most-recent` <span class="tag-version">v0.12+</span>
+## `/daily-note/open-most-recent` <span class="tag tag-version">v0.12+</span>
 Opens the most recent daily note in Obsidian.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
 
 ### Parameters

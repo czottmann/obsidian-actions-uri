@@ -3,7 +3,7 @@ parent: New Routes
 ---
 
 # `/vault`
-<span class="tag-version">v0.12+</span>
+<span class="tag tag-version">v0.12+</span>
 
 These routes deal with handling an Obsidian vault.  Their URLs start with `obsidian://actions-uri/vault`.
 
@@ -56,7 +56,7 @@ On failure:
 &nbsp;
 
 
-## `/vault/close`
+## `/vault/close` <span class="tag tag-platform">Desktop only</span>
 Closes a specific vault.  For this to work, the vault must be in the list of vaults that Obsidian knows about and Actions URI needs to be active in that vault.
 
 ### Parameters
@@ -82,7 +82,7 @@ On failure:
 &nbsp;
 
 
-## `/vault/info` <span class="tag-version">v0.13+</span>
+## `/vault/info` <span class="tag tag-version">v0.13+</span>
 Returns the full filesystem paths for the vault, its media folder and the "new note" folder.
 
 ### Parameters

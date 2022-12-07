@@ -3,7 +3,7 @@ parent: New Routes
 ---
 
 # `/tags`
-<span class="tag-version">v0.13+</span>
+<span class="tag tag-version">v0.13+</span>
 
 These routes deal with a vault's tags.  Their URLs start with `obsidian://actions-uri/tags`.
 

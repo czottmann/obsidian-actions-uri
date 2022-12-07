@@ -48,7 +48,7 @@ async function handleOpen(
 async function handleClose(
   incomingParams: AnyParams,
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
-  if (!Platform.isMobileApp) {
+  if (Platform.isMobileApp) {
     return {
       isSuccess: false,
       errorCode: 405,

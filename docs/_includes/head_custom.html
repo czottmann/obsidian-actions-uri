@@ -12,8 +12,7 @@
     font-size: 0.825em;
   }
 
-  .tag-version {
-    background-color: #aaa;
+  .tag {
     border-radius: 0.25rem;
     color: #fff;
     display: inline-block;
@@ -24,15 +23,15 @@
     vertical-align: text-bottom;
   }
 
-  .tag-deprecated {
+  .tag.tag-version {
+    background-color: #aaa;
+  }
+
+  .tag.tag-deprecated {
     background-color: #f88;
-    border-radius: 0.25rem;
-    color: #fff;
-    display: inline-block;
-    font-size: 1rem;
-    line-height: 1;
-    margin: 0 0.5rem;
-    padding: 0.25rem 0.35rem;
-    vertical-align: text-bottom;
+  }
+
+  .tag.tag-platform {
+    background-color: #88bcff;
   }
 </style>
