@@ -69,6 +69,15 @@ export type HandlerSearchSuccess = Readonly<
   }
 >;
 
+export type HandlerTagsSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      tags: string[];
+    };
+  }
+>;
+
 export type HandlerInfoSuccess = Readonly<
   & HandlerSuccess
   & {
@@ -86,6 +95,17 @@ export type HandlerInfoSuccess = Readonly<
 export type HandlerVaultSuccess = Readonly<
   & HandlerSuccess
   & { result: {} }
+>;
+
+export type HandlerVaultInfoSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      basePath: string;
+      attachmentFolderPath: string;
+      newFileFolderPath: string;
+    };
+  }
 >;
 
 export type AnyHandlerSuccess =

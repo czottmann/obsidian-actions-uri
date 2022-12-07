@@ -14,6 +14,7 @@ export const STRINGS = {
   search_string_not_found: "Search string wasn't found, nothing replaced",
   unable_to_read_note: "Can't read note file",
   unable_to_write_note: "Can't write note file",
+  vault_internals_not_found: "Vault didn't return config info",
   daily_note: {
     create_note_already_exists: "Daily note already exists",
     create_note_no_content:

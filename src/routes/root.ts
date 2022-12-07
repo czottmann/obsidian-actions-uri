@@ -5,9 +5,6 @@ import { helloRoute } from "../utils/routing";
 
 export const routePath: RoutePath = {
   "/": [
-    // ## `/`
-    //
-    // Does nothing but say hello.
     helloRoute(),
   ],
 };

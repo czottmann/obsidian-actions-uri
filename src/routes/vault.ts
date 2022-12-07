@@ -1,7 +1,14 @@
 import { z } from "zod";
+import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
-import { HandlerFailure, HandlerVaultSuccess } from "../types";
+import {
+  HandlerFailure,
+  HandlerVaultInfoSuccess,
+  HandlerVaultSuccess,
+  RealLifeDataAdapter,
+  RealLifeVault,
+} from "../types";
 import { helloRoute } from "../utils/routing";
 
 // SCHEMATA --------------------
@@ -18,13 +25,10 @@ export type AnyLocalParams = DefaultParams;
 
 export const routePath: RoutePath = {
   "/vault": [
-    // ## `/vault`
-    //
-    // Does nothing but say hello.
     helloRoute(),
-
     { path: "/open", schema: defaultParams, handler: handleOpen },
     { path: "/close", schema: defaultParams, handler: handleClose },
+    { path: "/info", schema: defaultParams, handler: handleInfo },
   ],
 };
 
@@ -48,5 +52,46 @@ async function handleClose(
   return {
     isSuccess: true,
     result: {},
+  };
+}
+
+async function handleInfo(
+  incomingParams: AnyParams,
+): Promise<HandlerVaultInfoSuccess | HandlerFailure> {
+  const { vault } = window.app;
+  const { config } = <RealLifeVault> vault;
+  const basePath = (<RealLifeDataAdapter> vault.adapter).basePath;
+
+  if (!config || !basePath) {
+    return {
+      isSuccess: false,
+      errorCode: 412,
+      errorMessage: STRINGS.vault_internals_not_found,
+    };
+  }
+
+  let newFileFolderPath = "";
+
+  switch (config.newFileLocation) {
+    case "root":
+    case "current":
+      newFileFolderPath = basePath;
+      break;
+    case "folder":
+      newFileFolderPath = `${basePath}/${config.newFileFolderPath}`
+        .replace(/\/$/, "");
+      break;
+  }
+
+  const attachmentFolderPath = `${basePath}/${config.attachmentFolderPath}`
+    .replace(/\/$/, "");
+
+  return {
+    isSuccess: true,
+    result: {
+      basePath,
+      attachmentFolderPath,
+      newFileFolderPath,
+    },
   };
 }

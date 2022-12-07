@@ -38,25 +38,7 @@ export type AnyLocalParams =
 
 export const routePath: RoutePath = {
   "/open": [
-    // ## `/open`
-    //
-    // Does nothing but say hello.
     helloRoute(),
-
-    // ## `/open/search`
-    //
-    // Opens the search for a given query in Obsidian.
-    //
-    //   {
-    //     "debug-mode"?: boolean | undefined;
-    //     "x-error"?: string | undefined;
-    //     "x-success"?: string | undefined;
-    //     action: string;
-    //     query: string;
-    //     silent?: boolean | undefined;
-    //     vault: string;
-    // }
-    // => HandlerTextSuccess
     { path: "/search", schema: searchParams, handler: handleSearch },
   ],
 };

@@ -24,16 +24,21 @@ import {
   AnyLocalParams as AnyVaultParams,
   routePath as vaultRoutes,
 } from "./routes/vault";
+import {
+  AnyLocalParams as AnyTagsParams,
+  routePath as tagsRoutes,
+} from "./routes/tags";
 import { IncomingBaseParams } from "./schemata";
 import { HandlerFunction } from "./types";
 
 export const routes: RoutePath = {
   ...rootRoutes,
   ...dailyNoteRoutes,
+  ...infoRoutes,
   ...noteRoutes,
   ...openRoutes,
   ...searchRoutes,
-  ...infoRoutes,
+  ...tagsRoutes,
   ...vaultRoutes,
 };
 
@@ -70,5 +75,6 @@ export type AnyParams =
   | AnyNoteParams
   | AnyOpenParams
   | AnySearchParams
+  | AnyTagsParams
   | AnyVaultParams
   | IncomingBaseParams;
