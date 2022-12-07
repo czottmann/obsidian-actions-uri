@@ -4,6 +4,7 @@ export const STRINGS = {
   append_done: "Note was appended",
   daily_notes_feature_not_available: "Daily Notes plugin is not active",
   global_search_feature_not_available: "Global Search plugin is not active",
+  not_available_on_mobile: "This action is not available on mobile",
   note_not_found: "Note couldn't be found",
   prepend_done: "Note was prepended",
   replacement_done: "Replacement done, note updated",

@@ -1,3 +1,4 @@
+import { Platform } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
@@ -47,6 +48,14 @@ async function handleOpen(
 async function handleClose(
   incomingParams: AnyParams,
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
+  if (!Platform.isMobileApp) {
+    return {
+      isSuccess: false,
+      errorCode: 405,
+      errorMessage: STRINGS.not_available_on_mobile,
+    };
+  }
+
   // This feels wonky, like a race condition waiting to happen.
   window.setTimeout(window.close, 600);
   return {
