@@ -12,6 +12,7 @@ import {
 } from "./string-handling";
 import {
   NoteDetailsResultObject,
+  RealLifeVault,
   StringResultObject,
   TFileResultObject,
 } from "../types";
@@ -343,6 +344,17 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
       errorCode: 404,
       errorMessage: STRINGS.note_not_found,
     };
+}
+
+/**
+ * Gets the list of all files and folders in the vault.
+ *
+ * @returns An array of `TFile` instances
+ */
+export function getFileMap(): TFile[] {
+  const { vault } = window.app;
+  const { fileMap } = <RealLifeVault> vault;
+  return Object.values(fileMap);
 }
 
 /**

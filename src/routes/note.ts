@@ -5,6 +5,7 @@ import { incomingBaseParams } from "../schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
+  HandlerPathsSuccess,
   HandlerTextSuccess,
 } from "../types";
 import {
@@ -29,6 +30,12 @@ import {
 } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
+
+const listParams = incomingBaseParams.extend({
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ListParams = z.infer<typeof listParams>;
 
 const readParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
@@ -78,6 +85,7 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 export type AnyLocalParams =
+  | ListParams
   | ReadParams
   | OpenParams
   | CreateParams
@@ -90,6 +98,7 @@ export type AnyLocalParams =
 export const routePath: RoutePath = {
   "/note": [
     helloRoute(),
+    { path: "/list", schema: listParams, handler: handleList },
     { path: "/get", schema: readParams, handler: handleGet },
     { path: "/open", schema: openParams, handler: handleOpen },
     { path: "/create", schema: createParams, handler: handleCreate },
@@ -109,6 +118,20 @@ export const routePath: RoutePath = {
 };
 
 // HANDLERS ----------------------------------------
+
+async function handleList(
+  incomingParams: AnyParams,
+): Promise<HandlerPathsSuccess | HandlerFailure> {
+  const { vault } = window.app;
+  const paths = vault.getMarkdownFiles().map((t) => t.path).sort();
+
+  return {
+    isSuccess: true,
+    result: {
+      paths,
+    },
+  };
+}
 
 async function handleGet(
   incomingParams: AnyParams,

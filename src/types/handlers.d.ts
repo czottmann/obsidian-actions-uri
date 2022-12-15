@@ -51,11 +51,11 @@ export type HandlerFileSuccess = Readonly<
   }
 >;
 
-export type HandlerAbstractFilesSuccess = Readonly<
+export type HandlerPathsSuccess = Readonly<
   & HandlerSuccess
   & {
     result: {
-      files: AbstractFile[];
+      paths: string[];
     };
   }
 >;
@@ -109,7 +109,7 @@ export type HandlerVaultInfoSuccess = Readonly<
 >;
 
 export type AnyHandlerSuccess =
-  | HandlerAbstractFilesSuccess
+  | HandlerPathsSuccess
   | HandlerFileSuccess
   | HandlerInfoSuccess
   | HandlerSearchSuccess
