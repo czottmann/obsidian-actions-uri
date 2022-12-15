@@ -11,6 +11,7 @@ type ErrorObject = {
 type ResultObject<T> = {
   isSuccess: true;
   result: T;
+  processedFilepath?: string;
 };
 
 export type TFileResultObject = ResultObject<TFile> | ErrorObject;
