@@ -20,7 +20,7 @@ import {
   createOrOverwriteNote,
   getCurrentDailyNote,
   getDailyNotePathIfPluginIsAvailable,
-  getNoteContent,
+  getNoteDetails,
   getNoteFile,
   prependNote,
   searchAndReplaceInNote,
@@ -165,60 +165,15 @@ async function handleList(
 async function handleGetCurrent(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const resDNP = getDailyNotePathIfPluginIsAvailable();
-  if (!resDNP.isSuccess) {
-    return resDNP;
-  }
-
-  const filepath = resDNP.result;
-  const res = await getNoteContent(filepath);
-
-  if (!res.isSuccess) {
-    return res;
-  }
-
-  const content = res.result;
-  const { body, frontMatter } = extractNoteContentParts(content);
-
-  return {
-    isSuccess: true,
-    result: {
-      filepath,
-      content,
-      body,
-      "front-matter": unwrapFrontMatter(frontMatter),
-    },
-    processedFilepath: filepath,
-  };
+  const res = getDailyNotePathIfPluginIsAvailable();
+  return res.isSuccess ? await getNoteDetails(res.result) : res;
 }
 
 async function handleGetMostRecent(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const res1 = await getMostRecentDailyNote();
-  if (!res1.isSuccess) {
-    return res1;
-  }
-
-  const dailyNote = res1.result;
-  const res2 = await getNoteContent(dailyNote.path);
-  if (!res2.isSuccess) {
-    return res2;
-  }
-
-  const content = res2.result;
-  const { body, frontMatter } = extractNoteContentParts(content);
-
-  return {
-    isSuccess: true,
-    result: {
-      filepath: dailyNote.path,
-      content,
-      body,
-      "front-matter": unwrapFrontMatter(frontMatter),
-    },
-    processedFilepath: dailyNote.path,
-  };
+  const res = await getMostRecentDailyNote();
+  return res.isSuccess ? await getNoteDetails(res.result.path) : res;
 }
 
 async function handleOpenCurrent(
@@ -297,11 +252,7 @@ async function handleCreate(
     // We're allowed to overwrite it, and we got content to write.  Let's do it!
     const resFile = await createOrOverwriteNote(dailyNote.path, content);
     return resFile.isSuccess
-      ? {
-        isSuccess: true,
-        result: { content, filepath: dailyNote.path },
-        processedFilepath: dailyNote.path,
-      }
+      ? await getNoteDetails(resFile.result.path)
       : resFile;
   }
 
@@ -318,21 +269,13 @@ async function handleCreate(
   // The note was written, but we need to write content to it. Do we have
   // content?  If not then we're done already.
   if (typeof content !== "string" || content === "") {
-    return {
-      isSuccess: true,
-      result: { content: "", filepath: newNote.path },
-      processedFilepath: newNote.path,
-    };
+    return await getNoteDetails(newNote.path);
   }
 
-  // We have content to write.  Let's update the note.
+  // We have content to write, let's update the note.
   const resFile = await createOrOverwriteNote(newNote.path, content);
   return resFile.isSuccess
-    ? {
-      isSuccess: true,
-      result: { content, filepath: newNote.path },
-      processedFilepath: newNote.path,
-    }
+    ? await getNoteDetails(resFile.result.path)
     : resFile;
 }
 

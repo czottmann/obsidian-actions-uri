@@ -26,3 +26,12 @@ export type ProcessingResult = {
   sendCallbackResult: StringResultObject;
   openResult: StringResultObject;
 };
+
+export type NoteDetailsResultObject =
+  | ResultObject<{
+    filepath: string;
+    content: string;
+    body: string;
+    frontMatter: string;
+  }>
+  | ErrorObject;

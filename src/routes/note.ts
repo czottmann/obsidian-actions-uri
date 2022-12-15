@@ -11,7 +11,7 @@ import {
   appendNote,
   createNote,
   createOrOverwriteNote,
-  getNoteContent,
+  getNoteDetails,
   getNoteFile,
   prependNote,
   searchAndReplaceInNote,
@@ -114,26 +114,7 @@ async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
-  const { file } = params;
-  const res = await getNoteContent(file);
-
-  if (res.isSuccess) {
-    const content = res.result;
-    const { body, frontMatter } = extractNoteContentParts(content);
-
-    return {
-      isSuccess: true,
-      result: {
-        filepath: file,
-        content,
-        body,
-        "front-matter": unwrapFrontMatter(frontMatter),
-      },
-      processedFilepath: file,
-    };
-  }
-
-  return res;
+  return await getNoteDetails(params.file);
 }
 
 async function handleOpen(
@@ -159,24 +140,8 @@ async function handleCreate(
   const res = overwrite
     ? await createOrOverwriteNote(file, content || "")
     : await createNote(file, content || "");
-  if (!res.isSuccess) {
-    return res;
-  }
 
-  const newNoteRes = await getNoteContent(file);
-  if (!newNoteRes.isSuccess) {
-    return newNoteRes;
-  }
-
-  return {
-    isSuccess: true,
-    result: {
-      ...extractNoteContentParts(newNoteRes.result),
-      content: newNoteRes.result,
-      filepath: file,
-    },
-    processedFilepath: file,
-  };
+  return res.isSuccess ? await getNoteDetails(file) : res;
 }
 
 async function handleAppend(
