@@ -18,11 +18,7 @@ import {
   searchAndReplaceInNote,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
-import {
-  extractNoteContentParts,
-  parseStringIntoRegex,
-  unwrapFrontMatter,
-} from "../utils/string-handling";
+import { parseStringIntoRegex } from "../utils/string-handling";
 import {
   zodAlwaysFalse,
   zodOptionalBoolean,
