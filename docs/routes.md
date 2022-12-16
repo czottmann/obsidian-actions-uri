@@ -7,6 +7,7 @@ has_toc: false
 # New Routes
 
 - [`/daily-note`](routes/daily-note.md): Reading, writing, updating daily notes.
+- [`/dataview`](routes/dataview.md): Running Dataview DQL queries.
 - [`/info`](routes/info.md): Plugin & Obsidian environment info.
 - [`/note`](routes/note.md): Reading, writing, updating any notes.
 - [`/open`](routes/open.md): Opening notes, daily notes and searches in Obsidian.
