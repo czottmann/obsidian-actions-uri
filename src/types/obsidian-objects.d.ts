@@ -1,6 +1,7 @@
-import { DataAdapter, MetadataCache, Vault } from "obsidian";
+import { DataAdapter, MetadataCache, TFile, Vault } from "obsidian";
 
 export interface RealLifeVault extends Vault {
+  fileMap: Record<string, TFile>;
   config: {
     attachmentFolderPath: string;
     newFileLocation: "root" | "current" | "folder";

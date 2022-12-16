@@ -46,16 +46,25 @@ export type HandlerFileSuccess = Readonly<
       content: string;
       filepath: string;
       body?: string;
-      "front-matter"?: string;
+      frontMatter?: string;
     };
   }
 >;
 
-export type HandlerAbstractFilesSuccess = Readonly<
+export type HandlerDataviewSuccess = Readonly<
   & HandlerSuccess
   & {
     result: {
-      files: AbstractFile[];
+      data: string;
+    };
+  }
+>;
+
+export type HandlerPathsSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      paths: string[];
     };
   }
 >;
@@ -109,9 +118,10 @@ export type HandlerVaultInfoSuccess = Readonly<
 >;
 
 export type AnyHandlerSuccess =
-  | HandlerAbstractFilesSuccess
+  | HandlerDataviewSuccess
   | HandlerFileSuccess
   | HandlerInfoSuccess
+  | HandlerPathsSuccess
   | HandlerSearchSuccess
   | HandlerTextSuccess
   | HandlerVaultSuccess;

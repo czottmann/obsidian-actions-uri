@@ -5,8 +5,17 @@ import {
   getDailyNote,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
-import { ensureNewline, extractNoteContentParts } from "./string-handling";
-import { StringResultObject, TFileResultObject } from "../types";
+import {
+  ensureNewline,
+  extractNoteContentParts,
+  unwrapFrontMatter,
+} from "./string-handling";
+import {
+  NoteDetailsResultObject,
+  RealLifeVault,
+  StringResultObject,
+  TFileResultObject,
+} from "../types";
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -150,6 +159,36 @@ export async function getNoteContent(
       errorCode: 400,
       errorMessage: STRINGS.unable_to_read_note,
     };
+}
+
+/**
+ * Fetches an existing note and returns its split-up contents.
+ *
+ * @param filepath - A full filename, relative from vault root
+ *
+ * @returns A result object. Success case: note path, content, body and front
+ * matter; failure case: readable error message
+ */
+export async function getNoteDetails(
+  filepath: string,
+): Promise<NoteDetailsResultObject> {
+  const res = await getNoteContent(filepath);
+  if (!res.isSuccess) {
+    return res;
+  }
+
+  const content = res.result;
+  const { body, frontMatter } = extractNoteContentParts(content);
+  return {
+    isSuccess: true,
+    result: {
+      filepath,
+      content,
+      body,
+      frontMatter: unwrapFrontMatter(frontMatter),
+    },
+    processedFilepath: filepath,
+  };
 }
 
 /**
@@ -306,6 +345,17 @@ export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
       errorCode: 404,
       errorMessage: STRINGS.note_not_found,
     };
+}
+
+/**
+ * Gets the list of all files and folders in the vault.
+ *
+ * @returns An array of `TFile` instances
+ */
+export function getFileMap(): TFile[] {
+  const { vault } = window.app;
+  const { fileMap } = <RealLifeVault> vault;
+  return Object.values(fileMap);
 }
 
 /**

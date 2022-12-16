@@ -11,6 +11,7 @@ type ErrorObject = {
 type ResultObject<T> = {
   isSuccess: true;
   result: T;
+  processedFilepath?: string;
 };
 
 export type TFileResultObject = ResultObject<TFile> | ErrorObject;
@@ -26,3 +27,12 @@ export type ProcessingResult = {
   sendCallbackResult: StringResultObject;
   openResult: StringResultObject;
 };
+
+export type NoteDetailsResultObject =
+  | ResultObject<{
+    filepath: string;
+    content: string;
+    body: string;
+    frontMatter: string;
+  }>
+  | ErrorObject;

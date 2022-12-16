@@ -30,6 +30,32 @@ On success:
 &nbsp;
 
 
+## `/note/list` <span class="tag tag-version">v0.14+</span>
+Returns a list of all notes (Markdown files) in the vault.
+
+### Parameters
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter      | Description                                             |
+| -------------- | ------------------------------------------------------- |
+| `result-paths` | Array containing all file paths encoded as JSON string. |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
 ## `/note/get`
 Returns a specific note.
 

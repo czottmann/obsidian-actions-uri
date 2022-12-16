@@ -1,15 +1,17 @@
-import { Platform } from "obsidian";
+import { Platform, TFile, TFolder } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
   HandlerFailure,
+  HandlerPathsSuccess,
   HandlerVaultInfoSuccess,
   HandlerVaultSuccess,
   RealLifeDataAdapter,
   RealLifeVault,
 } from "../types";
+import { getFileMap } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
 
 // SCHEMATA --------------------
@@ -30,6 +32,21 @@ export const routePath: RoutePath = {
     { path: "/open", schema: defaultParams, handler: handleOpen },
     { path: "/close", schema: defaultParams, handler: handleClose },
     { path: "/info", schema: defaultParams, handler: handleInfo },
+    {
+      path: "/list-folders",
+      schema: defaultParams,
+      handler: handleListFolders,
+    },
+    {
+      path: "/list-all-files",
+      schema: defaultParams,
+      handler: handleListFiles,
+    },
+    {
+      path: "/list-non-notes-files",
+      schema: defaultParams,
+      handler: handleListFilesExceptNotes,
+    },
   ],
 };
 
@@ -101,6 +118,51 @@ async function handleInfo(
       basePath,
       attachmentFolderPath,
       newFileFolderPath,
+    },
+  };
+}
+
+async function handleListFolders(
+  incomingParams: AnyParams,
+): Promise<HandlerPathsSuccess | HandlerFailure> {
+  const paths = getFileMap()
+    .filter((t) => t instanceof TFolder)
+    .map((t) => t.path.endsWith("/") ? t.path : `${t.path}/`).sort();
+
+  return {
+    isSuccess: true,
+    result: {
+      paths,
+    },
+  };
+}
+
+async function handleListFiles(
+  incomingParams: AnyParams,
+): Promise<HandlerPathsSuccess | HandlerFailure> {
+  const { vault } = window.app;
+  const paths = vault.getFiles().map((t) => t.path).sort();
+
+  return {
+    isSuccess: true,
+    result: {
+      paths,
+    },
+  };
+}
+
+async function handleListFilesExceptNotes(
+  incomingParams: AnyParams,
+): Promise<HandlerPathsSuccess | HandlerFailure> {
+  const { vault } = window.app;
+  const files = vault.getFiles().map((t) => t.path);
+  const notes = vault.getMarkdownFiles().map((t) => t.path);
+  const paths = files.filter((path) => !notes.includes(path)).sort();
+
+  return {
+    isSuccess: true,
+    result: {
+      paths,
     },
   };
 }

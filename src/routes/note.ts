@@ -5,23 +5,20 @@ import { incomingBaseParams } from "../schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
+  HandlerPathsSuccess,
   HandlerTextSuccess,
 } from "../types";
 import {
   appendNote,
   createNote,
   createOrOverwriteNote,
-  getNoteContent,
+  getNoteDetails,
   getNoteFile,
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
-import {
-  extractNoteContentParts,
-  parseStringIntoRegex,
-  unwrapFrontMatter,
-} from "../utils/string-handling";
+import { parseStringIntoRegex } from "../utils/string-handling";
 import {
   zodAlwaysFalse,
   zodOptionalBoolean,
@@ -29,6 +26,12 @@ import {
 } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
+
+const listParams = incomingBaseParams.extend({
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ListParams = z.infer<typeof listParams>;
 
 const readParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
@@ -78,6 +81,7 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 export type AnyLocalParams =
+  | ListParams
   | ReadParams
   | OpenParams
   | CreateParams
@@ -90,6 +94,7 @@ export type AnyLocalParams =
 export const routePath: RoutePath = {
   "/note": [
     helloRoute(),
+    { path: "/list", schema: listParams, handler: handleList },
     { path: "/get", schema: readParams, handler: handleGet },
     { path: "/open", schema: openParams, handler: handleOpen },
     { path: "/create", schema: createParams, handler: handleCreate },
@@ -110,30 +115,25 @@ export const routePath: RoutePath = {
 
 // HANDLERS ----------------------------------------
 
+async function handleList(
+  incomingParams: AnyParams,
+): Promise<HandlerPathsSuccess | HandlerFailure> {
+  const { vault } = window.app;
+  const paths = vault.getMarkdownFiles().map((t) => t.path).sort();
+
+  return {
+    isSuccess: true,
+    result: {
+      paths,
+    },
+  };
+}
+
 async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
-  const { file } = params;
-  const res = await getNoteContent(file);
-
-  if (res.isSuccess) {
-    const content = res.result;
-    const { body, frontMatter } = extractNoteContentParts(content);
-
-    return {
-      isSuccess: true,
-      result: {
-        filepath: file,
-        content,
-        body,
-        "front-matter": unwrapFrontMatter(frontMatter),
-      },
-      processedFilepath: file,
-    };
-  }
-
-  return res;
+  return await getNoteDetails(params.file);
 }
 
 async function handleOpen(
@@ -159,24 +159,8 @@ async function handleCreate(
   const res = overwrite
     ? await createOrOverwriteNote(file, content || "")
     : await createNote(file, content || "");
-  if (!res.isSuccess) {
-    return res;
-  }
 
-  const newNoteRes = await getNoteContent(file);
-  if (!newNoteRes.isSuccess) {
-    return newNoteRes;
-  }
-
-  return {
-    isSuccess: true,
-    result: {
-      ...extractNoteContentParts(newNoteRes.result),
-      content: newNoteRes.result,
-      filepath: file,
-    },
-    processedFilepath: file,
-  };
+  return res.isSuccess ? await getNoteDetails(file) : res;
 }
 
 async function handleAppend(
