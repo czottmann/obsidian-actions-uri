@@ -187,6 +187,7 @@ export async function getNoteDetails(
       body,
       frontMatter: unwrapFrontMatter(frontMatter),
     },
+    processedFilepath: filepath,
   };
 }
 

@@ -51,6 +51,15 @@ export type HandlerFileSuccess = Readonly<
   }
 >;
 
+export type HandlerDataviewSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      data: string;
+    };
+  }
+>;
+
 export type HandlerPathsSuccess = Readonly<
   & HandlerSuccess
   & {
@@ -109,9 +118,10 @@ export type HandlerVaultInfoSuccess = Readonly<
 >;
 
 export type AnyHandlerSuccess =
-  | HandlerPathsSuccess
+  | HandlerDataviewSuccess
   | HandlerFileSuccess
   | HandlerInfoSuccess
+  | HandlerPathsSuccess
   | HandlerSearchSuccess
   | HandlerTextSuccess
   | HandlerVaultSuccess;
