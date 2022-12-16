@@ -1,12 +1,13 @@
 # Release history
 
-## 0.14.1, 2022-12-16
+## 0.14.2, 2022-12-16
 - [NEW] Adds [Dataview support for `TABLE` and `LIST` queries](https://czottmann.github.io/obsidian-actions-uri/routes/dataview/) [#4]
 - [NEW] Adds [route `/tags/list`](https://czottmann.github.io/obsidian-actions-uri/routes/tags/) for fetching a list of all existing tags [#16]
 - [NEW] Adds [route `/note/list`](https://czottmann.github.io/obsidian-actions-uri/routes/note/) for fetching the list of available Markdown files [#24]
 - [NEW] Adds [route `/vault/list-folders`](https://czottmann.github.io/obsidian-actions-uri/routes/vault/) for fetching the list of available folders [#24]
 - [NEW] Adds [route `/vault/list-non-notes-files`](https://czottmann.github.io/obsidian-actions-uri/routes/vault/) for fetching list of non-Markdown files [#24]
 - [NEW] Adds [route `/vault/list-all-files`](https://czottmann.github.io/obsidian-actions-uri/routes/vault/) for fetching all files present in a vault [#24]
+- [CHG] Adjusts [route `/daily-note/list`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/) to return the same structure as its `/note/list` counterpart
 - [FIX] Notes returned will now always contain the four return parameters `result-content`, `result-body`, `result-front-matter` and `result-filepath` [#22]
 - [FIX] Adds missing links to route docs detail pages
 
