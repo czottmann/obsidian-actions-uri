@@ -4,6 +4,10 @@ import {
   routePath as dailyNoteRoutes,
 } from "./routes/daily-note";
 import {
+  AnyLocalParams as AnyDataviewParams,
+  routePath as dataviewRoutes,
+} from "./routes/dataview";
+import {
   AnyLocalParams as AnyInfoParams,
   routePath as infoRoutes,
 } from "./routes/info";
@@ -33,6 +37,7 @@ import { HandlerFunction } from "./types";
 
 export const routes: RoutePath = {
   ...rootRoutes,
+  ...dataviewRoutes,
   ...dailyNoteRoutes,
   ...infoRoutes,
   ...noteRoutes,
@@ -71,6 +76,7 @@ export type RouteSubpath = {
 
 export type AnyParams =
   | AnyDailyNoteParams
+  | AnyDataviewParams
   | AnyInfoParams
   | AnyNoteParams
   | AnyOpenParams
