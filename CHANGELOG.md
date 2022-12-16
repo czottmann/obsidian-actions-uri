@@ -1,7 +1,16 @@
 # Release history
 
-## 0.13.0, 2022-12-07
+## 0.14.1, 2022-12-16
+- [NEW] Adds [Dataview support for `TABLE` and `LIST` queries](https://czottmann.github.io/obsidian-actions-uri/routes/dataview/) [#4]
+- [NEW] Adds [route `/tags/list`](https://czottmann.github.io/obsidian-actions-uri/routes/tags/) for fetching a list of all existing tags [#16]
+- [NEW] Adds [route `/vault/list-folders`](https://czottmann.github.io/obsidian-actions-uri/routes/vault/) for fetching the list of available folders [#24]
+- [NEW] Adds [route `/vault/list-non-notes-files`](https://czottmann.github.io/obsidian-actions-uri/routes/vault/) for fetching list of non-Markdown files [#24]
+- [NEW] Adds [route `/vault/list-all-files`](https://czottmann.github.io/obsidian-actions-uri/routes/vault/) for fetching all files present in a vault [#24]
+- [FIX] Notes returned will now always contain the four return parameters `result-content`, `result-body`, `result-front-matter` and `result-filepath` [#22]
+- [FIX] Adds missing links to route docs detail pages
 
+
+## 0.13.0, 2022-12-07
 - [NEW] Adds `tags/list` route [#16]
 - [NEW] Adds `vault/info` route [#20]
 - [CHG] Makes `vault/close` desktop-only (due to the different Obsidian foundations on mobile and desktop)
@@ -9,7 +18,6 @@
 
 
 ## 0.12.1, 2022-11-23
-
 - [NEW] Added `/vault/open` and `/vault/close` routes [#18]
 - [CHG] Error callbacks now carry two parameters, `errorCode` and `errorMessage`, instead of just `error`.
 - [CHG] The routes `note/open` and `daily-note/open` supersede `open/note` and `open/daily-note` respectively.  The old routes have been removed.
@@ -18,7 +26,6 @@
 
 
 ## 0.11.0, 2022-11-07
-
 - [NEW] Refactors error callback parameters [#12]
 - [CHG] Replaces all occurrences of `global.app` [#14]
 - [CHG] Changes spaces in callback URLs from plus-sign- to percent-encoding [#11]
