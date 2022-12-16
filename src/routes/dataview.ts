@@ -55,7 +55,7 @@ function dqlValuesMapper(dataview: DataviewApi, v: any): any {
 }
 
 async function handleDataviewQuery(
-  type: "table" | "list" | "task",
+  type: "table" | "list",
   incomingParams: AnyParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
