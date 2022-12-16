@@ -48,9 +48,9 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter             | Description                                                                                               |
-| --------------------- | --------------------------------------------------------------------------------------------------------- |
-| `result-files`    | JSON-encoded array containing one object per note (keys: `name`, `filepath`), sorted reverse chronologically. |
+| Parameter      | Description                                             |
+| -------------- | ------------------------------------------------------- |
+| `result-paths` | Array containing all file paths encoded as JSON string. |
 
 On failure:
 
