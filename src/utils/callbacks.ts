@@ -31,14 +31,14 @@ export function sendUrlCallback(
 
   if (handlerRes.isSuccess) {
     addObjectToUrlSearchParams((<AnyHandlerSuccess> handlerRes).result, url);
-
-    if (params["x-source"] == "Actions for Obsidian") {
-      url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
-    }
   } else {
     const { errorCode, errorMessage } = <HandlerFailure> handlerRes;
     url.searchParams.set("errorCode", errorCode.toString());
     url.searchParams.set("errorMessage", errorMessage);
+  }
+
+  if (params["x-source"] == "Actions for Obsidian") {
+    url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
   }
 
   const returnParams: Record<string, string> = params["debug-mode"]
