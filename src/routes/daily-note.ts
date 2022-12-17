@@ -9,9 +9,9 @@ import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
-  HandlerAbstractFilesSuccess,
   HandlerFailure,
   HandlerFileSuccess,
+  HandlerPathsSuccess,
   HandlerTextSuccess,
   TFileResultObject,
 } from "../types";
@@ -26,11 +26,7 @@ import {
   searchAndReplaceInNote,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
-import {
-  extractNoteContentParts,
-  parseStringIntoRegex,
-  unwrapFrontMatter,
-} from "../utils/string-handling";
+import { parseStringIntoRegex } from "../utils/string-handling";
 import { zodAlwaysFalse, zodOptionalBoolean } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
@@ -136,7 +132,7 @@ export const routePath: RoutePath = {
 
 async function handleList(
   incoming: AnyParams,
-): Promise<HandlerAbstractFilesSuccess | HandlerFailure> {
+): Promise<HandlerPathsSuccess | HandlerFailure> {
   if (!appHasDailyNotesPluginLoaded()) {
     return {
       isSuccess: false,
@@ -146,18 +142,15 @@ async function handleList(
   }
 
   const notes = getAllDailyNotes();
-  const files = Object.keys(notes)
+  const paths = Object.keys(notes)
     .sort()
     .reverse()
-    .map((k) => ({
-      name: notes[k].basename,
-      filepath: notes[k].path,
-    }));
+    .map((k) => notes[k].path);
 
   return {
     isSuccess: true,
     result: {
-      files,
+      paths,
     },
   };
 }
