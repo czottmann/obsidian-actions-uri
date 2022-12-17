@@ -27,12 +27,13 @@ export function sendUrlCallback(
   params: AnyParams,
 ): StringResultObject {
   const url = new URL(baseURL);
+  const { result, pv } = <AnyHandlerSuccess> handlerRes;
 
   if (handlerRes.isSuccess) {
-    addObjectToUrlSearchParams(
-      (<AnyHandlerSuccess> handlerRes).result,
-      url,
-    );
+    addObjectToUrlSearchParams(result, url);
+    if (pv) {
+      url.searchParams.set("pv", pv);
+    }
   } else {
     const { errorCode, errorMessage } = <HandlerFailure> handlerRes;
     url.searchParams.set("errorCode", errorCode.toString());
