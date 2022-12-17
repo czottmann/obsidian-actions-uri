@@ -83,12 +83,7 @@ export default class ActionsURI extends Plugin {
     handlerFunc: HandlerFunction,
     params: AnyParams,
   ): Promise<ProcessingResult> {
-    const handlerResult = {
-      ...await handlerFunc(params),
-      pv: params["x-source"] == "Actions for Obsidian"
-        ? this.manifest.version
-        : undefined,
-    };
+    const handlerResult = await handlerFunc(params);
     const res = <ProcessingResult> {
       params,
       handlerResult,

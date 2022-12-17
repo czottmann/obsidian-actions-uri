@@ -16,9 +16,6 @@ export type HandlerFunction = (
 
 type HandlerResult = {
   isSuccess: boolean;
-
-  // Plugin version
-  pv?: string;
 };
 
 type HandlerSuccess =
