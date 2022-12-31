@@ -229,17 +229,9 @@ export async function searchAndReplaceInNote(
   }
 
   const noteContent = res.result;
-  let newContent = noteContent;
-
-  // Since I can't be sure `String.prototype.replaceAll()` is available on both
-  // mobile and desktop in every Obsidian version, I'm replacing using a loop.
-  if (typeof searchTerm === "string") {
-    do {
-      newContent = newContent.replace(searchTerm, replacement);
-    } while (newContent.indexOf(searchTerm) !== -1);
-  } else {
-    newContent = noteContent.replace(searchTerm, replacement);
-  }
+  const newContent = (typeof searchTerm === "string")
+    ? noteContent.replace(new RegExp(searchTerm, "g"), replacement)
+    : noteContent.replace(searchTerm, replacement);
 
   if (noteContent === newContent) {
     return {

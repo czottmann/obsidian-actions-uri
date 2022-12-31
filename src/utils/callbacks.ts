@@ -1,5 +1,6 @@
 import { excludeKeys, includeKeys } from "filter-obj";
 import { XCALLBACK_RESULT_PREFIX } from "../constants";
+import { PLUGIN_INFO } from "../plugin-info";
 import { AnyParams } from "../routes";
 import { toKebabCase } from "./string-handling";
 import {
@@ -29,14 +30,15 @@ export function sendUrlCallback(
   const url = new URL(baseURL);
 
   if (handlerRes.isSuccess) {
-    addObjectToUrlSearchParams(
-      (<AnyHandlerSuccess> handlerRes).result,
-      url,
-    );
+    addObjectToUrlSearchParams((<AnyHandlerSuccess> handlerRes).result, url);
   } else {
     const { errorCode, errorMessage } = <HandlerFailure> handlerRes;
     url.searchParams.set("errorCode", errorCode.toString());
     url.searchParams.set("errorMessage", errorMessage);
+  }
+
+  if (params["x-source"] == "Actions for Obsidian") {
+    url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
   }
 
   const returnParams: Record<string, string> = params["debug-mode"]

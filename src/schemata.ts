@@ -11,5 +11,6 @@ export const incomingBaseParams = z.object({
 
   "x-error": z.string().url().optional(),
   "x-success": z.string().url().optional(),
+  "x-source": z.string().optional(),
 });
 export type IncomingBaseParams = z.infer<typeof incomingBaseParams>;

@@ -1,5 +1,13 @@
 # Release history
 
+## 0.15.0, 2022-12-31
+- [NEW] Adds extra return params for use by [Actions for Obsidian](https://obsidian.actions.work) [#26]
+- [CHG] Root routes (e.g., `/`, `/note`, `/daily-note`) return a non-empty result message
+- [FIX] Addresses endless loop in string search/replace routes which would occur when the replacement included the search term [#28]
+
+Have a wondrous 2023, people 🚀
+
+
 ## 0.14.2, 2022-12-16
 - [NEW] Adds [Dataview support for `TABLE` and `LIST` queries](https://czottmann.github.io/obsidian-actions-uri/routes/dataview/) [#4]
 - [NEW] Adds [route `/tags/list`](https://czottmann.github.io/obsidian-actions-uri/routes/tags/) for fetching a list of all existing tags [#16]
