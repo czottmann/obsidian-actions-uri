@@ -11,6 +11,7 @@ export const STRINGS = {
   not_available_on_mobile: "This action is not available on mobile",
   note_not_found: "Note couldn't be found",
   prepend_done: "Note was prepended",
+  rename_done: "Note was renamed/moved",
   replacement_done: "Replacement done, note updated",
   search_pattern_empty: "Search pattern is empty",
   search_pattern_invalid: "Search pattern must start with a forward slash",

@@ -228,6 +228,43 @@ On failure:
 &nbsp;
 
 
+## `/note/rename` <span class="tag tag-version">v0.16+</span>
+Renames or moves a note. If the new file path already exists, an error will be returned. If the new file path is the same as the old one, nothing will happen. You can move a note to a different folder by specifying the new file path with a different folder name. For example, this will move the file "my-note.md" from its position at the vault root into "another-folder" while keeping the file name:
+
+- `file`: "my-note"
+- `new-filename`: "another-folder/my-note"
+
+Any folder structure in `new-filename` will **not** be created automatically. If a folder is specified that does not exist, an error will be returned.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter      | Value type | Optional? | Description                                                                                        |
+| -------------- | ---------- |:---------:| -------------------------------------------------------------------------------------------------- |
+| `file`         | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.     |
+| `new-filename` | string     |           | The new file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `silent`       | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter        | Description              |
+| ---------------- | ------------------------ |
+| `result-message` | A short success message. |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
 ## `/note/search-string-and-replace`
 Does text replacement in a note.  The search term is used as-is, i.e. it's a string search.
 

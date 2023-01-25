@@ -404,6 +404,41 @@ export async function trashFilePath(
   };
 }
 
+/**
+ * Moves a particular file/folder to the trash or deletes it right away.
+ *
+ * @param filepath - A full filename
+ * @param newFilepath - A full filename
+ *
+ * @returns A result object containing either an error or a success message.
+ */
+export async function renameFile(
+  filepath: string,
+  newFilepath: string,
+): Promise<StringResultObject> {
+  const { vault } = window.app;
+  const res = await getNoteFile(filepath);
+
+  if (!res.isSuccess) {
+    return res;
+  }
+
+  try {
+    await vault.rename(res.result, newFilepath);
+  } catch (error) {
+    return {
+      isSuccess: false,
+      errorCode: 409,
+      errorMessage: (<Error> error).message,
+    };
+  }
+
+  return {
+    isSuccess: true,
+    result: STRINGS.rename_done,
+  };
+}
+
 // HELPERS ----------------------------------------
 
 /**

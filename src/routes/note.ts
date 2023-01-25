@@ -15,6 +15,7 @@ import {
   getNoteDetails,
   getNoteFile,
   prependNote,
+  renameFile,
   searchAndReplaceInNote,
   trashFilePath,
 } from "../utils/file-handling";
@@ -83,10 +84,15 @@ type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 const deleteParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
 });
 type DeleteParams = z.infer<typeof deleteParams>;
+
+const renameParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  "new-filename": zodSanitizedFilePath,
+  silent: zodOptionalBoolean,
+});
+type RenameParams = z.infer<typeof renameParams>;
 
 export type AnyLocalParams =
   | ListParams
@@ -109,6 +115,9 @@ export const routePath: RoutePath = {
     { path: "/create", schema: createParams, handler: handleCreate },
     { path: "/append", schema: appendParams, handler: handleAppend },
     { path: "/prepend", schema: prependParams, handler: handlePrepend },
+    { path: "/delete", schema: deleteParams, handler: handleDelete },
+    { path: "/trash", schema: deleteParams, handler: handleTrash },
+    { path: "/rename", schema: renameParams, handler: handleRename },
     {
       path: "/search-string-and-replace",
       schema: searchAndReplaceParams,
@@ -119,8 +128,6 @@ export const routePath: RoutePath = {
       schema: searchAndReplaceParams,
       handler: handleSearchRegexAndReplace,
     },
-    { path: "/delete", schema: deleteParams, handler: handleDelete },
-    { path: "/trash", schema: deleteParams, handler: handleTrash },
   ],
 };
 
@@ -271,6 +278,23 @@ async function handleTrash(
   const params = <DeleteParams> incomingParams;
   const { file } = params;
   const res = await trashFilePath(file);
+
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: res.result },
+      processedFilepath: file,
+    }
+    : res;
+}
+
+async function handleRename(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const params = <RenameParams> incomingParams;
+  const { file } = params;
+  const newFilename = params["new-filename"];
+  const res = await renameFile(file, newFilename);
 
   return res.isSuccess
     ? {
