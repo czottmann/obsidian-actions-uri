@@ -137,18 +137,12 @@ export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
   const { vault } = window.app;
-  const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
-  const doesFileExist = file instanceof TFile;
-
-  if (!doesFileExist) {
-    return {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.note_not_found,
-    };
+  const res = await getNoteFile(filepath);
+  if (!res.isSuccess) {
+    return res;
   }
 
-  const noteContent = await vault.read(file);
+  const noteContent = await vault.read(res.result);
   return (typeof noteContent === "string")
     ? {
       isSuccess: true,
@@ -452,6 +446,6 @@ function dirname(path: string) {
  * @returns Filename extension of the input `path`
  */
 function extname(path: string) {
-  const filename = (normalizePath(path).split("/").pop() || "");
+  const filename = normalizePath(path).split("/").pop() || "";
   return filename.includes(".") ? `.${filename.split(".").pop()}` : "";
 }
