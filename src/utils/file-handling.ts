@@ -444,7 +444,20 @@ export async function renameFile(
   };
 }
 
-// HELPERS ----------------------------------------
+/**
+ * Renames or moves a folder.
+ *
+ * @param filepath - A full filename
+ * @param newFilepath - A full filename
+ *
+ * @returns A result object containing either an error or a success message.
+ */
+export async function renameFolder(
+  filepath: string,
+  newFilepath: string,
+): Promise<StringResultObject> {
+  return await renameFile(dirname(filepath), dirname(newFilepath));
+}
 
 /**
  * Creates a folder but checks for its existence before attempting creation.
