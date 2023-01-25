@@ -384,23 +384,27 @@ export async function getNoteFile(
  *
  * @returns A result object containing either an error or a success message.
  */
-export async function trashFilePath(
+export async function trashFilepath(
   filepath: string,
   deleteImmediately: boolean = false,
 ): Promise<StringResultObject> {
   const { vault } = window.app;
-  const res = await getNoteFile(filepath);
+  const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
-  if (!res.isSuccess) {
-    return res;
+  if (!fileOrFolder) {
+    return {
+      isSuccess: false,
+      errorCode: 404,
+      errorMessage: STRINGS.not_found,
+    };
   }
 
   if (deleteImmediately) {
-    await vault.delete(res.result);
+    await vault.delete(fileOrFolder, true);
   } else {
     const isSystemTrashPreferred =
       (<any> vault).config?.trashOption === "system";
-    await vault.trash(res.result, isSystemTrashPreferred);
+    await vault.trash(fileOrFolder, isSystemTrashPreferred);
   }
 
   return {
@@ -417,19 +421,23 @@ export async function trashFilePath(
  *
  * @returns A result object containing either an error or a success message.
  */
-export async function renameFile(
+export async function renameFilepath(
   filepath: string,
   newFilepath: string,
 ): Promise<StringResultObject> {
   const { vault } = window.app;
-  const res = await getNoteFile(filepath);
+  const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
-  if (!res.isSuccess) {
-    return res;
+  if (!fileOrFolder) {
+    return {
+      isSuccess: false,
+      errorCode: 404,
+      errorMessage: STRINGS.not_found,
+    };
   }
 
   try {
-    await vault.rename(res.result, newFilepath);
+    await vault.rename(fileOrFolder, newFilepath);
   } catch (error) {
     return {
       isSuccess: false,
@@ -442,21 +450,6 @@ export async function renameFile(
     isSuccess: true,
     result: STRINGS.rename_done,
   };
-}
-
-/**
- * Renames or moves a folder.
- *
- * @param filepath - A full filename
- * @param newFilepath - A full filename
- *
- * @returns A result object containing either an error or a success message.
- */
-export async function renameFolder(
-  filepath: string,
-  newFilepath: string,
-): Promise<StringResultObject> {
-  return await renameFile(dirname(filepath), dirname(newFilepath));
 }
 
 /**

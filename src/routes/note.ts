@@ -15,9 +15,9 @@ import {
   getNoteDetails,
   getNoteFile,
   prependNote,
-  renameFile,
+  renameFilepath,
   searchAndReplaceInNote,
-  trashFilePath,
+  trashFilepath,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
@@ -261,7 +261,7 @@ async function handleDelete(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <DeleteParams> incomingParams;
   const { file } = params;
-  const res = await trashFilePath(file, true);
+  const res = await trashFilepath(file, true);
 
   return res.isSuccess
     ? {
@@ -277,7 +277,7 @@ async function handleTrash(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <DeleteParams> incomingParams;
   const { file } = params;
-  const res = await trashFilePath(file);
+  const res = await trashFilepath(file);
 
   return res.isSuccess
     ? {
@@ -294,7 +294,7 @@ async function handleRename(
   const params = <RenameParams> incomingParams;
   const { file } = params;
   const newFilename = params["new-filename"];
-  const res = await renameFile(file, newFilename);
+  const res = await renameFilepath(file, newFilename);
 
   return res.isSuccess
     ? {

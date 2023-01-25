@@ -9,6 +9,7 @@ export const STRINGS = {
   delete_done: "Successfully deleted",
   global_search_feature_not_available: "Global Search plugin is not active",
   not_available_on_mobile: "This action is not available on mobile",
+  not_found: "Not found",
   note_not_found: "Note couldn't be found",
   prepend_done: "Note was prepended",
   rename_done: "Note was renamed/moved",
