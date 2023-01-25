@@ -110,8 +110,10 @@ On failure:
 &nbsp;
 
 
-## `/vault/list-folders` <span class="tag tag-version">v0.14+</span>
+## `/vault/list-folders` <span class="tag tag-deprecated">Deprecated since v0.16</span>
 Returns a list of folder paths.
+
+DEPRECATED: Use [`/folder/list`](./folder.md) instead.
 
 ### Parameters
 Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).

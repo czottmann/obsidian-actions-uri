@@ -8,6 +8,10 @@ import {
   routePath as dataviewRoutes,
 } from "./routes/dataview";
 import {
+  AnyLocalParams as AnyFolderParams,
+  routePath as folderRoutes,
+} from "./routes/folder";
+import {
   AnyLocalParams as AnyInfoParams,
   routePath as infoRoutes,
 } from "./routes/info";
@@ -39,6 +43,7 @@ export const routes: RoutePath = {
   ...rootRoutes,
   ...dataviewRoutes,
   ...dailyNoteRoutes,
+  ...folderRoutes,
   ...infoRoutes,
   ...noteRoutes,
   ...openRoutes,
@@ -77,6 +82,7 @@ export type RouteSubpath = {
 export type AnyParams =
   | AnyDailyNoteParams
   | AnyDataviewParams
+  | AnyFolderParams
   | AnyInfoParams
   | AnyNoteParams
   | AnyOpenParams

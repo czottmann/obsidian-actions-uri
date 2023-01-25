@@ -17,6 +17,10 @@ export const zodSanitizedFilePath = z.string()
   .min(1, { message: "can't be empty" })
   .transform((file) => sanitizeFilePath(file));
 
+export const zodSanitizedFolderPath = z.string()
+  .min(1, { message: "can't be empty" })
+  .transform((file) => sanitizeFilePath(file, true));
+
 /**
  * An always-false boolean. Looks stupid but it's used by the handlers in
  * `../routes/open.ts`, see section "HANDLERS" there.

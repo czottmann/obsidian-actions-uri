@@ -336,16 +336,14 @@ On failure:
 
 
 ## `/note/delete` <span class="tag tag-version">v0.16+</span>
-Immediately deletes a specific note or folder.
+Immediately deletes a specific note.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                                                                  |
-| ----------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------ |
-| `file`      | string     |           | The file path of the note or the folder, relative from the vault's root. The extension `.md` can be omitted. |
-| `x-success` | string     |           | base URL for on-success callbacks                                                                            |
-| `x-error`   | string     |           | base URL for on-error callbacks                                                                              |
+| Parameter   | Value type | Optional? | Description                                                                                    |
+| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -368,16 +366,14 @@ On failure:
 
 
 ## `/note/trash` <span class="tag tag-version">v0.16+</span>
-Moves a specific note or folder to the trash (either vault-local trash or system trash, depending on the configuration made in _Settings_ → _Files & Links_ → _Deleted Files_).
+Moves a specific note to the trash (either vault-local trash or system trash, depending on the configuration made in _Settings_ → _Files & Links_ → _Deleted Files_).
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                                                                  |
-| ----------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------ |
-| `file`      | string     |           | The file path of the note or the folder, relative from the vault's root. The extension `.md` can be omitted. |
-| `x-success` | string     |           | base URL for on-success callbacks                                                                            |
-| `x-error`   | string     |           | base URL for on-error callbacks                                                                              |
+| Parameter   | Value type | Optional? | Description                                                                                    |
+| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
