@@ -191,17 +191,22 @@ export async function getNoteDetails(
  * or slashes.
  *
  * @param filename - A full file path
+ * @param isFolder - Whether the path is a folder path; if `true`, make sure the
+ * path ends in `.md`. Default: `false`
  *
  * @returns A normalized file path relative to the vault root
  */
-export function sanitizeFilePath(filename: string): string {
+export function sanitizeFilePath(
+  filename: string,
+  isFolder: boolean = false,
+): string {
   filename = normalizePath(filename)
     .replace(/^[\/\.]+/, "")
     .trim();
-  filename = extname(filename).toLowerCase() === ".md"
+
+  return (isFolder || extname(filename).toLowerCase() === ".md")
     ? filename
     : `${filename}.md`;
-  return filename;
 }
 
 /**
@@ -405,7 +410,7 @@ export async function trashFilePath(
 }
 
 /**
- * Moves a particular file/folder to the trash or deletes it right away.
+ * Renames or moves a file/folder.
  *
  * @param filepath - A full filename
  * @param newFilepath - A full filename
@@ -447,14 +452,17 @@ export async function renameFile(
  *
  * @param folder - A folder path relative from the vault root
  */
-async function createFolderIfNecessary(folder: string) {
+export async function createFolderIfNecessary(folder: string) {
   const { vault } = window.app;
+  folder = sanitizeFilePath(folder, true);
 
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists
   if (vault.getAbstractFileByPath(folder) instanceof TFolder) return;
   await vault.createFolder(folder);
 }
+
+// HELPERS ----------------------------------------
 
 /**
  * Returns the directory name of a `path`, as a bare-bones replacement for
