@@ -16,6 +16,7 @@ import {
   getNoteFile,
   prependNote,
   searchAndReplaceInNote,
+  trashFilePath,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
@@ -80,6 +81,13 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 });
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
+const deleteParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type DeleteParams = z.infer<typeof deleteParams>;
+
 export type AnyLocalParams =
   | ListParams
   | ReadParams
@@ -87,7 +95,8 @@ export type AnyLocalParams =
   | CreateParams
   | AppendParams
   | PrependParams
-  | SearchAndReplaceParams;
+  | SearchAndReplaceParams
+  | DeleteParams;
 
 // ROUTES ----------------------------------------
 
@@ -110,6 +119,8 @@ export const routePath: RoutePath = {
       schema: searchAndReplaceParams,
       handler: handleSearchRegexAndReplace,
     },
+    { path: "/delete", schema: deleteParams, handler: handleDelete },
+    { path: "/trash", schema: deleteParams, handler: handleTrash },
   ],
 };
 
@@ -228,6 +239,38 @@ async function handleSearchRegexAndReplace(
   }
 
   const res = await searchAndReplaceInNote(file, resSir.result, replace);
+
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: res.result },
+      processedFilepath: file,
+    }
+    : res;
+}
+
+async function handleDelete(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const params = <DeleteParams> incomingParams;
+  const { file } = params;
+  const res = await trashFilePath(file, true);
+
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: res.result },
+      processedFilepath: file,
+    }
+    : res;
+}
+
+async function handleTrash(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const params = <DeleteParams> incomingParams;
+  const { file } = params;
+  const res = await trashFilePath(file);
 
   return res.isSuccess
     ? {
