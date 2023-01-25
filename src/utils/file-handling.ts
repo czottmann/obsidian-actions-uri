@@ -376,6 +376,40 @@ export async function getNoteFile(
     };
 }
 
+/**
+ * Moves a particular file/folder to the trash or deletes it right away.
+ *
+ * @param filepath - A full filename
+ * @param deleteImmediately - Whether the file should be deleted immediately
+ * (`true`) or moved to the preferred trash location (`false`, default)
+ *
+ * @returns A result object containing either an error or a success message.
+ */
+export async function trashFilePath(
+  filepath: string,
+  deleteImmediately: boolean = false,
+): Promise<StringResultObject> {
+  const { vault } = window.app;
+  const res = await getNoteFile(filepath);
+
+  if (!res.isSuccess) {
+    return res;
+  }
+
+  if (deleteImmediately) {
+    await vault.delete(res.result);
+  } else {
+    const isSystemTrashPreferred =
+      (<any> vault).config?.trashOption === "system";
+    await vault.trash(res.result, isSystemTrashPreferred);
+  }
+
+  return {
+    isSuccess: true,
+    result: STRINGS.trash_done,
+  };
+}
+
 // HELPERS ----------------------------------------
 
 /**
