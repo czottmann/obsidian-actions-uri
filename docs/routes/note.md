@@ -229,7 +229,7 @@ On failure:
 
 
 ## `/note/rename` <span class="tag tag-version">v0.16+</span>
-Renames or moves a note. If the new file path already exists, an error will be returned. If the new file path is the same as the old one, nothing will happen. You can move a note to a different folder by specifying the new file path with a different folder name. For example, this will move the file "my-note.md" from its position at the vault root into "another-folder" while keeping the file name:
+Renames or moves a note. If the new file path already exists, an error will be returned. If the new file path is the same as the original one, nothing will happen. You can move a note to a different folder by specifying the new file path with a different folder name. For example, this will move the file "my-note.md" from its position at the vault root into "another-folder" while keeping the file name:
 
 - `file`: "my-note"
 - `new-filename`: "another-folder/my-note"
