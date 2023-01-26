@@ -18,7 +18,7 @@ It's a clean, somewhat super-charged addition to Obsidian's [own URI scheme](htt
 Carlo Zottmann, <carlo@zottmann.co>
 
 - GitHub: [@czottmann](https://github.com/czottmann)
-- Mastodon: [@czottmann@norden.social](https://norden.social/@czottmann) & [@actionsdotwork@pkm.social](https://pkm.social/@actionsdotwork)
+- Mastodon: [@czottmann@norden.social](https://norden.social/@czottmann) & [@obsidian@actions.work](https://actions.work/@obsidian)
 - Obsidian: [@czottmann](https://forum.obsidian.md/u/czottmann)
 - Website: [zottmann.co](https://zottmann.co/)
 
