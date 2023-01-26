@@ -2,7 +2,7 @@
 parent: New Routes
 ---
 
-# `/note`
+# `/folder`
 <span class="tag tag-version">v0.16+</span>
 
 These routes deal with folders.  Their URLs start with `obsidian://actions-uri/folder/…`.
