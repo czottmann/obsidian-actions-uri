@@ -1,5 +1,17 @@
 # Release history
 
+## 0.16.0, 2023-01-26
+- [NEW] Adds [route `/note/delete`](https://czottmann.github.io/obsidian-actions-uri/routes/note/) for deleting a note [#30]
+- [NEW] Adds [route `/note/rename`](https://czottmann.github.io/obsidian-actions-uri/routes/note/) for renaming or moving a note [#30]
+- [NEW] Adds [route `/note/trash`](https://czottmann.github.io/obsidian-actions-uri/routes/note/) for moving a note to the trash [#30]
+- [NEW] Adds [route `/folder/list`](https://czottmann.github.io/obsidian-actions-uri/routes/folder/) for fetching the list of available folders [#30]
+- [NEW] Adds [route `/folder/create`](https://czottmann.github.io/obsidian-actions-uri/routes/folder/) for creating a new folder or folder structure [#30]
+- [NEW] Adds [route `/folder/delete`](https://czottmann.github.io/obsidian-actions-uri/routes/folder/) for deleting a folder and all its contents [#30]
+- [NEW] Adds [route `/folder/rename`](https://czottmann.github.io/obsidian-actions-uri/routes/folder/) for renaming or moving a folder [#30]
+- [NEW] Adds [route `/folder/trash`](https://czottmann.github.io/obsidian-actions-uri/routes/folder/) for moving a folder to the trash [#30]
+- [DEL] Deprecates route [`/vault/list-folders`](https://czottmann.github.io/obsidian-actions-uri/routes/vault/) in favor of [`/folder/list`](https://czottmann.github.io/obsidian-actions-uri/routes/folder/) [#30]
+
+
 ## 0.15.0, 2022-12-31
 - [NEW] Adds extra return params for use by [Actions for Obsidian](https://obsidian.actions.work) [#26]
 - [CHG] Root routes (e.g., `/`, `/note`, `/daily-note`) return a non-empty result message

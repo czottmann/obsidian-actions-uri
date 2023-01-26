@@ -13,10 +13,10 @@ So, here we are! 😀
 
 
 ## *"I have an idea for this!"*
-Cool!  If you want to discuss it, either [post it to the Ideas discussion board](https://github.com/czottmann/obsidian-actions-uri/discussions/categories/ideas) or [hit me up on Mastodon](https://pkm.social/@actionsdotwork).  I'm all ears! 👂🏼
+Cool!  If you want to discuss it, either [post it to the Ideas discussion board](https://github.com/czottmann/obsidian-actions-uri/discussions/categories/ideas) or [hit me up on Mastodon](https://actions.work/@obsidian).  I'm all ears! 👂🏼
 
 
 ## *"There's a bug!"*, *"There's something wrong"* etc.
-Oh no!  Please [file a bug report](https://github.com/czottmann/obsidian-actions-uri/issues) here or (if you're unsure about it) [ping me on Mastodon](https://pkm.social/@actionsdotwork).
+Oh no!  Please [file a bug report](https://github.com/czottmann/obsidian-actions-uri/issues) here or (if you're unsure about it) [ping me on Mastodon](https://actions.work/@obsidian).
 
 ---

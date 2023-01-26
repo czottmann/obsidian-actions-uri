@@ -15,7 +15,9 @@ import {
   getNoteDetails,
   getNoteFile,
   prependNote,
+  renameFilepath,
   searchAndReplaceInNote,
+  trashFilepath,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
@@ -80,6 +82,18 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 });
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
+const deleteParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+});
+type DeleteParams = z.infer<typeof deleteParams>;
+
+const renameParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  "new-filename": zodSanitizedFilePath,
+  silent: zodOptionalBoolean,
+});
+type RenameParams = z.infer<typeof renameParams>;
+
 export type AnyLocalParams =
   | ListParams
   | ReadParams
@@ -87,7 +101,8 @@ export type AnyLocalParams =
   | CreateParams
   | AppendParams
   | PrependParams
-  | SearchAndReplaceParams;
+  | SearchAndReplaceParams
+  | DeleteParams;
 
 // ROUTES ----------------------------------------
 
@@ -100,6 +115,9 @@ export const routePath: RoutePath = {
     { path: "/create", schema: createParams, handler: handleCreate },
     { path: "/append", schema: appendParams, handler: handleAppend },
     { path: "/prepend", schema: prependParams, handler: handlePrepend },
+    { path: "/delete", schema: deleteParams, handler: handleDelete },
+    { path: "/trash", schema: deleteParams, handler: handleTrash },
+    { path: "/rename", schema: renameParams, handler: handleRename },
     {
       path: "/search-string-and-replace",
       schema: searchAndReplaceParams,
@@ -228,6 +246,55 @@ async function handleSearchRegexAndReplace(
   }
 
   const res = await searchAndReplaceInNote(file, resSir.result, replace);
+
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: res.result },
+      processedFilepath: file,
+    }
+    : res;
+}
+
+async function handleDelete(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const params = <DeleteParams> incomingParams;
+  const { file } = params;
+  const res = await trashFilepath(file, true);
+
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: res.result },
+      processedFilepath: file,
+    }
+    : res;
+}
+
+async function handleTrash(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const params = <DeleteParams> incomingParams;
+  const { file } = params;
+  const res = await trashFilepath(file);
+
+  return res.isSuccess
+    ? {
+      isSuccess: true,
+      result: { message: res.result },
+      processedFilepath: file,
+    }
+    : res;
+}
+
+async function handleRename(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const params = <RenameParams> incomingParams;
+  const { file } = params;
+  const newFilename = params["new-filename"];
+  const res = await renameFilepath(file, newFilename);
 
   return res.isSuccess
     ? {

@@ -137,18 +137,12 @@ export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
   const { vault } = window.app;
-  const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
-  const doesFileExist = file instanceof TFile;
-
-  if (!doesFileExist) {
-    return {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.note_not_found,
-    };
+  const res = await getNoteFile(filepath);
+  if (!res.isSuccess) {
+    return res;
   }
 
-  const noteContent = await vault.read(file);
+  const noteContent = await vault.read(res.result);
   return (typeof noteContent === "string")
     ? {
       isSuccess: true,
@@ -197,17 +191,22 @@ export async function getNoteDetails(
  * or slashes.
  *
  * @param filename - A full file path
+ * @param isFolder - Whether the path is a folder path; if `true`, make sure the
+ * path ends in `.md`. Default: `false`
  *
  * @returns A normalized file path relative to the vault root
  */
-export function sanitizeFilePath(filename: string): string {
+export function sanitizeFilePath(
+  filename: string,
+  isFolder: boolean = false,
+): string {
   filename = normalizePath(filename)
     .replace(/^[\/\.]+/, "")
     .trim();
-  filename = extname(filename).toLowerCase() === ".md"
+
+  return (isFolder || extname(filename).toLowerCase() === ".md")
     ? filename
     : `${filename}.md`;
-  return filename;
 }
 
 /**
@@ -376,7 +375,82 @@ export async function getNoteFile(
     };
 }
 
-// HELPERS ----------------------------------------
+/**
+ * Moves a particular file/folder to the trash or deletes it right away.
+ *
+ * @param filepath - A full filename
+ * @param deleteImmediately - Whether the file should be deleted immediately
+ * (`true`) or moved to the preferred trash location (`false`, default)
+ *
+ * @returns A result object containing either an error or a success message.
+ */
+export async function trashFilepath(
+  filepath: string,
+  deleteImmediately: boolean = false,
+): Promise<StringResultObject> {
+  const { vault } = window.app;
+  const fileOrFolder = vault.getAbstractFileByPath(filepath);
+
+  if (!fileOrFolder) {
+    return {
+      isSuccess: false,
+      errorCode: 404,
+      errorMessage: STRINGS.not_found,
+    };
+  }
+
+  if (deleteImmediately) {
+    await vault.delete(fileOrFolder, true);
+  } else {
+    const isSystemTrashPreferred =
+      (<any> vault).config?.trashOption === "system";
+    await vault.trash(fileOrFolder, isSystemTrashPreferred);
+  }
+
+  return {
+    isSuccess: true,
+    result: STRINGS.trash_done,
+  };
+}
+
+/**
+ * Renames or moves a file/folder.
+ *
+ * @param filepath - A full filename
+ * @param newFilepath - A full filename
+ *
+ * @returns A result object containing either an error or a success message.
+ */
+export async function renameFilepath(
+  filepath: string,
+  newFilepath: string,
+): Promise<StringResultObject> {
+  const { vault } = window.app;
+  const fileOrFolder = vault.getAbstractFileByPath(filepath);
+
+  if (!fileOrFolder) {
+    return {
+      isSuccess: false,
+      errorCode: 404,
+      errorMessage: STRINGS.not_found,
+    };
+  }
+
+  try {
+    await vault.rename(fileOrFolder, newFilepath);
+  } catch (error) {
+    return {
+      isSuccess: false,
+      errorCode: 409,
+      errorMessage: (<Error> error).message,
+    };
+  }
+
+  return {
+    isSuccess: true,
+    result: STRINGS.rename_done,
+  };
+}
 
 /**
  * Creates a folder but checks for its existence before attempting creation.
@@ -384,14 +458,17 @@ export async function getNoteFile(
  *
  * @param folder - A folder path relative from the vault root
  */
-async function createFolderIfNecessary(folder: string) {
+export async function createFolderIfNecessary(folder: string) {
   const { vault } = window.app;
+  folder = sanitizeFilePath(folder, true);
 
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists
   if (vault.getAbstractFileByPath(folder) instanceof TFolder) return;
   await vault.createFolder(folder);
 }
+
+// HELPERS ----------------------------------------
 
 /**
  * Returns the directory name of a `path`, as a bare-bones replacement for
@@ -418,6 +495,6 @@ function dirname(path: string) {
  * @returns Filename extension of the input `path`
  */
 function extname(path: string) {
-  const filename = (normalizePath(path).split("/").pop() || "");
+  const filename = normalizePath(path).split("/").pop() || "";
   return filename.includes(".") ? `.${filename.split(".").pop()}` : "";
 }
