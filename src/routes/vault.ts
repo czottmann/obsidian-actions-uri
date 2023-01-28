@@ -96,28 +96,17 @@ async function handleInfo(
     };
   }
 
-  let newFileFolderPath = "";
-
-  switch (config.newFileLocation) {
-    case "root":
-    case "current":
-      newFileFolderPath = basePath;
-      break;
-    case "folder":
-      newFileFolderPath = `${basePath}/${config.newFileFolderPath}`
-        .replace(/\/$/, "");
-      break;
-  }
-
-  const attachmentFolderPath = `${basePath}/${config.attachmentFolderPath}`
-    .replace(/\/$/, "");
-
   return {
     isSuccess: true,
     result: {
       basePath,
-      attachmentFolderPath,
-      newFileFolderPath,
+      attachmentFolderPath: `${basePath}/${config.attachmentFolderPath}`
+        .replace(/\/$/, ""),
+      newFileFolderPath: (
+        config.newFileLocation === "folder"
+          ? `${basePath}/${config.newFileFolderPath}`.replace(/\/$/, "")
+          : basePath
+      ),
     },
   };
 }
