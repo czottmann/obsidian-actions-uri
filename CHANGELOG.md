@@ -1,5 +1,10 @@
 # Release history
 
+## 0.16.1, 2023-01-28
+
+- [FIX] Adds graceful handling of the default "Default location for new notes" configuration setting [#41]
+
+
 ## 0.16.0, 2023-01-26
 - [NEW] Adds [route `/note/delete`](https://czottmann.github.io/obsidian-actions-uri/routes/note/) for deleting a note [#30]
 - [NEW] Adds [route `/note/rename`](https://czottmann.github.io/obsidian-actions-uri/routes/note/) for renaming or moving a note [#30]
