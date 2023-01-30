@@ -1,5 +1,10 @@
 # Release history
 
+## 0.16.2, 2023-01-30
+
+- [CHG] Shortens `*/rename` error messages
+
+
 ## 0.16.1, 2023-01-28
 
 - [FIX] Adds graceful handling of the default "Default location for new notes" configuration setting [#41]
