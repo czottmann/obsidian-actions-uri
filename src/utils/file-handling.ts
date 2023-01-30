@@ -439,10 +439,13 @@ export async function renameFilepath(
   try {
     await vault.rename(fileOrFolder, newFilepath);
   } catch (error) {
+    const msg = (<Error> error).message;
     return {
       isSuccess: false,
       errorCode: 409,
-      errorMessage: (<Error> error).message,
+      errorMessage: msg.contains("no such file or directory")
+        ? "No such file or folder"
+        : msg,
     };
   }
 
