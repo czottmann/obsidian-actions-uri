@@ -1,5 +1,10 @@
 # Release history
 
+## 0.16.3, 2023-02-06
+
+- [FIX] Fixes handling of backslashes and colon characters in file names [#43]
+
+
 ## 0.16.2, 2023-01-30
 
 - [CHG] Shortens `*/rename` error messages
