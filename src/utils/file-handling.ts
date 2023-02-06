@@ -200,9 +200,9 @@ export function sanitizeFilePath(
   filename: string,
   isFolder: boolean = false,
 ): string {
+  filename = filename.replace(/[\\:]/g, "-");
   filename = normalizePath(filename)
     .replace(/^[\/\.]+/, "")
-    .replace(/[\\:]/g, "-")
     .trim();
 
   return (isFolder || extname(filename).toLowerCase() === ".md")
