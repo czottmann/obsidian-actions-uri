@@ -200,6 +200,7 @@ export function sanitizeFilePath(
   filename: string,
   isFolder: boolean = false,
 ): string {
+  filename = filename.replace(/[\\:]/g, "-");
   filename = normalizePath(filename)
     .replace(/^[\/\.]+/, "")
     .trim();
