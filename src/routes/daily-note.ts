@@ -229,6 +229,7 @@ async function handleCreate(
         isSuccess: false,
         errorCode: 405,
         errorMessage: STRINGS.daily_note.create_note_already_exists,
+        processedFilepath: dailyNote.path,
       };
     }
 
@@ -239,6 +240,7 @@ async function handleCreate(
         isSuccess: false,
         errorCode: 406,
         errorMessage: STRINGS.daily_note.create_note_no_content,
+        processedFilepath: dailyNote.path,
       };
     }
 
