@@ -21,7 +21,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   const rawSearchResult: Map<TFile, any> = await new Promise((resolve) =>
     // The search needs a bit of time to complete, so we wait for it to finish.
     // Easier (and dirtier…) than observing the DOM structure for changes.
-    setTimeout(() => resolve((<any> searchView).dom.resultDomLookup), 400)
+    setTimeout(() => resolve((<any> searchView).dom.resultDomLookup), 2000)
   );
   const hits = Array.from(rawSearchResult.keys()).map((tfile) => tfile.path);
 
