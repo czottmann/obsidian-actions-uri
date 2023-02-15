@@ -1,5 +1,10 @@
 # Release history
 
+## 0.16.4, 2023-02-15
+
+- [CHG] Increases time waiting for search results in `/search/all-notes` to 2s [#50]
+
+
 ## 0.16.3, 2023-02-06
 
 - [FIX] Fixes handling of backslashes and colon characters in file names [#43]
