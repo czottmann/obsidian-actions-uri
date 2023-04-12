@@ -137,12 +137,7 @@ On failure:
 Opens the current daily note in Obsidian.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
-
-| Parameter   | Value type | Optional? | Description                                                    |
-| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
-| `x-success` | string     |           | base URL for on-success callbacks                              |
-| `x-error`   | string     |           | base URL for on-error callbacks                                |
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -168,12 +163,7 @@ On failure:
 Opens the most recent daily note in Obsidian.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
 
 ### Parameters
-In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
-
-| Parameter   | Value type | Optional? | Description                                                    |
-| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
-| `x-success` | string     |           | base URL for on-success callbacks                              |
-| `x-error`   | string     |           | base URL for on-error callbacks                                |
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).

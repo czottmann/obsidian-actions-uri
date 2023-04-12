@@ -101,8 +101,6 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | Parameter   | Value type | Optional? | Description                                                                                    |
 | ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
 | `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `x-success` | string     |           | base URL for on-success callbacks                                                              |
-| `x-error`   | string     |           | base URL for on-error callbacks                                                                |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
