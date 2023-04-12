@@ -30,7 +30,7 @@ On success:
 &nbsp;
 
 
-## `/search/all-notes`
+## `/search/all-notes` <span class="tag tag-platform">Desktop only</span>
 Returns search results (file paths) for a given search query.
 
 | Parameter   | Value  | Optional? | Description                       |
@@ -54,3 +54,23 @@ On failure:
 | -------------- | ----------------------------------- |
 | `errorCode`    | A HTTP status code.                 |
 | `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
+## `/search/open`
+Opens the search for a given query in Obsidian.
+
+| Parameter | Value  | Optional? | Description                   |
+| --------- | ------ |:---------:| ----------------------------- |
+| `query`   | string |           | A valid Obsidian search query |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |

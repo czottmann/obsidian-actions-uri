@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
-import { HandlerFailure, HandlerSearchSuccess } from "../types";
+import {
+  HandlerFailure,
+  HandlerSearchSuccess,
+  HandlerTextSuccess,
+} from "../types";
 import { helloRoute } from "../utils/routing";
 import { doSearch } from "../utils/search";
 
@@ -14,7 +18,14 @@ const defaultParams = incomingBaseParams.extend({
 });
 type DefaultParams = z.infer<typeof defaultParams>;
 
-export type AnyLocalParams = DefaultParams;
+const openParams = incomingBaseParams.extend({
+  query: z.string().min(1, { message: "can't be empty" }),
+});
+type OpenParams = z.infer<typeof openParams>;
+
+export type AnyLocalParams =
+  | DefaultParams
+  | OpenParams;
 
 // ROUTES --------------------
 
@@ -22,6 +33,7 @@ export const routePath: RoutePath = {
   "/search": [
     helloRoute(),
     { path: "/all-notes", schema: defaultParams, handler: handleSearch },
+    { path: "/open", schema: openParams, handler: handleOpen },
   ],
 };
 
@@ -39,4 +51,22 @@ async function handleSearch(
       result: res.result,
     }
     : res;
+}
+
+async function handleOpen(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess> {
+  const params = <DefaultParams> incomingParams;
+
+  // Let's open the search in the simplest way possible.
+  window.open(
+    "obsidian://search?" +
+      "vault=" + encodeURIComponent(window.app.vault.getName()) +
+      "&query=" + encodeURIComponent(params.query.trim()),
+  );
+
+  return {
+    isSuccess: true,
+    result: { message: "Opened search" },
+  };
 }
