@@ -123,17 +123,22 @@ On failure:
 
 
 ## `/note/create`
-Creates a new note. In case there's already a note with the same name / at the requested file path, it will be overwritten **only** if the related parameter is set.  Otherwise, the base file name will be suffixed with a number: if the desired file name is `My Note.md` but that file already exists, the note will be saved as `My Note 1.md`; if the desired file `a/Folder/Another Note 17.md` already exists, the note will be saved under `a/Folder/Another Note 18.md`.
+Creates a new note. The default behavior in case there's already a note with the same name / at the requested file path, the base file name will be suffixed with a number. For example, if the desired file name is `My Note.md` but that file already exists, the note will be saved as `My Note 1.md`; if the desired file `a/Folder/Another Note 17.md` already exists, the note will be saved under `a/Folder/Another Note 18.md`.
+
+<span class="tag tag-version">v0.18+</span> If you want to prevent the creation of an additional note as described above, use the `if-exists` parameter with the value `skip`. If you want to overwrite an existing note, use the `if-exists` parameter with the value `overwrite`. (`if-exists=overwrite` replaces the deprecated `overwrite=true` parameter.)
+
+<span class="tag tag-deprecated">Deprecated since v0.18</span> The `overwrite` parameter is deprecated and will be removed in a future version.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                                                    |
-| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
-| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `content`   | string     |    ✅     | The initial body of the note                                                                   |
-| `overwrite` | boolean    |    ✅     | *"If this note file already exists, it should be overwritten."* Defaults to `false`.           |
-| `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+| Parameter   | Value type | Optional? | Description                                                                                                                    |
+| ----------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------------------------ |
+| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                 |
+| `content`   | string     |    ✅     | The initial body of the note                                                                                                    |
+| `if-exists` | string     |    ✅     | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
+| `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
+| `overwrite` | boolean    |    ✅     | <span class="tag tag-deprecated">Deprecated since v0.18</span> **Use `if-exists=overwrite` instead.**                           |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).

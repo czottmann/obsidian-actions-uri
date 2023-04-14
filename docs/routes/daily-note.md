@@ -186,16 +186,23 @@ On failure:
 
 
 ## `/daily-note/create`
-Creates a new daily note. An existing current daily note **will not** be overwritten **unless** the related parameter is explicitly set.
+Creates a new daily note. If a current daily note is already present, an error will be returned.
+
+<span class="tag tag-version">v0.18+</span> If you want to skip the error response in favor of getting the current note as-is, use the `if-exists` parameter with the value `skip`. If you want to overwrite the existing note, use the `if-exists` parameter with the value `overwrite`. (`if-exists=overwrite` replaces the deprecated `overwrite=true` parameter.)
+
+<span class="tag tag-deprecated">Deprecated since v0.18</span> The `overwrite` parameter is deprecated and will be removed in a future version.
+
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                                              |
-| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------- |
-| `content`   | string     |    ✅     | The initial body of the note                                                             |
-| `overwrite` | boolean    |    ✅     | *"If today's daily note already exists, it should be overwritten."* Defaults to `false`. |
-| `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.        |
+| Parameter   | Value type | Optional? | Description                                                                                                                    |
+| ----------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------------------------ |
+| `content`   | string     |    ✅     | The initial body of the note                                                                                                    |
+| `if-exists` | string     |    ✅     | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
+| `silent`    | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
+| `overwrite` | boolean    |    ✅     | <span class="tag tag-deprecated">Deprecated since v0.18</span> **Use `if-exists=overwrite` instead.**                           |
+
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).

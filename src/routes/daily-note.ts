@@ -51,8 +51,13 @@ type OpenParams = z.infer<typeof openParams>;
 
 const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
-  overwrite: zodOptionalBoolean,
   silent: zodOptionalBoolean,
+  "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
+
+  /**
+   * @deprecated Deprecated in favor of `if-exists` parameter since v0.18.
+   */
+  overwrite: zodOptionalBoolean,
 });
 type CreateParams = z.infer<typeof createParams>;
 
@@ -221,32 +226,31 @@ async function handleCreate(
   const { content } = params;
   const dailyNote = getCurrentDailyNote();
 
+  // TODO: Added in 0.18. Can be removed when `params.overwrite` is removed.
+  if (!params["if-exists"] && params.overwrite) {
+    params["if-exists"] = "overwrite";
+  }
+
   // There already is a note for today.
   if (dailyNote instanceof TFile) {
-    // Back off unless we're allowed to overwrite it.
-    if (!params.overwrite) {
-      return {
-        isSuccess: false,
-        errorCode: 405,
-        errorMessage: STRINGS.daily_note.create_note_already_exists,
-      };
-    }
+    switch (params["if-exists"]) {
+      case "skip":
+        return await getNoteDetails(dailyNote.path);
+        break;
 
-    // We're allowed to overwrite it!  But let's not unless we got any content
-    // to write.
-    if (typeof content !== "string") {
-      return {
-        isSuccess: false,
-        errorCode: 406,
-        errorMessage: STRINGS.daily_note.create_note_no_content,
-      };
-    }
+      case "overwrite":
+        // Delete existing note, but keep going afterwards.
+        app.vault.trash(dailyNote, false);
+        break;
 
-    // We're allowed to overwrite it, and we got content to write.  Let's do it!
-    const resFile = await createOrOverwriteNote(dailyNote.path, content);
-    return resFile.isSuccess
-      ? await getNoteDetails(resFile.result.path)
-      : resFile;
+      default:
+        return {
+          isSuccess: false,
+          errorCode: 409,
+          errorMessage: STRINGS.daily_note.create_note_already_exists,
+        };
+        break;
+    }
   }
 
   // There is no note for today.  Let's create one!
