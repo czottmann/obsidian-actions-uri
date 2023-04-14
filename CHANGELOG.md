@@ -27,12 +27,6 @@ or `overwrite`. `if-exists=skip` will pretend the existing note was just created
   `if-exists=overwrite` instead.
 
 
-### No longer broken
-
-- TODO
-
-
-
 ## 0.17.0, 2023-04-12
 
 - [FIX] Normalizes leading/trailing whitespace in path segments (#54)
