@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TFile } from "obsidian";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
@@ -52,8 +53,13 @@ type OpenParams = z.infer<typeof openParams>;
 const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
   file: zodSanitizedFilePath,
-  overwrite: zodOptionalBoolean,
   silent: zodOptionalBoolean,
+  "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
+
+  /**
+   * @deprecated Deprecated in favor of `if-exists` parameter since v0.18.
+   */
+  overwrite: zodOptionalBoolean,
 });
 type CreateParams = z.infer<typeof createParams>;
 
@@ -172,13 +178,38 @@ async function handleCreate(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
-  const { file, content, overwrite } = params;
+  const { file, content } = params;
 
-  const res = overwrite
-    ? await createOrOverwriteNote(file, content || "")
-    : await createNote(file, content || "");
+  // TODO: Added in 0.18. Can be removed when `params.overwrite` is removed.
+  if (!params["if-exists"] && params.overwrite) {
+    params["if-exists"] = "overwrite";
+  }
 
-  return res.isSuccess ? await getNoteDetails(file) : res;
+  const res = await getNoteFile(file);
+
+  // There already is a note with that name or at that path.
+  if (res.isSuccess) {
+    console.log(params["if-exists"]);
+    switch (params["if-exists"]) {
+      case "skip":
+        return await getNoteDetails(file);
+        break;
+
+      case "overwrite":
+        const res1 = await createOrOverwriteNote(file, content || "");
+        return res1.isSuccess ? await getNoteDetails(res1.result.path) : res1;
+        break;
+
+      default:
+        // Default is to carry on and create a new note with a numeric suffix,
+        // so we just fall through here. (Could've omitted the `default` case
+        // but keeping it like this makes it clear what's going on.)
+        break;
+    }
+  }
+
+  const res2 = await createNote(file, content || "");
+  return res2.isSuccess ? await getNoteDetails(res2.result.path) : res2;
 }
 
 async function handleAppend(
