@@ -204,7 +204,7 @@ export default class ActionsURI extends Plugin {
     }
 
     // Do we have information what to open?
-    const { processedFilepath } = (<HandlerFileSuccess> handlerResult);
+    const { processedFilepath } = <HandlerFileSuccess> handlerResult;
     if (!processedFilepath) {
       return {
         isSuccess: true,
