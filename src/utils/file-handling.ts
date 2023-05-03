@@ -5,11 +5,13 @@ import {
   getDailyNote,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
+import { isTemplaterEnabled } from "./plugins";
 import {
   ensureNewline,
   extractNoteContentParts,
   unwrapFrontMatter,
 } from "./string-handling";
+import { pause } from "./time";
 import {
   NoteDetailsResultObject,
   RealLifeVault,
@@ -66,6 +68,14 @@ export async function createNote(
 
   // Create the new note
   await vault.create(filepath, content);
+
+  // Necessary for preventing a race condition when creating an empty note in a
+  // folder that is being watched by the Templater plugin. See issue #61 at
+  // https://github.com/czottmann/obsidian-actions-uri/issues/61
+  if (isTemplaterEnabled()) {
+    await pause(500);
+  }
+
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
     ? {
