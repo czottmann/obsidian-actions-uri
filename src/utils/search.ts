@@ -1,12 +1,13 @@
 import { TFile } from "obsidian";
+import { getEnabledCorePlugin } from "./plugins";
 import { SearchResultObject } from "../types";
 import { STRINGS } from "../constants";
 
 export async function doSearch(query: string): Promise<SearchResultObject> {
   const { app } = global;
-  const searchPlugin = (<any> app).internalPlugins?.plugins["global-search"];
+  const res = getEnabledCorePlugin("global-search");
 
-  if (!searchPlugin.enabled) {
+  if (!res.isSuccess) {
     return {
       isSuccess: false,
       errorCode: 412,
@@ -14,7 +15,8 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
     };
   }
 
-  searchPlugin.instance.openGlobalSearch(query);
+  const pluginInstance = res.result;
+  pluginInstance.openGlobalSearch(query);
 
   const searchLeaf = app.workspace.getLeavesOfType("search")[0];
   const searchView = await searchLeaf.open(searchLeaf.view);
