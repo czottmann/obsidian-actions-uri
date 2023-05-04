@@ -20,6 +20,10 @@ import {
   routePath as noteRoutes,
 } from "./routes/note";
 import {
+  AnyLocalParams as AnyOmnisearchParams,
+  routePath as omnisearchRoutes,
+} from "./routes/omnisearch";
+import {
   AnyLocalParams as AnyOpenParams,
   routePath as openRoutes,
 } from "./routes/open";
@@ -46,6 +50,7 @@ export const routes: RoutePath = {
   ...folderRoutes,
   ...infoRoutes,
   ...noteRoutes,
+  ...omnisearchRoutes,
   ...openRoutes,
   ...searchRoutes,
   ...tagsRoutes,
@@ -85,6 +90,7 @@ export type AnyParams =
   | AnyFolderParams
   | AnyInfoParams
   | AnyNoteParams
+  | AnyOmnisearchParams
   | AnyOpenParams
   | AnySearchParams
   | AnyTagsParams

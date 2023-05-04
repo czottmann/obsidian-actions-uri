@@ -2,9 +2,15 @@
 parent: New Routes
 ---
 
-# `/search`
+# `/omnisearch`
+<span class="tag tag-version">v1.1+</span>
 
-These routes deal with running searches in Obsidian.  Their URLs start with `obsidian://actions-uri/search/…`.
+These routes deal with running searches through the
+[Omnisearch plugin](https://publish.obsidian.md/omnisearch/Index) in Obsidian.
+Their URLs start with `obsidian://actions-uri/omnisearch/…`.
+
+(Omnisearch isn't installed by default, but it is a superior choice for
+searching through your vault.)
 
 <div id="toc" />
 
@@ -12,7 +18,7 @@ These routes deal with running searches in Obsidian.  Their URLs start with `obs
 &nbsp;
 
 
-## Root, i.e. `/search`
+## Root, i.e. `/omnisearch`
 
 Does nothing but say hello.
 
@@ -32,13 +38,12 @@ On success:
 &nbsp;
 
 
-## `/search/all-notes`
-<span class="tag tag-platform">Desktop only</span>
-Returns search results (file paths) for a given search query.
+## `/omnisearch/all-notes`
+Returns Omnisearch results (file paths) for a given search query.
 
 | Parameter   | Value  | Optional? | Description                       |
 | ----------- | ------ |:---------:| --------------------------------- |
-| `query`     | string |           |                                   |
+| `query`     | string |           | A valid Omnisearch query          |
 | `x-success` | string |           | base URL for on-success callbacks |
 | `x-error`   | string |           | base URL for on-error callbacks   |
 
@@ -47,9 +52,9 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter     | Description                                                                                                    |
-| ------------- | -------------------------------------------------------------------------------------------------------------- |
-| `result-hits` | Array with found file paths encoded as JSON string. (The max number of results varies, in my tests it was 36.) |
+| Parameter     | Description                                         |
+| ------------- | --------------------------------------------------- |
+| `result-hits` | Array with found file paths encoded as JSON string. |
 
 On failure:
 
@@ -62,12 +67,12 @@ On failure:
 &nbsp;
 
 
-## `/search/open`
-Opens the search for a given query in Obsidian.
+## `/omnisearch/open`
+Opens Omnisearch for a given query in Obsidian.
 
-| Parameter | Value  | Optional? | Description                   |
-| --------- | ------ |:---------:| ----------------------------- |
-| `query`   | string |           | A valid Obsidian search query |
+| Parameter | Value  | Optional? | Description              |
+| --------- | ------ |:---------:| ------------------------ |
+| `query`   | string |           | A valid Omnisearch query |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).

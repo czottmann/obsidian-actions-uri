@@ -6,6 +6,8 @@ parent: New Routes
 
 These routes deal with opening notes and searches in Obsidian.  Their URLs start with `obsidian://actions-uri/open/…`.
 
+<div id="toc" />
+
 
 &nbsp;
 
@@ -30,7 +32,8 @@ On success:
 &nbsp;
 
 
-## `/open/search` <span class="tag tag-deprecated">Deprecated since v0.17</span>
+## `/open/search`
+<span class="tag tag-deprecated">Deprecated since v0.17</span>
 Opens the search for a given query in Obsidian.
 
 DEPRECATED: Use [`/search/open`](./search.md) instead.

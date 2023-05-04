@@ -7,6 +7,8 @@ parent: New Routes
 
 These routes deal with handling an Obsidian vault.  Their URLs start with `obsidian://actions-uri/vault`.
 
+<div id="toc" />
+
 
 &nbsp;
 
@@ -56,7 +58,8 @@ On failure:
 &nbsp;
 
 
-## `/vault/close` <span class="tag tag-platform">Desktop only</span>
+## `/vault/close`
+<span class="tag tag-platform">Desktop only</span>
 Closes a specific vault.  For this to work, the vault must be in the list of vaults that Obsidian knows about and Actions URI needs to be active in that vault.
 
 ### Parameters
@@ -82,7 +85,8 @@ On failure:
 &nbsp;
 
 
-## `/vault/info` <span class="tag tag-version">v0.13+</span>
+## `/vault/info`
+<span class="tag tag-version">v0.13+</span>
 Returns the full filesystem paths for the vault, its media folder and the "new note" folder.
 
 ### Parameters
@@ -110,7 +114,8 @@ On failure:
 &nbsp;
 
 
-## `/vault/list-folders` <span class="tag tag-deprecated">Deprecated since v0.16</span>
+## `/vault/list-folders`
+<span class="tag tag-deprecated">Deprecated since v0.16</span>
 Returns a list of folder paths.
 
 DEPRECATED: Use [`/folder/list`](./folder.md) instead.
@@ -138,7 +143,8 @@ On failure:
 &nbsp;
 
 
-## `/vault/list-all-files` <span class="tag tag-version">v0.14+</span>
+## `/vault/list-all-files`
+<span class="tag tag-version">v0.14+</span>
 Returns a list of all files in the vault.
 
 ### Parameters
@@ -164,7 +170,8 @@ On failure:
 &nbsp;
 
 
-## `/vault/list-non-notes-files` <span class="tag tag-version">v0.14+</span>
+## `/vault/list-non-notes-files`
+<span class="tag tag-version">v0.14+</span>
 Returns a list of all non Markdown files in the vault.
 
 ### Parameters

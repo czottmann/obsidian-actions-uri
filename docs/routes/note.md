@@ -6,6 +6,8 @@ parent: New Routes
 
 These routes deal with reading, writing and updating notes.  Their URLs start with `obsidian://actions-uri/note/…`.
 
+<div id="toc" />
+
 
 &nbsp;
 
@@ -30,7 +32,8 @@ On success:
 &nbsp;
 
 
-## `/note/list` <span class="tag tag-version">v0.14+</span>
+## `/note/list`
+<span class="tag tag-version">v0.14+</span>
 Returns a list of all notes (Markdown files) in the vault.
 
 ### Parameters
@@ -92,7 +95,8 @@ On failure:
 &nbsp;
 
 
-## `/note/open` <span class="tag tag-version">v0.12+</span>
+## `/note/open`
+<span class="tag tag-version">v0.12+</span>
 Opens a specific note in Obsidian.
 
 ### Parameters
@@ -231,7 +235,8 @@ On failure:
 &nbsp;
 
 
-## `/note/rename` <span class="tag tag-version">v0.16+</span>
+## `/note/rename`
+<span class="tag tag-version">v0.16+</span>
 Renames or moves a note. If the new file path already exists, an error will be returned. If the new file path is the same as the original one, nothing will happen. You can move a note to a different folder by specifying the new file path with a different folder name. For example, this will move the file "my-note.md" from its position at the vault root into "another-folder" while keeping the file name:
 
 - `file`: "my-note"
@@ -338,7 +343,8 @@ On failure:
 &nbsp;
 
 
-## `/note/delete` <span class="tag tag-version">v0.16+</span>
+## `/note/delete`
+<span class="tag tag-version">v0.16+</span>
 Immediately deletes a specific note.
 
 ### Parameters
@@ -368,7 +374,8 @@ On failure:
 &nbsp;
 
 
-## `/note/trash` <span class="tag tag-version">v0.16+</span>
+## `/note/trash`
+<span class="tag tag-version">v0.16+</span>
 Moves a specific note to the trash (either vault-local trash or system trash, depending on the configuration made in _Settings_ → _Files & Links_ → _Deleted Files_).
 
 ### Parameters

@@ -7,6 +7,8 @@ parent: New Routes
 
 These routes deal with folders.  Their URLs start with `obsidian://actions-uri/folder/…`.
 
+<div id="toc" />
+
 
 &nbsp;
 

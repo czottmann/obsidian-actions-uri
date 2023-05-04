@@ -20,6 +20,7 @@ export type SearchResultObject =
   | ResultObject<{ hits: string[] }>
   | ErrorObject;
 export type StringResultObject = ResultObject<string> | ErrorObject;
+export type PluginResultObject = ResultObject<any> | ErrorObject;
 
 export type ProcessingResult = {
   params: AnyParams;

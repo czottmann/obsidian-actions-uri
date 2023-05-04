@@ -8,6 +8,8 @@ These routes deal with reading, writing and updating daily notes. Their URLs sta
 
 All routes listed here will test whether Daily Note functionality is enabled in Obsidian and if not, will return an `x-error` callback.  Both the official core plugin and the [@liamcain](https://github.com/liamcain)'s community plugin [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) are supported.  The configurations from those plugins is honored, i.e. date format, the set folder for daily notes etc. are taken into account when fetching, creating and updating notes.
 
+<div id="toc" />
+
 
 &nbsp;
 
@@ -32,7 +34,8 @@ On success:
 &nbsp;
 
 
-## `/daily-note/list` <span class="tag tag-version">v0.12+</span>
+## `/daily-note/list`
+<span class="tag tag-version">v0.12+</span>
 Returns a list of all daily notes.
 
 ### Parameters
@@ -133,7 +136,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-current` <span class="tag tag-version">v0.12+</span>
+## `/daily-note/open-current`
+<span class="tag tag-version">v0.12+</span>
 Opens the current daily note in Obsidian.
 
 ### Parameters
@@ -159,7 +163,7 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-most-recent` <span class="tag tag-version">v0.12+</span>
+## `/daily-note/open-most-recent`span class="tag tag-version">v0.12+</span>
 Opens the most recent daily note in Obsidian.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
 
 ### Parameters

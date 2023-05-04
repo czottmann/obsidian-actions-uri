@@ -83,7 +83,22 @@ export default class ActionsURI extends Plugin {
     handlerFunc: HandlerFunction,
     params: AnyParams,
   ): Promise<ProcessingResult> {
-    const handlerResult = await handlerFunc(params);
+    let handlerResult: AnyHandlerResult;
+
+    try {
+      handlerResult = await handlerFunc(params);
+    } catch (error) {
+      const msg = `Handler error: ${(<Error> error).message}`;
+      handlerResult = {
+        isSuccess: false,
+        errorCode: 500,
+        errorMessage: msg,
+      };
+
+      showBrandedNotice(msg);
+      logErrorToConsole(msg);
+    }
+
     const res = <ProcessingResult> {
       params,
       handlerResult,
@@ -189,7 +204,7 @@ export default class ActionsURI extends Plugin {
     }
 
     // Do we have information what to open?
-    const { processedFilepath } = (<HandlerFileSuccess> handlerResult);
+    const { processedFilepath } = <HandlerFileSuccess> handlerResult;
     if (!processedFilepath) {
       return {
         isSuccess: true,

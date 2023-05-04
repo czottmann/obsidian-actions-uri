@@ -189,7 +189,6 @@ async function handleCreate(
 
   // There already is a note with that name or at that path.
   if (res.isSuccess) {
-    console.log(params["if-exists"]);
     switch (params["if-exists"]) {
       case "skip":
         return await getNoteDetails(file);
