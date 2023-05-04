@@ -6,7 +6,7 @@ parent: New Routes
 
 These routes deal with running searches in Obsidian.  Their URLs start with `obsidian://actions-uri/search/…`.
 
-<div id="toc" />
+<div id="toc"></div>
 
 
 &nbsp;

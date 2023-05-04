@@ -6,7 +6,7 @@ parent: New Routes
 
 These routes deal with reading, writing and updating notes.  Their URLs start with `obsidian://actions-uri/note/…`.
 
-<div id="toc" />
+<div id="toc"></div>
 
 
 &nbsp;

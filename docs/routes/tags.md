@@ -7,7 +7,7 @@ parent: New Routes
 
 These routes deal with a vault's tags.  Their URLs start with `obsidian://actions-uri/tags`.
 
-<div id="toc" />
+<div id="toc"></div>
 
 
 &nbsp;

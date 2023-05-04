@@ -12,7 +12,7 @@ Their URLs start with `obsidian://actions-uri/omnisearch/…`.
 (Omnisearch isn't installed by default, but it is a superior choice for
 searching through your vault.)
 
-<div id="toc" />
+<div id="toc"></div>
 
 
 &nbsp;

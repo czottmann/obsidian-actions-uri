@@ -8,7 +8,7 @@ These routes deal with reading, writing and updating daily notes. Their URLs sta
 
 All routes listed here will test whether Daily Note functionality is enabled in Obsidian and if not, will return an `x-error` callback.  Both the official core plugin and the [@liamcain](https://github.com/liamcain)'s community plugin [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) are supported.  The configurations from those plugins is honored, i.e. date format, the set folder for daily notes etc. are taken into account when fetching, creating and updating notes.
 
-<div id="toc" />
+<div id="toc"></div>
 
 
 &nbsp;
