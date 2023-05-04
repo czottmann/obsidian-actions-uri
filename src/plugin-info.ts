@@ -1,4 +1,4 @@
 /* File will be overwritten by bin/release.sh! */export const PLUGIN_INFO = {
-  "pluginVersion": "0.18.0",
-  "pluginReleasedAt": "2023-04-14T18:06:12+0200"
+  "pluginVersion": "1.1.0",
+  "pluginReleasedAt": "2023-05-04T19:00:31+0200"
 }

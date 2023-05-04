@@ -1,6 +1,6 @@
 {
   "name": "obsidian-actions-uri",
-  "version": "0.18.0",
+  "version": "1.1.0",
   "description": "This plugin for Obsidian (https://obsidian.md) adds additional `x-callback-url` endpoints to the app for common actions — it's a clean, super-charged addition to Obsidian URI.",
   "main": "main.js",
   "scripts": {
