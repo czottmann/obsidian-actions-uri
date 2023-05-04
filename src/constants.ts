@@ -12,6 +12,7 @@ export const STRINGS = {
   not_available_on_mobile: "This action is not available on mobile",
   not_found: "Not found",
   note_not_found: "Note couldn't be found",
+  omnisearch_plugin_not_available: "Omnisearch plugin is not active",
   prepend_done: "Note was prepended",
   rename_done: "Note was renamed/moved",
   replacement_done: "Replacement done, note updated",
