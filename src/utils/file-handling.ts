@@ -5,7 +5,7 @@ import {
   getDailyNote,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
-import { isTemplaterEnabled } from "./plugins";
+import { isCommunityPluginEnabled } from "./plugins";
 import {
   ensureNewline,
   extractNoteContentParts,
@@ -72,7 +72,7 @@ export async function createNote(
   // Necessary for preventing a race condition when creating an empty note in a
   // folder that is being watched by the Templater plugin. See issue #61 at
   // https://github.com/czottmann/obsidian-actions-uri/issues/61
-  if (isTemplaterEnabled()) {
+  if (isCommunityPluginEnabled("templater-obsidian")) {
     await pause(500);
   }
 
