@@ -6,6 +6,8 @@ parent: New Routes
 
 These routes deal with running searches in Obsidian.  Their URLs start with `obsidian://actions-uri/search/…`.
 
+<div id="toc" />
+
 
 &nbsp;
 
@@ -30,7 +32,8 @@ On success:
 &nbsp;
 
 
-## `/search/all-notes` <span class="tag tag-platform">Desktop only</span>
+## `/search/all-notes`
+<span class="tag tag-platform">Desktop only</span>
 Returns search results (file paths) for a given search query.
 
 | Parameter   | Value  | Optional? | Description                       |

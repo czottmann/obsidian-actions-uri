@@ -6,6 +6,8 @@ parent: New Routes
 
 These routes deal with plugin & Obsidian environment info.  Their URLs start with `obsidian://actions-uri/info`.
 
+<div id="toc" />
+
 
 &nbsp;
 

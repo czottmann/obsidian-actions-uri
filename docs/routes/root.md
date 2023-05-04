@@ -6,6 +6,8 @@ parent: New Routes
 
 All URLs start with `obsidian://actions-uri`.
 
+<div id="toc" />
+
 
 &nbsp;
 

@@ -9,6 +9,8 @@ These routes allow for running [Dataview DQL queries](https://blacksmithgu.githu
 
 Currently, only [`LIST`](https://blacksmithgu.github.io/obsidian-dataview/queries/query-types/#list-queries) and [`TABLE`](https://blacksmithgu.github.io/obsidian-dataview/queries/query-types/#table-queries) DQL queries are supported.
 
+<div id="toc" />
+
 
 &nbsp;
 

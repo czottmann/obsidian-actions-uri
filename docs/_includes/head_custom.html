@@ -40,3 +40,41 @@
     background-color: #88bcff;
   }
 </style>
+
+<script>
+  window.addEventListener("load", () => {
+    // Check if the "toc" div exists
+    const tocDiv = document.getElementById("toc");
+    if (!tocDiv) {
+      return;
+    }
+
+    // Find all the h2 elements in the page
+    const headings = document.querySelectorAll("h2");
+    if (!headings.length) {
+      return;
+    }
+
+    // Add headline
+    const h3 = document.createElement("h3");
+    h3.textContent = "Table of Contents";
+    tocDiv.appendChild(h3);
+
+    // Create a new unordered list
+    const list = document.createElement("ul");
+
+    // Loop through the headings and add them as list items
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i];
+      const listItem = document.createElement("li");
+      const link = document.createElement("a");
+      link.textContent = heading.textContent;
+      link.href = "#" + heading.id;
+      listItem.appendChild(link);
+      list.appendChild(listItem);
+    }
+
+    // Add the list to the "toc" div
+    tocDiv.appendChild(list);
+  });
+</script>
