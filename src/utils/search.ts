@@ -26,7 +26,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   // Open the global search panel and wait for it to load
   const pluginInstance = res.result;
   pluginInstance.openGlobalSearch(query);
-  const searchLeaf = global.app.workspace.getLeavesOfType("search")[0];
+  const searchLeaf = window.app.workspace.getLeavesOfType("search")[0];
   const searchView = await searchLeaf.open(searchLeaf.view);
   await pause(2000);
 

@@ -7,7 +7,7 @@ import { PluginResultObject } from "../types";
  */
 export function enabledCommunityPlugins(): string[] {
   const list: string[] = Array.from(
-    (<any> global.app).plugins?.enabledPlugins || [],
+    (<any> window.app).plugins?.enabledPlugins || [],
   );
   return list.sort();
 }
@@ -36,7 +36,7 @@ export function getEnabledCommunityPlugin(
   return isCommunityPluginEnabled(pluginID)
     ? {
       isSuccess: true,
-      result: (<any> global.app).plugins.getPlugin(pluginID),
+      result: (<any> window.app).plugins.getPlugin(pluginID),
     }
     : {
       isSuccess: false,

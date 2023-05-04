@@ -48,7 +48,7 @@ async function handleInfo(
     result: {
       ...PLUGIN_INFO,
       apiVersion,
-      nodeVersion: global.process?.version?.replace(/^v/, "") || "N/A",
+      nodeVersion: window.process?.version?.replace(/^v/, "") || "N/A",
       platform,
       os,
     },
