@@ -63,8 +63,8 @@
       const heading = headings[i];
       const listItem = document.createElement("li");
       const link = document.createElement("a");
-      link.textContent = heading.textContent;
       link.href = "#" + heading.id;
+      link.appendChild(heading.querySelector("code").cloneNode(true));
       listItem.appendChild(link);
       list.appendChild(listItem);
     }
