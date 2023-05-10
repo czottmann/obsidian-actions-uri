@@ -53,11 +53,7 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
     };
   }
 
-  if (apiVersion < "0.16.0") {
-    workspace.setActiveLeaf(leaf, true, true);
-  } else {
-    workspace.setActiveLeaf(leaf, { focus: true });
-  }
+  workspace.setActiveLeaf(leaf, { focus: true });
 
   return {
     isSuccess: true,
