@@ -103,7 +103,7 @@ export default class ActionsURI extends Plugin {
       params,
       handlerResult,
       sendCallbackResult: this.sendUrlCallbackIfNeeded(handlerResult, params),
-      openResult: this.openFileIfNeeded(handlerResult, params),
+      openResult: await this.openFileIfNeeded(handlerResult, params),
     };
 
     logToConsole("Call handled:", res);
@@ -184,10 +184,10 @@ export default class ActionsURI extends Plugin {
    * containing information on what was done. This function won't return a
    * failure.
    */
-  private openFileIfNeeded(
+  private async openFileIfNeeded(
     handlerResult: AnyHandlerResult,
     params: AnyParams,
-  ): StringResultObject {
+  ): Promise<StringResultObject> {
     // Do we need to open anything in general?
     if (!handlerResult.isSuccess) {
       return {
@@ -213,6 +213,6 @@ export default class ActionsURI extends Plugin {
       };
     }
 
-    return focusOrOpenNote(processedFilepath);
+    return await focusOrOpenNote(processedFilepath);
   }
 }
