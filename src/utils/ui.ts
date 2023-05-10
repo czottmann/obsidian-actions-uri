@@ -1,6 +1,8 @@
 import { apiVersion } from "obsidian";
 import { FileView, Notice } from "obsidian";
+import { STRINGS } from "../constants";
 import { StringResultObject } from "../types";
+import { getNoteFile } from "./file-handling";
 
 /**
  * Displays a `Notice` inside Obsidian. The notice is prefixed with
@@ -69,30 +71,27 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
  *
  * @returns A positive string result object specifying the action taken
  */
-export function focusOrOpenNote(filepath: string): StringResultObject {
+export async function focusOrOpenNote(
+  filepath: string,
+): Promise<StringResultObject> {
   // Is this file open already? If so, can we just focus it?
   const res = focusLeafWithFile(filepath);
   if (res.isSuccess) {
     return res;
   }
 
-  // Let's open the file then in the simplest way possible.
-  window.open(
-    "obsidian://open?" +
-      "vault=" + encodeURIComponent(window.app.vault.getName()) +
-      "&file=" + encodeURIComponent(filepath),
-  );
-
-  // // For later consideration:
-  //
-  // const newLeaf = window.app.workspace.getLeaf(true);
-  // const fileRes = await getNoteFile(filepath);
-  // if (fileRes.isSuccess) {
-  //   newLeaf.openFile(fileRes.result);
-  // }
+  const res1 = await getNoteFile(filepath);
+  if (res1.isSuccess) {
+    window.app.workspace.getLeaf(true).openFile(res1.result);
+    return {
+      isSuccess: true,
+      result: STRINGS.open.note_opened,
+    };
+  }
 
   return {
-    isSuccess: true,
-    result: "File was opened",
+    isSuccess: false,
+    errorCode: 404,
+    errorMessage: STRINGS.note_not_found,
   };
 }
