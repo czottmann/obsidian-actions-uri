@@ -1,5 +1,28 @@
 # Release history
 
+## 1.1.2, 2023-05-10
+
+This is a minor release aimed at fixing an issue with opening notes after creation that came up during the [Actions for Obsidian](https://obsidian.actions.work) iOS TestFlight.
+
+- [FIX] Cleans up opening/focussing notes
+- [DEL] Removes outdated API references
+
+
+## 1.1.0, 2023-05-04
+
+The plugin is stable enough and used in production as the companion plugin to my macOS/iOS app [Actions for Obsidian](https://obsidian.actions.work). So the version number took a big leap to bring it mostly in line with the app. **Nothing else will change,** Actions URI will remain FOSS under a MIT License.
+
+### New stuff
+
+- If you're unhappy with the global search, and use Omnisearch, you'll be delighted about the [new `/omnisearch` routes](https://czottmann.github.io/obsidian-actions-uri/routes/omnisearch/) (#59)
+- Actions URI should now handle unexpected exceptions outside its control more graceful (#60)
+- I've added table of contents to [the route pages in the documentation](https://czottmann.github.io/obsidian-actions-uri/routes/).
+
+### No longer broken
+
+- Adds code for preventing a race condition in vaults w/ Templater enabled (#61)
+
+
 ## 0.18.0, 2023-04-14
 
 ### New stuff
