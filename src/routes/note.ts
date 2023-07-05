@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { TFile } from "obsidian";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
@@ -21,6 +20,7 @@ import {
   trashFilepath,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
+import { failure, success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
 import {
   zodAlwaysFalse,
@@ -144,15 +144,9 @@ export const routePath: RoutePath = {
 async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const { vault } = window.app;
-  const paths = vault.getMarkdownFiles().map((t) => t.path).sort();
-
-  return {
-    isSuccess: true,
-    result: {
-      paths,
-    },
-  };
+  return success({
+    paths: window.app.vault.getMarkdownFiles().map((t) => t.path).sort(),
+  });
 }
 
 async function handleGet(
@@ -167,12 +161,9 @@ async function handleOpen(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
   const res = await getNoteFile(params.file);
+
   return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: STRINGS.open.note_opened },
-      processedFilepath: res.result.path,
-    }
+    ? success({ message: STRINGS.open.note_opened }, res.result.path)
     : res;
 }
 
@@ -224,13 +215,7 @@ async function handleAppend(
   const res = await getNoteFile(file);
   if (res.isSuccess) {
     const res1 = await appendNote(file, content, params["ensure-newline"]);
-    return res1.isSuccess
-      ? {
-        isSuccess: true,
-        result: { message: res1.result },
-        processedFilepath: file,
-      }
-      : res1;
+    return res1.isSuccess ? success({ message: res1.result }, file) : res1;
   } else if (!params["create-if-not-found"]) {
     return res;
   }
@@ -243,13 +228,7 @@ async function handleAppend(
 
   // Creation was successful. We try to append again.
   const res3 = await appendNote(file, content, params["ensure-newline"]);
-  return res3.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res3.result },
-      processedFilepath: file,
-    }
-    : res3;
+  return res3.isSuccess ? success({ message: res3.result }, file) : res3;
 }
 
 async function handlePrepend(
@@ -268,13 +247,7 @@ async function handlePrepend(
       params["ensure-newline"],
       params["ignore-front-matter"],
     );
-    return res1.isSuccess
-      ? {
-        isSuccess: true,
-        result: { message: res1.result },
-        processedFilepath: file,
-      }
-      : res1;
+    return res1.isSuccess ? success({ message: res1.result }, file) : res1;
   } else if (!params["create-if-not-found"]) {
     return res;
   }
@@ -292,13 +265,7 @@ async function handlePrepend(
     params["ensure-newline"],
     params["ignore-front-matter"],
   );
-  return res3.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res3.result },
-      processedFilepath: file,
-    }
-    : res3;
+  return res3.isSuccess ? success({ message: res3.result }, file) : res3;
 }
 
 async function handleSearchStringAndReplace(
@@ -308,13 +275,7 @@ async function handleSearchStringAndReplace(
   const { search, file, replace } = params;
   const res = await searchAndReplaceInNote(file, search, replace);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: file,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, file) : res;
 }
 
 async function handleSearchRegexAndReplace(
@@ -329,14 +290,7 @@ async function handleSearchRegexAndReplace(
   }
 
   const res = await searchAndReplaceInNote(file, resSir.result, replace);
-
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: file,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, file) : res;
 }
 
 async function handleDelete(
@@ -346,13 +300,7 @@ async function handleDelete(
   const { file } = params;
   const res = await trashFilepath(file, true);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: file,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, file) : res;
 }
 
 async function handleTrash(
@@ -362,13 +310,7 @@ async function handleTrash(
   const { file } = params;
   const res = await trashFilepath(file);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: file,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, file) : res;
 }
 
 async function handleRename(
@@ -376,14 +318,7 @@ async function handleRename(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <RenameParams> incomingParams;
   const { file } = params;
-  const newFilename = params["new-filename"];
-  const res = await renameFilepath(file, newFilename);
+  const res = await renameFilepath(file, params["new-filename"]);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: file,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, file) : res;
 }
