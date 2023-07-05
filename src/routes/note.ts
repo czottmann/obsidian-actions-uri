@@ -67,6 +67,7 @@ const appendParams = incomingBaseParams.extend({
   content: z.string(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
+  "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
 });
 type AppendParams = z.infer<typeof appendParams>;
@@ -75,6 +76,7 @@ const prependParams = incomingBaseParams.extend({
   content: z.string(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
+  "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
@@ -216,15 +218,38 @@ async function handleAppend(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <AppendParams> incomingParams;
   const { file, content } = params;
-  const res = await appendNote(file, content, params["ensure-newline"]);
 
-  return res.isSuccess
+  // If the file exists, append to it. Otherwise, check if we're supposed to
+  // create it.
+  const res = await getNoteFile(file);
+  if (res.isSuccess) {
+    const res1 = await appendNote(file, content, params["ensure-newline"]);
+    return res1.isSuccess
+      ? {
+        isSuccess: true,
+        result: { message: res1.result },
+        processedFilepath: file,
+      }
+      : res1;
+  } else if (!params["create-if-not-found"]) {
+    return res;
+  }
+
+  // We're supposed to create the note. We try to create it.
+  const res2 = await createNote(file, "");
+  if (!res2.isSuccess) {
+    return res2;
+  }
+
+  // Creation was successful. We try to append again.
+  const res3 = await appendNote(file, content, params["ensure-newline"]);
+  return res3.isSuccess
     ? {
       isSuccess: true,
-      result: { message: res.result },
+      result: { message: res3.result },
       processedFilepath: file,
     }
-    : res;
+    : res3;
 }
 
 async function handlePrepend(
@@ -232,20 +257,48 @@ async function handlePrepend(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <PrependParams> incomingParams;
   const { file, content } = params;
-  const res = await prependNote(
+
+  // If the file exists, append to it. Otherwise, check if we're supposed to
+  // create it.
+  const res = await getNoteFile(file);
+  if (res.isSuccess) {
+    const res1 = await prependNote(
+      file,
+      content,
+      params["ensure-newline"],
+      params["ignore-front-matter"],
+    );
+    return res1.isSuccess
+      ? {
+        isSuccess: true,
+        result: { message: res1.result },
+        processedFilepath: file,
+      }
+      : res1;
+  } else if (!params["create-if-not-found"]) {
+    return res;
+  }
+
+  // We're supposed to create the note. We try to create it.
+  const res2 = await createNote(file, "");
+  if (!res2.isSuccess) {
+    return res2;
+  }
+
+  // Creation was successful. We try to append again.
+  const res3 = await prependNote(
     file,
     content,
     params["ensure-newline"],
     params["ignore-front-matter"],
   );
-
-  return res.isSuccess
+  return res3.isSuccess
     ? {
       isSuccess: true,
-      result: { message: res.result },
+      result: { message: res3.result },
       processedFilepath: file,
     }
-    : res;
+    : res3;
 }
 
 async function handleSearchStringAndReplace(
