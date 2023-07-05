@@ -70,6 +70,7 @@ type WriteParams = z.infer<typeof writeParams>;
 const appendParams = incomingBaseParams.extend({
   content: z.string(),
   silent: zodOptionalBoolean,
+  "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
 });
 type AppendParams = z.infer<typeof appendParams>;
@@ -77,6 +78,7 @@ type AppendParams = z.infer<typeof appendParams>;
 const prependParams = incomingBaseParams.extend({
   content: z.string(),
   silent: zodOptionalBoolean,
+  "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
 });
@@ -280,51 +282,125 @@ async function handleAppend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <AppendParams> incomingParams;
+
+  // See if the file exists, and if so, append to it.
   const resDNP = getDailyNotePathIfPluginIsAvailable();
-  if (!resDNP.isSuccess) {
+  if (resDNP.isSuccess) {
+    const filepath = resDNP.result;
+    const res = await appendNote(
+      filepath,
+      params.content,
+      params["ensure-newline"],
+    );
+
+    return res.isSuccess
+      ? {
+        isSuccess: true,
+        result: { message: res.result },
+        processedFilepath: filepath,
+      }
+      : res;
+  }
+
+  // No, the file didn't exist. Unless it just couldn't be found (as opposed to
+  // any other error), we're done.
+  if (resDNP.errorCode !== 404) {
     return resDNP;
   }
 
-  const filepath = resDNP.result;
-  const res = await appendNote(
-    filepath,
-    params.content,
-    params["ensure-newline"],
-  );
+  // The file didn't exist, because it hasn't been created yet. Should we create
+  // it? If not, we're done.
+  if (!params["create-if-not-found"]) {
+    return resDNP;
+  }
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: filepath,
-    }
-    : res;
+  // We're allowed to create the file, so let's do that.
+  const newNote = await createDailyNote(window.moment());
+  if (newNote instanceof TFile) {
+    const res = await appendNote(
+      newNote.path,
+      params.content,
+      params["ensure-newline"],
+    );
+
+    return res.isSuccess
+      ? {
+        isSuccess: true,
+        result: { message: res.result },
+        processedFilepath: newNote.path,
+      }
+      : res;
+  }
+
+  // If that didn't work, return an error.
+  return {
+    isSuccess: false,
+    errorCode: 400,
+    errorMessage: STRINGS.unable_to_write_note,
+  };
 }
 
 async function handlePrepend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <PrependParams> incomingParams;
+
+  // See if the file exists, and if so, append to it.
   const resDNP = getDailyNotePathIfPluginIsAvailable();
-  if (!resDNP.isSuccess) {
+  if (resDNP.isSuccess) {
+    const filepath = resDNP.result;
+    const res = await prependNote(
+      filepath,
+      params.content,
+      params["ensure-newline"],
+      params["ignore-front-matter"],
+    );
+
+    return res.isSuccess
+      ? {
+        isSuccess: true,
+        result: { message: res.result },
+        processedFilepath: filepath,
+      }
+      : res;
+  }
+
+  // No, the file didn't exist. Unless it just couldn't be found (as opposed to
+  // any other error), we're done.
+  if (resDNP.errorCode !== 404) {
     return resDNP;
   }
 
-  const filepath = resDNP.result;
-  const res = await prependNote(
-    filepath,
-    params.content,
-    params["ensure-newline"],
-    params["ignore-front-matter"],
-  );
+  // The file didn't exist, because it hasn't been created yet. Should we create
+  // it? If not, we're done.
+  if (!params["create-if-not-found"]) {
+    return resDNP;
+  }
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: filepath,
-    }
-    : res;
+  // We're allowed to create the file, so let's do that.
+  const newNote = await createDailyNote(window.moment());
+  if (newNote instanceof TFile) {
+    const res = await prependNote(
+      newNote.path,
+      params.content,
+      params["ensure-newline"],
+      params["ignore-front-matter"],
+    );
+    return res.isSuccess
+      ? {
+        isSuccess: true,
+        result: { message: res.result },
+        processedFilepath: newNote.path,
+      }
+      : res;
+  }
+
+  // If that didn't work, return an error.
+  return {
+    isSuccess: false,
+    errorCode: 400,
+    errorMessage: STRINGS.unable_to_write_note,
+  };
 }
 
 async function handleSearchStringAndReplace(
