@@ -173,12 +173,13 @@ Appends a note with a string.
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter        | Value type | Optional? | Description                                                                                    |
-| ---------------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
-| `file`           | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `content`        | string     |           | The text to be added at the end of the note.                                                   |
-| `ensure-newline` | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                            |
-| `silent`         | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+| Parameter             | Value type | Optional? | Description                                                                                    |
+| --------------------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `content`             | string     |           | The text to be added at the end of the note.                                                   |
+| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
+| `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                            |
+| `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -210,6 +211,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
 | `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                |
 | `content`             | string     |           | The text to be added at the beginning of the note.                                                            |
+| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before prepending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
 | `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
 | `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
 | `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
