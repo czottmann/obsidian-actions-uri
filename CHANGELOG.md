@@ -1,5 +1,13 @@
 # Release history
 
+## 1.2.0, 2023-07-xx (in development)
+
+### New stuff
+
+- Adds an optional `create-if-not-found` parameter to [`/note/append`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteappend), [`/note/prepend`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteprepend) (#67)
+- Adds an optional `create-if-not-found` parameter to [`/daily-note/append`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-noteappend), [`/daily-note/prepend`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-noteprepend) (#67)
+
+
 ## 1.1.2, 2023-05-10
 
 This is a minor release aimed at fixing an issue with opening notes after creation that came up during the [Actions for Obsidian](https://obsidian.actions.work) iOS TestFlight.
