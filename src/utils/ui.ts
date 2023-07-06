@@ -1,8 +1,8 @@
-import { apiVersion } from "obsidian";
 import { FileView, Notice } from "obsidian";
 import { STRINGS } from "../constants";
 import { StringResultObject } from "../types";
 import { getNoteFile } from "./file-handling";
+import { failure, success } from "./results-handling";
 
 /**
  * Displays a `Notice` inside Obsidian. The notice is prefixed with
@@ -48,19 +48,11 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
     .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
 
   if (!leaf) {
-    return {
-      isSuccess: false,
-      errorCode: 405,
-      errorMessage: "File currently not open",
-    };
+    return failure(405, "File currently not open");
   }
 
   workspace.setActiveLeaf(leaf, { focus: true });
-
-  return {
-    isSuccess: true,
-    result: "Open file found and focussed",
-  };
+  return success("Open file found and focussed");
 }
 
 /**
@@ -83,15 +75,8 @@ export async function focusOrOpenNote(
   const res1 = await getNoteFile(filepath);
   if (res1.isSuccess) {
     window.app.workspace.getLeaf(true).openFile(res1.result);
-    return {
-      isSuccess: true,
-      result: STRINGS.open.note_opened,
-    };
+    return success(STRINGS.open.note_opened);
   }
 
-  return {
-    isSuccess: false,
-    errorCode: 404,
-    errorMessage: STRINGS.note_not_found,
-  };
+  return failure(404, STRINGS.note_not_found);
 }

@@ -16,6 +16,7 @@ import {
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
 import { zodSanitizedFolderPath } from "../utils/zod";
+import { success } from "src/utils/results-handling";
 
 // SCHEMATA ----------------------------------------
 
@@ -68,12 +69,7 @@ async function handleList(
     .filter((t) => t instanceof TFolder)
     .map((t) => t.path.endsWith("/") ? t.path : `${t.path}/`).sort();
 
-  return {
-    isSuccess: true,
-    result: {
-      paths,
-    },
-  };
+  return success({ paths });
 }
 
 async function handleCreate(
@@ -83,11 +79,7 @@ async function handleCreate(
   const { folder } = params;
 
   await createFolderIfNecessary(folder);
-  return {
-    isSuccess: true,
-    result: { message: STRINGS.folder_created },
-    processedFilepath: folder,
-  };
+  return success({ message: STRINGS.folder_created }, folder);
 }
 
 async function handleRename(
@@ -97,13 +89,7 @@ async function handleRename(
   const { folder } = params;
   const res = await renameFilepath(folder, params["new-foldername"]);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: folder,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, folder) : res;
 }
 
 async function handleDelete(
@@ -113,13 +99,7 @@ async function handleDelete(
   const { folder } = params;
   const res = await trashFilepath(folder, true);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: folder,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, folder) : res;
 }
 
 async function handleTrash(
@@ -129,11 +109,5 @@ async function handleTrash(
   const { folder } = params;
   const res = await trashFilepath(folder);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: folder,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, folder) : res;
 }

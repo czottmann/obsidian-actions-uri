@@ -8,6 +8,7 @@ import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import { HandlerDataviewSuccess, HandlerFailure } from "../types";
+import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
 // SCHEMATA ----------------------------------------
@@ -63,33 +64,16 @@ async function handleDataviewQuery(
   const dataview = getAPI(app);
 
   if (!isDataviewEnabled(app) || !dataview) {
-    return {
-      isSuccess: false,
-      errorCode: 412,
-      errorMessage: STRINGS.dataview_plugin_not_available,
-    };
+    return failure(412, STRINGS.dataview_plugin_not_available);
   }
 
   const dql = params.dql.trim() + "\n";
   if (!dql.toLowerCase().startsWith(type)) {
-    return {
-      isSuccess: false,
-      errorCode: 400,
-      errorMessage: STRINGS[`dataview_dql_must_start_with_${type}`],
-    };
+    return failure(400, STRINGS[`dataview_dql_must_start_with_${type}`]);
   }
 
   const res = await dataview.query(dql);
   return res.successful
-    ? {
-      isSuccess: true,
-      result: {
-        data: dqlValuesMapper(dataview, res.value.values),
-      },
-    }
-    : {
-      isSuccess: false,
-      errorCode: 400,
-      errorMessage: res.error,
-    };
+    ? success({ data: dqlValuesMapper(dataview, res.value.values) })
+    : failure(400, res.error);
 }

@@ -20,7 +20,7 @@ import {
   trashFilepath,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
-import { failure, success } from "../utils/results-handling";
+import { success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
 import {
   zodAlwaysFalse,

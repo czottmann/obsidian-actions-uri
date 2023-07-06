@@ -25,6 +25,7 @@ import {
   prependNote,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
+import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
 import { zodAlwaysFalse, zodOptionalBoolean } from "../utils/zod";
@@ -141,25 +142,14 @@ async function handleList(
   incoming: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   if (!appHasDailyNotesPluginLoaded()) {
-    return {
-      isSuccess: false,
-      errorCode: 412,
-      errorMessage: STRINGS.daily_notes_feature_not_available,
-    };
+    return failure(412, STRINGS.daily_notes_feature_not_available);
   }
 
   const notes = getAllDailyNotes();
-  const paths = Object.keys(notes)
-    .sort()
-    .reverse()
-    .map((k) => notes[k].path);
 
-  return {
-    isSuccess: true,
-    result: {
-      paths,
-    },
-  };
+  return success({
+    paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
+  });
 }
 
 async function handleGetCurrent(
@@ -186,11 +176,7 @@ async function handleOpenCurrent(
 
   const res = getDailyNotePathIfPluginIsAvailable();
   return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: STRINGS.open.note_opened },
-      processedFilepath: res.result,
-    }
+    ? success({ message: STRINGS.open.note_opened }, res.result)
     : res;
 }
 
@@ -204,11 +190,7 @@ async function handleOpenMostRecent(
 
   const res = await getMostRecentDailyNote();
   return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: STRINGS.open.note_opened },
-      processedFilepath: res.result.path,
-    }
+    ? success({ message: STRINGS.open.note_opened }, res.result.path)
     : res;
 }
 
@@ -218,11 +200,7 @@ async function handleCreate(
   const params = <CreateParams> incomingParams;
 
   if (!appHasDailyNotesPluginLoaded()) {
-    return {
-      isSuccess: false,
-      errorCode: 412,
-      errorMessage: STRINGS.daily_notes_feature_not_available,
-    };
+    return failure(412, STRINGS.daily_notes_feature_not_available);
   }
 
   const { content } = params;
@@ -238,7 +216,6 @@ async function handleCreate(
     switch (params["if-exists"]) {
       case "skip":
         return await getNoteDetails(dailyNote.path);
-        break;
 
       case "overwrite":
         // Delete existing note, but keep going afterwards.
@@ -246,23 +223,14 @@ async function handleCreate(
         break;
 
       default:
-        return {
-          isSuccess: false,
-          errorCode: 409,
-          errorMessage: STRINGS.daily_note.create_note_already_exists,
-        };
-        break;
+        return failure(409, STRINGS.daily_note.create_note_already_exists);
     }
   }
 
   // There is no note for today.  Let's create one!
   const newNote = await createDailyNote(window.moment());
   if (!(newNote instanceof TFile)) {
-    return {
-      isSuccess: false,
-      errorCode: 400,
-      errorMessage: STRINGS.unable_to_write_note,
-    };
+    return failure(400, STRINGS.unable_to_write_note);
   }
 
   // The note was written, but we need to write content to it. Do we have
@@ -293,13 +261,7 @@ async function handleAppend(
       params["ensure-newline"],
     );
 
-    return res.isSuccess
-      ? {
-        isSuccess: true,
-        result: { message: res.result },
-        processedFilepath: filepath,
-      }
-      : res;
+    return res.isSuccess ? success({ message: res.result }, filepath) : res;
   }
 
   // No, the file didn't exist. Unless it just couldn't be found (as opposed to
@@ -323,21 +285,11 @@ async function handleAppend(
       params["ensure-newline"],
     );
 
-    return res.isSuccess
-      ? {
-        isSuccess: true,
-        result: { message: res.result },
-        processedFilepath: newNote.path,
-      }
-      : res;
+    return res.isSuccess ? success({ message: res.result }, newNote.path) : res;
   }
 
   // If that didn't work, return an error.
-  return {
-    isSuccess: false,
-    errorCode: 400,
-    errorMessage: STRINGS.unable_to_write_note,
-  };
+  return failure(400, STRINGS.unable_to_write_note);
 }
 
 async function handlePrepend(
@@ -356,13 +308,7 @@ async function handlePrepend(
       params["ignore-front-matter"],
     );
 
-    return res.isSuccess
-      ? {
-        isSuccess: true,
-        result: { message: res.result },
-        processedFilepath: filepath,
-      }
-      : res;
+    return res.isSuccess ? success({ message: res.result }, filepath) : res;
   }
 
   // No, the file didn't exist. Unless it just couldn't be found (as opposed to
@@ -386,21 +332,11 @@ async function handlePrepend(
       params["ensure-newline"],
       params["ignore-front-matter"],
     );
-    return res.isSuccess
-      ? {
-        isSuccess: true,
-        result: { message: res.result },
-        processedFilepath: newNote.path,
-      }
-      : res;
+    return res.isSuccess ? success({ message: res.result }, newNote.path) : res;
   }
 
   // If that didn't work, return an error.
-  return {
-    isSuccess: false,
-    errorCode: 400,
-    errorMessage: STRINGS.unable_to_write_note,
-  };
+  return failure(400, STRINGS.unable_to_write_note);
 }
 
 async function handleSearchStringAndReplace(
@@ -416,13 +352,7 @@ async function handleSearchStringAndReplace(
   const { search, replace } = params;
   const res = await searchAndReplaceInNote(filepath, search, replace);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: filepath,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
 async function handleSearchRegexAndReplace(
@@ -445,34 +375,20 @@ async function handleSearchRegexAndReplace(
     resSir.result,
     params.replace,
   );
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: filepath,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
 // HELPERS -------------------------------------
 
 async function getMostRecentDailyNote(): Promise<TFileResultObject> {
   if (!appHasDailyNotesPluginLoaded()) {
-    return {
-      isSuccess: false,
-      errorCode: 412,
-      errorMessage: STRINGS.daily_notes_feature_not_available,
-    };
+    return failure(412, STRINGS.daily_notes_feature_not_available);
   }
 
   const notes = getAllDailyNotes();
   const mostRecentKey = Object.keys(notes).sort().last();
   if (!mostRecentKey) {
-    return {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.note_not_found,
-    };
+    return failure(404, STRINGS.note_not_found);
   }
 
   const dailyNote = notes[mostRecentKey];

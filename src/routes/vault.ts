@@ -12,6 +12,7 @@ import {
   RealLifeVault,
 } from "../types";
 import { getFileMap } from "../utils/file-handling";
+import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
 // SCHEMATA --------------------
@@ -56,29 +57,19 @@ async function handleOpen(
   incomingParams: AnyParams,
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
   // If we're here, then the vault is already open.
-  return {
-    isSuccess: true,
-    result: {},
-  };
+  return success({});
 }
 
 async function handleClose(
   incomingParams: AnyParams,
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
   if (Platform.isMobileApp) {
-    return {
-      isSuccess: false,
-      errorCode: 405,
-      errorMessage: STRINGS.not_available_on_mobile,
-    };
+    return failure(405, STRINGS.not_available_on_mobile);
   }
 
   // This feels wonky, like a race condition waiting to happen.
   window.setTimeout(window.close, 600);
-  return {
-    isSuccess: true,
-    result: {},
-  };
+  return success({});
 }
 
 async function handleInfo(
@@ -89,26 +80,19 @@ async function handleInfo(
   const basePath = (<RealLifeDataAdapter> vault.adapter).basePath;
 
   if (!config || !basePath) {
-    return {
-      isSuccess: false,
-      errorCode: 412,
-      errorMessage: STRINGS.vault_internals_not_found,
-    };
+    return failure(412, STRINGS.vault_internals_not_found);
   }
 
-  return {
-    isSuccess: true,
-    result: {
-      basePath,
-      attachmentFolderPath: `${basePath}/${config.attachmentFolderPath}`
-        .replace(/\/$/, ""),
-      newFileFolderPath: (
-        config.newFileLocation === "folder"
-          ? `${basePath}/${config.newFileFolderPath}`.replace(/\/$/, "")
-          : basePath
-      ),
-    },
-  };
+  return success({
+    basePath,
+    attachmentFolderPath: `${basePath}/${config.attachmentFolderPath}`
+      .replace(/\/$/, ""),
+    newFileFolderPath: (
+      config.newFileLocation === "folder"
+        ? `${basePath}/${config.newFileFolderPath}`.replace(/\/$/, "")
+        : basePath
+    ),
+  });
 }
 
 async function handleListFolders(
@@ -118,26 +102,15 @@ async function handleListFolders(
     .filter((t) => t instanceof TFolder)
     .map((t) => t.path.endsWith("/") ? t.path : `${t.path}/`).sort();
 
-  return {
-    isSuccess: true,
-    result: {
-      paths,
-    },
-  };
+  return success({ paths });
 }
 
 async function handleListFiles(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const { vault } = window.app;
-  const paths = vault.getFiles().map((t) => t.path).sort();
-
-  return {
-    isSuccess: true,
-    result: {
-      paths,
-    },
-  };
+  return success({
+    paths: window.app.vault.getFiles().map((t) => t.path).sort(),
+  });
 }
 
 async function handleListFilesExceptNotes(
@@ -146,12 +119,8 @@ async function handleListFilesExceptNotes(
   const { vault } = window.app;
   const files = vault.getFiles().map((t) => t.path);
   const notes = vault.getMarkdownFiles().map((t) => t.path);
-  const paths = files.filter((path) => !notes.includes(path)).sort();
 
-  return {
-    isSuccess: true,
-    result: {
-      paths,
-    },
-  };
+  return success({
+    paths: files.filter((path) => !notes.includes(path)).sort(),
+  });
 }

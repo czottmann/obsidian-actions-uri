@@ -12,6 +12,7 @@ import {
   StringResultObject,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
+import { failure, success } from "./utils/results-handling";
 import {
   focusOrOpenNote,
   logErrorToConsole,
@@ -89,12 +90,7 @@ export default class ActionsURI extends Plugin {
       handlerResult = await handlerFunc(params);
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
-      handlerResult = {
-        isSuccess: false,
-        errorCode: 500,
-        errorMessage: msg,
-      };
-
+      handlerResult = failure(500, msg);
       showBrandedNotice(msg);
       logErrorToConsole(msg);
     }
@@ -103,7 +99,7 @@ export default class ActionsURI extends Plugin {
       params,
       handlerResult,
       sendCallbackResult: this.sendUrlCallbackIfNeeded(handlerResult, params),
-      openResult: this.openFileIfNeeded(handlerResult, params),
+      openResult: await this.openFileIfNeeded(handlerResult, params),
     };
 
     logToConsole("Call handled:", res);
@@ -157,22 +153,12 @@ export default class ActionsURI extends Plugin {
           <AnyHandlerSuccess> handlerRes,
           params,
         )
-        : {
-          isSuccess: true,
-          result: "No `x-success` callback URL provided",
-        };
+        : success("No `x-error` callback URL provided");
     }
 
     return params["x-error"]
-      ? sendUrlCallback(
-        params["x-error"],
-        <HandlerFailure> handlerRes,
-        params,
-      )
-      : {
-        isSuccess: true,
-        result: "No `x-error` callback URL provided",
-      };
+      ? sendUrlCallback(params["x-error"], <HandlerFailure> handlerRes, params)
+      : success("No `x-error` callback URL provided");
   }
 
   /**
@@ -184,33 +170,25 @@ export default class ActionsURI extends Plugin {
    * containing information on what was done. This function won't return a
    * failure.
    */
-  private openFileIfNeeded(
+  private async openFileIfNeeded(
     handlerResult: AnyHandlerResult,
     params: AnyParams,
-  ): StringResultObject {
+  ): Promise<StringResultObject> {
     // Do we need to open anything in general?
     if (!handlerResult.isSuccess) {
-      return {
-        isSuccess: true,
-        result: "No file to open, the handler failed",
-      };
+      return success("No file to open, the handler failed");
     }
 
     if ((<any> params).silent) {
-      return {
-        isSuccess: true,
-        result: "No file to open, the `silent` parameter was set",
-      };
+      return success("No file to open, the `silent` parameter was set");
     }
 
     // Do we have information what to open?
     const { processedFilepath } = <HandlerFileSuccess> handlerResult;
     if (!processedFilepath) {
-      return {
-        isSuccess: true,
-        result:
-          "No file to open, handler didn't return a `processedFilepath` property",
-      };
+      return success(
+        "No file to open, handler didn't return a `processedFilepath` property",
+      );
     }
 
     return focusOrOpenNote(processedFilepath);

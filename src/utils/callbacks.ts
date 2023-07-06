@@ -1,6 +1,7 @@
-import { excludeKeys, includeKeys } from "filter-obj";
+import { excludeKeys } from "filter-obj";
 import { XCALLBACK_RESULT_PREFIX } from "../constants";
 import { PLUGIN_INFO } from "../plugin-info";
+import { success } from "./results-handling";
 import { AnyParams } from "../routes";
 import { toKebabCase } from "./string-handling";
 import {
@@ -48,11 +49,7 @@ export function sendUrlCallback(
 
   const callbackURL = url.toString().replace(/\+/g, "%20");
   window.open(callbackURL);
-
-  return {
-    isSuccess: true,
-    result: callbackURL,
-  };
+  return success(callbackURL);
 }
 
 /**

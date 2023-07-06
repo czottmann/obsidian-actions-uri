@@ -6,6 +6,7 @@ import {
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { isCommunityPluginEnabled } from "./plugins";
+import { failure, success } from "./results-handling";
 import {
   ensureNewline,
   extractNoteContentParts,
@@ -78,15 +79,8 @@ export async function createNote(
 
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
-    ? {
-      isSuccess: true,
-      result: newFile,
-    }
-    : {
-      isSuccess: false,
-      errorCode: 400,
-      errorMessage: STRINGS.unable_to_write_note,
-    };
+    ? success(newFile)
+    : failure(400, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -113,10 +107,7 @@ export async function createOrOverwriteNote(
   // Update the file if it already exists
   if (file instanceof TFile) {
     await vault.modify(file, content);
-    return {
-      isSuccess: true,
-      result: <TFile> vault.getAbstractFileByPath(filepath),
-    };
+    return success(<TFile> vault.getAbstractFileByPath(filepath));
   }
 
   // Create the new note
@@ -124,15 +115,8 @@ export async function createOrOverwriteNote(
   await vault.create(filepath, content);
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
-    ? {
-      isSuccess: true,
-      result: newFile,
-    }
-    : {
-      isSuccess: false,
-      errorCode: 400,
-      errorMessage: STRINGS.unable_to_write_note,
-    };
+    ? success(newFile)
+    : failure(400, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -154,15 +138,8 @@ export async function getNoteContent(
 
   const noteContent = await vault.read(res.result);
   return (typeof noteContent === "string")
-    ? {
-      isSuccess: true,
-      result: noteContent,
-    }
-    : {
-      isSuccess: false,
-      errorCode: 400,
-      errorMessage: STRINGS.unable_to_read_note,
-    };
+    ? success(noteContent)
+    : failure(400, STRINGS.unable_to_read_note);
 }
 
 /**
@@ -183,16 +160,15 @@ export async function getNoteDetails(
 
   const content = res.result;
   const { body, frontMatter } = extractNoteContentParts(content);
-  return {
-    isSuccess: true,
-    result: {
+  return success(
+    {
       filepath,
       content,
       body,
       frontMatter: unwrapFrontMatter(frontMatter),
     },
-    processedFilepath: filepath,
-  };
+    filepath,
+  );
 }
 
 /**
@@ -246,18 +222,13 @@ export async function searchAndReplaceInNote(
     : noteContent.replace(searchTerm, replacement);
 
   if (noteContent === newContent) {
-    return {
-      isSuccess: true,
-      result: typeof searchTerm === "string"
-        ? STRINGS.search_string_not_found
-        : STRINGS.search_pattern_not_found,
-    };
+    return (typeof searchTerm === "string")
+      ? success(STRINGS.search_string_not_found)
+      : success(STRINGS.search_pattern_not_found);
   }
 
   const resFile = await createOrOverwriteNote(filepath, newContent);
-  return resFile.isSuccess
-    ? { isSuccess: true, result: STRINGS.replacement_done }
-    : resFile;
+  return resFile.isSuccess ? success(STRINGS.replacement_done) : resFile;
 }
 
 export async function appendNote(
@@ -276,10 +247,7 @@ export async function appendNote(
   const resFile = await createOrOverwriteNote(filepath, newContent);
 
   if (resFile.isSuccess) {
-    return {
-      isSuccess: true,
-      result: STRINGS.append_done,
-    };
+    return success(STRINGS.append_done);
   }
 
   return resFile;
@@ -312,9 +280,7 @@ export async function prependNote(
   }
 
   const resFile = await createOrOverwriteNote(filepath, newContent);
-  return resFile.isSuccess
-    ? { isSuccess: true, result: STRINGS.prepend_done }
-    : resFile;
+  return resFile.isSuccess ? success(STRINGS.prepend_done) : resFile;
 }
 
 export function getCurrentDailyNote(): TFile | undefined {
@@ -331,24 +297,13 @@ export function getCurrentDailyNote(): TFile | undefined {
  */
 export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
   if (!appHasDailyNotesPluginLoaded()) {
-    return {
-      isSuccess: false,
-      errorCode: 412,
-      errorMessage: STRINGS.daily_notes_feature_not_available,
-    };
+    return failure(412, STRINGS.daily_notes_feature_not_available);
   }
 
   const dailyNote = getCurrentDailyNote();
   return dailyNote
-    ? {
-      isSuccess: true,
-      result: dailyNote.path,
-    }
-    : {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.note_not_found,
-    };
+    ? success(dailyNote.path)
+    : failure(404, STRINGS.note_not_found);
 }
 
 /**
@@ -377,15 +332,8 @@ export async function getNoteFile(
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
 
   return file instanceof TFile
-    ? {
-      isSuccess: true,
-      result: file,
-    }
-    : {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.note_not_found,
-    };
+    ? success(file)
+    : failure(404, STRINGS.note_not_found);
 }
 
 /**
@@ -405,11 +353,7 @@ export async function trashFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.not_found,
-    };
+    return failure(404, STRINGS.not_found);
   }
 
   if (deleteImmediately) {
@@ -420,10 +364,7 @@ export async function trashFilepath(
     await vault.trash(fileOrFolder, isSystemTrashPreferred);
   }
 
-  return {
-    isSuccess: true,
-    result: STRINGS.trash_done,
-  };
+  return success(STRINGS.trash_done);
 }
 
 /**
@@ -442,30 +383,22 @@ export async function renameFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return {
-      isSuccess: false,
-      errorCode: 404,
-      errorMessage: STRINGS.not_found,
-    };
+    return failure(404, STRINGS.not_found);
   }
 
   try {
     await vault.rename(fileOrFolder, newFilepath);
   } catch (error) {
     const msg = (<Error> error).message;
-    return {
-      isSuccess: false,
-      errorCode: 409,
-      errorMessage: msg.contains("no such file or directory")
+    return failure(
+      409,
+      msg.contains("no such file or directory")
         ? "No such file or folder"
         : msg,
-    };
+    );
   }
 
-  return {
-    isSuccess: true,
-    result: STRINGS.rename_done,
-  };
+  return success(STRINGS.rename_done);
 }
 
 /**
