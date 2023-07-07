@@ -54,11 +54,6 @@ const createParams = incomingBaseParams.extend({
   content: z.string().optional(),
   silent: zodOptionalBoolean,
   "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
-
-  /**
-   * @deprecated Deprecated in favor of `if-exists` parameter since v0.18.
-   */
-  overwrite: zodOptionalBoolean,
 });
 type CreateParams = z.infer<typeof createParams>;
 
