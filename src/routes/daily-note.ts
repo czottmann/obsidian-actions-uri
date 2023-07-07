@@ -198,22 +198,17 @@ async function handleCreate(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
+  const { content } = params;
+  const ifExists = params["if-exists"];
 
   if (!appHasDailyNotesPluginLoaded()) {
     return failure(412, STRINGS.daily_notes_feature_not_available);
   }
 
-  const { content } = params;
+  // Check if there already is a note for today.
   const dailyNote = getCurrentDailyNote();
-
-  // TODO: Added in 0.18. Can be removed when `params.overwrite` is removed.
-  if (!params["if-exists"] && params.overwrite) {
-    params["if-exists"] = "overwrite";
-  }
-
-  // There already is a note for today.
   if (dailyNote instanceof TFile) {
-    switch (params["if-exists"]) {
+    switch (ifExists) {
       case "skip":
         return await getNoteDetails(dailyNote.path);
 
