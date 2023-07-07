@@ -261,8 +261,7 @@ async function handlePrepend(
 async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <SearchAndReplaceParams> incomingParams;
-  const { search, file, replace } = params;
+  const { search, file, replace } = <SearchAndReplaceParams> incomingParams;
   const res = await searchAndReplaceInNote(file, search, replace);
 
   return res.isSuccess ? success({ message: res.result }, file) : res;
@@ -271,8 +270,7 @@ async function handleSearchStringAndReplace(
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <SearchAndReplaceParams> incomingParams;
-  const { search, file, replace } = params;
+  const { search, file, replace } = <SearchAndReplaceParams> incomingParams;
   const resSir = parseStringIntoRegex(search);
 
   if (!resSir.isSuccess) {
@@ -286,8 +284,7 @@ async function handleSearchRegexAndReplace(
 async function handleDelete(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <DeleteParams> incomingParams;
-  const { file } = params;
+  const { file } = <DeleteParams> incomingParams;
   const res = await trashFilepath(file, true);
 
   return res.isSuccess ? success({ message: res.result }, file) : res;
@@ -296,8 +293,7 @@ async function handleDelete(
 async function handleTrash(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <DeleteParams> incomingParams;
-  const { file } = params;
+  const { file } = <DeleteParams> incomingParams;
   const res = await trashFilepath(file);
 
   return res.isSuccess ? success({ message: res.result }, file) : res;
