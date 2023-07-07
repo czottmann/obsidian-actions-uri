@@ -8,7 +8,7 @@ import { STRINGS } from "../constants";
 import { isCommunityPluginEnabled } from "./plugins";
 import { failure, success } from "./results-handling";
 import {
-  ensureNewline,
+  endStringWithNewline,
   extractNoteContentParts,
   unwrapFrontMatter,
 } from "./string-handling";
@@ -243,7 +243,7 @@ export async function appendNote(
   }
 
   const newContent = res.result +
-    (shouldEnsureNewline ? ensureNewline(textToAppend) : textToAppend);
+    (shouldEnsureNewline ? endStringWithNewline(textToAppend) : textToAppend);
   const resFile = await createOrOverwriteNote(filepath, newContent);
 
   if (resFile.isSuccess) {
@@ -269,7 +269,7 @@ export async function prependNote(
   let newContent: string;
 
   if (shouldEnsureNewline) {
-    textToPrepend = ensureNewline(textToPrepend);
+    textToPrepend = endStringWithNewline(textToPrepend);
   }
 
   if (shouldIgnoreFrontMatter) {

@@ -10,7 +10,7 @@ const FRONT_MATTER_BOUNDARY = "---\n";
  * @param str - The string that should end in a newline
  * @returns String ending in a newline
  */
-export function ensureNewline(str: string = ""): string {
+export function endStringWithNewline(str: string = ""): string {
   return str.endsWith("\n") ? str : `${str}\n`;
 }
 
