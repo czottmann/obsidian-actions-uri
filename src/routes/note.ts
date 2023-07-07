@@ -10,11 +10,13 @@ import {
 } from "../types";
 import {
   appendNote,
+  appendNoteBelowHeadline,
   createNote,
   createOrOverwriteNote,
   getNoteDetails,
   getNoteFile,
   prependNote,
+  prependNoteBelowHeadline,
   renameFilepath,
   searchAndReplaceInNote,
   trashFilepath,
@@ -62,6 +64,7 @@ const appendParams = incomingBaseParams.extend({
   content: z.string(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
+  "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
 });
@@ -71,6 +74,7 @@ const prependParams = incomingBaseParams.extend({
   content: z.string(),
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
+  "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
@@ -199,14 +203,32 @@ async function handleAppend(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <AppendParams> incomingParams;
   const { file, content } = params;
+  const belowHeadline = params["below-headline"];
+  const createIfNotFound = params["create-if-not-found"];
+  const ensureNewline = params["ensure-newline"];
+
+  // DRY: This call is used twice below, and I don't want to mess things up by
+  // forgetting a parameter or something in the future.
+  async function appendAsRequested() {
+    if (belowHeadline) {
+      return await appendNoteBelowHeadline(
+        file,
+        belowHeadline,
+        content,
+        ensureNewline,
+      );
+    }
+
+    return await appendNote(file, content, ensureNewline);
+  }
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
   // create it.
   const res = await getNoteFile(file);
   if (res.isSuccess) {
-    const res1 = await appendNote(file, content, params["ensure-newline"]);
+    const res1 = await appendAsRequested();
     return res1.isSuccess ? success({ message: res1.result }, file) : res1;
-  } else if (!params["create-if-not-found"]) {
+  } else if (!createIfNotFound) {
     return res;
   }
 
@@ -217,7 +239,7 @@ async function handleAppend(
   }
 
   // Creation was successful. We try to append again.
-  const res3 = await appendNote(file, content, params["ensure-newline"]);
+  const res3 = await appendAsRequested();
   return res3.isSuccess ? success({ message: res3.result }, file) : res3;
 }
 
@@ -226,19 +248,33 @@ async function handlePrepend(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <PrependParams> incomingParams;
   const { file, content } = params;
+  const belowHeadline = params["below-headline"];
+  const createIfNotFound = params["create-if-not-found"];
+  const ensureNewline = params["ensure-newline"];
+  const ignoreFrontMatter = params["ignore-front-matter"];
+
+  // DRY: This call is used twice below, and I don't want to mess things up by
+  // forgetting a parameter or something in the future.
+  async function prependAsRequested() {
+    if (belowHeadline) {
+      return await prependNoteBelowHeadline(
+        file,
+        belowHeadline,
+        content,
+        ensureNewline,
+      );
+    }
+
+    return await prependNote(file, content, ensureNewline, ignoreFrontMatter);
+  }
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
   // create it.
   const res = await getNoteFile(file);
   if (res.isSuccess) {
-    const res1 = await prependNote(
-      file,
-      content,
-      params["ensure-newline"],
-      params["ignore-front-matter"],
-    );
+    const res1 = await prependAsRequested();
     return res1.isSuccess ? success({ message: res1.result }, file) : res1;
-  } else if (!params["create-if-not-found"]) {
+  } else if (!createIfNotFound) {
     return res;
   }
 
@@ -249,12 +285,7 @@ async function handlePrepend(
   }
 
   // Creation was successful. We try to append again.
-  const res3 = await prependNote(
-    file,
-    content,
-    params["ensure-newline"],
-    params["ignore-front-matter"],
-  );
+  const res3 = await prependAsRequested();
   return res3.isSuccess ? success({ message: res3.result }, file) : res3;
 }
 

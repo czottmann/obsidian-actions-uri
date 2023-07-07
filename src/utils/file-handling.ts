@@ -253,6 +253,29 @@ export async function appendNote(
   return resFile;
 }
 
+export async function appendNoteBelowHeadline(
+  filepath: string,
+  belowHeadline: string,
+  textToAppend: string,
+  shouldEnsureNewline: boolean = false,
+): Promise<StringResultObject> {
+  const escapedHeadline = belowHeadline
+    .replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
+    .replace(/-/g, "\\x2d")
+    .replace(/\s+/g, "\\s+");
+  const searchTerm = new RegExp(
+    `([\\n^]${escapedHeadline})(\\s*\\n.*?)(\\n#+ |$)`,
+    "s",
+  );
+
+  const escapedReplacement =
+    (shouldEnsureNewline ? endStringWithNewline(textToAppend) : textToAppend)
+      .replace(new RegExp(/\$/, "g"), "\\$");
+  const replacement = `$1$2${escapedReplacement}$3`;
+
+  return await searchAndReplaceInNote(filepath, searchTerm, replacement);
+}
+
 export async function prependNote(
   filepath: string,
   textToPrepend: string,
@@ -281,6 +304,29 @@ export async function prependNote(
 
   const resFile = await createOrOverwriteNote(filepath, newContent);
   return resFile.isSuccess ? success(STRINGS.prepend_done) : resFile;
+}
+
+export async function prependNoteBelowHeadline(
+  filepath: string,
+  belowHeadline: string,
+  textToPrepend: string,
+  shouldEnsureNewline: boolean = false,
+): Promise<StringResultObject> {
+  const escapedHeadline = belowHeadline
+    .replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
+    .replace(/-/g, "\\x2d")
+    .replace(/\s+/g, "\\s+");
+  const searchTerm = new RegExp(
+    `([\\n^]${escapedHeadline})(\\s*\\n)(.*?(\\n#+ |$))`,
+    "s",
+  );
+
+  const escapedReplacement =
+    (shouldEnsureNewline ? endStringWithNewline(textToPrepend) : textToPrepend)
+      .replace(new RegExp(/\$/, "g"), "\\$");
+  const replacement = `$1$2${escapedReplacement}$3`;
+
+  return await searchAndReplaceInNote(filepath, searchTerm, replacement);
 }
 
 export function getCurrentDailyNote(): TFile | undefined {
