@@ -232,7 +232,9 @@ On failure:
 
 
 ## `/daily-note/append`
-Appends today's daily note with a string.
+Appends text to today's daily note, either to the very end of the note (default) or to the section below a particular headline.
+
+When you append text to a section below a heading, the headline must be entered *exactly* as it appears in the note: headline levels, capitalization, punctuation etc. For example, "## My Headline", "### My Headline", and "## my headline" are not identical.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -240,6 +242,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | Parameter             | Value type | Optional? | Description                                                                       |
 | --------------------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
 | `content`             | string     |           | The text to be added at the end of today's daily note.                            |
+| `below-headline`      | string     |    ✅     | Appends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
 | `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
 | `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.               |
 | `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
@@ -265,7 +268,11 @@ On failure:
 
 
 ## `/daily-note/prepend`
-Prepends today's daily note with a string.  Front matter is honored (i.e. the new text will be added to the note body below the front matter) unless explicitly stated otherwise.
+Prepends text to today's note, either to the very beginning of the note (default) or to the section below a particular headline in a note.
+
+If the very beginning of the note is prepended, then the front matter will be honored (i.e. the new text will be added to the note body below the front matter) unless explicitly stated otherwise.
+
+When you prepend text to a section below a heading, the headline must be entered *exactly* as it appears in the note: headline levels, capitalization, punctuation etc. For example, "## My Headline", "### My Headline", and "## my headline" are not identical.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -273,6 +280,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | Parameter             | Value type | Optional? | Description                                                                                                   |
 | --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
 | `content`             | string     |           | The text to be added at the beginning of today's daily note.                                                  |
+| `below-headline`      | string     |    ✅     | Prepends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
 | `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before prepending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
 | `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
 | `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
