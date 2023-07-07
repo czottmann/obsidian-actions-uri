@@ -4,10 +4,19 @@
 
 This plugin adds additional `x-callback-url` endpoints to [Obsidian](https://obsidian.md) for common actions — it's a clean, super-charged addition to the built-in [Obsidian URIs](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs), for working with [daily notes, notes, getting search results](https://czottmann.github.io/obsidian-actions-uri/routes/) etc.
 
-
 ## Documentation
 
 For information about available features and routes please see the [documentation](https://czottmann.github.io/obsidian-actions-uri/).
+
+
+## Project status
+
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/czottmann/obsidian-actions-uri?label=current+release)
+![Maturity: Stable](https://img.shields.io/badge/maturity-stable-blue)
+![Development: Active](https://img.shields.io/badge/development-active-blue)
+![Support: Active](https://img.shields.io/badge/support-active-blue)
+
+(Regarding the different statuses, please see Don McCurdy's post ["Healthy expectations in open source"](https://www.donmccurdy.com/2023/07/03/expectations-in-open-source/).)
 
 
 ## Installation
