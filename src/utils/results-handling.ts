@@ -11,11 +11,7 @@ export function success<T>(
   result: T,
   processedFilepath?: string,
 ): ResultObject<T> {
-  return {
-    isSuccess: true,
-    result,
-    processedFilepath,
-  };
+  return { isSuccess: true, result, processedFilepath };
 }
 
 /**
@@ -26,9 +22,5 @@ export function success<T>(
  * @returns An `ErrorObject` with the `isSuccess` key set to `false`
  */
 export function failure(errorCode: number, errorMessage: string): ErrorObject {
-  return {
-    isSuccess: false,
-    errorCode,
-    errorMessage,
-  };
+  return { isSuccess: false, errorCode, errorMessage };
 }
