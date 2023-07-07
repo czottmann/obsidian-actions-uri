@@ -55,11 +55,6 @@ const createParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
   "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
-
-  /**
-   * @deprecated Deprecated in favor of `if-exists` parameter since v0.18.
-   */
-  overwrite: zodOptionalBoolean,
 });
 type CreateParams = z.infer<typeof createParams>;
 
@@ -172,17 +167,12 @@ async function handleCreate(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
   const { file, content } = params;
+  const ifExists = params["if-exists"];
 
-  // TODO: Added in 0.18. Can be removed when `params.overwrite` is removed.
-  if (!params["if-exists"] && params.overwrite) {
-    params["if-exists"] = "overwrite";
-  }
-
+  // Check if there already is a note with that name or at that path.
   const res = await getNoteFile(file);
-
-  // There already is a note with that name or at that path.
   if (res.isSuccess) {
-    switch (params["if-exists"]) {
+    switch (ifExists) {
       case "skip":
         return await getNoteDetails(file);
         break;
