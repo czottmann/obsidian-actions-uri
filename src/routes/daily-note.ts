@@ -17,12 +17,14 @@ import {
 } from "../types";
 import {
   appendNote,
+  appendNoteBelowHeadline,
   createOrOverwriteNote,
   getCurrentDailyNote,
   getDailyNotePathIfPluginIsAvailable,
   getNoteDetails,
   getNoteFile,
   prependNote,
+  prependNoteBelowHeadline,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
 import { failure, success } from "../utils/results-handling";
@@ -66,6 +68,7 @@ type WriteParams = z.infer<typeof writeParams>;
 const appendParams = incomingBaseParams.extend({
   content: z.string(),
   silent: zodOptionalBoolean,
+  "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
 });
@@ -74,6 +77,7 @@ type AppendParams = z.infer<typeof appendParams>;
 const prependParams = incomingBaseParams.extend({
   content: z.string(),
   silent: zodOptionalBoolean,
+  "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
   "ensure-newline": zodOptionalBoolean,
   "ignore-front-matter": zodOptionalBoolean,
@@ -240,17 +244,31 @@ async function handleAppend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <AppendParams> incomingParams;
+  const { content } = params;
+  const belowHeadline = params["below-headline"];
+  const createIfNotFound = params["create-if-not-found"];
+  const ensureNewline = params["ensure-newline"];
+
+  // DRY: This call is used twice below, and I don't want to mess things up by
+  // forgetting a parameter or something in the future.
+  async function appendAsRequested(filepath: string) {
+    if (belowHeadline) {
+      return await appendNoteBelowHeadline(
+        filepath,
+        belowHeadline,
+        content,
+        ensureNewline,
+      );
+    }
+
+    return await appendNote(filepath, content, ensureNewline);
+  }
 
   // See if the file exists, and if so, append to it.
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (resDNP.isSuccess) {
     const filepath = resDNP.result;
-    const res = await appendNote(
-      filepath,
-      params.content,
-      params["ensure-newline"],
-    );
-
+    const res = await appendAsRequested(filepath);
     return res.isSuccess ? success({ message: res.result }, filepath) : res;
   }
 
@@ -262,19 +280,14 @@ async function handleAppend(
 
   // The file didn't exist, because it hasn't been created yet. Should we create
   // it? If not, we're done.
-  if (!params["create-if-not-found"]) {
+  if (!createIfNotFound) {
     return resDNP;
   }
 
   // We're allowed to create the file, so let's do that.
   const newNote = await createDailyNote(window.moment());
   if (newNote instanceof TFile) {
-    const res = await appendNote(
-      newNote.path,
-      params.content,
-      params["ensure-newline"],
-    );
-
+    const res = await appendAsRequested(newNote.path);
     return res.isSuccess ? success({ message: res.result }, newNote.path) : res;
   }
 
@@ -286,18 +299,37 @@ async function handlePrepend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <PrependParams> incomingParams;
+  const { content } = params;
+  const belowHeadline = params["below-headline"];
+  const createIfNotFound = params["create-if-not-found"];
+  const ensureNewline = params["ensure-newline"];
+  const ignoreFrontMatter = params["ignore-front-matter"];
+
+  // DRY: This call is used twice below, and I don't want to mess things up by
+  // forgetting a parameter or something in the future.
+  async function prependAsRequested(filepath: string) {
+    if (belowHeadline) {
+      return await prependNoteBelowHeadline(
+        filepath,
+        belowHeadline,
+        content,
+        ensureNewline,
+      );
+    }
+
+    return await prependNote(
+      filepath,
+      content,
+      ensureNewline,
+      ignoreFrontMatter,
+    );
+  }
 
   // See if the file exists, and if so, append to it.
   const resDNP = getDailyNotePathIfPluginIsAvailable();
   if (resDNP.isSuccess) {
     const filepath = resDNP.result;
-    const res = await prependNote(
-      filepath,
-      params.content,
-      params["ensure-newline"],
-      params["ignore-front-matter"],
-    );
-
+    const res = await prependAsRequested(filepath);
     return res.isSuccess ? success({ message: res.result }, filepath) : res;
   }
 
@@ -309,19 +341,14 @@ async function handlePrepend(
 
   // The file didn't exist, because it hasn't been created yet. Should we create
   // it? If not, we're done.
-  if (!params["create-if-not-found"]) {
+  if (!createIfNotFound) {
     return resDNP;
   }
 
   // We're allowed to create the file, so let's do that.
   const newNote = await createDailyNote(window.moment());
   if (newNote instanceof TFile) {
-    const res = await prependNote(
-      newNote.path,
-      params.content,
-      params["ensure-newline"],
-      params["ignore-front-matter"],
-    );
+    const res = await prependAsRequested(newNote.path);
     return res.isSuccess ? success({ message: res.result }, newNote.path) : res;
   }
 
