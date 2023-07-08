@@ -20,7 +20,7 @@ Carlo Zottmann, <carlo@zottmann.co>
 - GitHub: [@czottmann](https://github.com/czottmann)
 - Mastodon: [@czottmann@norden.social](https://norden.social/@czottmann) & [@obsidian@actions.work](https://actions.work/@obsidian)
 - Obsidian: [@czottmann](https://forum.obsidian.md/u/czottmann)
-- Website: [zottmann.co](https://zottmann.co/)
+- Website: [c.zottmann.org](https://c.zottmann.org/)
 
 
 ## Projects using Actions URI
