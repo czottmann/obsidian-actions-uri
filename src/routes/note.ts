@@ -7,7 +7,6 @@ import {
   HandlerFileSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
-  PluginResultObject,
 } from "../types";
 import {
   appendNote,
@@ -29,6 +28,8 @@ import {
 import { helloRoute } from "../utils/routing";
 import { success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
+import { pause } from "../utils/time";
+import { focusOrOpenNote } from "../utils/ui";
 import {
   zodAlwaysFalse,
   zodExistingFilePath,
@@ -58,16 +59,29 @@ const openParams = incomingBaseParams.extend({
 });
 type OpenParams = z.infer<typeof openParams>;
 
-const createParams = incomingBaseParams.extend({
-  apply: z.enum(["content", "templater", "templates"])
-    .optional()
-    .default("content"),
-  content: z.string().optional(),
+const createBaseParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
   "if-exists": z.enum(["overwrite", "skip"]).optional(),
   silent: zodOptionalBoolean,
-  "template-file": zodExistingFilePath.optional(),
 });
+const createParams = z.discriminatedUnion("apply", [
+  createBaseParams.extend({
+    apply: z.literal("content"),
+    content: z.string().optional(),
+  }),
+  createBaseParams.extend({
+    apply: z.literal("templater"),
+    "template-file": zodExistingFilePath,
+  }),
+  createBaseParams.extend({
+    apply: z.literal("templates"),
+    "template-file": zodExistingFilePath,
+  }),
+  createBaseParams.extend({
+    apply: z.undefined(),
+    content: z.string().optional(),
+  }),
+]);
 type CreateParams = z.infer<typeof createParams>;
 
 const appendParams = incomingBaseParams.extend({
@@ -180,65 +194,52 @@ async function handleCreate(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
-  console.log("params", params);
-  const file = params.file;
-  const applyType = params.apply;
+  const { apply, file } = params;
   const ifExists = params["if-exists"];
+  var pluginInstance;
 
-  var pluginRes: PluginResultObject;
-  var content = "";
-  var templateFile = "";
-  if (applyType === "content") {
-    content = params.content || "";
-  } else {
-    templateFile = params["template-file"] || "";
+  // If the user wants to apply a template, we need to check if the relevant
+  // plugin is available, and if not, we return from here.
+  if (apply === "templater") {
+    const pluginRes = getEnabledCommunityPlugin("templater-obsidian");
+    if (!pluginRes.isSuccess) return pluginRes;
+    pluginInstance = pluginRes.result.templater;
+  } else if (apply === "templates") {
+    const pluginRes = getEnabledCorePlugin("templates");
+    if (!pluginRes.isSuccess) return pluginRes;
+    pluginInstance = pluginRes.result;
   }
 
-  if (applyType === "templater") {
-    pluginRes = getEnabledCommunityPlugin("templater-obsidian");
-    if (!pluginRes.isSuccess) {
-      return pluginRes;
-    }
-    if (!templaterFile) {
-      return failure(STRINGS.create.missing_templater_file);
-    }
-  } else if (applyType === "templates") {
-    pluginRes = getEnabledCorePlugin("templates");
-    if (!pluginRes.isSuccess) {
-      return pluginRes;
-    }
-
-    if (!templatesFile) {
-      return failure(STRINGS.create.missing_templates_file);
-    }
-  }
-
-  // Check if there already is a note with that name or at that path.
+  // If there already is a note with that name or at that path, deal with it.
   const res = await getNoteFile(file);
   if (res.isSuccess) {
     switch (ifExists) {
+      // `skip` == Leave not as-is, we just return the existing note.
       case "skip":
         return await getNoteDetails(file);
 
+      // Overwrite the existing note.
       case "overwrite":
+        const content = apply === "content" ? (params.content || "") : "";
         const res1 = await createOrOverwriteNote(file, content);
-        if (!res1.isSuccess) {
-          return res1;
-        }
-        // TODO: If we're applying a template, we should apply it here.
-        switch (applyType) {
-          case "templater":
-            pluginRes.result.templater.write_template_to_file(
-              <TFile> templateFile,
-              <TFile> res1.result.path,
-            );
+        if (!res1.isSuccess) return res1;
+        const filepath = res1.result.path;
 
-            break;
-          case "templates":
-            break;
+        // If we're applying a template, we need to write it to the file.
+        // Testing for existence of template file is done by a zod schema, so we
+        // can be sure the file exists.
+        if (apply === "templater") {
+          pluginInstance.write_template_to_file(
+            params["template-file"],
+            res1.result,
+          );
+        } else if (apply === "templates") {
+          await focusOrOpenNote(filepath);
+          await pause(200);
+          pluginInstance.insertTemplate(params["template-file"]);
         }
 
-        return await getNoteDetails(res1.result.path);
+        return await getNoteDetails(filepath);
 
       default:
         // Default is to carry on and create a new note with a numeric suffix,
@@ -248,9 +249,23 @@ async function handleCreate(
     }
   }
 
+  const content = apply === "content" ? (params.content || "") : "";
   const res2 = await createNote(file, content);
-  // TODO: If we're applying a template, we should apply it here.
-  return res2.isSuccess ? await getNoteDetails(res2.result.path) : res2;
+  if (!res2.isSuccess) return res2;
+  const filepath = res2.result.path;
+
+  // If we're applying a template, we need to write it to the file. Testing for
+  // existence of template file is done by a zod schema, so we can be sure the
+  // file exists.
+  if (apply === "templater") {
+    pluginInstance.write_template_to_file(params["template-file"], res2.result);
+  } else if (apply === "templates") {
+    await focusOrOpenNote(filepath);
+    await pause(100);
+    pluginInstance.insertTemplate(params["template-file"]);
+  }
+
+  return await getNoteDetails(filepath);
 }
 
 async function handleAppend(
