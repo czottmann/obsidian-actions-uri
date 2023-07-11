@@ -7,6 +7,7 @@ import {
   HandlerFileSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
+  PluginResultObject,
 } from "../types";
 import {
   appendNote,
@@ -21,11 +22,16 @@ import {
   searchAndReplaceInNote,
   trashFilepath,
 } from "../utils/file-handling";
+import {
+  getEnabledCommunityPlugin,
+  getEnabledCorePlugin,
+} from "../utils/plugins";
 import { helloRoute } from "../utils/routing";
 import { success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
 import {
   zodAlwaysFalse,
+  zodExistingFilePath,
   zodOptionalBoolean,
   zodSanitizedFilePath,
 } from "../utils/zod";
@@ -53,10 +59,14 @@ const openParams = incomingBaseParams.extend({
 type OpenParams = z.infer<typeof openParams>;
 
 const createParams = incomingBaseParams.extend({
+  apply: z.enum(["content", "templater", "templates"])
+    .optional()
+    .default("content"),
   content: z.string().optional(),
   file: zodSanitizedFilePath,
+  "if-exists": z.enum(["overwrite", "skip"]).optional(),
   silent: zodOptionalBoolean,
-  "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
+  "template-file": zodExistingFilePath.optional(),
 });
 type CreateParams = z.infer<typeof createParams>;
 
@@ -170,8 +180,38 @@ async function handleCreate(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
-  const { file, content } = params;
+  console.log("params", params);
+  const file = params.file;
+  const applyType = params.apply;
   const ifExists = params["if-exists"];
+
+  var pluginRes: PluginResultObject;
+  var content = "";
+  var templateFile = "";
+  if (applyType === "content") {
+    content = params.content || "";
+  } else {
+    templateFile = params["template-file"] || "";
+  }
+
+  if (applyType === "templater") {
+    pluginRes = getEnabledCommunityPlugin("templater-obsidian");
+    if (!pluginRes.isSuccess) {
+      return pluginRes;
+    }
+    if (!templaterFile) {
+      return failure(STRINGS.create.missing_templater_file);
+    }
+  } else if (applyType === "templates") {
+    pluginRes = getEnabledCorePlugin("templates");
+    if (!pluginRes.isSuccess) {
+      return pluginRes;
+    }
+
+    if (!templatesFile) {
+      return failure(STRINGS.create.missing_templates_file);
+    }
+  }
 
   // Check if there already is a note with that name or at that path.
   const res = await getNoteFile(file);
@@ -179,12 +219,26 @@ async function handleCreate(
     switch (ifExists) {
       case "skip":
         return await getNoteDetails(file);
-        break;
 
       case "overwrite":
-        const res1 = await createOrOverwriteNote(file, content || "");
-        return res1.isSuccess ? await getNoteDetails(res1.result.path) : res1;
-        break;
+        const res1 = await createOrOverwriteNote(file, content);
+        if (!res1.isSuccess) {
+          return res1;
+        }
+        // TODO: If we're applying a template, we should apply it here.
+        switch (applyType) {
+          case "templater":
+            pluginRes.result.templater.write_template_to_file(
+              <TFile> templateFile,
+              <TFile> res1.result.path,
+            );
+
+            break;
+          case "templates":
+            break;
+        }
+
+        return await getNoteDetails(res1.result.path);
 
       default:
         // Default is to carry on and create a new note with a numeric suffix,
@@ -194,7 +248,8 @@ async function handleCreate(
     }
   }
 
-  const res2 = await createNote(file, content || "");
+  const res2 = await createNote(file, content);
+  // TODO: If we're applying a template, we should apply it here.
   return res2.isSuccess ? await getNoteDetails(res2.result.path) : res2;
 }
 
