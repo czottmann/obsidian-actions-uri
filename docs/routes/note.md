@@ -132,9 +132,16 @@ Creates a new note. The default behavior in case there's already a note with the
 <span class="tag tag-version">v0.18+</span> If you want to prevent the creation of an additional note as described above, pass in `if-exists=skip`. If you want to overwrite an existing note, pass in `if-exists=overwrite`.
 
 <span class="tag tag-version">v1.2.0</span> The `apply` parameter allows you to specify what to add to the note after creation. Available options are `content` (implied default) for adding a string, `templates` (for using the Template core plugin), `templater` (for using the Templater community plugin). Depending on the `apply` parameter's value, the following additional parameters are allowed:
+
 - `apply=content` or no `apply` parameter: `content` parameter, the initial body of the note
 - `apply=templater`: `template-file` parameter, path of the template file to apply
 - `apply=templates`: `template-file` parameter, path of the template file to apply
+
+Examples:
+
+- `apply=content&content=Hello%20world!` or `content=Hello%20world!` (as `apply=content` is the default)
+- `apply=templater&template-file=Templates/Meeting%20notes.md`
+- `apply=templates&template-file=Templates/Meeting%20notes.md`
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -143,7 +150,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | ------------------ | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------------------------- |
 | `file`             | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                  |
 | `apply`            | enum       |    ✅     | What to add to the note after creation. Available options: `content` (implied default), `templates`, `templater`.               |
-| +- `content`       | string     |    ✅     | The initial body of the note. **Prerequisite:** `apply` parameter is missing or `apply=content`.                                |
+| +- `content`       | string     |    ✅     | The initial body of the note. **Prerequisite:** no `apply` parameter or `apply=content`.                                        |
 | +- `template-file` | string     |    ✅     | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                               |
 | `if-exists`        | string     |    ✅     | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
 | `silent`           | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
