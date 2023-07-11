@@ -225,20 +225,27 @@ async function handleCreate(
   if (!res2.isSuccess) {
     return res2;
   }
-  const filepath = res2.result.path;
+  const newNote = res2.result;
 
   // If we're applying a template, we need to write it to the file. Testing for
   // existence of template file is done by a zod schema, so we can be sure the
   // file exists.
-  if (apply === "templater") {
-    pluginInstance.write_template_to_file(params["template-file"], res2.result);
-  } else if (apply === "templates") {
-    await focusOrOpenNote(filepath);
-    await pause(100);
-    pluginInstance.insertTemplate(params["template-file"]);
+  switch (apply) {
+    case "templater":
+      await pluginInstance.write_template_to_file(
+        params["template-file"],
+        newNote,
+      );
+      break;
+
+    case "templates":
+      await focusOrOpenNote(newNote.path);
+      await pause(100);
+      await pluginInstance.insertTemplate(params["template-file"]);
+      break;
   }
 
-  return await getNoteDetails(filepath);
+  return await getNoteDetails(newNote.path);
 }
 
 async function handleAppend(
