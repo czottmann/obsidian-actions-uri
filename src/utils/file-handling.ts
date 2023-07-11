@@ -68,14 +68,7 @@ export async function createNote(
   await createFolderIfNecessary(dirname(filepath));
 
   // Create the new note
-  await vault.create(filepath, content);
-
-  // Necessary for preventing a race condition when creating an empty note in a
-  // folder that is being watched by the Templater plugin. See issue #61 at
-  // https://github.com/czottmann/obsidian-actions-uri/issues/61
-  if (isCommunityPluginEnabled("templater-obsidian")) {
-    await pause(500);
-  }
+  await createAndPause(filepath, content);
 
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
@@ -112,7 +105,7 @@ export async function createOrOverwriteNote(
 
   // Create the new note
   await createFolderIfNecessary(dirname(filepath));
-  await vault.create(filepath, content);
+  await createAndPause(filepath, content);
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
@@ -464,6 +457,27 @@ export async function createFolderIfNecessary(folder: string) {
 }
 
 // HELPERS ----------------------------------------
+
+/**
+ *  Necessary for preventing a race condition when creating an empty note in a
+ * folder that is being watched by the Templater plugin.
+ *
+ * @param filepath - A full filename, including the path relative from vault
+ * root
+ * @param content - The body of the note to be created
+ *
+ * @remarks
+ * See issue #61 at
+ * https://github.com/czottmann/obsidian-actions-uri/issues/61
+ */
+async function createAndPause(filepath: string, content: string) {
+  // Create the new note
+  await window.app.vault.create(filepath, content);
+
+  if (isCommunityPluginEnabled("templater-obsidian")) {
+    await pause(500);
+  }
+}
 
 /**
  * Returns the directory name of a `path`, as a bare-bones replacement for
