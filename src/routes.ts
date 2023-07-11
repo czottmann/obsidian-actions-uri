@@ -1,4 +1,4 @@
-import { AnyZodObject } from "zod";
+import { AnyZodObject, ZodDiscriminatedUnion, ZodUnion } from "zod";
 import {
   AnyLocalParams as AnyDailyNoteParams,
   routePath as dailyNoteRoutes,
@@ -75,7 +75,10 @@ export type RoutePath = {
 
 export type RouteSubpath = {
   path: string;
-  schema: AnyZodObject;
+  schema:
+    | AnyZodObject
+    | ZodUnion<any>
+    | ZodDiscriminatedUnion<string, AnyZodObject[]>;
   handler: HandlerFunction;
 };
 
