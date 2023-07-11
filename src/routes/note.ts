@@ -212,46 +212,19 @@ async function handleCreate(
 
   // If there already is a note with that name or at that path, deal with it.
   const res = await getNoteFile(file);
-  if (res.isSuccess) {
-    switch (ifExists) {
-      // `skip` == Leave not as-is, we just return the existing note.
-      case "skip":
-        return await getNoteDetails(file);
-
-      // Overwrite the existing note.
-      case "overwrite":
-        const content = apply === "content" ? (params.content || "") : "";
-        const res1 = await createOrOverwriteNote(file, content);
-        if (!res1.isSuccess) return res1;
-        const filepath = res1.result.path;
-
-        // If we're applying a template, we need to write it to the file.
-        // Testing for existence of template file is done by a zod schema, so we
-        // can be sure the file exists.
-        if (apply === "templater") {
-          pluginInstance.write_template_to_file(
-            params["template-file"],
-            res1.result,
-          );
-        } else if (apply === "templates") {
-          await focusOrOpenNote(filepath);
-          await pause(200);
-          pluginInstance.insertTemplate(params["template-file"]);
-        }
-
-        return await getNoteDetails(filepath);
-
-      default:
-        // Default is to carry on and create a new note with a numeric suffix,
-        // so we just fall through here. (Could've omitted the `default` case
-        // but keeping it like this makes it clear what's going on.)
-        break;
-    }
+  const noteExists = res.isSuccess;
+  if (noteExists && ifExists === "skip") {
+    // `skip` == Leave not as-is, we just return the existing note.
+    return await getNoteDetails(file);
   }
 
-  const content = apply === "content" ? (params.content || "") : "";
-  const res2 = await createNote(file, content);
-  if (!res2.isSuccess) return res2;
+  const content = (apply === "content") ? (params.content || "") : "";
+  const res2 = (noteExists && ifExists === "overwrite")
+    ? await createOrOverwriteNote(file, content)
+    : await createNote(file, content);
+  if (!res2.isSuccess) {
+    return res2;
+  }
   const filepath = res2.result.path;
 
   // If we're applying a template, we need to write it to the file. Testing for
