@@ -1,4 +1,4 @@
-import { normalizePath, Plugin } from "obsidian";
+import { normalizePath, ObsidianProtocolData, Plugin } from "obsidian";
 import { ZodError } from "zod";
 import { URI_NAMESPACE } from "./constants";
 import { AnyParams, RoutePath, routes } from "./routes";
@@ -57,7 +57,7 @@ export default class ActionsURI extends Plugin {
             const res = schema.safeParse(incomingParams);
             res.success
               ? await this.handleIncomingCall(handler, <AnyParams> res.data)
-              : this.handleParseError(res.error);
+              : this.handleParseError(res.error, incomingParams);
           },
         );
 
@@ -116,15 +116,23 @@ export default class ActionsURI extends Plugin {
    * @param params - Parameters from the incoming `x-callback-url` call after
    * being parsed & validated by Zod
    */
-  private handleParseError(parseError: ZodError) {
+  private handleParseError(parseError: ZodError, params: ObsidianProtocolData) {
     const msg = [
       "Incoming call failed",
-      parseError.errors
-        .map((error) => `- ${error.path.join(".")}: ${error.message}`),
+      parseError.errors.map((e) => `- ${e.path.join(".")}: ${e.message}`),
     ].flat().join("\n");
 
     showBrandedNotice(msg);
     logErrorToConsole(msg);
+
+    if (params["x-error"]) {
+      const msg2 = "[Bad request] " +
+        parseError.errors
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
+          .join("; ");
+
+      sendUrlCallback(params["x-error"], failure(400, msg2), params);
+    }
   }
 
   /**

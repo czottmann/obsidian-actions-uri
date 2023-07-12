@@ -1,4 +1,5 @@
 import { excludeKeys } from "filter-obj";
+import { ObsidianProtocolData } from "obsidian";
 import { XCALLBACK_RESULT_PREFIX } from "../constants";
 import { PLUGIN_INFO } from "../plugin-info";
 import { success } from "./results-handling";
@@ -26,7 +27,7 @@ import {
 export function sendUrlCallback(
   baseURL: string,
   handlerRes: AnyHandlerResult,
-  params: AnyParams,
+  params: AnyParams | ObsidianProtocolData,
 ): StringResultObject {
   const url = new URL(baseURL);
 
