@@ -6,6 +6,7 @@ import {
   HandlerSearchSuccess,
   HandlerTextSuccess,
 } from "../types";
+import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { doOmnisearch } from "../utils/search";
 
@@ -45,12 +46,7 @@ async function handleSearch(
   const params = <DefaultParams> incomingParams;
   const res = await doOmnisearch(params.query);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: res.result,
-    }
-    : res;
+  return res.isSuccess ? success(res.result) : res;
 }
 
 async function handleOpen(
@@ -65,8 +61,5 @@ async function handleOpen(
       "&query=" + encodeURIComponent(params.query.trim()),
   );
 
-  return {
-    isSuccess: true,
-    result: { message: "Opened search" },
-  };
+  return success({ message: "Opened search" });
 }

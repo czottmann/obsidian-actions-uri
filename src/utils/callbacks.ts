@@ -1,6 +1,8 @@
-import { excludeKeys, includeKeys } from "filter-obj";
+import { excludeKeys } from "filter-obj";
+import { ObsidianProtocolData, TAbstractFile } from "obsidian";
 import { XCALLBACK_RESULT_PREFIX } from "../constants";
 import { PLUGIN_INFO } from "../plugin-info";
+import { success } from "./results-handling";
 import { AnyParams } from "../routes";
 import { toKebabCase } from "./string-handling";
 import {
@@ -25,7 +27,7 @@ import {
 export function sendUrlCallback(
   baseURL: string,
   handlerRes: AnyHandlerResult,
-  params: AnyParams,
+  params: AnyParams | ObsidianProtocolData,
 ): StringResultObject {
   const url = new URL(baseURL);
 
@@ -48,11 +50,7 @@ export function sendUrlCallback(
 
   const callbackURL = url.toString().replace(/\+/g, "%20");
   window.open(callbackURL);
-
-  return {
-    isSuccess: true,
-    result: callbackURL,
-  };
+  return success(callbackURL);
 }
 
 /**
@@ -66,7 +64,7 @@ export function sendUrlCallback(
  * defaults to `XCALLBACK_RESULT_PREFIX`
  */
 function addObjectToUrlSearchParams(
-  obj: Record<string, string | string[] | AbstractFile[]>,
+  obj: Record<string, string | string[] | AbstractFile[] | TAbstractFile>,
   url: URL,
   prefix: string = XCALLBACK_RESULT_PREFIX,
 ) {
@@ -74,9 +72,14 @@ function addObjectToUrlSearchParams(
   for (const key of sortedKeys) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
 
-    const val = (typeof obj[key] === "string")
-      ? <string> obj[key]
-      : JSON.stringify(obj[key]);
+    let val: string;
+    if (typeof obj[key] === "string") {
+      val = <string> obj[key];
+    } else if (obj[key] instanceof TAbstractFile) {
+      val = (<TAbstractFile> obj[key]).path;
+    } else {
+      val = JSON.stringify(obj[key]);
+    }
 
     url.searchParams.set(
       toKebabCase(`${prefix}-${key}`),

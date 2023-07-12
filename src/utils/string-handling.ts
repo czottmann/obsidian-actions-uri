@@ -1,5 +1,6 @@
 import { STRINGS } from "../constants";
 import { RegexResultObject } from "../types";
+import { failure, success } from "../utils/results-handling";
 
 const FRONT_MATTER_BOUNDARY = "---\n";
 
@@ -9,7 +10,7 @@ const FRONT_MATTER_BOUNDARY = "---\n";
  * @param str - The string that should end in a newline
  * @returns String ending in a newline
  */
-export function ensureNewline(str: string = ""): string {
+export function endStringWithNewline(str: string = ""): string {
   return str.endsWith("\n") ? str : `${str}\n`;
 }
 
@@ -24,11 +25,7 @@ export function ensureNewline(str: string = ""): string {
  */
 export function parseStringIntoRegex(search: string): RegexResultObject {
   if (!search.startsWith("/")) {
-    return {
-      isSuccess: false,
-      errorCode: 422,
-      errorMessage: STRINGS.search_pattern_invalid,
-    };
+    return failure(422, STRINGS.search_pattern_invalid);
   }
 
   // Starts to look like a regex, let's try to parse it.
@@ -36,11 +33,7 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   const lastSlashIdx = re.lastIndexOf("/");
 
   if (lastSlashIdx === 0) {
-    return {
-      isSuccess: false,
-      errorCode: 406,
-      errorMessage: STRINGS.search_pattern_empty,
-    };
+    return failure(406, STRINGS.search_pattern_empty);
   }
 
   let searchPattern: RegExp;
@@ -50,17 +43,10 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   try {
     searchPattern = new RegExp(re, flags);
   } catch (e) {
-    return {
-      isSuccess: false,
-      errorCode: 422,
-      errorMessage: STRINGS.search_pattern_unparseable,
-    };
+    return failure(422, STRINGS.search_pattern_unparseable);
   }
 
-  return {
-    isSuccess: true,
-    result: searchPattern,
-  };
+  return success(searchPattern);
 }
 
 /**

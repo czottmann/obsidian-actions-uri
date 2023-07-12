@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { sanitizeFilePath } from "./file-handling";
 
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
@@ -22,6 +23,24 @@ export const zodSanitizedFolderPath = z.string()
   .transform((file) => sanitizeFilePath(file, true));
 
 /**
+ * A schema which tests the passed-in string to see if it's a valid path to an
+ * existing file. If it is, returns a `TFile` instance.
+ */
+export const zodExistingFilePath = z.preprocess(
+  lookupAbstractFileForPath,
+  z.instanceof(TFile, { message: "File doesn't exist" }),
+);
+
+/**
+ * A schema which tests the passed-in string to see if it's a valid path to an
+ * existing folder. If it is, returns a `TFolder` instance.
+ */
+export const zodExistingFolderPath = z.preprocess(
+  lookupAbstractFolderForPath,
+  z.instanceof(TFolder, { message: "Folder doesn't exist" }),
+);
+
+/**
  * An always-false boolean. Looks stupid but it's used by the handlers in
  * `../routes/open.ts`, see section "HANDLERS" there.
  */
@@ -29,3 +48,36 @@ export const zodAlwaysFalse = z.preprocess(
   (param: unknown): boolean => false,
   z.boolean().optional(),
 );
+
+// HELPERS ----------------------------------------
+
+/**
+ * Takes an incoming parameter and returns the corresponding `TAbstractFile` if
+ * the parameter is a string and the string corresponds to an existing file or
+ * folder. Otherwise returns `null`.
+ *
+ * @param path Any incoming zod parameter
+ */
+function lookupAbstractFileForPath(path: any): TAbstractFile | null {
+  if (typeof path !== "string" || !path) {
+    return null;
+  }
+
+  const filepath = sanitizeFilePath(path as string);
+  return window.app.vault.getAbstractFileByPath(filepath);
+}
+
+/**
+ * Takes an incoming parameter and returns the corresponding `TAbstractFile` if
+ * the parameter is a string and the string corresponds to an existing file or
+ * folder. Otherwise returns `null`.
+ *
+ * @param path Any incoming zod parameter
+ */
+function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
+  if (typeof path !== "string" || !path) {
+    return null;
+  }
+
+  return window.app.vault.getAbstractFileByPath(path as string);
+}

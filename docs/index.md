@@ -20,7 +20,7 @@ Carlo Zottmann, <carlo@zottmann.co>
 - GitHub: [@czottmann](https://github.com/czottmann)
 - Mastodon: [@czottmann@norden.social](https://norden.social/@czottmann) & [@obsidian@actions.work](https://actions.work/@obsidian)
 - Obsidian: [@czottmann](https://forum.obsidian.md/u/czottmann)
-- Website: [zottmann.co](https://zottmann.co/)
+- Website: [c.zottmann.org](https://c.zottmann.org/)
 
 
 ## Projects using Actions URI
@@ -28,3 +28,13 @@ Carlo Zottmann, <carlo@zottmann.co>
 - [Actions for Obsidian](https://obsidian.actions.work/): Useful new Obsidian actions for the Shortcuts app on macOS and iOS, bridging the gap between your notes and your workflows.
 
 Want to see your project here? Drop me a line! (See "Author" section.)
+
+
+## Plugin project status
+
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/czottmann/obsidian-actions-uri?label=current+release&color=09f)
+![Maturity: Stable](https://img.shields.io/badge/maturity-stable-09f)
+![Development: Active](https://img.shields.io/badge/development-active-09f)
+![Support: Active](https://img.shields.io/badge/support-active-09f)
+
+(Please see Don McCurdy's post ["Healthy expectations in open source"](https://www.donmccurdy.com/2023/07/03/expectations-in-open-source/) for information about the different statuses.)

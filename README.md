@@ -4,10 +4,19 @@
 
 This plugin adds additional `x-callback-url` endpoints to [Obsidian](https://obsidian.md) for common actions — it's a clean, super-charged addition to the built-in [Obsidian URIs](https://help.obsidian.md/Advanced+topics/Using+obsidian+URI#Using+Obsidian+URIs), for working with [daily notes, notes, getting search results](https://czottmann.github.io/obsidian-actions-uri/routes/) etc.
 
-
 ## Documentation
 
 For information about available features and routes please see the [documentation](https://czottmann.github.io/obsidian-actions-uri/).
+
+
+## Plugin Project Status
+
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/czottmann/obsidian-actions-uri?label=current+release&color=09f)
+![Maturity: Stable](https://img.shields.io/badge/maturity-stable-09f)
+![Development: Active](https://img.shields.io/badge/development-active-09f)
+![Support: Active](https://img.shields.io/badge/support-active-09f)
+
+(Please see Don McCurdy's post ["Healthy expectations in open source"](https://www.donmccurdy.com/2023/07/03/expectations-in-open-source/) for information about the different statuses.)
 
 
 ## Installation
@@ -36,7 +45,7 @@ Clone the repository, run `pnpm install` OR `npm install` to install the depende
 
 ## Author
 
-Carlo Zottmann, <carlo@zottmann.co>, https://zottmann.co/, https://github.com/czottmann
+Carlo Zottmann, <carlo@zottmann.co>, https://c.zottmann.org/, https://github.com/czottmann
 
 
 ## Projects using Actions URI

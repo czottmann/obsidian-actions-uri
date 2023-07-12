@@ -4,6 +4,7 @@ import { PLUGIN_INFO } from "../plugin-info";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import { HandlerInfoSuccess } from "../types";
+import { success } from "../utils/results-handling";
 
 // SCHEMATA --------------------
 
@@ -30,7 +31,7 @@ async function handleInfo(
 ): Promise<HandlerInfoSuccess> {
   const uaMatch = navigator.userAgent.match(/\((.+?)\)/);
   const os: string = uaMatch ? uaMatch[1] : "unknown";
-  const { isAndroidApp, isDesktopApp, isIosApp, isMacOS, isMobile } = Platform;
+  const { isAndroidApp, isDesktopApp, isIosApp, isMacOS } = Platform;
 
   let platform = "";
   if (isDesktopApp && isMacOS) {
@@ -43,14 +44,11 @@ async function handleInfo(
     platform = "Android";
   }
 
-  return {
-    isSuccess: true,
-    result: {
-      ...PLUGIN_INFO,
-      apiVersion,
-      nodeVersion: window.process?.version?.replace(/^v/, "") || "N/A",
-      platform,
-      os,
-    },
-  };
+  return success({
+    ...PLUGIN_INFO,
+    apiVersion,
+    nodeVersion: window.process?.version?.replace(/^v/, "") || "N/A",
+    platform,
+    os,
+  });
 }

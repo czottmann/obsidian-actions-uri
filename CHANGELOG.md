@@ -1,5 +1,47 @@
 # Release history
 
+## 1.2.0, 2023-07-12
+
+### New stuff
+
+#### [`/note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#notecreate)
+
+- Adds support for applying a Templates (core plugin) template or Templater (community plugin) template after note creation (#69)
+
+#### [`/note/append`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteappend)
+
+- Adds an optional `create-if-not-found` parameter for avoiding errors if the note doesn't exist yet (#67)
+- Adds an optional `below-headline` parameter for appending text not to the end of a file but to a section below a heading (#68)
+
+#### [`/note/prepend`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteprepend)
+
+- Adds an optional `create-if-not-found` parameter for avoiding errors if the note doesn't exist yet (#67)
+- Adds an optional `below-headline` parameter for prepending text not to the beginning of a file but to a section below a heading (#68)
+
+#### [`/daily-note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-notecreate)
+
+- Adds support for applying a Templates (core plugin) template or Templater (community plugin) template after note creation (#69)
+
+#### [`/daily-note/append`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-noteappend)
+
+- Adds an optional `create-if-not-found` parameter for avoiding errors if the note doesn't exist yet (#67)
+- Adds an optional `below-headline` parameter for appending text not to the end of a file but to a section below a heading (#68)
+
+#### [`/daily-note/prepend`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-noteprepend)
+
+- Adds an optional `create-if-not-found` parameter for avoiding errors if the note doesn't exist yet (#67)
+- Adds an optional `below-headline` parameter for prepending text not to the beginning of a file but to a section below a heading (#68)
+
+### Changes
+
+- Incoming, malformed calls are now answered if possible: if an `x-error` parameter was passed in, it will be used now, instead of Actions URI just doing nothing. (#72)
+- `file` & `folder` parameter validation is now more strict where the parameter is supposed to reference an existing path, and will return a "bad request" error if the referenced file/folder couldn't be found. Examples for clarification: `file` in `/note/rename`, `folder` in `/folder/delete`; but **not** `file` in `/note/create` (as here the parameter references a file yet to be created). (#72)
+
+### Removals
+
+- The deprecations made in 0.18.0 are now feasting with the Gods.
+
+
 ## 1.1.2, 2023-05-10
 
 This is a minor release aimed at fixing an issue with opening notes after creation that came up during the [Actions for Obsidian](https://obsidian.actions.work) iOS TestFlight.

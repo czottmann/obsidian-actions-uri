@@ -6,6 +6,7 @@ import {
   HandlerTagsSuccess,
   RealLifeMetadataCache,
 } from "../types";
+import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
 // SCHEMATA ----------------------------------------
@@ -34,10 +35,7 @@ async function handleList(
 ): Promise<HandlerTagsSuccess | HandlerFailure> {
   const tags = (<RealLifeMetadataCache> app.metadataCache).getTags();
 
-  return {
-    isSuccess: true,
-    result: {
-      tags: Object.keys(tags).sort((a, b) => a.localeCompare(b)),
-    },
-  };
+  return success({
+    tags: Object.keys(tags).sort((a, b) => a.localeCompare(b)),
+  });
 }

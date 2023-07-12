@@ -15,7 +15,8 @@ import {
   trashFilepath,
 } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
-import { zodSanitizedFolderPath } from "../utils/zod";
+import { zodExistingFolderPath, zodSanitizedFolderPath } from "../utils/zod";
+import { success } from "src/utils/results-handling";
 
 // SCHEMATA ----------------------------------------
 
@@ -31,12 +32,12 @@ const createParams = incomingBaseParams.extend({
 type CreateParams = z.infer<typeof createParams>;
 
 const deleteParams = incomingBaseParams.extend({
-  folder: zodSanitizedFolderPath,
+  folder: zodExistingFolderPath,
 });
 type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams.extend({
-  folder: zodSanitizedFolderPath,
+  folder: zodExistingFolderPath,
   "new-foldername": zodSanitizedFolderPath,
 });
 type RenameParams = z.infer<typeof renameParams>;
@@ -68,12 +69,7 @@ async function handleList(
     .filter((t) => t instanceof TFolder)
     .map((t) => t.path.endsWith("/") ? t.path : `${t.path}/`).sort();
 
-  return {
-    isSuccess: true,
-    result: {
-      paths,
-    },
-  };
+  return success({ paths });
 }
 
 async function handleCreate(
@@ -83,11 +79,7 @@ async function handleCreate(
   const { folder } = params;
 
   await createFolderIfNecessary(folder);
-  return {
-    isSuccess: true,
-    result: { message: STRINGS.folder_created },
-    processedFilepath: folder,
-  };
+  return success({ message: STRINGS.folder_created }, folder);
 }
 
 async function handleRename(
@@ -95,45 +87,28 @@ async function handleRename(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <RenameParams> incomingParams;
   const { folder } = params;
-  const res = await renameFilepath(folder, params["new-foldername"]);
+  const folderpath = folder.path;
+  const res = await renameFilepath(folderpath, params["new-foldername"]);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: folder,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, folderpath) : res;
 }
 
 async function handleDelete(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <DeleteParams> incomingParams;
-  const { folder } = params;
-  const res = await trashFilepath(folder, true);
+  const { folder } = <DeleteParams> incomingParams;
+  const folderpath = folder.path;
+  const res = await trashFilepath(folderpath, true);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: folder,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, folderpath) : res;
 }
 
 async function handleTrash(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <DeleteParams> incomingParams;
-  const { folder } = params;
-  const res = await trashFilepath(folder);
+  const { folder } = <DeleteParams> incomingParams;
+  const folderpath = folder.path;
+  const res = await trashFilepath(folderpath);
 
-  return res.isSuccess
-    ? {
-      isSuccess: true,
-      result: { message: res.result },
-      processedFilepath: folder,
-    }
-    : res;
+  return res.isSuccess ? success({ message: res.result }, folderpath) : res;
 }

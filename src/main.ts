@@ -1,4 +1,4 @@
-import { normalizePath, Plugin } from "obsidian";
+import { normalizePath, ObsidianProtocolData, Plugin } from "obsidian";
 import { ZodError } from "zod";
 import { URI_NAMESPACE } from "./constants";
 import { AnyParams, RoutePath, routes } from "./routes";
@@ -12,6 +12,7 @@ import {
   StringResultObject,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
+import { failure, success } from "./utils/results-handling";
 import {
   focusOrOpenNote,
   logErrorToConsole,
@@ -56,7 +57,7 @@ export default class ActionsURI extends Plugin {
             const res = schema.safeParse(incomingParams);
             res.success
               ? await this.handleIncomingCall(handler, <AnyParams> res.data)
-              : this.handleParseError(res.error);
+              : this.handleParseError(res.error, incomingParams);
           },
         );
 
@@ -89,12 +90,7 @@ export default class ActionsURI extends Plugin {
       handlerResult = await handlerFunc(params);
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
-      handlerResult = {
-        isSuccess: false,
-        errorCode: 500,
-        errorMessage: msg,
-      };
-
+      handlerResult = failure(500, msg);
       showBrandedNotice(msg);
       logErrorToConsole(msg);
     }
@@ -120,15 +116,23 @@ export default class ActionsURI extends Plugin {
    * @param params - Parameters from the incoming `x-callback-url` call after
    * being parsed & validated by Zod
    */
-  private handleParseError(parseError: ZodError) {
+  private handleParseError(parseError: ZodError, params: ObsidianProtocolData) {
     const msg = [
       "Incoming call failed",
-      parseError.errors
-        .map((error) => `- ${error.path.join(".")}: ${error.message}`),
+      parseError.errors.map((e) => `- ${e.path.join(".")}: ${e.message}`),
     ].flat().join("\n");
 
     showBrandedNotice(msg);
     logErrorToConsole(msg);
+
+    if (params["x-error"]) {
+      const msg2 = "[Bad request] " +
+        parseError.errors
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
+          .join("; ");
+
+      sendUrlCallback(params["x-error"], failure(400, msg2), params);
+    }
   }
 
   /**
@@ -157,22 +161,12 @@ export default class ActionsURI extends Plugin {
           <AnyHandlerSuccess> handlerRes,
           params,
         )
-        : {
-          isSuccess: true,
-          result: "No `x-success` callback URL provided",
-        };
+        : success("No `x-error` callback URL provided");
     }
 
     return params["x-error"]
-      ? sendUrlCallback(
-        params["x-error"],
-        <HandlerFailure> handlerRes,
-        params,
-      )
-      : {
-        isSuccess: true,
-        result: "No `x-error` callback URL provided",
-      };
+      ? sendUrlCallback(params["x-error"], <HandlerFailure> handlerRes, params)
+      : success("No `x-error` callback URL provided");
   }
 
   /**
@@ -190,27 +184,19 @@ export default class ActionsURI extends Plugin {
   ): Promise<StringResultObject> {
     // Do we need to open anything in general?
     if (!handlerResult.isSuccess) {
-      return {
-        isSuccess: true,
-        result: "No file to open, the handler failed",
-      };
+      return success("No file to open, the handler failed");
     }
 
     if ((<any> params).silent) {
-      return {
-        isSuccess: true,
-        result: "No file to open, the `silent` parameter was set",
-      };
+      return success("No file to open, the `silent` parameter was set");
     }
 
     // Do we have information what to open?
     const { processedFilepath } = <HandlerFileSuccess> handlerResult;
     if (!processedFilepath) {
-      return {
-        isSuccess: true,
-        result:
-          "No file to open, handler didn't return a `processedFilepath` property",
-      };
+      return success(
+        "No file to open, handler didn't return a `processedFilepath` property",
+      );
     }
 
     return await focusOrOpenNote(processedFilepath);

@@ -1,3 +1,4 @@
+import { success } from "./results-handling";
 import { AnyParams, RouteSubpath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import { HandlerTextSuccess } from "../types";
@@ -9,5 +10,5 @@ export function helloRoute(path: string = "/"): RouteSubpath {
 
 async function handleHello(data: AnyParams): Promise<HandlerTextSuccess> {
   showBrandedNotice("… is ready for action 🚀");
-  return { isSuccess: true, result: { message: "Hello!" } };
+  return success({ message: "Hello!" });
 }
