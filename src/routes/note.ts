@@ -46,7 +46,7 @@ const listParams = incomingBaseParams.extend({
 type ListParams = z.infer<typeof listParams>;
 
 const readParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodExistingFilePath,
   silent: zodOptionalBoolean,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
@@ -54,7 +54,7 @@ const readParams = incomingBaseParams.extend({
 type ReadParams = z.infer<typeof readParams>;
 
 const openParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodExistingFilePath,
   silent: zodAlwaysFalse,
 });
 type OpenParams = z.infer<typeof openParams>;
@@ -106,7 +106,7 @@ const prependParams = incomingBaseParams.extend({
 type PrependParams = z.infer<typeof prependParams>;
 
 const searchAndReplaceParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodExistingFilePath,
   silent: zodOptionalBoolean,
   search: z.string().min(1, { message: "can't be empty" }),
   replace: z.string(),
@@ -114,12 +114,12 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 const deleteParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodExistingFilePath,
 });
 type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodExistingFilePath,
   "new-filename": zodSanitizedFilePath,
   silent: zodOptionalBoolean,
 });
@@ -176,14 +176,14 @@ async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
-  return await getNoteDetails(params.file);
+  return await getNoteDetails(params.file.path);
 }
 
 async function handleOpen(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <CreateParams> incomingParams;
-  const res = await getNoteFile(params.file);
+  const params = <OpenParams> incomingParams;
+  const res = await getNoteFile(params.file.path);
 
   return res.isSuccess
     ? success({ message: STRINGS.open.note_opened }, res.result.path)
@@ -343,41 +343,45 @@ async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { search, file, replace } = <SearchAndReplaceParams> incomingParams;
-  const res = await searchAndReplaceInNote(file, search, replace);
+  const filepath = file.path;
+  const res = await searchAndReplaceInNote(filepath, search, replace);
 
-  return res.isSuccess ? success({ message: res.result }, file) : res;
+  return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { search, file, replace } = <SearchAndReplaceParams> incomingParams;
+  const filepath = file.path;
   const resSir = parseStringIntoRegex(search);
 
   if (!resSir.isSuccess) {
     return resSir;
   }
 
-  const res = await searchAndReplaceInNote(file, resSir.result, replace);
-  return res.isSuccess ? success({ message: res.result }, file) : res;
+  const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
+  return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
 async function handleDelete(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <DeleteParams> incomingParams;
-  const res = await trashFilepath(file, true);
+  const filepath = file.path;
+  const res = await trashFilepath(filepath, true);
 
-  return res.isSuccess ? success({ message: res.result }, file) : res;
+  return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
 async function handleTrash(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <DeleteParams> incomingParams;
-  const res = await trashFilepath(file);
+  const filepath = file.path;
+  const res = await trashFilepath(filepath);
 
-  return res.isSuccess ? success({ message: res.result }, file) : res;
+  return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
 async function handleRename(
@@ -385,7 +389,8 @@ async function handleRename(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <RenameParams> incomingParams;
   const { file } = params;
-  const res = await renameFilepath(file, params["new-filename"]);
+  const filepath = file.path;
+  const res = await renameFilepath(filepath, params["new-filename"]);
 
-  return res.isSuccess ? success({ message: res.result }, file) : res;
+  return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
