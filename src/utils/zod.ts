@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { normalizePath, TAbstractFile, TFile, TFolder } from "obsidian";
+import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { sanitizeFilePath } from "./file-handling";
-import { appHasDailyNotesPluginLoaded } from "obsidian-daily-notes-interface";
 
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
 // should all be treated as `false`. My reign shall be merciful.
