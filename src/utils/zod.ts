@@ -36,7 +36,7 @@ export const zodExistingFilePath = z.preprocess(
  * existing folder. If it is, returns a `TFolder` instance.
  */
 export const zodExistingFolderPath = z.preprocess(
-  lookupAbstractFileForPath,
+  lookupAbstractFolderForPath,
   z.instanceof(TFolder, { message: "Folder doesn't exist" }),
 );
 
@@ -65,4 +65,19 @@ function lookupAbstractFileForPath(path: any): TAbstractFile | null {
 
   const filepath = sanitizeFilePath(path as string);
   return window.app.vault.getAbstractFileByPath(filepath);
+}
+
+/**
+ * Takes an incoming parameter and returns the corresponding `TAbstractFile` if
+ * the parameter is a string and the string corresponds to an existing file or
+ * folder. Otherwise returns `null`.
+ *
+ * @param path Any incoming zod parameter
+ */
+function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
+  if (typeof path !== "string" || !path) {
+    return null;
+  }
+
+  return window.app.vault.getAbstractFileByPath(path as string);
 }
