@@ -103,5 +103,9 @@ allow_or_exit "Now merging branch '$git_branch' into 'main' …"
 git checkout main
 git pull --tags
 git merge -m "[MRG] Merges release '$release_tag'" --no-edit --no-ff $git_branch
+
+allow_or_exit "Push main to remote?"
+git push
+
 echo "Done!"
 echo
