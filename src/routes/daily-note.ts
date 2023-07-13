@@ -38,8 +38,10 @@ import { pause } from "../utils/time";
 import { focusOrOpenNote } from "../utils/ui";
 import {
   zodAlwaysFalse,
+  zodEmptyStringChangedToDefaultString,
   zodExistingFilePath,
   zodOptionalBoolean,
+  zodUndefinedChangedToDefaultValue,
 } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
@@ -63,7 +65,7 @@ const openParams = incomingBaseParams.extend({
 type OpenParams = z.infer<typeof openParams>;
 
 const createBaseParams = incomingBaseParams.extend({
-  "if-exists": z.enum(["overwrite", "skip"]).optional(),
+  "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
   silent: zodOptionalBoolean,
 });
 const createParams = z.discriminatedUnion("apply", [
@@ -80,11 +82,23 @@ const createParams = z.discriminatedUnion("apply", [
     "template-file": zodExistingFilePath,
   }),
   createBaseParams.extend({
-    apply: z.undefined(),
+    apply: zodEmptyStringChangedToDefaultString("content"),
+    content: z.string().optional(),
+  }),
+  createBaseParams.extend({
+    apply: zodUndefinedChangedToDefaultValue("content"),
     content: z.string().optional(),
   }),
 ]);
 type CreateParams = z.infer<typeof createParams>;
+type createContentParams = {
+  apply: "content";
+  content?: string;
+};
+type createTemplateParams = {
+  apply: "templater" | "templates";
+  "template-file": TFile;
+};
 
 const writeParams = incomingBaseParams.extend({
   content: z.string().optional(),
@@ -226,6 +240,12 @@ async function handleCreate(
   const params = <CreateParams> incomingParams;
   const { apply } = params;
   const ifExists = params["if-exists"];
+  const templateFile = (apply === "templater" || apply === "templates")
+    ? (<createTemplateParams> params)["template-file"]
+    : undefined;
+  const content = (apply === "content")
+    ? (<createContentParams> params).content || ""
+    : "";
   var pluginInstance;
 
   if (!appHasDailyNotesPluginLoaded()) {
@@ -273,8 +293,7 @@ async function handleCreate(
 
   switch (apply) {
     case "content":
-      const content = params.content || "";
-      if (content) {
+      if (content !== "") {
         await createOrOverwriteNote(filepath, content);
       }
       break;
@@ -282,10 +301,7 @@ async function handleCreate(
     // Testing for existence of template file is done by a zod schema, so we can
     // be sure the file exists.
     case "templater":
-      await pluginInstance.write_template_to_file(
-        params["template-file"],
-        newNote,
-      );
+      await pluginInstance.write_template_to_file(templateFile, newNote);
       break;
 
     // Testing for existence of template file is done by a zod schema, so we can
@@ -294,7 +310,7 @@ async function handleCreate(
       await createOrOverwriteNote(filepath, "");
       await focusOrOpenNote(filepath);
       await pause(100);
-      await pluginInstance.insertTemplate(params["template-file"]);
+      await pluginInstance.insertTemplate(templateFile);
       break;
   }
 
