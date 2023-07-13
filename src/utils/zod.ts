@@ -49,6 +49,27 @@ export const zodAlwaysFalse = z.preprocess(
   z.boolean().optional(),
 );
 
+/**
+ * A schema which expects an undefined value (i.e. no parameter passed in), and
+ * returns a default value instead.
+ *
+ * @param defaultValue The default value to return if the parameter is undefined
+ */
+export const zodUndefinedChangedToDefaultValue = (defaultValue: any) =>
+  z.undefined()
+    .refine((val) => val === undefined)
+    .transform(() => defaultValue);
+
+/**
+ * A schema which expects an empty string, and overwrites it with a given value.
+ *
+ * @param defaultString The default value to return if the parameter is undefined
+ */
+export const zodEmptyStringChangedToDefaultString = (defaultString: string) =>
+  z.literal("")
+    .refine((val) => val === "")
+    .transform(() => defaultString);
+
 // HELPERS ----------------------------------------
 
 /**
