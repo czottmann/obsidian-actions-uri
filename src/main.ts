@@ -119,7 +119,12 @@ export default class ActionsURI extends Plugin {
   private handleParseError(parseError: ZodError, params: ObsidianProtocolData) {
     const msg = [
       "Incoming call failed",
-      parseError.errors.map((e) => `- ${e.path.join(".")}: ${e.message}`),
+      parseError.errors.map((e) => {
+        // Some zod errors are too verbose, from them we strip everything but
+        // the important part.
+        const message = e.message.replace(/^.+(Expected )/g, "$1");
+        return `- ${e.path.join(".")}: ${message}`;
+      }),
     ].flat().join("\n");
 
     showBrandedNotice(msg);
