@@ -1,5 +1,12 @@
 # Release history
 
+## 1.2.1, 2023-07-13
+
+### Fixes
+
+- Adjusts the behavior of [`/note/get`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteget) so it no longer breaks Actions for Obsidian's "Check if note exists" action. 😬
+
+
 ## 1.2.0, 2023-07-12
 
 ### New stuff
