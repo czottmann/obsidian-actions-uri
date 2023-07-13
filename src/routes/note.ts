@@ -46,7 +46,7 @@ const listParams = incomingBaseParams.extend({
 type ListParams = z.infer<typeof listParams>;
 
 const readParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodSanitizedFilePath,
   silent: zodOptionalBoolean,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
@@ -176,7 +176,7 @@ async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
-  return await getNoteDetails(params.file.path);
+  return await getNoteDetails(params.file);
 }
 
 async function handleOpen(
