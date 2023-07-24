@@ -8,6 +8,8 @@ This plugin adds additional `x-callback-url` endpoints to [Obsidian](https://obs
 
 For information about available features and routes please see the [documentation](https://czottmann.github.io/obsidian-actions-uri/).
 
+Bug reports and feature requests are welcome, feel free to [open an issue](https://github.com/czottmann/obsidian-actions-uri/issues) here on GitHub. For discussions, please visit the [Plugin Forum](https://forum.actions.work/c/obsidian-actions-uri/6) ("Log in with GitHub" is enabled).
+
 
 ## Plugin Project Status
 
