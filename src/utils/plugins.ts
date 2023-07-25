@@ -47,7 +47,7 @@ export function getEnabledCommunityPlugin(
  * @returns {PluginResultObject} A result object containing the plugin if available.
  */
 export function getEnabledCorePlugin(pluginID: string): PluginResultObject {
-  const { app } = global;
+  const { app } = window;
   const plugin = (<any> app).internalPlugins?.getEnabledPluginById(pluginID);
 
   return plugin
