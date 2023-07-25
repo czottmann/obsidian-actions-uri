@@ -1,5 +1,12 @@
 # Release history
 
+## 1.2.3, 2023-07-25
+
+### Fixes
+
+- Attempting to use the Templates core plugin on iOS would result in an error. This is now fixed.
+
+
 ## 1.2.2, 2023-07-13
 
 ### Fixes
