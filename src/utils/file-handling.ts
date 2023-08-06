@@ -204,7 +204,6 @@ export async function searchAndReplaceInNote(
   replacement: string,
 ): Promise<StringResultObject> {
   const res = await getNoteContent(filepath);
-
   if (!res.isSuccess) {
     return res;
   }
@@ -230,7 +229,6 @@ export async function appendNote(
   shouldEnsureNewline: boolean = false,
 ): Promise<StringResultObject> {
   const res = await getNoteContent(filepath);
-
   if (!res.isSuccess) {
     return res;
   }
@@ -250,23 +248,38 @@ export async function appendNoteBelowHeadline(
   filepath: string,
   belowHeadline: string,
   textToAppend: string,
-  shouldEnsureNewline: boolean = false,
 ): Promise<StringResultObject> {
-  const escapedHeadline = belowHeadline
-    .replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
-    .replace(/-/g, "\\x2d")
-    .replace(/\s+/g, "\\s+");
-  const searchTerm = new RegExp(
-    `([\\n^]${escapedHeadline})(\\s*\\n.*?)(\\n#+ |$)`,
-    "s",
-  );
+  const res = await getNoteContent(filepath);
+  if (!res.isSuccess) {
+    return res;
+  }
 
-  const escapedReplacement =
-    (shouldEnsureNewline ? endStringWithNewline(textToAppend) : textToAppend)
-      .replace(new RegExp(/\$/, "g"), "\\$");
-  const replacement = `$1$2${escapedReplacement}$3`;
+  // Split into sections by headline, find the section below the specified
+  // headline, and append the text to that section
+  const newContent = res.result
+    .split(/(?=^#+ )/m)
+    .map((section) => {
+      if (!section.startsWith(belowHeadline)) {
+        return section;
+      }
 
-  return await searchAndReplaceInNote(filepath, searchTerm, replacement);
+      // If the section doesn't end with a newline, add one before appending.
+      // This case might occur if the last headline in the note is the one to
+      // work with, and the file doesn't end with a newline.
+      if (!section.includes("\n")) {
+        section += "\n";
+      }
+
+      return endStringWithNewline(section + textToAppend);
+    })
+    .join("");
+
+  const resFile = await createOrOverwriteNote(filepath, newContent);
+  if (resFile.isSuccess) {
+    return success(STRINGS.append_done);
+  }
+
+  return resFile;
 }
 
 export async function prependNote(
@@ -276,7 +289,6 @@ export async function prependNote(
   shouldIgnoreFrontMatter: boolean = false,
 ): Promise<StringResultObject> {
   const res = await getNoteContent(filepath);
-
   if (!res.isSuccess) {
     return res;
   }
