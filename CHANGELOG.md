@@ -1,5 +1,13 @@
 # Release history
 
+## 1.2.4, 2023-08-07
+
+### Fixes
+
+- Appending/prepending below headlines no longer fails if there is no empty line below the headline. (#73)
+- When using a file path ending in `.canvas`, Actions URI will no longer add `.md` to it. (#74)
+
+
 ## 1.2.3, 2023-07-25
 
 ### Fixes

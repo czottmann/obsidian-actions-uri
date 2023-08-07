@@ -278,12 +278,7 @@ async function handleAppend(
   // forgetting a parameter or something in the future.
   async function appendAsRequested() {
     if (belowHeadline) {
-      return await appendNoteBelowHeadline(
-        file,
-        belowHeadline,
-        content,
-        ensureNewline,
-      );
+      return await appendNoteBelowHeadline(file, belowHeadline, content);
     }
 
     return await appendNote(file, content, ensureNewline);
