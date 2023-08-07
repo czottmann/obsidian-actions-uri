@@ -317,21 +317,38 @@ export async function prependNoteBelowHeadline(
   textToPrepend: string,
   shouldEnsureNewline: boolean = false,
 ): Promise<StringResultObject> {
-  const escapedHeadline = belowHeadline
-    .replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
-    .replace(/-/g, "\\x2d")
-    .replace(/\s+/g, "\\s+");
-  const searchTerm = new RegExp(
-    `([\\n^]${escapedHeadline})(\\s*\\n)(.*?(\\n#+ |$))`,
-    "s",
-  );
+  const res = await getNoteContent(filepath);
+  if (!res.isSuccess) {
+    return res;
+  }
 
-  const escapedReplacement =
-    (shouldEnsureNewline ? endStringWithNewline(textToPrepend) : textToPrepend)
-      .replace(new RegExp(/\$/, "g"), "\\$");
-  const replacement = `$1$2${escapedReplacement}$3`;
+  // Split into sections by headline, find the section below the specified
+  // headline, and prepend the text to that section
+  const newContent = res.result
+    .split(/(?=^#+ )/m)
+    .map((section) => {
+      if (!section.startsWith(belowHeadline)) {
+        return section;
+      }
 
-  return await searchAndReplaceInNote(filepath, searchTerm, replacement);
+      if (shouldEnsureNewline) {
+        textToPrepend = endStringWithNewline(textToPrepend);
+      }
+
+      const prependedSection = section.split("\n");
+      prependedSection[1] = textToPrepend + (prependedSection[1] || "");
+      const newSection = prependedSection.join("\n");
+
+      return endStringWithNewline(newSection);
+    })
+    .join("");
+
+  const resFile = await createOrOverwriteNote(filepath, newContent);
+  if (resFile.isSuccess) {
+    return success(STRINGS.append_done);
+  }
+
+  return resFile;
 }
 
 export function getCurrentDailyNote(): TFile | undefined {
