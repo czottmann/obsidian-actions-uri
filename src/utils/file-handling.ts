@@ -186,7 +186,7 @@ export function sanitizeFilePath(
     .join("/")
     .replace(/^[\/\.]+/g, "");
 
-  return (isFolder || extname(filename).toLowerCase() === ".md")
+  return (isFolder || /\.(md|canvas)/i.test(extname(filename)))
     ? filename
     : `${filename}.md`;
 }
