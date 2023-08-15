@@ -1,8 +1,8 @@
 import { AnyZodObject, ZodDiscriminatedUnion, ZodUnion } from "zod";
 import {
-  AnyLocalParams as AnyDailyNoteParams,
-  routePath as dailyNoteRoutes,
-} from "./routes/daily-note";
+  AnyLocalParams as AnyPeriodicNoteParams,
+  routePath as periodicNoteRoutes,
+} from "./routes/periodic-notes";
 import {
   AnyLocalParams as AnyDataviewParams,
   routePath as dataviewRoutes,
@@ -42,11 +42,11 @@ import { HandlerFunction } from "./types";
 export const routes: RoutePath = {
   ...rootRoutes,
   ...dataviewRoutes,
-  ...dailyNoteRoutes,
   ...folderRoutes,
   ...infoRoutes,
   ...noteRoutes,
   ...omnisearchRoutes,
+  ...periodicNoteRoutes,
   ...searchRoutes,
   ...tagsRoutes,
   ...vaultRoutes,
@@ -83,7 +83,7 @@ export type RouteSubpath = {
 };
 
 export type AnyParams =
-  | AnyDailyNoteParams
+  | AnyPeriodicNoteParams
   | AnyDataviewParams
   | AnyFolderParams
   | AnyInfoParams
