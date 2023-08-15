@@ -2,7 +2,6 @@ export const URI_NAMESPACE = "actions-uri";
 
 export const STRINGS = {
   append_done: "Note was appended",
-  daily_notes_feature_not_available: "Daily Notes plugin is not active",
   dataview_dql_must_start_with_list: 'DQL must start with "LIST"',
   dataview_dql_must_start_with_table: 'DQL must start with "TABLE"',
   dataview_plugin_not_available: "Dataview plugin is not active",
@@ -29,10 +28,43 @@ export const STRINGS = {
     create_note_already_exists: "Daily note already exists",
     create_note_no_content:
       "Daily note couldn't be overwritten, no content specified",
+    feature_not_available: "Daily Notes feature is not active",
+  },
+  weekly_note: {
+    create_note_already_exists: "Weekly note already exists",
+    create_note_no_content:
+      "Weekly note couldn't be overwritten, no content specified",
+    feature_not_available: "Periodic Notes' Weekly feature is not active",
+  },
+  monthly_note: {
+    create_note_already_exists: "Monthly note already exists",
+    create_note_no_content:
+      "Monthly note couldn't be overwritten, no content specified",
+    feature_not_available: "Periodic Notes' Monthly feature is not active",
+  },
+  quarterly_note: {
+    create_note_already_exists: "Quarterly note already exists",
+    create_note_no_content:
+      "Quarterly note couldn't be overwritten, no content specified",
+    feature_not_available: "Periodic Notes' Quarterly feature is not active",
+  },
+  yearly_note: {
+    create_note_already_exists: "Yearly note already exists",
+    create_note_no_content:
+      "Yearly note couldn't be overwritten, no content specified",
+    feature_not_available: "Periodic Notes' Yearly feature is not active",
   },
   open: {
     note_opened: "Note opened",
   },
 };
+
+export const PERIOD_IDS = [
+  "daily",
+  "weekly",
+  "monthly",
+  "quarterly",
+  "yearly",
+] as const;
 
 export const XCALLBACK_RESULT_PREFIX = "result";

@@ -1,8 +1,20 @@
 import { normalizePath, TFile, TFolder } from "obsidian";
 import {
   appHasDailyNotesPluginLoaded,
+  appHasMonthlyNotesPluginLoaded,
+  appHasQuarterlyNotesPluginLoaded,
+  appHasWeeklyNotesPluginLoaded,
+  appHasYearlyNotesPluginLoaded,
   getAllDailyNotes,
+  getAllMonthlyNotes,
+  getAllQuarterlyNotes,
+  getAllWeeklyNotes,
+  getAllYearlyNotes,
   getDailyNote,
+  getMonthlyNote,
+  getQuarterlyNote,
+  getWeeklyNote,
+  getYearlyNote,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { isCommunityPluginEnabled } from "./plugins";
@@ -15,6 +27,7 @@ import {
 import { pause } from "./time";
 import {
   NoteDetailsResultObject,
+  PeriodType,
   RealLifeVault,
   StringResultObject,
   TFileResultObject,
@@ -351,27 +364,102 @@ export async function prependNoteBelowHeadline(
   return resFile;
 }
 
-export function getCurrentDailyNote(): TFile | undefined {
-  return getDailyNote(window.moment(), getAllDailyNotes());
+export async function createPeriodNote(periodID: PeriodType): Promise<TFile> {
+  const now = window.moment();
+  switch (periodID) {
+    case "daily":
+      return createDailyNote(now);
+
+    case "weekly":
+      return createWeeklyNote(now);
+
+    case "monthly":
+      return createMonthlyNote(now);
+
+    case "quarterly":
+      return createQuarterlyNote(now);
+
+    case "yearly":
+      return createYearlyNote(now);
+  }
+}
+
+export function getAllPeriodNotes(periodID: PeriodType): Record<string, TFile> {
+  switch (periodID) {
+    case "daily":
+      return getAllDailyNotes();
+
+    case "weekly":
+      return getAllWeeklyNotes();
+
+    case "monthly":
+      return getAllMonthlyNotes();
+
+    case "quarterly":
+      return getAllQuarterlyNotes();
+
+    case "yearly":
+      return getAllYearlyNotes();
+  }
+}
+
+export function getCurrentPeriodNote(periodID: PeriodType): TFile | undefined {
+  switch (periodID) {
+    case "daily":
+      return getDailyNote(window.moment(), getAllDailyNotes());
+    case "weekly":
+      return getWeeklyNote(window.moment(), getAllWeeklyNotes());
+    case "monthly":
+      return getMonthlyNote(window.moment(), getAllMonthlyNotes());
+    case "quarterly":
+      return getQuarterlyNote(window.moment(), getAllQuarterlyNotes());
+    case "yearly":
+      return getYearlyNote(window.moment(), getAllYearlyNotes());
+  }
 }
 
 /**
- * Checks if the daily note plugin is available, and gets the path to today's
- * daily note.
+ * Checks if the daily/weekly/monthly/etc periodic note feature is available,
+ * and gets the path to the current related note.
  *
- * @returns Successful `StringResultObject` containing the path if the DN
+ * @returns Successful `StringResultObject` containing the path if the PN
  * functionality is available and there is a current daily note. Unsuccessful
  * `StringResultObject` if it isn't.
  */
-export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
-  if (!appHasDailyNotesPluginLoaded()) {
-    return failure(412, STRINGS.daily_notes_feature_not_available);
+export function getPeriodNotePathIfPluginIsAvailable(
+  periodID: PeriodType,
+): StringResultObject {
+  var pluginLoadedCheck: Function;
+  var getCurrentPeriodNote: Function;
+
+  switch (periodID) {
+    case "daily":
+      pluginLoadedCheck = appHasDailyNotesPluginLoaded;
+      getCurrentPeriodNote = getDailyNote;
+
+    case "weekly":
+      pluginLoadedCheck = appHasWeeklyNotesPluginLoaded;
+      getCurrentPeriodNote = getWeeklyNote;
+
+    case "monthly":
+      pluginLoadedCheck = appHasMonthlyNotesPluginLoaded;
+      getCurrentPeriodNote = getMonthlyNote;
+
+    case "quarterly":
+      pluginLoadedCheck = appHasQuarterlyNotesPluginLoaded;
+      getCurrentPeriodNote = getQuarterlyNote;
+
+    case "yearly":
+      pluginLoadedCheck = appHasYearlyNotesPluginLoaded;
+      getCurrentPeriodNote = getYearlyNote;
   }
 
-  const dailyNote = getCurrentDailyNote();
-  return dailyNote
-    ? success(dailyNote.path)
-    : failure(404, STRINGS.note_not_found);
+  if (!pluginLoadedCheck()) {
+    return failure(412, STRINGS[`${periodID}_note`].feature_not_available);
+  }
+
+  const pNote = getCurrentPeriodNote(periodID);
+  return pNote ? success(pNote.path) : failure(404, STRINGS.note_not_found);
 }
 
 /**
