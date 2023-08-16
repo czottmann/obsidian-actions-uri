@@ -75,7 +75,7 @@ export async function focusOrOpenNote(
   const res1 = await getNoteFile(filepath);
   if (res1.isSuccess) {
     window.app.workspace.getLeaf(true).openFile(res1.result);
-    return success(STRINGS.open.note_opened);
+    return success(STRINGS.note_opened);
   }
 
   return failure(404, STRINGS.note_not_found);

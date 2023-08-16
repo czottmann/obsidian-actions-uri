@@ -201,7 +201,7 @@ async function handleOpen(
   const res = await getNoteFile(params.file.path);
 
   return res.isSuccess
-    ? success({ message: STRINGS.open.note_opened }, res.result.path)
+    ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
 }
 
