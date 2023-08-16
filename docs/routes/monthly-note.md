@@ -2,11 +2,12 @@
 parent: New Routes
 ---
 
-# `/daily-note`
+# `/monthly-note`
+<span class="tag tag-version">v1.3+</span>
 
-These routes deal with reading, writing and updating daily notes. Their URLs start with `obsidian://actions-uri/daily-note/…`.
+These routes deal with reading, writing and updating monthly notes. Their URLs start with `obsidian://actions-uri/monthly-note/…`.
 
-All routes listed here will test whether Daily Note functionality is enabled in Obsidian and if not, will return an `x-error` callback.  Both the official core plugin and the [@liamcain](https://github.com/liamcain)'s community plugin [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) are supported.  The configurations from those plugins is honored, i.e. date format, the set folder for daily notes etc. are taken into account when fetching, creating and updating notes.
+All routes listed here will test whether Monthly Note functionality is enabled in Obsidian and if not, will return an `x-error` callback.  (Monthly Notes are a feature of [@liamcain](https://github.com/liamcain)'s community plugin [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes).)  The settings made in the plugin's UI are honored, i.e. date format, the set folder for monthly notes etc. are taken into account when fetching, creating and updating notes.
 
 <div id="toc"></div>
 
@@ -14,8 +15,7 @@ All routes listed here will test whether Daily Note functionality is enabled in 
 &nbsp;
 
 
-## Root, i.e. `/daily-note`
-
+## Root, i.e. `/monthly-note`
 Does nothing but say hello.
 
 ### Parameters
@@ -34,9 +34,8 @@ On success:
 &nbsp;
 
 
-## `/daily-note/list`
-<span class="tag tag-version">v0.12+</span>
-Returns a list of all daily notes.
+## `/monthly-note/list`
+Returns a list of all monthly notes.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -66,8 +65,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/get-current`
-Returns today's daily note.
+## `/monthly-note/get-current`
+Returns today's monthly note.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -101,8 +100,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/get-most-recent`
-Returns the most recent daily note.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
+## `/monthly-note/get-most-recent`
+Returns the most recent monthly note.  If there is a current monthly note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* monthly note is returned.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -136,9 +135,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-current`
-<span class="tag tag-version">v0.12+</span>
-Opens the current daily note in Obsidian.
+## `/monthly-note/open-current`
+Opens the current monthly note in Obsidian.
 
 ### Parameters
 Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
@@ -163,8 +161,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/open-most-recent`span class="tag tag-version">v0.12+</span>
-Opens the most recent daily note in Obsidian.  If there is a current daily note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* daily note is returned.
+## `/monthly-note/open-most-recent`
+Opens the most recent monthly note in Obsidian.  If there is a current monthly note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* monthly note is returned.
 
 ### Parameters
 Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
@@ -189,12 +187,12 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/create`
-Creates a new daily note. If a current daily note is already present, an error will be returned.
+## `/monthly-note/create`
+Creates a new monthly note. If a current monthly note is already present, an error will be returned.
 
-<span class="tag tag-version">v0.18+</span> If you want to skip the error response in favor of getting the current note as-is, pass in `if-exists=skip`. If you want to overwrite an existing note, pass in `if-exists=overwrite`.
+If you want to skip the error response in favor of getting the current note as-is, pass in `if-exists=skip`. If you want to overwrite an existing note, pass in `if-exists=overwrite`.
 
-<span class="tag tag-version">v1.2.0</span> The `apply` parameter allows you to specify what to add to the note after creation. Available options are `content` (implied default) for adding a string, `templates` (for using the Template core plugin), `templater` (for using the Templater community plugin). Depending on the `apply` parameter's value, the following additional parameters are allowed:
+The `apply` parameter allows you to specify what to add to the note after creation. Available options are `content` (implied default) for adding a string, `templates` (for using the Template core plugin), `templater` (for using the Templater community plugin). Depending on the `apply` parameter's value, the following additional parameters are allowed:
 
 - `apply=content` or no `apply` parameter: `content` parameter, the initial body of the note
 - `apply=templater`: `template-file` parameter, path of the template file to apply
@@ -242,8 +240,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/append`
-Appends text to today's daily note, either to the very end of the note (default) or to the section below a particular headline.
+## `/monthly-note/append`
+Appends text to today's monthly note, either to the very end of the note (default) or to the section below a particular headline.
 
 When you append text to a section below a heading, the headline must be entered *exactly* as it appears in the note: headline levels, capitalization, punctuation etc. For example, "## My Headline", "### My Headline", and "## my headline" are not identical.
 
@@ -252,9 +250,9 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 
 | Parameter             | Value type | Optional? | Description                                                                       |
 | --------------------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
-| `content`             | string     |           | The text to be added at the end of today's daily note.                            |
-| `below-headline`      | string     |    ✅     | Appends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
-| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
+| `content`             | string     |           | The text to be added at the end of today's monthly note.                            |
+| `below-headline`      | string     |    ✅     | Appends text below the given headline, before the next headline or EOF, whatever comes first. |
+| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before appending."* Defaults to `false`.  |
 | `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.               |
 | `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
@@ -278,7 +276,7 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/prepend`
+## `/monthly-note/prepend`
 Prepends text to today's note, either to the very beginning of the note (default) or to the section below a particular headline in a note.
 
 If the very beginning of the note is prepended, then the front matter will be honored (i.e. the new text will be added to the note body below the front matter) unless explicitly stated otherwise.
@@ -290,9 +288,9 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 
 | Parameter             | Value type | Optional? | Description                                                                                                   |
 | --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
-| `content`             | string     |           | The text to be added at the beginning of today's daily note.                                                  |
-| `below-headline`      | string     |    ✅     | Prepends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
-| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before prepending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
+| `content`             | string     |           | The text to be added at the beginning of today's monthly note.                                                  |
+| `below-headline`      | string     |    ✅     | Prepends text below the given headline, before the next headline or EOF, whatever comes first. |
+| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before prepending."* Defaults to `false`. |
 | `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
 | `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
 | `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
@@ -317,8 +315,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/search-string-and-replace`
-Does text replacement in today's daily note.  The search term is used as-is, i.e. it's a string search.
+## `/monthly-note/search-string-and-replace`
+Does text replacement in today's monthly note.  The search term is used as-is, i.e. it's a string search.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -349,8 +347,8 @@ On failure:
 &nbsp;
 
 
-## `/daily-note/search-regex-and-replace`
-Does text replacement in today's daily note.  The search term is used as a pattern, i.e. it's a regular expression search.
+## `/monthly-note/search-regex-and-replace`
+Does text replacement in today's monthly note.  The search term is used as a pattern, i.e. it's a regular expression search.
 
 Capturing is supported. Example: the note contains the text *"and it was good"*, the `search` value is `/(it) (was)/` and the `replace` value is `$2 $1` — after the replacement the note would be changed to *"and was it good"*.
 
