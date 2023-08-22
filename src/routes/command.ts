@@ -11,11 +11,7 @@ import {
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { pause } from "../utils/time";
-import {
-  zodAlwaysFalse,
-  zodCommaSeparatedStrings,
-  zodNumber,
-} from "../utils/zod";
+import { zodAlwaysFalse, zodCommaSeparatedStrings } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -27,7 +23,7 @@ type ListParams = z.infer<typeof listParams>;
 
 const executeParams = incomingBaseParams.extend({
   commands: zodCommaSeparatedStrings,
-  "pause-in-secs": zodNumber.optional(),
+  "pause-in-secs": z.coerce.number().optional(),
   silent: zodAlwaysFalse,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
