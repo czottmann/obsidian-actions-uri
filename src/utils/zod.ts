@@ -47,6 +47,7 @@ export const zodJsonStringArray = z.string()
  * return the parsed array of strings.
  */
 export const zodCommaSeparatedStrings = z.string()
+  .min(1, { message: "can't be empty" })
   .transform((str) => str.split(",").map((item) => item.trim()));
 
 /**
