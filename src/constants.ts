@@ -2,6 +2,7 @@ export const URI_NAMESPACE = "actions-uri";
 
 export const STRINGS = {
   append_done: "Note was appended",
+  command_not_found: (command: string) => `Unknown command ${command}`,
   daily_note: {
     create_note_already_exists: "Daily note already exists",
     create_note_no_content:

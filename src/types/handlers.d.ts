@@ -116,6 +116,20 @@ export type HandlerVaultInfoSuccess = Readonly<
   }
 >;
 
+export type HandlerCommandsSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      commands: string;
+    };
+  }
+>;
+
+export type HandlerCommandsExecutionSuccess = Readonly<
+  & HandlerSuccess
+  & { result: {} }
+>;
+
 export type AnyHandlerSuccess =
   | HandlerDataviewSuccess
   | HandlerFileSuccess
@@ -123,7 +137,9 @@ export type AnyHandlerSuccess =
   | HandlerPathsSuccess
   | HandlerSearchSuccess
   | HandlerTextSuccess
-  | HandlerVaultSuccess;
+  | HandlerVaultSuccess
+  | HandlerCommandsSuccess
+  | HandlerCommandsExecutionSuccess;
 
 export type AnyHandlerResult =
   | AnyHandlerSuccess
