@@ -41,7 +41,6 @@ export function sendUrlCallback(
 
   if (params["x-source"] == "Actions for Obsidian") {
     url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
-    url.searchParams.set("vault", params.vault);
   }
 
   const returnParams: Record<string, string> = params["debug-mode"]
