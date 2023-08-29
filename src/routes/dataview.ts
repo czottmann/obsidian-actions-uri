@@ -73,7 +73,31 @@ async function handleDataviewQuery(
   }
 
   const res = await dataview.query(dql);
-  return res.successful
-    ? success({ data: dqlValuesMapper(dataview, res.value.values) })
-    : failure(400, res.error);
+  if (!res.successful) {
+    return failure(400, res.error);
+  }
+
+  // For some TABLE queries, DV will return a three-dimensional array instead of
+  // a two-dimensional one. Not sure what's the cause but I'll need to account
+  // for this. (https://github.com/czottmann/obsidian-actions-uri/issues/79)
+  if (type === "table" && getArrayDimensions(res.value.values) > 2) {
+    return success({ data: dqlValuesMapper(dataview, res.value.values[0]) });
+  }
+
+  return success({ data: dqlValuesMapper(dataview, res.value.values) });
+}
+
+function getArrayDimensions(input: any[]) {
+  if (!Array.isArray(input)) {
+    return 0;
+  }
+
+  let dimensions = 1;
+  input.forEach((item) => {
+    if (Array.isArray(item)) {
+      dimensions = Math.max(dimensions, getArrayDimensions(item) + 1);
+    }
+  });
+
+  return dimensions;
 }
