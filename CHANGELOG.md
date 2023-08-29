@@ -1,5 +1,12 @@
 # Release history
 
+## 1.2.5, 2023-08-29
+
+### Fixes
+
+- Ensures Dataview `TABLE` results are correctly nested. (#79)
+
+
 ## 1.2.4, 2023-08-07
 
 ### Fixes
