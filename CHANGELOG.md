@@ -4,7 +4,15 @@
 
 ### New stuff
 
-Support for [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) (#75)! Please see the new route docs for details:
+#### Support for triggering Obsidian commands (#77)
+
+Please see the new route docs for details:
+  - [`/command`](https://czottmann.github.io/obsidian-actions-uri/routes/command/)
+
+#### Support for Weekly, Monthly, Quarterly, and Yearly Notes (#75)
+
+All of Action UR's existing [`/daily-note`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/) functionality is now also available for anything supported by the [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) community plugin! Please see the new route docs for details:
+
   - [`/weekly-note`](https://czottmann.github.io/obsidian-actions-uri/routes/weekly-note/)
   - [`/monthly-note`](https://czottmann.github.io/obsidian-actions-uri/routes/monthly-note/)
   - [`/quarterly-note`](https://czottmann.github.io/obsidian-actions-uri/routes/quarterly-note/)
@@ -13,20 +21,14 @@ Support for [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes
 > [!IMPORTANT]
 > **Known issue:** At the time of writing, the Periodic Notes plugin seems to have a bug that (for some people) prevents creating a new weekly note on any day other than Sunday. [liamcain/obsidian-periodic-notes · #185 · Open weekly note only works on Sunday](https://github.com/liamcain/obsidian-periodic-notes/issues/185). Since Actions URI uses the Periodic Notes plugin's API, this is not something I can fix. Please follow the issue for updates.
 
-Support for triggering Obsidian commands (#77)! Please see the new route docs for details:
-  - [`/command`](https://czottmann.github.io/obsidian-actions-uri/routes/command/)
-
-
 ### Changes
 
-- Actions URI now requires Obsidian 1.3+.
-
+- Actions URI now requires Obsidian 1.3+ .
 
 ### Fixes
 
 - Adds missing return calls to `/vault/open` and `/vault/close`. (#76)
 - For some Dataview `TABLE` queries, the results would be wrapped in an extra array, this has been fixed. (#79)
-
 
 ### Housekeeping
 
