@@ -23,6 +23,32 @@ export const zodSanitizedFolderPath = z.string()
   .transform((file) => sanitizeFilePath(file, true));
 
 /**
+ * A schema which expects a string containing a JSON-encoded array of strings,
+ * and which will return the parsed array of strings.
+ */
+export const zodJsonStringArray = z.string()
+  .refine((str) => {
+    try {
+      const value = JSON.parse(str);
+      return Array.isArray(value) &&
+        value.every((item) => typeof item === "string");
+    } catch (error) {
+      return false;
+    }
+  }, {
+    message: "Input must be a JSON-encoded string array.",
+  })
+  .transform((str) => JSON.parse(str));
+
+/**
+ * A schema which expects a comma-separated list of strings, and which will
+ * return the parsed array of strings.
+ */
+export const zodCommaSeparatedStrings = z.string()
+  .min(1, { message: "can't be empty" })
+  .transform((str) => str.split(",").map((item) => item.trim()));
+
+/**
  * A schema which tests the passed-in string to see if it's a valid path to an
  * existing file. If it is, returns a `TFile` instance.
  */

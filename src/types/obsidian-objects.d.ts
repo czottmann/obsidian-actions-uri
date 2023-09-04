@@ -1,4 +1,18 @@
-import { DataAdapter, MetadataCache, TFile, Vault } from "obsidian";
+import {
+  App,
+  Command,
+  DataAdapter,
+  MetadataCache,
+  TFile,
+  Vault,
+} from "obsidian";
+
+export interface RealLifeApp extends App {
+  commands: {
+    executeCommandById(id: string): boolean;
+    listCommands(): Command[];
+  };
+}
 
 export interface RealLifeVault extends Vault {
   fileMap: Record<string, TFile>;

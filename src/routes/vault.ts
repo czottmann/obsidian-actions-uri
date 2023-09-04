@@ -30,8 +30,8 @@ export type AnyLocalParams = DefaultParams;
 export const routePath: RoutePath = {
   "/vault": [
     helloRoute(),
-    { path: "/open", schema: defaultParams, handler: handleOpen },
-    { path: "/close", schema: defaultParams, handler: handleClose },
+    { path: "/open", schema: incomingBaseParams, handler: handleOpen },
+    { path: "/close", schema: incomingBaseParams, handler: handleClose },
     { path: "/info", schema: defaultParams, handler: handleInfo },
     {
       path: "/list-folders",

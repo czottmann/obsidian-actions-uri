@@ -1,9 +1,4 @@
 import { normalizePath, TFile, TFolder } from "obsidian";
-import {
-  appHasDailyNotesPluginLoaded,
-  getAllDailyNotes,
-  getDailyNote,
-} from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { isCommunityPluginEnabled } from "./plugins";
 import { failure, success } from "./results-handling";
@@ -351,29 +346,6 @@ export async function prependNoteBelowHeadline(
   return resFile;
 }
 
-export function getCurrentDailyNote(): TFile | undefined {
-  return getDailyNote(window.moment(), getAllDailyNotes());
-}
-
-/**
- * Checks if the daily note plugin is available, and gets the path to today's
- * daily note.
- *
- * @returns Successful `StringResultObject` containing the path if the DN
- * functionality is available and there is a current daily note. Unsuccessful
- * `StringResultObject` if it isn't.
- */
-export function getDailyNotePathIfPluginIsAvailable(): StringResultObject {
-  if (!appHasDailyNotesPluginLoaded()) {
-    return failure(412, STRINGS.daily_notes_feature_not_available);
-  }
-
-  const dailyNote = getCurrentDailyNote();
-  return dailyNote
-    ? success(dailyNote.path)
-    : failure(404, STRINGS.note_not_found);
-}
-
 /**
  * Gets the list of all files and folders in the vault.
  *
@@ -496,8 +468,7 @@ export async function createFolderIfNecessary(folder: string) {
  * @param content - The body of the note to be created
  *
  * @remarks
- * See issue #61 at
- * https://github.com/czottmann/obsidian-actions-uri/issues/61
+ * See issue #61 at https://github.com/czottmann/obsidian-actions-uri/issues/61
  */
 async function createAndPause(filepath: string, content: string) {
   // Create the new note
