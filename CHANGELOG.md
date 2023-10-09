@@ -1,5 +1,12 @@
 # Release history
 
+## 1.3.1, 2023-10-09
+
+### Fixes
+
+- Append/prepend to a periodic note that had to be created first would create the note but fail to append/prepend the text. This is now fixed.
+
+
 ## 1.3.0, 2023-09-04
 
 ### New stuff
