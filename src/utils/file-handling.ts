@@ -92,8 +92,10 @@ export async function createOrOverwriteNote(
   const { vault } = window.app;
   const file = vault.getAbstractFileByPath(filepath);
 
-  // Update the file if it already exists
+  // Update the file if it already exists, but give any other creation-hooked
+  // functions some time to do their things first
   if (file instanceof TFile) {
+    await pause(500);
     await vault.modify(file, content);
     return success(<TFile> vault.getAbstractFileByPath(filepath));
   }
