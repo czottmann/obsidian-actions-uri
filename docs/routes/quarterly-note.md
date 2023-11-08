@@ -68,6 +68,8 @@ On failure:
 ## `/quarterly-note/get-current`
 Returns today's quarterly note.
 
+<span class="tag tag-version">v1.4+</span> **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
@@ -88,6 +90,7 @@ On success:
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
 | `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -103,6 +106,8 @@ On failure:
 ## `/quarterly-note/get-most-recent`
 Returns the most recent quarterly note.  If there is a current quarterly note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* quarterly note is returned.
 
+<span class="tag tag-version">v1.4+</span> **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
@@ -123,6 +128,7 @@ On success:
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
 | `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -205,6 +211,8 @@ Examples:
 - `apply=templater&template-file=Templates/Meeting%20notes.md`
 - `apply=templates&template-file=Templates/Meeting%20notes.md`
 
+<span class="tag tag-version">v1.4+</span> **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
@@ -215,7 +223,6 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | +- `template-file` | string     |    ✅     | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                               |
 | `if-exists`        | string     |    ✅     | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
 | `silent`           | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
-
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -228,6 +235,7 @@ On success:
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
 | `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
