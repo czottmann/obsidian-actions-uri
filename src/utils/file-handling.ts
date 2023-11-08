@@ -15,6 +15,10 @@ import {
   TFileResultObject,
 } from "../types";
 
+export function activeVault() {
+  return window.app.vault;
+}
+
 /**
  * Create a new note. If the note already exists, find a available numeric
  * suffix for the filename and create a new note with that suffix.
@@ -38,7 +42,7 @@ export async function createNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const { vault } = window.app;
+  const vault = activeVault();
   let file = vault.getAbstractFileByPath(filepath);
   let doesFileExist = file instanceof TFile;
 
@@ -89,7 +93,7 @@ export async function createOrOverwriteNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const { vault } = window.app;
+  const vault = activeVault();
   const file = vault.getAbstractFileByPath(filepath);
 
   // Update the file if it already exists, but give any other creation-hooked
@@ -120,7 +124,7 @@ export async function createOrOverwriteNote(
 export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const res = await getNoteFile(filepath);
   if (!res.isSuccess) {
     return res;
@@ -354,7 +358,7 @@ export async function prependNoteBelowHeadline(
  * @returns An array of `TFile` instances
  */
 export function getFileMap(): TFile[] {
-  const { vault } = window.app;
+  const vault = activeVault();
   const { fileMap } = <RealLifeVault> vault;
   return Object.values(fileMap);
 }
@@ -370,7 +374,7 @@ export function getFileMap(): TFile[] {
 export async function getNoteFile(
   filepath: string,
 ): Promise<TFileResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
 
   return file instanceof TFile
@@ -391,7 +395,7 @@ export async function trashFilepath(
   filepath: string,
   deleteImmediately: boolean = false,
 ): Promise<StringResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
@@ -421,7 +425,7 @@ export async function renameFilepath(
   filepath: string,
   newFilepath: string,
 ): Promise<StringResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
@@ -450,7 +454,7 @@ export async function renameFilepath(
  * @param folder - A folder path relative from the vault root
  */
 export async function createFolderIfNecessary(folder: string) {
-  const { vault } = window.app;
+  const vault = activeVault();
   folder = sanitizeFilePath(folder, true);
 
   if (folder === "" || folder === ".") return;
@@ -474,7 +478,7 @@ export async function createFolderIfNecessary(folder: string) {
  */
 async function createAndPause(filepath: string, content: string) {
   // Create the new note
-  await window.app.vault.create(filepath, content);
+  await activeVault().create(filepath, content);
 
   if (isCommunityPluginEnabled("templater-obsidian")) {
     await pause(500);

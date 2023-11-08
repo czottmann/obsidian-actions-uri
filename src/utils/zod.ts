@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
+import { activeVault } from "./file-handling";
 import { sanitizeFilePath } from "./file-handling";
 
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
@@ -111,7 +112,7 @@ function lookupAbstractFileForPath(path: any): TAbstractFile | null {
   }
 
   const filepath = sanitizeFilePath(path as string);
-  return window.app.vault.getAbstractFileByPath(filepath);
+  return activeVault().getAbstractFileByPath(filepath);
 }
 
 /**
@@ -126,5 +127,5 @@ function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  return window.app.vault.getAbstractFileByPath(path as string);
+  return activeVault().getAbstractFileByPath(path as string);
 }
