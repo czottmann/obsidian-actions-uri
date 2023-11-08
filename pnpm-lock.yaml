@@ -24,7 +24,7 @@ devDependencies:
     specifier: ^5.1.0
     version: 5.1.0
   obsidian:
-    specifier: ^1.3.0
+    specifier: ^1.4.0
     version: 1.4.0(@codemirror/state@6.2.0)(@codemirror/view@6.7.3)
   obsidian-daily-notes-interface:
     specifier: ^0.9.4
@@ -306,20 +306,20 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@lezer/common@1.0.2:
-    resolution: {integrity: sha512-SVgiGtMnMnW3ActR8SXgsDhw7a0w0ChHSYAyAUxxrOiJ1OqYWEKk/xJd84tTSPo1mo6DXLObAJALNnd0Hrv7Ng==}
+  /@lezer/common@1.1.0:
+    resolution: {integrity: sha512-XPIN3cYDXsoJI/oDWoR2tD++juVrhgIago9xyKhZ7IhGlzdDM9QgC8D8saKNCz5pindGcznFr2HBSsEQSWnSjw==}
     dev: true
 
   /@lezer/highlight@1.1.3:
     resolution: {integrity: sha512-3vLKLPThO4td43lYRBygmMY18JN3CPh9w+XS2j8WC30vR4yZeFG4z1iFe4jXE43NtGqe//zHW5q8ENLlHvz9gw==}
     dependencies:
-      '@lezer/common': 1.0.2
+      '@lezer/common': 1.1.0
     dev: true
 
   /@lezer/lr@1.3.1:
     resolution: {integrity: sha512-+GymJB/+3gThkk2zHwseaJTI5oa4AuOuj1I2LCslAVq1dFZLSX8SAe4ZlJq1TjezteDXtF/+d4qeWz9JvnrG9Q==}
     dependencies:
-      '@lezer/common': 1.0.2
+      '@lezer/common': 1.1.0
     dev: true
 
   /@nodelib/fs.scandir@2.1.5:
@@ -1096,7 +1096,7 @@ packages:
     resolution: {integrity: sha512-REKQtAuIOKDbvNH/th1C1gWmJWCP5tRn9T/mfZGZt4Zncgko7McXK0aSKFtEInipvgbZJ2nScivvyLdiWluSMw==}
     hasBin: true
     dependencies:
-      obsidian: github.com/obsidianmd/obsidian-api/90517f4fa762838008a638069d8e151f071a8ef7(@codemirror/state@6.2.0)(@codemirror/view@6.7.3)
+      obsidian: github.com/obsidianmd/obsidian-api/791214a68d0dc322b88e5abce617bdf603cc2a2d(@codemirror/state@6.2.0)(@codemirror/view@6.7.3)
       tslib: 2.1.0
     transitivePeerDependencies:
       - '@codemirror/state'
@@ -1107,7 +1107,7 @@ packages:
     resolution: {integrity: sha512-PILoRtZUB5wEeGnDQAPMlkVlXwDYoxkLR8Wl4STU2zLNwhcq9kKvQexiXi7sfjGlpTnL+LeAOfEVWyeVndneKg==}
     hasBin: true
     dependencies:
-      obsidian: github.com/obsidianmd/obsidian-api/90517f4fa762838008a638069d8e151f071a8ef7(@codemirror/state@6.2.0)(@codemirror/view@6.7.3)
+      obsidian: github.com/obsidianmd/obsidian-api/791214a68d0dc322b88e5abce617bdf603cc2a2d(@codemirror/state@6.2.0)(@codemirror/view@6.7.3)
       tslib: 2.1.0
     transitivePeerDependencies:
       - '@codemirror/state'
@@ -1117,7 +1117,7 @@ packages:
   /obsidian-dataview@0.5.56:
     resolution: {integrity: sha512-QyXpJLDJVpLmPCiF8ht4XqeuhWaccAs/pSpP+oDmwou4uJvEO4rXosj7joYQXv1QMsxf5UHy2OO56BZoyzVGBg==}
     dependencies:
-      '@codemirror/language': github.com/lishid/cm-language/1aadcc247f20ccfda76424a9f853dbb4ee203fdc
+      '@codemirror/language': github.com/lishid/cm-language/cc6a2cc30288db6be3f879ddf0e3ef64f14ed6ab
       '@codemirror/state': 6.2.0
       '@codemirror/view': 6.7.3
       emoji-regex: 10.2.1
@@ -1403,26 +1403,26 @@ packages:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
     dev: true
 
-  github.com/lishid/cm-language/1aadcc247f20ccfda76424a9f853dbb4ee203fdc:
-    resolution: {tarball: https://codeload.github.com/lishid/cm-language/tar.gz/1aadcc247f20ccfda76424a9f853dbb4ee203fdc}
+  github.com/lishid/cm-language/cc6a2cc30288db6be3f879ddf0e3ef64f14ed6ab:
+    resolution: {tarball: https://codeload.github.com/lishid/cm-language/tar.gz/cc6a2cc30288db6be3f879ddf0e3ef64f14ed6ab}
     name: '@codemirror/language'
-    version: 6.6.0
+    version: 6.9.2
     prepare: true
     requiresBuild: true
     dependencies:
       '@codemirror/state': 6.2.0
       '@codemirror/view': 6.7.3
-      '@lezer/common': 1.0.2
+      '@lezer/common': 1.1.0
       '@lezer/highlight': 1.1.3
       '@lezer/lr': 1.3.1
       style-mod: 4.0.0
     dev: true
 
-  github.com/obsidianmd/obsidian-api/90517f4fa762838008a638069d8e151f071a8ef7(@codemirror/state@6.2.0)(@codemirror/view@6.7.3):
-    resolution: {tarball: https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/90517f4fa762838008a638069d8e151f071a8ef7}
-    id: github.com/obsidianmd/obsidian-api/90517f4fa762838008a638069d8e151f071a8ef7
+  github.com/obsidianmd/obsidian-api/791214a68d0dc322b88e5abce617bdf603cc2a2d(@codemirror/state@6.2.0)(@codemirror/view@6.7.3):
+    resolution: {tarball: https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/791214a68d0dc322b88e5abce617bdf603cc2a2d}
+    id: github.com/obsidianmd/obsidian-api/791214a68d0dc322b88e5abce617bdf603cc2a2d
     name: obsidian
-    version: 1.4.0
+    version: 1.4.11
     peerDependencies:
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
