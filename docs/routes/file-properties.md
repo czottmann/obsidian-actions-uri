@@ -7,7 +7,7 @@ parent: New Routes
 
 These routes deal with reading, writing and updating [note properties](https://help.obsidian.md/Editing+and+formatting/Properties).  Their URLs start with `obsidian://actions-uri/file-properties/…`.
 
-Please keep in mind that setting new properties will effectively rewrite a note's frontmatter.
+Please keep in mind that setting new properties will effectively rewrite a note's front matter.
 
 <div id="toc"></div>
 
@@ -72,11 +72,11 @@ On failure:
 
 Overwrites or updates a note's properties.
 
-When overwriting, all of the note's properties will be replaced with the new ones.
+When **overwriting**, all of the note's properties will be replaced with the new ones. When **updating**, the properties specified in the `properties` parameter will replace existing keys with the same name, leaving the rest untouched.
 
-When updating, the properties specified in the `properties` parameter will replace existing keys with the same name, leaving the rest untouched.
+In absence of a dedicated Obsidian API method for writing properties (AFAICT), Actions URI will translate the `properties` parameter into front matter YAML, and then replace the old front matter. Obsidian will pick up the file change and populate the note's properties from the changed front matter. *How* Obsidian interprets those values is up to, and can only be done in Obsidian itself, please see [the official Property doc page for more details](https://help.obsidian.md/Editing+and+formatting/Properties#Property%20types).
 
-Logically, setting new properties will effectively rewrite the note's frontmatter.
+The `properties` parameter will only accept object values with valid types (i.e., string, list of strings, number, and boolean). Date and Date & Time properties are represented as string values.
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -115,7 +115,7 @@ On failure:
 
 ## `/file-properties/clear`
 
-Removes the entirety of a note's properties (and therefore, its frontmatter).
+Removes the entirety of a note's properties (and therefore, its front matter).
 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
@@ -154,7 +154,7 @@ On failure:
 
 ## `/file-properties/remove-keys`
 
-Remove one or more keys from a note's properties (and therefore, its frontmatter).
+Remove one or more keys from a note's properties (and therefore, its front matter).
 
 The `keys` parameter is a JSON-encoded array of strings, e.g. `["createdAt", "aliases"]`, because keys in a note's properties may contain commas etc., which prevented using a simpler CSV-type parameter like "createdAt,aliases". 🤷🏻‍♂️
 
