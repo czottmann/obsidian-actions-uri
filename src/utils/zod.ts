@@ -42,6 +42,44 @@ export const zodJsonStringArray = z.string()
   .transform((str) => JSON.parse(str));
 
 /**
+ * A schema which expects a string containing a JSON-encoded object containing
+ * only values of type `string`, `string[]`, `number`, `boolean` or `null`.
+ * Return the object if valid.
+ */
+export const zodJsonPropertiesObject = z.string()
+  .refine((str) => {
+    try {
+      const value = JSON.parse(str);
+
+      if (typeof value !== "object") {
+        return false;
+      }
+
+      const isValid = Object.values(value)
+        .every((item) => {
+          const type = typeof item;
+          if (["string", "number", "boolean"].includes(type) || item === null) {
+            return true;
+          }
+
+          if (Array.isArray(item)) {
+            return item.every((subItem) => typeof subItem === "string");
+          }
+
+          return false;
+        });
+
+      return isValid;
+    } catch (error) {
+      return false;
+    }
+  }, {
+    message:
+      "Input must be a JSON-encoded object containing only values of type string, string array, number, boolean or null.",
+  })
+  .transform((str) => JSON.parse(str));
+
+/**
  * A schema which expects a comma-separated list of strings, and which will
  * return the parsed array of strings.
  */

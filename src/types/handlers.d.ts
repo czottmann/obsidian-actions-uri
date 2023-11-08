@@ -130,16 +130,31 @@ export type HandlerCommandsExecutionSuccess = Readonly<
   & { result: {} }
 >;
 
+export type HandlerPropertiesSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      properties: FileProperties;
+    };
+  }
+>;
+
+export type FileProperties = Record<
+  string,
+  string | string[] | number | boolean | null
+>;
+
 export type AnyHandlerSuccess =
+  | HandlerCommandsExecutionSuccess
+  | HandlerCommandsSuccess
   | HandlerDataviewSuccess
   | HandlerFileSuccess
   | HandlerInfoSuccess
   | HandlerPathsSuccess
+  | HandlerPropertiesSuccess
   | HandlerSearchSuccess
   | HandlerTextSuccess
-  | HandlerVaultSuccess
-  | HandlerCommandsSuccess
-  | HandlerCommandsExecutionSuccess;
+  | HandlerVaultSuccess;
 
 export type AnyHandlerResult =
   | AnyHandlerSuccess

@@ -27,6 +27,9 @@ export const STRINGS = {
   note_opened: "Note opened",
   omnisearch_plugin_not_available: "Omnisearch plugin is not active",
   prepend_done: "Note was prepended",
+  properties: {
+    key_not_found: "Key not found",
+  },
   quarterly_note: {
     create_note_already_exists: "Quarterly note already exists",
     create_note_no_content:

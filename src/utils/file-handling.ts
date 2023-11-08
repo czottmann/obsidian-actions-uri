@@ -9,6 +9,7 @@ import {
 } from "./string-handling";
 import { pause } from "./time";
 import {
+  FileProperties,
   NoteDetailsResultObject,
   RealLifeVault,
   StringResultObject,
@@ -147,22 +148,26 @@ export async function getNoteContent(
 export async function getNoteDetails(
   filepath: string,
 ): Promise<NoteDetailsResultObject> {
-  const res = await getNoteContent(filepath);
+  const res = await getNoteFile(filepath);
   if (!res.isSuccess) {
     return res;
   }
 
-  const content = res.result;
+  const res2 = await getNoteContent(filepath);
+  if (!res2.isSuccess) {
+    return res2;
+  }
+
+  const file = res.result;
+  const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
-  return success(
-    {
-      filepath,
-      content,
-      body,
-      frontMatter: unwrapFrontMatter(frontMatter),
-    },
+  return success({
     filepath,
-  );
+    content,
+    body,
+    frontMatter: unwrapFrontMatter(frontMatter),
+    properties: propertiesForFile(file),
+  });
 }
 
 /**
@@ -190,6 +195,61 @@ export function sanitizeFilePath(
   return (isFolder || /\.(md|canvas)/i.test(extname(filename)))
     ? filename
     : `${filename}.md`;
+}
+
+/**
+ * Replaces the front matter and/or body of an existing note and returns its new
+ * split-up contents.
+ *
+ * @param filepath - A full filename, relative from vault root
+ * @param newFrontMatter - The new front matter to use. If not specified, the
+ *                         existing front matter will be kept. An empty string
+ *                         will clear any existing front matter.
+ * @param newBody - The new body to use. If not specified, the existing body
+ *                  will be kept. An empty string will remove the existing body.
+ *
+ * @returns A result object. Success case: note path, content, body and front
+ * matter; failure case: readable error message
+ */
+export async function updateNote(
+  filepath: string,
+  newFrontMatter?: string,
+  newBody?: string,
+): Promise<NoteDetailsResultObject> {
+  const res = await getNoteFile(filepath);
+  if (!res.isSuccess) {
+    return res;
+  }
+
+  const res2 = await getNoteDetails(filepath);
+  if (!res2.isSuccess) {
+    return res2;
+  }
+
+  // If both newFrontMatter and newBody are undefined, there's nothing to do.
+  if (typeof newFrontMatter !== "string" && typeof newBody !== "string") {
+    return res2;
+  }
+
+  const file = res.result;
+  const noteDetails = res2.result;
+  const frontMatter = (typeof newFrontMatter === "string")
+    ? newFrontMatter
+    : noteDetails.frontMatter;
+  const body = (typeof newBody === "string") ? newBody : noteDetails.body;
+  const newNoteContent = ["---", frontMatter, "---", body]
+    // Remove empty strings, e.g., an empty FM block
+    .filter((s) => s.length)
+    .join("\n");
+
+  await activeVault().modify(file, newNoteContent);
+  return success({
+    filepath,
+    content: newNoteContent,
+    body,
+    frontMatter,
+    properties: propertiesForFile(file),
+  });
 }
 
 /**
@@ -461,6 +521,16 @@ export async function createFolderIfNecessary(folder: string) {
   // Back off if the folder already exists
   if (vault.getAbstractFileByPath(folder) instanceof TFolder) return;
   await vault.createFolder(folder);
+}
+
+/**
+ * Returns the frontmatter properties for a given file.
+ * @param file - The file to retrieve properties for.
+ * @returns An object containing the frontmatter properties of the file, or an
+ *          empty object if none exist.
+ */
+export function propertiesForFile(file: TFile): FileProperties {
+  return app.metadataCache.getFileCache(file)?.frontmatter || {};
 }
 
 // HELPERS ----------------------------------------

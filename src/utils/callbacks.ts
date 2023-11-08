@@ -64,7 +64,7 @@ export function sendUrlCallback(
  * defaults to `XCALLBACK_RESULT_PREFIX`
  */
 function addObjectToUrlSearchParams(
-  obj: Record<string, string | string[] | AbstractFile[] | TAbstractFile>,
+  obj: Record<string, any>,
   url: URL,
   prefix: string = XCALLBACK_RESULT_PREFIX,
 ) {
