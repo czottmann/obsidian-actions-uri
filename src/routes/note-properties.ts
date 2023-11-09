@@ -44,7 +44,7 @@ export type AnyLocalParams =
 // ROUTES --------------------
 
 export const routePath: RoutePath = {
-  "/file-properties": [
+  "/note-properties": [
     helloRoute(),
     { path: "/get", schema: defaultParams, handler: handleGet },
     { path: "/set", schema: setParams, handler: handleSet },

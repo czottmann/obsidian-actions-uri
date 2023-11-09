@@ -1,6 +1,6 @@
 import { TFile } from "obsidian";
 import { AnyParams } from "../routes";
-import { FileProperties } from "../types";
+import { NoteProperties } from "../types";
 import { AnyHandlerResult } from "./handlers";
 
 type ErrorObject = {
@@ -36,6 +36,6 @@ export type NoteDetailsResultObject =
     content: string;
     body: string;
     frontMatter: string;
-    properties: FileProperties;
+    properties: NoteProperties;
   }>
   | ErrorObject;

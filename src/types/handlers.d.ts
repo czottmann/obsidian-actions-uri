@@ -134,12 +134,12 @@ export type HandlerPropertiesSuccess = Readonly<
   & HandlerSuccess
   & {
     result: {
-      properties: FileProperties;
+      properties: NoteProperties;
     };
   }
 >;
 
-export type FileProperties = Record<
+export type NoteProperties = Record<
   string,
   string | string[] | number | boolean | null
 >;

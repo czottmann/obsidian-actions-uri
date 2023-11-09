@@ -2,10 +2,10 @@
 parent: New Routes
 ---
 
-# `/file-properties`
+# `/note-properties`
 <span class="tag tag-version">v1.4+</span>
 
-These routes deal with reading, writing and updating [note properties](https://help.obsidian.md/Editing+and+formatting/Properties).  Their URLs start with `obsidian://actions-uri/file-properties/…`.
+These routes deal with reading, writing and updating [note properties](https://help.obsidian.md/Editing+and+formatting/Properties).  Their URLs start with `obsidian://actions-uri/note-properties/…`.
 
 Please keep in mind that setting new properties will effectively rewrite a note's front matter.
 
@@ -15,7 +15,7 @@ Please keep in mind that setting new properties will effectively rewrite a note'
 &nbsp;
 
 
-## Root, i.e. `/file-properties`
+## Root, i.e. `/note-properties`
 
 Does nothing but say hello.
 
@@ -35,7 +35,7 @@ On success:
 &nbsp;
 
 
-## `/file-properties/get`
+## `/note-properties/get`
 
 Returns a note's properties.
 
@@ -68,7 +68,7 @@ On failure:
 &nbsp;
 
 
-## `/file-properties/set`
+## `/note-properties/set`
 
 Overwrites or updates a note's properties.
 
@@ -113,7 +113,7 @@ On failure:
 &nbsp;
 
 
-## `/file-properties/clear`
+## `/note-properties/clear`
 
 Removes the entirety of a note's properties (and therefore, its front matter).
 
@@ -152,7 +152,7 @@ On failure:
 &nbsp;
 
 
-## `/file-properties/remove-keys`
+## `/note-properties/remove-keys`
 
 Remove one or more keys from a note's properties (and therefore, its front matter).
 

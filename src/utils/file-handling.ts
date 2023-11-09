@@ -9,8 +9,8 @@ import {
 } from "./string-handling";
 import { pause } from "./time";
 import {
-  FileProperties,
   NoteDetailsResultObject,
+  NoteProperties,
   RealLifeVault,
   StringResultObject,
   TFileResultObject,
@@ -529,7 +529,7 @@ export async function createFolderIfNecessary(folder: string) {
  * @returns An object containing the frontmatter properties of the file, or an
  *          empty object if none exist.
  */
-export function propertiesForFile(file: TFile): FileProperties {
+export function propertiesForFile(file: TFile): NoteProperties {
   return app.metadataCache.getFileCache(file)?.frontmatter || {};
 }
 

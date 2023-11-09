@@ -8,10 +8,6 @@ import {
   routePath as dataviewRoutes,
 } from "./routes/dataview";
 import {
-  AnyLocalParams as AnyFilePropertiesParams,
-  routePath as filePropertiesRoutes,
-} from "./routes/file-properties";
-import {
   AnyLocalParams as AnyFolderParams,
   routePath as folderRoutes,
 } from "./routes/folder";
@@ -23,6 +19,10 @@ import {
   AnyLocalParams as AnyNoteParams,
   routePath as noteRoutes,
 } from "./routes/note";
+import {
+  AnyLocalParams as AnyNotePropertiesParams,
+  routePath as notePropertiesRoutes,
+} from "./routes/note-properties";
 import {
   AnyLocalParams as AnyOmnisearchParams,
   routePath as omnisearchRoutes,
@@ -51,9 +51,9 @@ export const routes: RoutePath = {
   ...rootRoutes,
   ...commandRoutes,
   ...dataviewRoutes,
-  ...filePropertiesRoutes,
   ...folderRoutes,
   ...infoRoutes,
+  ...notePropertiesRoutes,
   ...noteRoutes,
   ...omnisearchRoutes,
   ...periodicNoteRoutes,
@@ -95,7 +95,7 @@ export type RouteSubpath = {
 export type AnyParams =
   | AnyCommandParams
   | AnyDataviewParams
-  | AnyFilePropertiesParams
+  | AnyNotePropertiesParams
   | AnyFolderParams
   | AnyInfoParams
   | AnyNoteParams
