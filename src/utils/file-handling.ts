@@ -244,6 +244,10 @@ export async function updateNote(
     : body;
 
   await activeVault().modify(file, newNoteContent);
+
+  // Without this delay, `propertiesForFile()` will return outdated properties.
+  await pause(200);
+
   return success({
     filepath,
     content: newNoteContent,
