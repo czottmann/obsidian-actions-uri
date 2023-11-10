@@ -233,14 +233,15 @@ export async function updateNote(
 
   const file = res.result;
   const noteDetails = res2.result;
-  const frontMatter = (typeof newFrontMatter === "string")
+  const body = (typeof newBody === "string") ? newBody : noteDetails.body;
+  let frontMatter = (typeof newFrontMatter === "string")
     ? newFrontMatter
     : noteDetails.frontMatter;
-  const body = (typeof newBody === "string") ? newBody : noteDetails.body;
-  const newNoteContent = ["---", frontMatter, "---", body]
-    // Remove empty strings, e.g., an empty FM block
-    .filter((s) => s.length)
-    .join("\n");
+  frontMatter = frontMatter.trim();
+
+  const newNoteContent = frontMatter !== ""
+    ? ["---", frontMatter, "---", body].join("\n")
+    : body;
 
   await activeVault().modify(file, newNoteContent);
   return success({
