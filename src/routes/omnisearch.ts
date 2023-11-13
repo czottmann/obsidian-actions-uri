@@ -6,6 +6,7 @@ import {
   HandlerSearchSuccess,
   HandlerTextSuccess,
 } from "../types";
+import { activeVault } from "../utils/file-handling";
 import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { doOmnisearch } from "../utils/search";
@@ -57,7 +58,7 @@ async function handleOpen(
   // Let's open the search in the simplest way possible.
   window.open(
     "obsidian://omnisearch?" +
-      "vault=" + encodeURIComponent(window.app.vault.getName()) +
+      "vault=" + encodeURIComponent(activeVault().getName()) +
       "&query=" + encodeURIComponent(params.query.trim()),
   );
 

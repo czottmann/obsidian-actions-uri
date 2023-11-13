@@ -10,6 +10,7 @@ import {
   HandlerTextSuccess,
 } from "../types";
 import {
+  activeVault,
   appendNote,
   appendNoteBelowHeadline,
   createNote,
@@ -183,7 +184,7 @@ async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: window.app.vault.getMarkdownFiles().map((t) => t.path).sort(),
+    paths: activeVault().getMarkdownFiles().map((t) => t.path).sort(),
   });
 }
 

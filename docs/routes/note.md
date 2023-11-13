@@ -62,6 +62,8 @@ On failure:
 ## `/note/get`
 Returns a specific note.
 
+**Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
@@ -83,6 +85,7 @@ On success:
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
 | `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -143,6 +146,8 @@ Examples:
 - `apply=templater&template-file=Templates/Meeting%20notes.md`
 - `apply=templates&template-file=Templates/Meeting%20notes.md`
 
+<span class="tag tag-version">v1.4+</span> **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
@@ -166,6 +171,7 @@ On success:
 | `result-content`      | The entire content of the note file.                                     |
 | `result-filepath`     | The file path of the note, relative from the vault root folder.          |
 | `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 

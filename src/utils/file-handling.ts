@@ -10,10 +10,15 @@ import {
 import { pause } from "./time";
 import {
   NoteDetailsResultObject,
+  NoteProperties,
   RealLifeVault,
   StringResultObject,
   TFileResultObject,
 } from "../types";
+
+export function activeVault() {
+  return window.app.vault;
+}
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -38,7 +43,7 @@ export async function createNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const { vault } = window.app;
+  const vault = activeVault();
   let file = vault.getAbstractFileByPath(filepath);
   let doesFileExist = file instanceof TFile;
 
@@ -89,7 +94,7 @@ export async function createOrOverwriteNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const { vault } = window.app;
+  const vault = activeVault();
   const file = vault.getAbstractFileByPath(filepath);
 
   // Update the file if it already exists, but give any other creation-hooked
@@ -120,7 +125,7 @@ export async function createOrOverwriteNote(
 export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const res = await getNoteFile(filepath);
   if (!res.isSuccess) {
     return res;
@@ -143,22 +148,26 @@ export async function getNoteContent(
 export async function getNoteDetails(
   filepath: string,
 ): Promise<NoteDetailsResultObject> {
-  const res = await getNoteContent(filepath);
+  const res = await getNoteFile(filepath);
   if (!res.isSuccess) {
     return res;
   }
 
-  const content = res.result;
+  const res2 = await getNoteContent(filepath);
+  if (!res2.isSuccess) {
+    return res2;
+  }
+
+  const file = res.result;
+  const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
-  return success(
-    {
-      filepath,
-      content,
-      body,
-      frontMatter: unwrapFrontMatter(frontMatter),
-    },
+  return success({
     filepath,
-  );
+    content,
+    body,
+    frontMatter: unwrapFrontMatter(frontMatter),
+    properties: propertiesForFile(file),
+  });
 }
 
 /**
@@ -186,6 +195,66 @@ export function sanitizeFilePath(
   return (isFolder || /\.(md|canvas)/i.test(extname(filename)))
     ? filename
     : `${filename}.md`;
+}
+
+/**
+ * Replaces the front matter and/or body of an existing note and returns its new
+ * split-up contents.
+ *
+ * @param filepath - A full filename, relative from vault root
+ * @param newFrontMatter - The new front matter to use. If not specified, the
+ *                         existing front matter will be kept. An empty string
+ *                         will clear any existing front matter.
+ * @param newBody - The new body to use. If not specified, the existing body
+ *                  will be kept. An empty string will remove the existing body.
+ *
+ * @returns A result object. Success case: note path, content, body and front
+ * matter; failure case: readable error message
+ */
+export async function updateNote(
+  filepath: string,
+  newFrontMatter?: string,
+  newBody?: string,
+): Promise<NoteDetailsResultObject> {
+  const res = await getNoteFile(filepath);
+  if (!res.isSuccess) {
+    return res;
+  }
+
+  const res2 = await getNoteDetails(filepath);
+  if (!res2.isSuccess) {
+    return res2;
+  }
+
+  // If both newFrontMatter and newBody are undefined, there's nothing to do.
+  if (typeof newFrontMatter !== "string" && typeof newBody !== "string") {
+    return res2;
+  }
+
+  const file = res.result;
+  const noteDetails = res2.result;
+  const body = (typeof newBody === "string") ? newBody : noteDetails.body;
+  let frontMatter = (typeof newFrontMatter === "string")
+    ? newFrontMatter
+    : noteDetails.frontMatter;
+  frontMatter = frontMatter.trim();
+
+  const newNoteContent = frontMatter !== ""
+    ? ["---", frontMatter, "---", body].join("\n")
+    : body;
+
+  await activeVault().modify(file, newNoteContent);
+
+  // Without this delay, `propertiesForFile()` will return outdated properties.
+  await pause(200);
+
+  return success({
+    filepath,
+    content: newNoteContent,
+    body,
+    frontMatter,
+    properties: propertiesForFile(file),
+  });
 }
 
 /**
@@ -354,7 +423,7 @@ export async function prependNoteBelowHeadline(
  * @returns An array of `TFile` instances
  */
 export function getFileMap(): TFile[] {
-  const { vault } = window.app;
+  const vault = activeVault();
   const { fileMap } = <RealLifeVault> vault;
   return Object.values(fileMap);
 }
@@ -370,7 +439,7 @@ export function getFileMap(): TFile[] {
 export async function getNoteFile(
   filepath: string,
 ): Promise<TFileResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
 
   return file instanceof TFile
@@ -391,7 +460,7 @@ export async function trashFilepath(
   filepath: string,
   deleteImmediately: boolean = false,
 ): Promise<StringResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
@@ -421,7 +490,7 @@ export async function renameFilepath(
   filepath: string,
   newFilepath: string,
 ): Promise<StringResultObject> {
-  const { vault } = window.app;
+  const vault = activeVault();
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
@@ -450,13 +519,23 @@ export async function renameFilepath(
  * @param folder - A folder path relative from the vault root
  */
 export async function createFolderIfNecessary(folder: string) {
-  const { vault } = window.app;
+  const vault = activeVault();
   folder = sanitizeFilePath(folder, true);
 
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists
   if (vault.getAbstractFileByPath(folder) instanceof TFolder) return;
   await vault.createFolder(folder);
+}
+
+/**
+ * Returns the frontmatter properties for a given file.
+ * @param file - The file to retrieve properties for.
+ * @returns An object containing the frontmatter properties of the file, or an
+ *          empty object if none exist.
+ */
+export function propertiesForFile(file: TFile): NoteProperties {
+  return app.metadataCache.getFileCache(file)?.frontmatter || {};
 }
 
 // HELPERS ----------------------------------------
@@ -474,7 +553,7 @@ export async function createFolderIfNecessary(folder: string) {
  */
 async function createAndPause(filepath: string, content: string) {
   // Create the new note
-  await window.app.vault.create(filepath, content);
+  await activeVault().create(filepath, content);
 
   if (isCommunityPluginEnabled("templater-obsidian")) {
     await pause(500);
