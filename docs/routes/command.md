@@ -36,7 +36,7 @@ On success:
 Returns list of all Obsidian Commands available in the queried vault.
 
 | Parameter   | Value  | Optional? | Description                       |
-| ----------- | ------ |:---------:| --------------------------------- |
+| ----------- | ------ | :-------: | --------------------------------- |
 | `x-success` | string |           | base URL for on-success callbacks |
 | `x-error`   | string |           | base URL for on-error callbacks   |
 
@@ -64,9 +64,9 @@ On failure:
 Triggers the passed-in command or commands in sequence, in the specified vault.
 
 | Parameter       | Value  | Optional? | Description                                                      |
-| --------------- | ------ |:---------:| ---------------------------------------------------------------- |
+| --------------- | ------ | :-------: | ---------------------------------------------------------------- |
 | `commands`      | string |           | Comma-separated list of command IDs.                             |
-| `pause-in-secs` | number | yes       | Length of the pause in seconds between commands. Default: `0.2`. |
+| `pause-in-secs` | number | optional  | Length of the pause in seconds between commands. Default: `0.2`. |
 | `x-success`     | string |           | base URL for on-success callbacks                                |
 | `x-error`       | string |           | base URL for on-error callbacks                                  |
 

@@ -42,7 +42,7 @@ On success:
 Returns Omnisearch results (file paths) for a given search query.
 
 | Parameter   | Value  | Optional? | Description                       |
-| ----------- | ------ |:---------:| --------------------------------- |
+| ----------- | ------ | :-------: | --------------------------------- |
 | `query`     | string |           | A valid Omnisearch query          |
 | `x-success` | string |           | base URL for on-success callbacks |
 | `x-error`   | string |           | base URL for on-error callbacks   |
@@ -71,7 +71,7 @@ On failure:
 Opens Omnisearch for a given query in Obsidian.
 
 | Parameter | Value  | Optional? | Description              |
-| --------- | ------ |:---------:| ------------------------ |
+| --------- | ------ | :-------: | ------------------------ |
 | `query`   | string |           | A valid Omnisearch query |
 
 ### Return values

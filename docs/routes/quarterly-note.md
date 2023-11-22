@@ -40,10 +40,10 @@ Returns a list of all quarterly notes.
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                    |
-| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
-| `x-success` | string     |           | base URL for on-success callbacks                              |
-| `x-error`   | string     |           | base URL for on-error callbacks                                |
+| Parameter   | Value type | Optional? | Description                       |
+| ----------- | ---------- | :-------: | --------------------------------- |
+| `x-success` | string     |           | base URL for on-success callbacks |
+| `x-error`   | string     |           | base URL for on-error callbacks   |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -68,26 +68,29 @@ On failure:
 ## `/quarterly-note/get-current`
 Returns today's quarterly note.
 
+<span class="tag tag-version">v1.4+</span> **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter   | Value type | Optional? | Description                                                    |
-| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
+| ----------- | ---------- | :-------: | -------------------------------------------------------------- |
 | `x-success` | string     |           | base URL for on-success callbacks                              |
 | `x-error`   | string     |           | base URL for on-error callbacks                                |
-| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
+| `silent`    | boolean    | optional  | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter             | Description                                                              |
-| --------------------- | ------------------------------------------------------------------------ |
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
-| `result-content`      | The entire content of the note file.                                     |
-| `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| Parameter             | Description                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                          |
+| `result-content`      | The entire content of the note file.                                                                                            |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                 |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                        |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -103,26 +106,29 @@ On failure:
 ## `/quarterly-note/get-most-recent`
 Returns the most recent quarterly note.  If there is a current quarterly note (i.e. one for today), that's considered the most recent one, otherwise the most recent *past* quarterly note is returned.
 
+<span class="tag tag-version">v1.4+</span> **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter   | Value type | Optional? | Description                                                    |
-| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
+| ----------- | ---------- | :-------: | -------------------------------------------------------------- |
 | `x-success` | string     |           | base URL for on-success callbacks                              |
 | `x-error`   | string     |           | base URL for on-error callbacks                                |
-| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
+| `silent`    | boolean    | optional  | *"Do **not** open the note in Obsidian."* Defaults to `false`. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter             | Description                                                              |
-| --------------------- | ------------------------------------------------------------------------ |
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
-| `result-content`      | The entire content of the note file.                                     |
-| `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| Parameter             | Description                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                          |
+| `result-content`      | The entire content of the note file.                                                                                            |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                 |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                        |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -205,29 +211,31 @@ Examples:
 - `apply=templater&template-file=Templates/Meeting%20notes.md`
 - `apply=templates&template-file=Templates/Meeting%20notes.md`
 
+<span class="tag tag-version">v1.4+</span> **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter          | Value type | Optional? | Description                                                                                                                    |
-| ------------------ | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------------------------ |
-| `apply`            | enum       |    ✅     | What to add to the note after creation. Available options: `content` (implied default), `templates`, `templater`.               |
-| +- `content`       | string     |    ✅     | The initial body of the note. **Prerequisite:** no `apply` parameter or `apply=content`.                                        |
-| +- `template-file` | string     |    ✅     | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                               |
-| `if-exists`        | string     |    ✅     | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
-| `silent`           | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
-
+| Parameter          | Value type | Optional? | Description                                                                                                                     |
+| ------------------ | ---------- | :-------: | ------------------------------------------------------------------------------------------------------------------------------- |
+| `apply`            | enum       | optional  | What to add to the note after creation. Available options: `content` (implied default), `templates`, `templater`.               |
+| +- `content`       | string     | optional  | The initial body of the note. **Prerequisite:** no `apply` parameter or `apply=content`.                                        |
+| +- `template-file` | string     | optional  | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                               |
+| `if-exists`        | string     | optional  | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
+| `silent`           | boolean    | optional  | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter             | Description                                                              |
-| --------------------- | ------------------------------------------------------------------------ |
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
-| `result-content`      | The entire content of the note file.                                     |
-| `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| Parameter             | Description                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                          |
+| `result-content`      | The entire content of the note file.                                                                                            |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                 |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                        |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -248,13 +256,13 @@ When you append text to a section below a heading, the headline must be entered 
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter             | Value type | Optional? | Description                                                                       |
-| --------------------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
-| `content`             | string     |           | The text to be added at the end of today's quarterly note.                            |
-| `below-headline`      | string     |    ✅     | Appends text below the given headline, before the next headline or EOF, whatever comes first. |
-| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before appending."* Defaults to `false`.  |
-| `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.               |
-| `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
+| Parameter             | Value type | Optional? | Description                                                                                   |
+| --------------------- | ---------- | :-------: | --------------------------------------------------------------------------------------------- |
+| `content`             | string     |           | The text to be added at the end of today's quarterly note.                                    |
+| `below-headline`      | string     | optional  | Appends text below the given headline, before the next headline or EOF, whatever comes first. |
+| `create-if-not-found` | boolean    | optional  | *"If the note does not exist, create it before appending."* Defaults to `false`.              |
+| `ensure-newline`      | boolean    | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                           |
+| `silent`              | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.             |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -287,13 +295,13 @@ When you prepend text to a section below a heading, the headline must be entered
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter             | Value type | Optional? | Description                                                                                                   |
-| --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
-| `content`             | string     |           | The text to be added at the beginning of today's quarterly note.                                                  |
-| `below-headline`      | string     |    ✅     | Prepends text below the given headline, before the next headline or EOF, whatever comes first. |
-| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before prepending."* Defaults to `false`. |
-| `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
-| `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
-| `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
+| --------------------- | ---------- | :-------: | ------------------------------------------------------------------------------------------------------------- |
+| `content`             | string     |           | The text to be added at the beginning of today's quarterly note.                                              |
+| `below-headline`      | string     | optional  | Prepends text below the given headline, before the next headline or EOF, whatever comes first.                |
+| `create-if-not-found` | boolean    | optional  | *"If the note does not exist, create it before prepending."* Defaults to `false`.                             |
+| `ensure-newline`      | boolean    | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
+| `ignore-front-matter` | boolean    | optional  | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
+| `silent`              | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -322,10 +330,10 @@ Does text replacement in today's quarterly note.  The search term is used as-is,
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description                                                                       |
-| --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
+| --------- | ---------- | :-------: | --------------------------------------------------------------------------------- |
 | `search`  | string     |           | Text string that should be replaced.                                              |
 | `replace` | string     |           | Replacement text.                                                                 |
-| `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
+| `silent`  | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -358,10 +366,10 @@ Modifiers for case-insensitive and global search (`/…/i`, `/…/g`, `/…/gi`)
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description                                                                       |
-| --------- | ---------- |:---------:| --------------------------------------------------------------------------------- |
+| --------- | ---------- | :-------: | --------------------------------------------------------------------------------- |
 | `search`  | string     |           | Text pattern that should be replaced.                                             |
 | `replace` | string     |           | Replacement text.                                                                 |
-| `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
+| `silent`  | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).

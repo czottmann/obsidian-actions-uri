@@ -20,6 +20,10 @@ import {
   routePath as noteRoutes,
 } from "./routes/note";
 import {
+  AnyLocalParams as AnyNotePropertiesParams,
+  routePath as notePropertiesRoutes,
+} from "./routes/note-properties";
+import {
   AnyLocalParams as AnyOmnisearchParams,
   routePath as omnisearchRoutes,
 } from "./routes/omnisearch";
@@ -49,6 +53,7 @@ export const routes: RoutePath = {
   ...dataviewRoutes,
   ...folderRoutes,
   ...infoRoutes,
+  ...notePropertiesRoutes,
   ...noteRoutes,
   ...omnisearchRoutes,
   ...periodicNoteRoutes,
@@ -90,6 +95,7 @@ export type RouteSubpath = {
 export type AnyParams =
   | AnyCommandParams
   | AnyDataviewParams
+  | AnyNotePropertiesParams
   | AnyFolderParams
   | AnyInfoParams
   | AnyNoteParams

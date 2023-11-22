@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
+import { activeVault } from "./file-handling";
 import { sanitizeFilePath } from "./file-handling";
 
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
@@ -37,6 +38,44 @@ export const zodJsonStringArray = z.string()
     }
   }, {
     message: "Input must be a JSON-encoded string array.",
+  })
+  .transform((str) => JSON.parse(str));
+
+/**
+ * A schema which expects a string containing a JSON-encoded object containing
+ * only values of type `string`, `string[]`, `number`, `boolean` or `null`.
+ * Return the object if valid.
+ */
+export const zodJsonPropertiesObject = z.string()
+  .refine((str) => {
+    try {
+      const value = JSON.parse(str);
+
+      if (typeof value !== "object") {
+        return false;
+      }
+
+      const isValid = Object.values(value)
+        .every((item) => {
+          const type = typeof item;
+          if (["string", "number", "boolean"].includes(type) || item === null) {
+            return true;
+          }
+
+          if (Array.isArray(item)) {
+            return item.every((subItem) => typeof subItem === "string");
+          }
+
+          return false;
+        });
+
+      return isValid;
+    } catch (error) {
+      return false;
+    }
+  }, {
+    message:
+      "Input must be a JSON-encoded object containing only values of type string, string array, number, boolean or null.",
   })
   .transform((str) => JSON.parse(str));
 
@@ -111,7 +150,7 @@ function lookupAbstractFileForPath(path: any): TAbstractFile | null {
   }
 
   const filepath = sanitizeFilePath(path as string);
-  return window.app.vault.getAbstractFileByPath(filepath);
+  return activeVault().getAbstractFileByPath(filepath);
 }
 
 /**
@@ -126,5 +165,5 @@ function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  return window.app.vault.getAbstractFileByPath(path as string);
+  return activeVault().getAbstractFileByPath(path as string);
 }

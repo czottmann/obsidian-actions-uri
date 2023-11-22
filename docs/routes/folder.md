@@ -39,10 +39,10 @@ Returns a list of folder paths.
 ### Parameters
 Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
 
-| Parameter   | Value type | Optional? | Description                                                    |
-| ----------- | ---------- |:---------:| -------------------------------------------------------------- |
-| `x-success` | string     |           | base URL for on-success callbacks                              |
-| `x-error`   | string     |           | base URL for on-error callbacks                                |
+| Parameter   | Value type | Optional? | Description                       |
+| ----------- | ---------- | :-------: | --------------------------------- |
+| `x-success` | string     |           | base URL for on-success callbacks |
+| `x-error`   | string     |           | base URL for on-error callbacks   |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -70,9 +70,9 @@ Creates a new folder or folder structure. In case the folder already exists, not
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                       |
-| ----------- | ---------- |:---------:| ------------------------------------------------- |
-| `folder`    | string     |           | The folder path, relative from the vault's root.  |
+| Parameter | Value type | Optional? | Description                                      |
+| --------- | ---------- | :-------: | ------------------------------------------------ |
+| `folder`  | string     |           | The folder path, relative from the vault's root. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -101,7 +101,7 @@ Renames or moves a folder. If the new folder path already exists, an error will 
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter        | Value type | Optional? | Description                                          |
-| ---------------- | ---------- |:---------:| ---------------------------------------------------- |
+| ---------------- | ---------- | :-------: | ---------------------------------------------------- |
 | `folder`         | string     |           | The folder path, relative from the vault's root.     |
 | `new-foldername` | string     |           | The new folder path, relative from the vault's root. |
 
@@ -131,9 +131,9 @@ Immediately deletes a folder and all its contents.
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                      |
-| ----------- | ---------- |:---------:| ------------------------------------------------ |
-| `folder`    | string     |           | The folder path, relative from the vault's root. |
+| Parameter | Value type | Optional? | Description                                      |
+| --------- | ---------- | :-------: | ------------------------------------------------ |
+| `folder`  | string     |           | The folder path, relative from the vault's root. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -161,9 +161,9 @@ Moves a folder to the trash (either vault-local trash or system trash, depending
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                      |
-| ----------- | ---------- |:---------:| ------------------------------------------------ |
-| `folder`    | string     |           | The folder path, relative from the vault's root. |
+| Parameter | Value type | Optional? | Description                                      |
+| --------- | ---------- | :-------: | ------------------------------------------------ |
+| `folder`  | string     |           | The folder path, relative from the vault's root. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).

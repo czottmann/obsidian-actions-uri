@@ -1,5 +1,41 @@
 # Release history
 
+## 1.4.0, 2023-11-22
+
+### New stuff
+
+#### Support for Note Properties (ZCO-28)
+
+[Properties](https://help.obsidian.md/Editing+and+formatting/Properties) are a core feature of Obsidian: structured data containing information about a note. Actions URI now supports them in a variety of ways. Please see the new route docs for details:
+
+- [`/note-properties`](https://czottmann.github.io/obsidian-actions-uri/routes/note-properties/)
+
+Existing routes which return note content now also return note properties, if present. Their documentation has been updated accordingly. See Changes, below.
+
+
+### Changes
+
+- Actions URI now requires Obsidian 1.4+.
+- The following routes return an additional `result-properties` parameter if the note contains properties:
+  - [`/note/get`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteget)
+  - [`/note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#notecreate)
+  - [`/daily-note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-notecreate)
+  - [`/daily-note/get-current`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-noteget-current)
+  - [`/daily-note/get-most-recent`](https://czottmann.github.io/obsidian-actions-uri/routes/daily-note/#daily-noteget-most-recent)
+  - [`/weekly-note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/weekly-note/#weekly-notecreate)
+  - [`/weekly-note/get-current`](https://czottmann.github.io/obsidian-actions-uri/routes/weekly-note/#weekly-noteget-current)
+  - [`/weekly-note/get-most-recent`](https://czottmann.github.io/obsidian-actions-uri/routes/weekly-note/#weekly-noteget-most-recent)
+  - [`/monthly-note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/monthly-note/#monthly-notecreate)
+  - [`/monthly-note/get-current`](https://czottmann.github.io/obsidian-actions-uri/routes/monthly-note/#monthly-noteget-current)
+  - [`/monthly-note/get-most-recent`](https://czottmann.github.io/obsidian-actions-uri/routes/monthly-note/#monthly-noteget-most-recent)
+  - [`/quarterly-note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/quarterly-note/#quarterly-notecreate)
+  - [`/quarterly-note/get-current`](https://czottmann.github.io/obsidian-actions-uri/routes/quarterly-note/#quarterly-noteget-current)
+  - [`/quarterly-note/get-most-recent`](https://czottmann.github.io/obsidian-actions-uri/routes/quarterly-note/#quarterly-noteget-most-recent)
+  - [`/yearly-note/create`](https://czottmann.github.io/obsidian-actions-uri/routes/yearly-note/#yearly-notecreate)
+  - [`/yearly-note/get-current`](https://czottmann.github.io/obsidian-actions-uri/routes/yearly-note/#yearly-noteget-current)
+  - [`/yearly-note/get-most-recent`](https://czottmann.github.io/obsidian-actions-uri/routes/yearly-note/#yearly-noteget-most-recent)
+
+
 ## 1.3.1, 2023-10-09
 
 ### Fixes

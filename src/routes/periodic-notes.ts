@@ -36,6 +36,7 @@ import {
   TFileResultObject,
 } from "../types";
 import {
+  activeVault,
   appendNote,
   appendNoteBelowHeadline,
   createOrOverwriteNote,
@@ -326,7 +327,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
         // Overwrite the existing note.
         case "overwrite":
           // Delete existing note, but keep going afterwards.
-          await app.vault.trash(pNote, false);
+          await activeVault().trash(pNote, false);
           break;
 
         default:
