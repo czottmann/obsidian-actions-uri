@@ -37,7 +37,7 @@ On success:
 Returns search results (file paths) for a given search query.
 
 | Parameter   | Value  | Optional? | Description                       |
-| ----------- | ------ |:---------:| --------------------------------- |
+| ----------- | ------ | :-------: | --------------------------------- |
 | `query`     | string |           |                                   |
 | `x-success` | string |           | base URL for on-success callbacks |
 | `x-error`   | string |           | base URL for on-error callbacks   |
@@ -66,7 +66,7 @@ On failure:
 Opens the search for a given query in Obsidian.
 
 | Parameter | Value  | Optional? | Description                   |
-| --------- | ------ |:---------:| ----------------------------- |
+| --------- | ------ | :-------: | ----------------------------- |
 | `query`   | string |           | A valid Obsidian search query |
 
 ### Return values

@@ -40,7 +40,7 @@ On success:
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description         |
-| --------- | ---------- |:---------:| ------------------- |
+| --------- | ---------- | :-------: | ------------------- |
 | `dql`     | string     |           | A DQL `LIST` query. |
 
 
@@ -70,7 +70,7 @@ On failure:
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description          |
-| --------- | ---------- |:---------:| -------------------- |
+| --------- | ---------- | :-------: | -------------------- |
 | `dql`     | string     |           | A DQL `TABLE` query. |
 
 

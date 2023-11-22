@@ -42,19 +42,19 @@ Returns a note's properties.
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter | Value type | Optional? | Description |
-| - | - |:-:| - |
-| `file` | string | | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `x-success` | string | | base URL for on-success callbacks |
-| `x-error` | string | | base URL for on-error callbacks |
+| Parameter   | Value type | Optional? | Description                                                                                    |
+| ----------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `x-success` | string     |           | base URL for on-success callbacks                                                              |
+| `x-error`   | string     |           | base URL for on-error callbacks                                                                |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter | Description |
-| - | - |
+| Parameter           | Description                                   |
+| ------------------- | --------------------------------------------- |
 | `result-properties` | The file's properties encoded as JSON string. |
 
 On failure:
@@ -81,26 +81,26 @@ The `properties` parameter will only accept object values with valid types (i.e.
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter | Value type | Optional? | Description |
-| - | - |:-:| - |
-| `file` | string | | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `properties` | string | | The new properties encoded as JSON string. |
-| `mode` | string | ✅ | Either `overwrite` or `update`. Defaults to `overwrite`. |
-| `x-success` | string | | base URL for on-success callbacks |
-| `x-error` | string | | base URL for on-error callbacks |
+| Parameter    | Value type | Optional? | Description                                                                                    |
+| ------------ | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`       | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `properties` | string     |           | The new properties encoded as JSON string.                                                     |
+| `mode`       | string     | optional  | Either `overwrite` or `update`. Defaults to `overwrite`.                                       |
+| `x-success`  | string     |           | base URL for on-success callbacks                                                              |
+| `x-error`    | string     |           | base URL for on-error callbacks                                                                |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter | Description |
-| - | - |
-| `result-body` | The note body, i.e. the note file content minus possible front matter. |
-| `result-content` | The entire content of the note file. |
-| `result-filepath` | The file path of the note, relative from the vault root folder. |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
-| `result-properties` | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
+| Parameter             | Description                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.               |
+| `result-content`      | The entire content of the note file.                                                 |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                      |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.             |
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -120,26 +120,26 @@ Removes the entirety of a note's properties (and therefore, its front matter).
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter | Value type | Optional? | Description |
-| - | - |:-:| - |
-| `file` | string | | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `properties` | string | | The new properties encoded as JSON string. |
-| `mode` | string | ✅ | Either `overwrite` or `update`. Defaults to `overwrite`. |
-| `x-success` | string | | base URL for on-success callbacks |
-| `x-error` | string | | base URL for on-error callbacks |
+| Parameter    | Value type | Optional? | Description                                                                                    |
+| ------------ | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`       | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `properties` | string     |           | The new properties encoded as JSON string.                                                     |
+| `mode`       | string     | optional  | Either `overwrite` or `update`. Defaults to `overwrite`.                                       |
+| `x-success`  | string     |           | base URL for on-success callbacks                                                              |
+| `x-error`    | string     |           | base URL for on-error callbacks                                                                |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter | Description |
-| - | - |
-| `result-body` | The note body, i.e. the note file content minus possible front matter. |
-| `result-content` | The entire content of the note file. |
-| `result-filepath` | The file path of the note, relative from the vault root folder. |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
-| `result-properties` | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
+| Parameter             | Description                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.               |
+| `result-content`      | The entire content of the note file.                                                 |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                      |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.             |
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 
@@ -161,25 +161,25 @@ The `keys` parameter is a JSON-encoded array of strings, e.g. `["createdAt", "al
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter | Value type | Optional? | Description |
-| - | - |:-:| - |
-| `file` | string | | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `keys` | string | | The list of keys to remove, as a JSON-encoded array of strings. |
-| `x-success` | string | | base URL for on-success callbacks |
-| `x-error` | string | | base URL for on-error callbacks |
+| Parameter   | Value type | Optional? | Description                                                                                    |
+| ----------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| `keys`      | string     |           | The list of keys to remove, as a JSON-encoded array of strings.                                |
+| `x-success` | string     |           | base URL for on-success callbacks                                                              |
+| `x-error`   | string     |           | base URL for on-error callbacks                                                                |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter | Description |
-| - | - |
-| `result-body` | The note body, i.e. the note file content minus possible front matter. |
-| `result-content` | The entire content of the note file. |
-| `result-filepath` | The file path of the note, relative from the vault root folder. |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
-| `result-properties` | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
+| Parameter             | Description                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.               |
+| `result-content`      | The entire content of the note file.                                                 |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                      |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.             |
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
 

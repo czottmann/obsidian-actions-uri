@@ -68,23 +68,23 @@ Returns a specific note.
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter   | Value type | Optional? | Description                                                                                    |
-| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| ----------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
 | `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 | `x-success` | string     |           | base URL for on-success callbacks                                                              |
 | `x-error`   | string     |           | base URL for on-error callbacks                                                                |
-| `silent`    | boolean    |    ✅     | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
+| `silent`    | boolean    | optional  | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter             | Description                                                              |
-| --------------------- | ------------------------------------------------------------------------ |
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
-| `result-content`      | The entire content of the note file.                                     |
-| `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| Parameter             | Description                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                          |
+| `result-content`      | The entire content of the note file.                                                                                            |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                 |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                        |
 | `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
@@ -105,9 +105,9 @@ Opens a specific note in Obsidian.
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                                                    |
-| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
-| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| Parameter | Value type | Optional? | Description                                                                                    |
+| --------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -152,25 +152,25 @@ Examples:
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter          | Value type | Optional? | Description                                                                                                                     |
-| ------------------ | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------ | ---------- | :-------: | ------------------------------------------------------------------------------------------------------------------------------- |
 | `file`             | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                  |
-| `apply`            | enum       |    ✅     | What to add to the note after creation. Available options: `content` (implied default), `templates`, `templater`.               |
-| +- `content`       | string     |    ✅     | The initial body of the note. **Prerequisite:** no `apply` parameter or `apply=content`.                                        |
-| +- `template-file` | string     |    ✅     | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                               |
-| `if-exists`        | string     |    ✅     | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
-| `silent`           | boolean    |    ✅     | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
+| `apply`            | enum       | optional  | What to add to the note after creation. Available options: `content` (implied default), `templates`, `templater`.               |
+| +- `content`       | string     | optional  | The initial body of the note. **Prerequisite:** no `apply` parameter or `apply=content`.                                        |
+| +- `template-file` | string     | optional  | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                               |
+| `if-exists`        | string     | optional  | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is. |
+| `silent`           | boolean    | optional  | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                               |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
 
 On success:
 
-| Parameter             | Description                                                              |
-| --------------------- | ------------------------------------------------------------------------ |
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.   |
-| `result-content`      | The entire content of the note file.                                     |
-| `result-filepath`     | The file path of the note, relative from the vault root folder.          |
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body. |
+| Parameter             | Description                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                          |
+| `result-content`      | The entire content of the note file.                                                                                            |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                 |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                        |
 | `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
 
 On failure:
@@ -192,14 +192,14 @@ When you want to append text to a section below a headline, the headline must be
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter             | Value type | Optional? | Description                                                                                    |
-| --------------------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
-| `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `content`             | string     |           | The text to be added at the end of the note.                                                   |
-| `below-headline`      | string     |    ✅     | Appends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
-| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
-| `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                            |
-| `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+| Parameter             | Value type | Optional? | Description                                                                                                                              |
+| --------------------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                           |
+| `content`             | string     |           | The text to be added at the end of the note.                                                                                             |
+| `below-headline`      | string     | optional  | Appends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
+| `create-if-not-found` | boolean    | optional  | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span>              |
+| `ensure-newline`      | boolean    | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                      |
+| `silent`              | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                        |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -231,15 +231,15 @@ When you prepend text to a section below a heading, the headline must be entered
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter             | Value type | Optional? | Description                                                                                                   |
-| --------------------- | ---------- |:---------:| ------------------------------------------------------------------------------------------------------------- |
-| `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                |
-| `content`             | string     |           | The text to be added at the beginning of the note.                                                            |
-| `below-headline`      | string     |    ✅     | Prepends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
-| `create-if-not-found` | boolean    |    ✅     | *"If the note does not exist, create it before prepending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span> |
-| `ensure-newline`      | boolean    |    ✅     | *"Make sure the note ends with a line break."* Defaults to `false`.                                           |
-| `ignore-front-matter` | boolean    |    ✅     | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`. |
-| `silent`              | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                             |
+| Parameter             | Value type | Optional? | Description                                                                                                                               |
+| --------------------- | ---------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                            |
+| `content`             | string     |           | The text to be added at the beginning of the note.                                                                                        |
+| `below-headline`      | string     | optional  | Prepends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span> |
+| `create-if-not-found` | boolean    | optional  | *"If the note does not exist, create it before prepending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span>              |
+| `ensure-newline`      | boolean    | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                       |
+| `ignore-front-matter` | boolean    | optional  | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`.                             |
+| `silent`              | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                         |
 
 
 ### Return values
@@ -275,10 +275,10 @@ Any folder structure in `new-filename` will **not** be created automatically. If
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter      | Value type | Optional? | Description                                                                                        |
-| -------------- | ---------- |:---------:| -------------------------------------------------------------------------------------------------- |
+| -------------- | ---------- | :-------: | -------------------------------------------------------------------------------------------------- |
 | `file`         | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.     |
 | `new-filename` | string     |           | The new file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `silent`       | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+| `silent`       | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                  |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -307,11 +307,11 @@ Does text replacement in a note.  The search term is used as-is, i.e. it's a str
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description                                                                                    |
-| --------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| --------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
 | `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 | `search`  | string     |           | Text string that should be replaced.                                                           |
 | `replace` | string     |           | Replacement text.                                                                              |
-| `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+| `silent`  | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -344,11 +344,11 @@ Modifiers for case-insensitive and global search (`/…/i`, `/…/g`, `/…/gi`)
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
 | Parameter | Value type | Optional? | Description                                                                                    |
-| --------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
+| --------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
 | `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 | `search`  | string     |           | Text pattern that should be replaced.                                                          |
 | `replace` | string     |           | Replacement text.                                                                              |
-| `silent`  | boolean    |    ✅     | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
+| `silent`  | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.              |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -377,9 +377,9 @@ Immediately deletes a specific note.
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                                                    |
-| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
-| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| Parameter | Value type | Optional? | Description                                                                                    |
+| --------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -408,9 +408,9 @@ Moves a specific note to the trash (either vault-local trash or system trash, de
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter   | Value type | Optional? | Description                                                                                    |
-| ----------- | ---------- |:---------:| ---------------------------------------------------------------------------------------------- |
-| `file`      | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
+| Parameter | Value type | Optional? | Description                                                                                    |
+| --------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`    | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
