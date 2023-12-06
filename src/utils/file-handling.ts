@@ -1,6 +1,6 @@
 import { normalizePath, TFile, TFolder } from "obsidian";
 import { STRINGS } from "../constants";
-import { isCommunityPluginEnabled } from "./plugins";
+import { isCommunityPluginEnabled, isCorePluginEnabled } from "./plugins";
 import { failure, success } from "./results-handling";
 import {
   endStringWithNewline,
@@ -541,8 +541,8 @@ export function propertiesForFile(file: TFile): NoteProperties {
 // HELPERS ----------------------------------------
 
 /**
- *  Necessary for preventing a race condition when creating an empty note in a
- * folder that is being watched by the Templater plugin.
+ * Necessary for preventing a race condition when creating an empty note in a
+ * folder that is being watched by either templates plugin.
  *
  * @param filepath - A full filename, including the path relative from vault
  * root
@@ -555,7 +555,10 @@ async function createAndPause(filepath: string, content: string) {
   // Create the new note
   await activeVault().create(filepath, content);
 
-  if (isCommunityPluginEnabled("templater-obsidian")) {
+  if (
+    isCorePluginEnabled("templates") ||
+    isCommunityPluginEnabled("templater-obsidian")
+  ) {
     await pause(500);
   }
 }

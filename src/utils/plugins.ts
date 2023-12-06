@@ -14,7 +14,7 @@ export function enabledCommunityPlugins(): string[] {
 }
 
 /**
- * Checks if a community plugin is enabled.
+ * Checks if a specific community plugin is enabled.
  *
  * @param {string} pluginID - The ID of the plugin to check.
  *
@@ -37,6 +37,17 @@ export function getEnabledCommunityPlugin(
   return isCommunityPluginEnabled(pluginID)
     ? success((<any> window.app).plugins.getPlugin(pluginID))
     : failure(404, `Community plugin ${pluginID} is not enabled.`);
+}
+
+/**
+ * Checks if a specific core plugin is enabled.
+ *
+ * @param {string} pluginID - The ID of the plugin to check.
+ *
+ * @returns {boolean} - True if the plugin is enabled, false otherwise.
+ */
+export function isCorePluginEnabled(pluginID: string): boolean {
+  return !!(<any> window.app).internalPlugins?.getEnabledPluginById(pluginID);
 }
 
 /**
