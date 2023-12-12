@@ -1,5 +1,13 @@
 # Release history
 
+## 1.4.1, 2023-12-12
+
+### No longer broken
+
+- Adds missing pause after note creation when using core plugin Templates to give the plugin some breathing room
+- Fixes broken handling of `silent` parameter in `note/*`, `daily-note/*`, `weekly-note/*`, `monthly-note/*`, `quarterly-note/*`, and `yearly-note/*` routes
+
+
 ## 1.4.0, 2023-11-22
 
 ### New stuff
