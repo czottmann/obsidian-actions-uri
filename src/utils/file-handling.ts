@@ -480,7 +480,7 @@ export async function applyCorePluginTemplate(
     if (activeView && activeView?.getMode() !== "source") {
       await activeView.setState(
         { ...activeView.getState(), mode: "source" },
-        {},
+        { history: false },
       );
     }
   } catch (error) {
