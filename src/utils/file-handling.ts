@@ -1,6 +1,10 @@
-import { normalizePath, TFile, TFolder } from "obsidian";
+import { MarkdownView, normalizePath, TFile, TFolder } from "obsidian";
 import { STRINGS } from "../constants";
-import { isCommunityPluginEnabled, isCorePluginEnabled } from "./plugins";
+import {
+  getEnabledCorePlugin,
+  isCommunityPluginEnabled,
+  isCorePluginEnabled,
+} from "./plugins";
 import { failure, success } from "./results-handling";
 import {
   endStringWithNewline,
@@ -9,12 +13,14 @@ import {
 } from "./string-handling";
 import { pause } from "./time";
 import {
+  BooleanResultObject,
   NoteDetailsResultObject,
   NoteProperties,
   RealLifeVault,
   StringResultObject,
   TFileResultObject,
 } from "../types";
+import { focusOrOpenNote, logErrorToConsole, showBrandedNotice } from "./ui";
 
 export function activeVault() {
   return window.app.vault;
@@ -434,7 +440,7 @@ export function getFileMap(): TFile[] {
  *
  * @param filepath - A full filename
  *
- * @returns A result object containing either an error string or the `TFile`.
+ * @returns A result object containing either an error or the `TFile`.
  */
 export async function getNoteFile(
   filepath: string,
@@ -445,6 +451,48 @@ export async function getNoteFile(
   return file instanceof TFile
     ? success(file)
     : failure(404, STRINGS.note_not_found);
+}
+
+/**
+ * Opens or focusses a particular note, then applies a template to it, using the
+ * core Templates plugin.
+ *
+ * @param templateFile - The template file to apply
+ * @param note - The note to apply the template to
+ * @returns A result object containing either an error or `true`.
+ */
+export async function applyCorePluginTemplate(
+  templateFile: TFile,
+  note: TFile,
+): Promise<BooleanResultObject> {
+  const { app } = window;
+  const pluginRes = getEnabledCorePlugin("templates");
+  if (!pluginRes.isSuccess) return pluginRes;
+  const pluginInstance = pluginRes.result;
+
+  // The core plugin will only apply a template to the open, focussed, and
+  // editable note ¯\_(ツ)_/¯
+  await focusOrOpenNote(note.path);
+
+  try {
+    // Ensure the view is in source mode
+    const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+    if (activeView && activeView?.getMode() !== "source") {
+      await activeView.setState(
+        { ...activeView.getState(), mode: "source" },
+        {},
+      );
+    }
+  } catch (error) {
+    const msg = (<Error> error).message;
+    showBrandedNotice(msg);
+    logErrorToConsole(msg);
+    return failure(500, msg);
+  }
+
+  await pause(200);
+  await pluginInstance.insertTemplate(templateFile);
+  return success(true);
 }
 
 /**
@@ -559,7 +607,7 @@ async function createAndPause(filepath: string, content: string) {
     isCorePluginEnabled("templates") ||
     isCommunityPluginEnabled("templater-obsidian")
   ) {
-    await pause(500);
+    await pause(300);
   }
 }
 
