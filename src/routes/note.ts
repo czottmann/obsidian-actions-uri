@@ -191,16 +191,20 @@ async function handleList(
 async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = <ReadParams> incomingParams;
-  return await getNoteDetails(params.file);
+  const { file, silent } = <ReadParams> incomingParams;
+  const shouldFocusNote = !silent;
+
+  const res = await getNoteDetails(file);
+  if (res.isSuccess && shouldFocusNote) await focusOrOpenNote(file);
+  return res;
 }
 
 async function handleOpen(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <OpenParams> incomingParams;
-  const res = await getNoteFile(params.file.path);
+  const { file } = <OpenParams> incomingParams;
 
+  const res = await getNoteFile(file.path);
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
@@ -210,8 +214,9 @@ async function handleCreate(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <CreateParams> incomingParams;
-  const { apply, file } = params;
+  const { apply, file, silent } = params;
   const ifExists = params["if-exists"];
+  const shouldFocusNote = !silent;
   const templateFile = (apply === "templater" || apply === "templates")
     ? (<createTemplateParams> params)["template-file"]
     : undefined;
@@ -237,15 +242,14 @@ async function handleCreate(
   const noteExists = res.isSuccess;
   if (noteExists && ifExists === "skip") {
     // `skip` == Leave not as-is, we just return the existing note.
+    if (shouldFocusNote) await focusOrOpenNote(file);
     return await getNoteDetails(file);
   }
 
   const res2 = (noteExists && ifExists === "overwrite")
     ? await createOrOverwriteNote(file, content)
     : await createNote(file, content);
-  if (!res2.isSuccess) {
-    return res2;
-  }
+  if (!res2.isSuccess) return res2;
   const newNote = res2.result;
 
   // If we're applying a template, we need to write it to the file. Testing for
@@ -257,12 +261,12 @@ async function handleCreate(
       break;
 
     case "templates":
-      await focusOrOpenNote(newNote.path);
-      await pause(100);
+      await pause(200);
       await pluginInstance.insertTemplate(templateFile);
       break;
   }
 
+  if (shouldFocusNote) await focusOrOpenNote(newNote.path);
   return await getNoteDetails(newNote.path);
 }
 
@@ -270,10 +274,11 @@ async function handleAppend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <AppendParams> incomingParams;
-  const { file, content } = params;
+  const { file, content, silent } = params;
   const belowHeadline = params["below-headline"];
-  const createIfNotFound = params["create-if-not-found"];
-  const ensureNewline = params["ensure-newline"];
+  const shouldCreateNote = params["create-if-not-found"];
+  const shouldEnsureNewline = params["ensure-newline"];
+  const shouldFocusNote = !silent;
 
   // DRY: This call is used twice below, and I don't want to mess things up by
   // forgetting a parameter or something in the future.
@@ -282,7 +287,7 @@ async function handleAppend(
       return await appendNoteBelowHeadline(file, belowHeadline, content);
     }
 
-    return await appendNote(file, content, ensureNewline);
+    return await appendNote(file, content, shouldEnsureNewline);
   }
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
@@ -290,31 +295,36 @@ async function handleAppend(
   const res = await getNoteFile(file);
   if (res.isSuccess) {
     const res1 = await appendAsRequested();
-    return res1.isSuccess ? success({ message: res1.result }, file) : res1;
-  } else if (!createIfNotFound) {
+    if (res1.isSuccess) {
+      if (shouldFocusNote) await focusOrOpenNote(file);
+      return success({ message: res1.result }, file);
+    }
+    return res1;
+  } else if (!shouldCreateNote) {
     return res;
   }
 
   // We're supposed to create the note. We try to create it.
   const res2 = await createNote(file, "");
-  if (!res2.isSuccess) {
-    return res2;
-  }
+  if (!res2.isSuccess) return res2;
 
   // Creation was successful. We try to append again.
   const res3 = await appendAsRequested();
-  return res3.isSuccess ? success({ message: res3.result }, file) : res3;
+  if (!res3.isSuccess) return res3;
+  if (shouldFocusNote) await focusOrOpenNote(file);
+  return success({ message: res3.result }, file);
 }
 
 async function handlePrepend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <PrependParams> incomingParams;
-  const { file, content } = params;
+  const { file, content, silent } = params;
   const belowHeadline = params["below-headline"];
-  const createIfNotFound = params["create-if-not-found"];
-  const ensureNewline = params["ensure-newline"];
-  const ignoreFrontMatter = params["ignore-front-matter"];
+  const shouldCreateNote = params["create-if-not-found"];
+  const shouldEnsureNewline = params["ensure-newline"];
+  const shouldFocusNote = !silent;
+  const shouldIgnoreFrontMatter = params["ignore-front-matter"];
 
   // DRY: This call is used twice below, and I don't want to mess things up by
   // forgetting a parameter or something in the future.
@@ -324,11 +334,16 @@ async function handlePrepend(
         file,
         belowHeadline,
         content,
-        ensureNewline,
+        shouldEnsureNewline,
       );
     }
 
-    return await prependNote(file, content, ensureNewline, ignoreFrontMatter);
+    return await prependNote(
+      file,
+      content,
+      shouldEnsureNewline,
+      shouldIgnoreFrontMatter,
+    );
   }
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
@@ -336,45 +351,55 @@ async function handlePrepend(
   const res = await getNoteFile(file);
   if (res.isSuccess) {
     const res1 = await prependAsRequested();
-    return res1.isSuccess ? success({ message: res1.result }, file) : res1;
-  } else if (!createIfNotFound) {
+    if (res1.isSuccess) {
+      if (shouldFocusNote) await focusOrOpenNote(file);
+      return success({ message: res1.result }, file);
+    }
+    return res1;
+  } else if (!shouldCreateNote) {
     return res;
   }
 
   // We're supposed to create the note. We try to create it.
   const res2 = await createNote(file, "");
-  if (!res2.isSuccess) {
-    return res2;
-  }
+  if (!res2.isSuccess) return res2;
 
   // Creation was successful. We try to append again.
   const res3 = await prependAsRequested();
-  return res3.isSuccess ? success({ message: res3.result }, file) : res3;
+  if (!res3.isSuccess) return res3;
+  if (shouldFocusNote) await focusOrOpenNote(file);
+  return success({ message: res3.result }, file);
 }
 
 async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { search, file, replace } = <SearchAndReplaceParams> incomingParams;
+  const { search, file, replace, silent } =
+    <SearchAndReplaceParams> incomingParams;
   const filepath = file.path;
-  const res = await searchAndReplaceInNote(filepath, search, replace);
+  const shouldFocusNote = !silent;
 
-  return res.isSuccess ? success({ message: res.result }, filepath) : res;
+  const res = await searchAndReplaceInNote(filepath, search, replace);
+  if (!res.isSuccess) return res;
+  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  return success({ message: res.result }, filepath);
 }
 
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { search, file, replace } = <SearchAndReplaceParams> incomingParams;
+  const { search, file, replace, silent } =
+    <SearchAndReplaceParams> incomingParams;
   const filepath = file.path;
-  const resSir = parseStringIntoRegex(search);
+  const shouldFocusNote = !silent;
 
-  if (!resSir.isSuccess) {
-    return resSir;
-  }
+  const resSir = parseStringIntoRegex(search);
+  if (!resSir.isSuccess) return resSir;
 
   const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
-  return res.isSuccess ? success({ message: res.result }, filepath) : res;
+  if (!res.isSuccess) return res;
+  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  return success({ message: res.result }, filepath);
 }
 
 async function handleDelete(
@@ -382,8 +407,8 @@ async function handleDelete(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <DeleteParams> incomingParams;
   const filepath = file.path;
-  const res = await trashFilepath(filepath, true);
 
+  const res = await trashFilepath(filepath, true);
   return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
@@ -392,8 +417,8 @@ async function handleTrash(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <DeleteParams> incomingParams;
   const filepath = file.path;
-  const res = await trashFilepath(filepath);
 
+  const res = await trashFilepath(filepath);
   return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
@@ -401,9 +426,8 @@ async function handleRename(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <RenameParams> incomingParams;
-  const { file } = params;
-  const filepath = file.path;
-  const res = await renameFilepath(filepath, params["new-filename"]);
+  const filepath = params.file.path;
 
+  const res = await renameFilepath(filepath, params["new-filename"]);
   return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }

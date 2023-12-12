@@ -228,7 +228,6 @@ function getHandleList(periodID: PeriodType): HandlerFunction {
     }
 
     const notes = getAllPeriodNotes(periodID);
-
     return success({
       paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
     });
@@ -239,8 +238,14 @@ function getHandleGetCurrent(periodID: PeriodType): HandlerFunction {
   return async function handleGetCurrent(
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
+    const { silent } = <ReadParams> incomingParams;
+    const shouldFocusNote = !silent;
+
     const res = getPeriodNotePathIfPluginIsAvailable(periodID);
-    return res.isSuccess ? await getNoteDetails(res.result) : res;
+    if (!res.isSuccess) return res;
+    const filepath = res.result;
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    return await getNoteDetails(filepath);
   };
 }
 
@@ -248,8 +253,14 @@ function getHandleGetMostRecent(periodID: PeriodType): HandlerFunction {
   return async function handleGetMostRecent(
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
+    const { silent } = <ReadParams> incomingParams;
+    const shouldFocusNote = !silent;
+
     const res = await getMostRecentPeriodNote(periodID);
-    return res.isSuccess ? await getNoteDetails(res.result.path) : res;
+    if (!res.isSuccess) return res;
+    const filepath = res.result.path;
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    return await getNoteDetails(filepath);
   };
 }
 
@@ -290,8 +301,9 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
     const params = <CreateParams> incomingParams;
-    const { apply } = params;
+    const { apply, silent } = params;
     const ifExists = params["if-exists"];
+    const shouldFocusNote = !silent;
     const templateFile = (apply === "templater" || apply === "templates")
       ? (<createTemplateParams> params)["template-file"]
       : undefined;
@@ -322,6 +334,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       switch (ifExists) {
         // `skip` == Leave not as-is, we just return the existing note.
         case "skip":
+          if (shouldFocusNote) await focusOrOpenNote(pNote.path);
           return await getNoteDetails(pNote.path);
 
         // Overwrite the existing note.
@@ -344,7 +357,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       return failure(400, STRINGS.unable_to_write_note);
     }
     const filepath = newNote.path;
-    await pause(100);
+    await pause(200);
 
     switch (apply) {
       case "content":
@@ -363,12 +376,12 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       // be sure the file exists.
       case "templates":
         await createOrOverwriteNote(filepath, "");
-        await focusOrOpenNote(filepath);
-        await pause(100);
+        await pause(200);
         await pluginInstance.insertTemplate(templateFile);
         break;
     }
 
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
     return await getNoteDetails(filepath);
   };
 }
@@ -378,10 +391,11 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
     const params = <AppendParams> incomingParams;
-    const { content } = params;
+    const { content, silent } = params;
     const belowHeadline = params["below-headline"];
-    const createIfNotFound = params["create-if-not-found"];
-    const ensureNewline = params["ensure-newline"];
+    const shouldCreateNote = params["create-if-not-found"];
+    const shouldEnsureNewline = params["ensure-newline"];
+    const shouldFocusNote = !silent;
 
     // DRY: This call is used twice below, and I don't want to mess things up by
     // forgetting a parameter or something in the future.
@@ -394,7 +408,7 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
         );
       }
 
-      return await appendNote(filepath, content, ensureNewline);
+      return await appendNote(filepath, content, shouldEnsureNewline);
     }
 
     // See if the file exists, and if so, append to it.
@@ -402,28 +416,26 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     if (resDNP.isSuccess) {
       const filepath = resDNP.result;
       const res = await appendAsRequested(filepath);
-      return res.isSuccess ? success({ message: res.result }, filepath) : res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(filepath);
+      return success({ message: res.result }, filepath);
     }
 
     // No, the file didn't exist. Unless it just couldn't be found (as opposed to
     // any other error), we're done.
-    if (resDNP.errorCode !== 404) {
-      return resDNP;
-    }
+    if (resDNP.errorCode !== 404) return resDNP;
 
     // The file didn't exist, because it hasn't been created yet. Should we create
     // it? If not, we're done.
-    if (!createIfNotFound) {
-      return resDNP;
-    }
+    if (!shouldCreateNote) return resDNP;
 
     // We're allowed to create the file, so let's do that.
     const newNote = await createPeriodNote(periodID);
     if (newNote instanceof TFile) {
       const res = await appendAsRequested(newNote.path);
-      return res.isSuccess
-        ? success({ message: res.result }, newNote.path)
-        : res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+      return success({ message: res.result }, newNote.path);
     }
 
     // If that didn't work, return an error.
@@ -436,11 +448,12 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
     const params = <PrependParams> incomingParams;
-    const { content } = params;
+    const { content, silent } = params;
     const belowHeadline = params["below-headline"];
-    const createIfNotFound = params["create-if-not-found"];
-    const ensureNewline = params["ensure-newline"];
-    const ignoreFrontMatter = params["ignore-front-matter"];
+    const shouldCreateNote = params["create-if-not-found"];
+    const shouldEnsureNewline = params["ensure-newline"];
+    const shouldFocusNote = !silent;
+    const shouldIgnoreFrontMatter = params["ignore-front-matter"];
 
     // DRY: This call is used twice below, and I don't want to mess things up by
     // forgetting a parameter or something in the future.
@@ -450,15 +463,15 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
           filepath,
           belowHeadline,
           content,
-          ensureNewline,
+          shouldEnsureNewline,
         );
       }
 
       return await prependNote(
         filepath,
         content,
-        ensureNewline,
-        ignoreFrontMatter,
+        shouldEnsureNewline,
+        shouldIgnoreFrontMatter,
       );
     }
 
@@ -467,28 +480,26 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     if (resDNP.isSuccess) {
       const filepath = resDNP.result;
       const res = await prependAsRequested(filepath);
-      return res.isSuccess ? success({ message: res.result }, filepath) : res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(filepath);
+      return success({ message: res.result }, filepath);
     }
 
     // No, the file didn't exist. Unless it just couldn't be found (as opposed to
     // any other error), we're done.
-    if (resDNP.errorCode !== 404) {
-      return resDNP;
-    }
+    if (resDNP.errorCode !== 404) return resDNP;
 
     // The file didn't exist, because it hasn't been created yet. Should we create
     // it? If not, we're done.
-    if (!createIfNotFound) {
-      return resDNP;
-    }
+    if (!shouldCreateNote) return resDNP;
 
     // We're allowed to create the file, so let's do that.
     const newNote = await createPeriodNote(periodID);
     if (newNote instanceof TFile) {
       const res = await prependAsRequested(newNote.path);
-      return res.isSuccess
-        ? success({ message: res.result }, newNote.path)
-        : res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+      return success({ message: res.result }, newNote.path);
     }
 
     // If that didn't work, return an error.
@@ -502,17 +513,17 @@ function getHandleSearchStringAndReplace(
   return async function handleSearchStringAndReplace(
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
-    const params = <SearchAndReplaceParams> incomingParams;
+    const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
+    const shouldFocusNote = !silent;
+
     const resDNP = getPeriodNotePathIfPluginIsAvailable(periodID);
-    if (!resDNP.isSuccess) {
-      return resDNP;
-    }
-
+    if (!resDNP.isSuccess) return resDNP;
     const filepath = resDNP.result;
-    const { search, replace } = params;
-    const res = await searchAndReplaceInNote(filepath, search, replace);
 
-    return res.isSuccess ? success({ message: res.result }, filepath) : res;
+    const res = await searchAndReplaceInNote(filepath, search, replace);
+    if (!res.isSuccess) return res;
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    return success({ message: res.result }, filepath);
   };
 }
 
@@ -520,24 +531,20 @@ function getHandleSearchRegexAndReplace(periodID: PeriodType): HandlerFunction {
   return async function handleSearchRegexAndReplace(
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
-    const params = <SearchAndReplaceParams> incomingParams;
+    const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
+    const shouldFocusNote = !silent;
+
     const resDNP = getPeriodNotePathIfPluginIsAvailable(periodID);
-    if (!resDNP.isSuccess) {
-      return resDNP;
-    }
-
-    const resSir = parseStringIntoRegex(params.search);
-    if (!resSir.isSuccess) {
-      return resSir;
-    }
-
+    if (!resDNP.isSuccess) return resDNP;
     const filepath = resDNP.result;
-    const res = await searchAndReplaceInNote(
-      filepath,
-      resSir.result,
-      params.replace,
-    );
-    return res.isSuccess ? success({ message: res.result }, filepath) : res;
+
+    const resSir = parseStringIntoRegex(search);
+    if (!resSir.isSuccess) return resSir;
+
+    const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
+    if (!res.isSuccess) return res;
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    return success({ message: res.result }, filepath);
   };
 }
 
