@@ -13,6 +13,7 @@ import {
   activeVault,
   appendNote,
   appendNoteBelowHeadline,
+  applyCorePluginTemplate,
   createNote,
   createOrOverwriteNote,
   getNoteDetails,
@@ -30,7 +31,6 @@ import {
 import { helloRoute } from "../utils/routing";
 import { success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
-import { pause } from "../utils/time";
 import { focusOrOpenNote } from "../utils/ui";
 import {
   zodAlwaysFalse,
@@ -261,8 +261,7 @@ async function handleCreate(
       break;
 
     case "templates":
-      await pause(200);
-      await pluginInstance.insertTemplate(templateFile);
+      await applyCorePluginTemplate(templateFile!, newNote);
       break;
   }
 

@@ -39,6 +39,7 @@ import {
   activeVault,
   appendNote,
   appendNoteBelowHeadline,
+  applyCorePluginTemplate,
   createOrOverwriteNote,
   getNoteDetails,
   getNoteFile,
@@ -375,9 +376,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       // Testing for existence of template file is done by a zod schema, so we can
       // be sure the file exists.
       case "templates":
-        await createOrOverwriteNote(filepath, "");
-        await pause(200);
-        await pluginInstance.insertTemplate(templateFile);
+        await applyCorePluginTemplate(templateFile!, newNote);
         break;
     }
 

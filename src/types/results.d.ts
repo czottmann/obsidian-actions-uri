@@ -22,6 +22,7 @@ export type SearchResultObject =
   | ErrorObject;
 export type StringResultObject = ResultObject<string> | ErrorObject;
 export type PluginResultObject = ResultObject<any> | ErrorObject;
+export type BooleanResultObject = ResultObject<boolean> | ErrorObject;
 
 export type ProcessingResult = {
   params: AnyParams;
