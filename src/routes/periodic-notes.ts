@@ -290,8 +290,9 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
     const params = <CreateParams> incomingParams;
-    const { apply } = params;
+    const { apply, silent } = params;
     const ifExists = params["if-exists"];
+    const shouldFocusNote = !silent;
     const templateFile = (apply === "templater" || apply === "templates")
       ? (<createTemplateParams> params)["template-file"]
       : undefined;
@@ -322,6 +323,9 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       switch (ifExists) {
         // `skip` == Leave not as-is, we just return the existing note.
         case "skip":
+          if (shouldFocusNote) {
+            await focusOrOpenNote(pNote.path);
+          }
           return await getNoteDetails(pNote.path);
 
         // Overwrite the existing note.
@@ -344,7 +348,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       return failure(400, STRINGS.unable_to_write_note);
     }
     const filepath = newNote.path;
-    await pause(100);
+    await pause(200);
 
     switch (apply) {
       case "content":
@@ -363,12 +367,14 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       // be sure the file exists.
       case "templates":
         await createOrOverwriteNote(filepath, "");
-        await focusOrOpenNote(filepath);
-        await pause(100);
+        await pause(200);
         await pluginInstance.insertTemplate(templateFile);
         break;
     }
 
+    if (shouldFocusNote) {
+      await focusOrOpenNote(filepath);
+    }
     return await getNoteDetails(filepath);
   };
 }
