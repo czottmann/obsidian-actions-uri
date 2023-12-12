@@ -228,7 +228,6 @@ function getHandleList(periodID: PeriodType): HandlerFunction {
     }
 
     const notes = getAllPeriodNotes(periodID);
-
     return success({
       paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
     });
@@ -244,7 +243,6 @@ function getHandleGetCurrent(periodID: PeriodType): HandlerFunction {
 
     const res = getPeriodNotePathIfPluginIsAvailable(periodID);
     if (!res.isSuccess) return res;
-
     const filepath = res.result;
     if (shouldFocusNote) await focusOrOpenNote(filepath);
     return await getNoteDetails(filepath);
@@ -260,7 +258,6 @@ function getHandleGetMostRecent(periodID: PeriodType): HandlerFunction {
 
     const res = await getMostRecentPeriodNote(periodID);
     if (!res.isSuccess) return res;
-
     const filepath = res.result.path;
     if (shouldFocusNote) await focusOrOpenNote(filepath);
     return await getNoteDetails(filepath);
@@ -419,11 +416,9 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     if (resDNP.isSuccess) {
       const filepath = resDNP.result;
       const res = await appendAsRequested(filepath);
-      if (res.isSuccess) {
-        if (shouldFocusNote) await focusOrOpenNote(filepath);
-        return success({ message: res.result }, filepath);
-      }
-      return res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(filepath);
+      return success({ message: res.result }, filepath);
     }
 
     // No, the file didn't exist. Unless it just couldn't be found (as opposed to
@@ -438,11 +433,9 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     const newNote = await createPeriodNote(periodID);
     if (newNote instanceof TFile) {
       const res = await appendAsRequested(newNote.path);
-      if (res.isSuccess) {
-        if (shouldFocusNote) await focusOrOpenNote(newNote.path);
-        return success({ message: res.result }, newNote.path);
-      }
-      return res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+      return success({ message: res.result }, newNote.path);
     }
 
     // If that didn't work, return an error.
@@ -487,11 +480,9 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     if (resDNP.isSuccess) {
       const filepath = resDNP.result;
       const res = await prependAsRequested(filepath);
-      if (res.isSuccess) {
-        if (shouldFocusNote) await focusOrOpenNote(filepath);
-        return success({ message: res.result }, filepath);
-      }
-      return res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(filepath);
+      return success({ message: res.result }, filepath);
     }
 
     // No, the file didn't exist. Unless it just couldn't be found (as opposed to
@@ -506,11 +497,9 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     const newNote = await createPeriodNote(periodID);
     if (newNote instanceof TFile) {
       const res = await prependAsRequested(newNote.path);
-      if (res.isSuccess) {
-        if (shouldFocusNote) await focusOrOpenNote(newNote.path);
-        return success({ message: res.result }, newNote.path);
-      }
-      return res;
+      if (!res.isSuccess) return res;
+      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+      return success({ message: res.result }, newNote.path);
     }
 
     // If that didn't work, return an error.

@@ -202,9 +202,9 @@ async function handleGet(
 async function handleOpen(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <OpenParams> incomingParams;
-  const res = await getNoteFile(params.file.path);
+  const { file } = <OpenParams> incomingParams;
 
+  const res = await getNoteFile(file.path);
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
@@ -249,9 +249,7 @@ async function handleCreate(
   const res2 = (noteExists && ifExists === "overwrite")
     ? await createOrOverwriteNote(file, content)
     : await createNote(file, content);
-  if (!res2.isSuccess) {
-    return res2;
-  }
+  if (!res2.isSuccess) return res2;
   const newNote = res2.result;
 
   // If we're applying a template, we need to write it to the file. Testing for
@@ -308,17 +306,13 @@ async function handleAppend(
 
   // We're supposed to create the note. We try to create it.
   const res2 = await createNote(file, "");
-  if (!res2.isSuccess) {
-    return res2;
-  }
+  if (!res2.isSuccess) return res2;
 
   // Creation was successful. We try to append again.
   const res3 = await appendAsRequested();
-  if (res3.isSuccess) {
-    if (shouldFocusNote) await focusOrOpenNote(file);
-    return success({ message: res3.result }, file);
-  }
-  return res3;
+  if (!res3.isSuccess) return res3;
+  if (shouldFocusNote) await focusOrOpenNote(file);
+  return success({ message: res3.result }, file);
 }
 
 async function handlePrepend(
@@ -368,17 +362,13 @@ async function handlePrepend(
 
   // We're supposed to create the note. We try to create it.
   const res2 = await createNote(file, "");
-  if (!res2.isSuccess) {
-    return res2;
-  }
+  if (!res2.isSuccess) return res2;
 
   // Creation was successful. We try to append again.
   const res3 = await prependAsRequested();
-  if (res3.isSuccess) {
-    if (shouldFocusNote) await focusOrOpenNote(file);
-    return success({ message: res3.result }, file);
-  }
-  return res3;
+  if (!res3.isSuccess) return res3;
+  if (shouldFocusNote) await focusOrOpenNote(file);
+  return success({ message: res3.result }, file);
 }
 
 async function handleSearchStringAndReplace(
@@ -390,11 +380,9 @@ async function handleSearchStringAndReplace(
   const shouldFocusNote = !silent;
 
   const res = await searchAndReplaceInNote(filepath, search, replace);
-  if (res.isSuccess) {
-    if (shouldFocusNote) await focusOrOpenNote(filepath);
-    return success({ message: res.result }, filepath);
-  }
-  return res;
+  if (!res.isSuccess) return res;
+  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  return success({ message: res.result }, filepath);
 }
 
 async function handleSearchRegexAndReplace(
@@ -406,16 +394,12 @@ async function handleSearchRegexAndReplace(
   const shouldFocusNote = !silent;
 
   const resSir = parseStringIntoRegex(search);
-  if (!resSir.isSuccess) {
-    return resSir;
-  }
+  if (!resSir.isSuccess) return resSir;
 
   const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
-  if (res.isSuccess) {
-    if (shouldFocusNote) await focusOrOpenNote(filepath);
-    return success({ message: res.result }, filepath);
-  }
-  return res;
+  if (!res.isSuccess) return res;
+  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  return success({ message: res.result }, filepath);
 }
 
 async function handleDelete(
@@ -423,8 +407,8 @@ async function handleDelete(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <DeleteParams> incomingParams;
   const filepath = file.path;
-  const res = await trashFilepath(filepath, true);
 
+  const res = await trashFilepath(filepath, true);
   return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
@@ -433,8 +417,8 @@ async function handleTrash(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <DeleteParams> incomingParams;
   const filepath = file.path;
-  const res = await trashFilepath(filepath);
 
+  const res = await trashFilepath(filepath);
   return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
 
@@ -442,9 +426,8 @@ async function handleRename(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = <RenameParams> incomingParams;
-  const { file } = params;
-  const filepath = file.path;
-  const res = await renameFilepath(filepath, params["new-filename"]);
+  const filepath = params.file.path;
 
+  const res = await renameFilepath(filepath, params["new-filename"]);
   return res.isSuccess ? success({ message: res.result }, filepath) : res;
 }
