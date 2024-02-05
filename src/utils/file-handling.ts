@@ -264,10 +264,31 @@ export async function updateNote(
 }
 
 /**
+ * Sets the modification time of the file to now.
+ *
+ * @param filepath - A full filename, relative from vault root
+ *
+ * @returns A `StringResultObject` object containing either an `error` string or
+ * `result` string
+ */
+export async function touchNote(
+  filepath: string,
+): Promise<TFileResultObject> {
+  const res = await getNoteFile(filepath);
+  if (!res.isSuccess) return res;
+
+  const res2 = await getNoteDetails(filepath);
+  if (!res2.isSuccess) return res2;
+
+  await activeVault().modify(res.result, res2.result.content);
+  return res;
+}
+
+/**
  * @param filepath - A full filename, relative from vault root
  * @param searchTerm - The term to search for
  * @param replacement - The term to replace the search term with
- * @returns A `SimpleResult` object containing either an `error` string or a
+ * @returns A `StringResultObject` object containing either an `error` string or
  * `result` string
  */
 export async function searchAndReplaceInNote(

@@ -22,6 +22,7 @@ import {
   prependNoteBelowHeadline,
   renameFilepath,
   searchAndReplaceInNote,
+  touchNote,
   trashFilepath,
 } from "../utils/file-handling";
 import {
@@ -127,6 +128,12 @@ const prependParams = incomingBaseParams.extend({
 });
 type PrependParams = z.infer<typeof prependParams>;
 
+const touchParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  silent: zodOptionalBoolean,
+});
+type TouchParams = z.infer<typeof touchParams>;
+
 const searchAndReplaceParams = incomingBaseParams.extend({
   file: zodExistingFilePath,
   silent: zodOptionalBoolean,
@@ -155,6 +162,7 @@ export type AnyLocalParams =
   | CreateParams
   | AppendParams
   | PrependParams
+  | TouchParams
   | SearchAndReplaceParams
   | DeleteParams;
 
@@ -170,6 +178,7 @@ export const routePath: RoutePath = {
     { path: "/create", schema: createParams, handler: handleCreate },
     { path: "/append", schema: appendParams, handler: handleAppend },
     { path: "/prepend", schema: prependParams, handler: handlePrepend },
+    { path: "/touch", schema: touchParams, handler: handleTouch },
     { path: "/delete", schema: deleteParams, handler: handleDelete },
     { path: "/trash", schema: deleteParams, handler: handleTrash },
     { path: "/rename", schema: renameParams, handler: handleRename },
@@ -386,6 +395,18 @@ async function handlePrepend(
   if (!res3.isSuccess) return res3;
   if (shouldFocusNote) await focusOrOpenNote(file);
   return success({ message: res3.result }, file);
+}
+
+async function handleTouch(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const { file, silent } = <TouchParams> incomingParams;
+  const shouldFocusNote = !silent;
+
+  const res = await touchNote(file);
+  if (!res.isSuccess) return res;
+  if (shouldFocusNote) await focusOrOpenNote(file);
+  return success({ message: STRINGS.touch_done }, file);
 }
 
 async function handleSearchStringAndReplace(

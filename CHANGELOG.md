@@ -5,6 +5,7 @@
 ### New stuff
 
 - New route: [`/note/get-active`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteget-active) returns the currently active/focussed note. (#85)
+- New route: [`/note/touch`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#notetouch) sets the modification date of a note to the current date and time (force Obsidian to reload it in views/ embeddings).
 
 
 ### Changes

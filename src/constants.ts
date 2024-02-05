@@ -43,6 +43,7 @@ export const STRINGS = {
   search_pattern_not_found: "Search pattern wasn't found, nothing replaced",
   search_pattern_unparseable: "Search pattern is not correctly formed",
   search_string_not_found: "Search string wasn't found, nothing replaced",
+  touch_done: "Successfully touched",
   trash_done: "Successfully moved to trash",
   unable_to_read_note: "Can't read note file",
   unable_to_write_note: "Can't write note file",
