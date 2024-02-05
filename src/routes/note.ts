@@ -29,7 +29,7 @@ import {
   getEnabledCorePlugin,
 } from "../utils/plugins";
 import { helloRoute } from "../utils/routing";
-import { success } from "../utils/results-handling";
+import { failure, success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
 import { focusOrOpenNote } from "../utils/ui";
 import {
@@ -56,6 +56,12 @@ const readParams = incomingBaseParams.extend({
   "x-success": z.string().url(),
 });
 type ReadParams = z.infer<typeof readParams>;
+
+const readActiveParams = incomingBaseParams.extend({
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ReadActiveParams = z.infer<typeof readActiveParams>;
 
 const openParams = incomingBaseParams.extend({
   file: zodExistingFilePath,
@@ -144,6 +150,7 @@ type RenameParams = z.infer<typeof renameParams>;
 export type AnyLocalParams =
   | ListParams
   | ReadParams
+  | ReadActiveParams
   | OpenParams
   | CreateParams
   | AppendParams
@@ -158,6 +165,7 @@ export const routePath: RoutePath = {
     helloRoute(),
     { path: "/list", schema: listParams, handler: handleList },
     { path: "/get", schema: readParams, handler: handleGet },
+    { path: "/get-active", schema: readActiveParams, handler: handleGetActive },
     { path: "/open", schema: openParams, handler: handleOpen },
     { path: "/create", schema: createParams, handler: handleCreate },
     { path: "/append", schema: appendParams, handler: handleAppend },
@@ -197,6 +205,16 @@ async function handleGet(
   const res = await getNoteDetails(file);
   if (res.isSuccess && shouldFocusNote) await focusOrOpenNote(file);
   return res;
+}
+
+async function handleGetActive(
+  incomingParams: AnyParams,
+): Promise<HandlerFileSuccess | HandlerFailure> {
+  const res = window.app.workspace.getActiveFile();
+  if (res?.extension !== "md") return failure(404, "No active note");
+
+  const res1 = await getNoteDetails(res.path);
+  return (res1.isSuccess) ? res1 : failure(404, "No active note");
 }
 
 async function handleOpen(

@@ -98,6 +98,42 @@ On failure:
 &nbsp;
 
 
+## `/note/get-active`
+<span class="tag tag-version">v1.5+</span>
+Returns the currently focussed note. If there is no open note or the currently focussed file is not a note, an error 404 is returned.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter   | Value type | Optional? | Description                       |
+| ----------- | ---------- | :-------: | ----------------------------------|
+| `x-success` | string     |           | base URL for on-success callbacks |
+| `x-error`   | string     |           | base URL for on-error callbacks   |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter             | Description                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.               |
+| `result-content`      | The entire content of the note file.                                                 |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                      |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.             |
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
 ## `/note/open`
 <span class="tag tag-version">v0.12+</span>
 Opens a specific note in Obsidian.
