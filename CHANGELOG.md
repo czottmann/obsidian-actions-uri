@@ -1,5 +1,22 @@
 # Release history
 
+## 1.5.0, 2024-02-__
+
+### New stuff
+
+- New route: [`/note/get-active`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteget-active) returns the currently active/focussed note. (#85)
+
+
+### Changes
+
+- [`/command/execute`](https://czottmann.github.io/obsidian-actions-uri/routes/command/#commandexecute) no longer requires the `x-success` and `x-error` parameters to be present. If they are, they will be used, but if they are not, the route will still work. (#84)
+
+
+### No longer broken
+
+TODO
+
+
 ## 1.4.2, 2023-12-12
 
 ### No longer broken
