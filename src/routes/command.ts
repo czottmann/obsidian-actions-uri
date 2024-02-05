@@ -25,8 +25,6 @@ const executeParams = incomingBaseParams.extend({
   commands: zodCommaSeparatedStrings,
   "pause-in-secs": z.coerce.number().optional(),
   silent: zodAlwaysFalse,
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
 });
 type ExecuteParams = z.infer<typeof executeParams>;
 

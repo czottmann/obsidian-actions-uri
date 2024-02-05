@@ -13,7 +13,7 @@ These routes deal with getting the list of available Obsidian commands (think Co
 &nbsp;
 
 
-## Root, i.e. `/tags`
+## Root, i.e. `/command`
 Does nothing but say hello.
 
 ### Parameters
@@ -67,8 +67,8 @@ Triggers the passed-in command or commands in sequence, in the specified vault.
 | --------------- | ------ | :-------: | ---------------------------------------------------------------- |
 | `commands`      | string |           | Comma-separated list of command IDs.                             |
 | `pause-in-secs` | number | optional  | Length of the pause in seconds between commands. Default: `0.2`. |
-| `x-success`     | string |           | base URL for on-success callbacks                                |
-| `x-error`       | string |           | base URL for on-error callbacks                                  |
+| `x-success`     | string | optional  | base URL for on-success callbacks                                |
+| `x-error`       | string | optional  | base URL for on-error callbacks                                  |
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
