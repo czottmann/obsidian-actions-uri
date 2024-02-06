@@ -65,6 +65,22 @@ const readActiveParams = incomingBaseParams.extend({
 });
 type ReadActiveParams = z.infer<typeof readActiveParams>;
 
+const readNamedParams = incomingBaseParams.extend({
+  file: zodSanitizedFilePath,
+  "sort-by": z.enum([
+    "path-asc",
+    "path-desc",
+    "ctime-asc",
+    "ctime-desc",
+    "mtime-asc",
+    "mtime-desc",
+    "",
+  ]).optional(),
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
+
 const openParams = incomingBaseParams.extend({
   file: zodExistingFilePath,
   silent: zodAlwaysFalse,
@@ -158,6 +174,7 @@ type RenameParams = z.infer<typeof renameParams>;
 export type AnyLocalParams =
   | ListParams
   | ReadParams
+  | ReadFirstNamedParams
   | ReadActiveParams
   | OpenParams
   | CreateParams
@@ -174,6 +191,11 @@ export const routePath: RoutePath = {
     helloRoute(),
     { path: "/list", schema: listParams, handler: handleList },
     { path: "/get", schema: readParams, handler: handleGet },
+    {
+      path: "/get-first-named",
+      schema: readNamedParams,
+      handler: handleGetNamed,
+    },
     { path: "/get-active", schema: readActiveParams, handler: handleGetActive },
     { path: "/open", schema: openParams, handler: handleOpen },
     { path: "/create", schema: createParams, handler: handleCreate },
@@ -227,6 +249,29 @@ async function handleGetActive(
   return (res1.isSuccess) ? res1 : failure(404, "No active note");
 }
 
+async function handleGetNamed(
+  incomingParams: AnyParams,
+): Promise<HandlerFileSuccess | HandlerFailure> {
+  const params = <ReadFirstNamedParams> incomingParams;
+  const { file } = params;
+  const sortBy = params["sort-by"] || "path-asc";
+
+  const sortFns = {
+    "path-asc": (a: TFile, b: TFile) => a.path.localeCompare(b.path),
+    "path-desc": (a: TFile, b: TFile) => b.path.localeCompare(a.path),
+    "ctime-asc": (a: TFile, b: TFile) => a.stat.ctime - b.stat.ctime,
+    "ctime-desc": (a: TFile, b: TFile) => b.stat.ctime - a.stat.ctime,
+    "mtime-asc": (a: TFile, b: TFile) => a.stat.mtime - b.stat.mtime,
+    "mtime-desc": (a: TFile, b: TFile) => b.stat.mtime - a.stat.mtime,
+  };
+
+  const res = activeVault().getMarkdownFiles()
+    .sort(sortFns[sortBy])
+    .find((tf) => tf.name === file);
+  if (!res) return failure(404, "No note found with that name");
+
+  return await getNoteDetails(res.path);
+}
 async function handleOpen(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
