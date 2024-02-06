@@ -26,6 +26,10 @@ export function activeVault() {
   return window.app.vault;
 }
 
+export function activeWorkspace() {
+  return window.app.workspace;
+}
+
 /**
  * Create a new note. If the note already exists, find a available numeric
  * suffix for the filename and create a new note with that suffix.
@@ -486,7 +490,6 @@ export async function applyCorePluginTemplate(
   templateFile: TFile,
   note: TFile,
 ): Promise<BooleanResultObject> {
-  const { app } = window;
   const pluginRes = getEnabledCorePlugin("templates");
   if (!pluginRes.isSuccess) return pluginRes;
   const pluginInstance = pluginRes.result;
@@ -497,7 +500,7 @@ export async function applyCorePluginTemplate(
 
   try {
     // Ensure the view is in source mode
-    const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+    const activeView = activeWorkspace().getActiveViewOfType(MarkdownView);
     if (activeView && activeView?.getMode() !== "source") {
       await activeView.setState(
         { ...activeView.getState(), mode: "source" },

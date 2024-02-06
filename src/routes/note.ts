@@ -11,6 +11,7 @@ import {
 } from "../types";
 import {
   activeVault,
+  activeWorkspace,
   appendNote,
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
@@ -219,7 +220,7 @@ async function handleGet(
 async function handleGetActive(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const res = window.app.workspace.getActiveFile();
+  const res = activeWorkspace().getActiveFile();
   if (res?.extension !== "md") return failure(404, "No active note");
 
   const res1 = await getNoteDetails(res.path);

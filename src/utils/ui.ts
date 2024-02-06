@@ -1,7 +1,7 @@
 import { FileView, Notice } from "obsidian";
 import { STRINGS } from "../constants";
 import { StringResultObject } from "../types";
-import { getNoteFile } from "./file-handling";
+import { activeWorkspace, getNoteFile } from "./file-handling";
 import { failure, success } from "./results-handling";
 
 /**
@@ -43,15 +43,14 @@ export function logErrorToConsole(...data: any[]) {
  * @returns Success when file could be found and focussed, error otherwise
  */
 export function focusLeafWithFile(filepath: string): StringResultObject {
-  const { workspace } = window.app;
-  const leaf = workspace.getLeavesOfType("markdown")
+  const leaf = activeWorkspace().getLeavesOfType("markdown")
     .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
 
   if (!leaf) {
     return failure(405, "File currently not open");
   }
 
-  workspace.setActiveLeaf(leaf, { focus: true });
+  activeWorkspace().setActiveLeaf(leaf, { focus: true });
   return success("Open file found and focussed");
 }
 
@@ -74,7 +73,7 @@ export async function focusOrOpenNote(
 
   const res1 = await getNoteFile(filepath);
   if (res1.isSuccess) {
-    window.app.workspace.getLeaf(true).openFile(res1.result);
+    activeWorkspace().getLeaf(true).openFile(res1.result);
     return success(STRINGS.note_opened);
   }
 
