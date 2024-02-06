@@ -114,6 +114,34 @@ On failure:
 &nbsp;
 
 
+## `/vault/get-active-file`
+<span class="tag tag-version">v1.5+</span>
+Returns the currently active/focussed file.
+
+### Parameters
+Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter          | Description                           |
+| ------------------ | ------------------------------------- |
+| `result-filepath`  | The full filesystem path to the file. |
+
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
 ## `/vault/list-folders`
 <span class="tag tag-deprecated">Deprecated since v0.16</span>
 Returns a list of folder paths.
