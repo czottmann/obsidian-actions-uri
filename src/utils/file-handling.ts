@@ -22,12 +22,16 @@ import {
 } from "../types";
 import { focusOrOpenNote, logErrorToConsole, showBrandedNotice } from "./ui";
 
+export function app() {
+  return window.app;
+}
+
 export function activeVault() {
-  return window.app.vault;
+  return app().vault;
 }
 
 export function activeWorkspace() {
-  return window.app.workspace;
+  return app().workspace;
 }
 
 /**
@@ -607,7 +611,7 @@ export async function createFolderIfNecessary(folder: string) {
  *          empty object if none exist.
  */
 export function propertiesForFile(file: TFile): NoteProperties {
-  return app.metadataCache.getFileCache(file)?.frontmatter || {};
+  return app().metadataCache.getFileCache(file)?.frontmatter || {};
 }
 
 // HELPERS ----------------------------------------
