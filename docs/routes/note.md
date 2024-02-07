@@ -98,7 +98,7 @@ On failure:
 &nbsp;
 
 
-## `/note/get-named`
+## `/note/get-first-named`
 Returns the first note with the specified name.
 
 **Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
@@ -109,7 +109,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | Parameter   | Value type | Optional? | Description                                                                                    |
 | ----------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
 | `file`      | string     |           | The name of the note. The extension `.md` can be omitted. |
-| `sort-by`   | enum       | optional  | In case there are multiple notes with the same name, they will be sorted by this criterion before the first is picked from the resulting list. Available options: `best-guess` (using the Obsidian's own link resolution (starting from root folder), default), `path-asc` (full path alphabetically), `path-desc`, `ctime-asc` (creation time, oldest first), `ctime-desc`, `mtime-asc` (modification time, oldest first), `mtime-desc`. |
+| `sort-by`   | enum       | optional  | In case there are multiple notes with the same name, they will be sorted by this criterion before the first is picked from the resulting list. Available options: `best-guess` (using Obsidian's link resolution (starting from root folder), default), `path-asc` (full path alphabetically), `path-desc`, `ctime-asc` (creation time, oldest first), `ctime-desc`, `mtime-asc` (modification time, oldest first), `mtime-desc`. |
 | `x-success` | string     |           | base URL for on-success callbacks                                                              |
 | `x-error`   | string     |           | base URL for on-error callbacks                                                                |
 | `silent`    | boolean    | optional  | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
