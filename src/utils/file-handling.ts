@@ -364,14 +364,14 @@ export async function appendNoteBelowHeadline(
         return section;
       }
 
-      // If the section doesn't end with a newline, add one before appending.
-      // This case might occur if the last headline in the note is the one to
-      // work with, and the file doesn't end with a newline.
-      if (!section.includes("\n")) {
-        section += "\n";
-      }
-
-      return endStringWithNewline(section + textToAppend);
+      // Rebuild the section by trimming it, appending the text, and adding back
+      // the original number of consecutive newlines
+      return endStringWithNewline(
+        section.trim() +
+            "\n" +
+            textToAppend +
+            section.match(/\n+$/)?.[0] || "",
+      );
     })
     .join("");
 

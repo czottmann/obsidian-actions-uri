@@ -11,6 +11,7 @@
 ### Changes
 
 - [`/command/execute`](https://czottmann.github.io/obsidian-actions-uri/routes/command/#commandexecute) no longer requires the `x-success` and `x-error` parameters to be present. If they are, they will be used, but if they are not, the route will still work. (#84)
+- Appending below headline: Now inserts before any trailing new lines in a section instead of after them.
 
 
 ### No longer broken
