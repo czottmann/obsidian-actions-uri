@@ -12,6 +12,7 @@ import {
 import {
   activeVault,
   activeWorkspace,
+  app,
   appendNote,
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
@@ -22,6 +23,7 @@ import {
   prependNote,
   prependNoteBelowHeadline,
   renameFilepath,
+  sanitizeFilePath,
   searchAndReplaceInNote,
   touchNote,
   trashFilepath,
@@ -68,6 +70,7 @@ type ReadActiveParams = z.infer<typeof readActiveParams>;
 const readNamedParams = incomingBaseParams.extend({
   file: zodSanitizedFilePath,
   "sort-by": z.enum([
+    "best-guess",
     "path-asc",
     "path-desc",
     "ctime-asc",
@@ -254,8 +257,20 @@ async function handleGetNamed(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = <ReadFirstNamedParams> incomingParams;
   const { file } = params;
-  const sortBy = params["sort-by"] || "path-asc";
+  const sortBy = params["sort-by"] || "best-guess";
 
+  // "Best guess" means utilizing Obsidian's internal link resolution to find
+  // the right note. If it's not found, we return a 404.
+  if (sortBy === "best-guess") {
+    const res = app().metadataCache
+      .getFirstLinkpathDest(sanitizeFilePath(file), "/");
+    return res
+      ? await getNoteDetails(res.path)
+      : failure(404, "No note found with that name");
+  }
+
+  // If we're here, we're sorting by something else. We need to find all notes
+  // with that name, sort them as requested, and return the first one.
   const sortFns = {
     "path-asc": (a: TFile, b: TFile) => a.path.localeCompare(b.path),
     "path-desc": (a: TFile, b: TFile) => b.path.localeCompare(a.path),
@@ -272,6 +287,7 @@ async function handleGetNamed(
 
   return await getNoteDetails(res.path);
 }
+
 async function handleOpen(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
