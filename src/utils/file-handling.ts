@@ -190,8 +190,8 @@ export async function getNoteDetails(
  * or slashes.
  *
  * @param filename - A full file path
- * @param isFolder - Whether the path is a folder path; if `true`, make sure the
- * path ends in `.md`. Default: `false`
+ * @param isFolder - Whether the path is a folder path; if `false`, ensure the
+ * path ends in `.md`/`.canvas`. Default: `false`
  *
  * @returns A normalized file path relative to the vault root
  */
