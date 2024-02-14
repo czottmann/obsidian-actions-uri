@@ -114,35 +114,6 @@ On failure:
 &nbsp;
 
 
-## `/vault/list-folders`
-<span class="tag tag-deprecated">Deprecated since v0.16</span>
-Returns a list of folder paths.
-
-DEPRECATED: Use [`/folder/list`](./folder.md) instead.
-
-### Parameters
-Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
-
-### Return values
-These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
-
-On success:
-
-| Parameter      | Description                                               |
-| -------------- | --------------------------------------------------------- |
-| `result-paths` | Array containing all folder paths encoded as JSON string. |
-
-On failure:
-
-| Parameter      | Description                         |
-| -------------- | ----------------------------------- |
-| `errorCode`    | A HTTP status code.                 |
-| `errorMessage` | A short summary of what went wrong. |
-
-
-&nbsp;
-
-
 ## `/vault/list-all-files`
 <span class="tag tag-version">v0.14+</span>
 Returns a list of all files in the vault.
