@@ -140,7 +140,7 @@ export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
   const vault = activeVault();
-  const res = await getNoteFile(filepath);
+  const res = await getNote(filepath);
   if (!res.isSuccess) {
     return res;
   }
@@ -162,7 +162,7 @@ export async function getNoteContent(
 export async function getNoteDetails(
   filepath: string,
 ): Promise<NoteDetailsResultObject> {
-  const res = await getNoteFile(filepath);
+  const res = await getNote(filepath);
   if (!res.isSuccess) {
     return res;
   }
@@ -231,7 +231,7 @@ export async function updateNote(
   newFrontMatter?: string,
   newBody?: string,
 ): Promise<NoteDetailsResultObject> {
-  const res = await getNoteFile(filepath);
+  const res = await getNote(filepath);
   if (!res.isSuccess) {
     return res;
   }
@@ -283,7 +283,7 @@ export async function updateNote(
 export async function touchNote(
   filepath: string,
 ): Promise<TFileResultObject> {
-  const res = await getNoteFile(filepath);
+  const res = await getNote(filepath);
   if (!res.isSuccess) return res;
 
   const res2 = await getNoteDetails(filepath);
@@ -491,7 +491,7 @@ export async function getFile(
  *
  * @returns A result object containing either an error or the `TFile`.
  */
-export async function getNoteFile(
+export async function getNote(
   filepath: string,
 ): Promise<TFileResultObject> {
   const cleanPath = sanitizeFilePath(filepath);

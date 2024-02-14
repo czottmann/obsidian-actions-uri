@@ -18,8 +18,8 @@ import {
   applyCorePluginTemplate,
   createNote,
   createOrOverwriteNote,
+  getNote,
   getNoteDetails,
-  getNoteFile,
   prependNote,
   prependNoteBelowHeadline,
   renameFilepath,
@@ -41,7 +41,7 @@ import {
   zodEmptyStringChangedToDefaultString,
   zodExistingNotePath,
   zodOptionalBoolean,
-  zodSanitizedFilePath,
+  zodSanitizedNotePath,
   zodUndefinedChangedToDefaultValue,
 } from "../utils/zod";
 
@@ -54,7 +54,7 @@ const listParams = incomingBaseParams.extend({
 type ListParams = z.infer<typeof listParams>;
 
 const readParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   silent: zodOptionalBoolean,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
@@ -68,7 +68,7 @@ const readActiveParams = incomingBaseParams.extend({
 type ReadActiveParams = z.infer<typeof readActiveParams>;
 
 const readNamedParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   "sort-by": z.enum([
     "best-guess",
     "path-asc",
@@ -91,7 +91,7 @@ const openParams = incomingBaseParams.extend({
 type OpenParams = z.infer<typeof openParams>;
 
 const createBaseParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
   silent: zodOptionalBoolean,
 });
@@ -129,7 +129,7 @@ type createTemplateParams = {
 
 const appendParams = incomingBaseParams.extend({
   content: z.string(),
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   silent: zodOptionalBoolean,
   "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
@@ -139,7 +139,7 @@ type AppendParams = z.infer<typeof appendParams>;
 
 const prependParams = incomingBaseParams.extend({
   content: z.string(),
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   silent: zodOptionalBoolean,
   "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
@@ -149,7 +149,7 @@ const prependParams = incomingBaseParams.extend({
 type PrependParams = z.infer<typeof prependParams>;
 
 const touchParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   silent: zodOptionalBoolean,
 });
 type TouchParams = z.infer<typeof touchParams>;
@@ -169,7 +169,7 @@ type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams.extend({
   file: zodExistingNotePath,
-  "new-filename": zodSanitizedFilePath,
+  "new-filename": zodSanitizedNotePath,
   silent: zodOptionalBoolean,
 });
 type RenameParams = z.infer<typeof renameParams>;
@@ -294,7 +294,7 @@ async function handleOpen(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <OpenParams> incomingParams;
 
-  const res = await getNoteFile(file.path);
+  const res = await getNote(file.path);
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
@@ -328,7 +328,7 @@ async function handleCreate(
   }
 
   // If there already is a note with that name or at that path, deal with it.
-  const res = await getNoteFile(file);
+  const res = await getNote(file);
   const noteExists = res.isSuccess;
   if (noteExists && ifExists === "skip") {
     // `skip` == Leave not as-is, we just return the existing note.
@@ -381,7 +381,7 @@ async function handleAppend(
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
   // create it.
-  const res = await getNoteFile(file);
+  const res = await getNote(file);
   if (res.isSuccess) {
     const res1 = await appendAsRequested();
     if (res1.isSuccess) {
@@ -437,7 +437,7 @@ async function handlePrepend(
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
   // create it.
-  const res = await getNoteFile(file);
+  const res = await getNote(file);
   if (res.isSuccess) {
     const res1 = await prependAsRequested();
     if (res1.isSuccess) {

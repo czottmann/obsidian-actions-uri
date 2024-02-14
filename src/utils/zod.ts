@@ -15,9 +15,13 @@ export const zodOptionalBoolean = z.preprocess(
   z.boolean().optional(),
 );
 
-export const zodSanitizedFilePath = z.string()
+export const zodSanitizedNotePath = z.string()
   .min(1, { message: "can't be empty" })
   .transform((file) => sanitizeFilePath(file));
+
+export const zodSanitizedFilePath = z.string()
+  .min(1, { message: "can't be empty" })
+  .transform((file) => sanitizeFilePath(file, false));
 
 export const zodSanitizedFolderPath = z.string()
   .min(1, { message: "can't be empty" })

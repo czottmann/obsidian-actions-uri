@@ -41,8 +41,8 @@ import {
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
   createOrOverwriteNote,
+  getNote,
   getNoteDetails,
-  getNoteFile,
   prependNote,
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
@@ -693,5 +693,5 @@ async function getMostRecentPeriodNote(
   }
 
   const pNote = notes[mostRecentKey];
-  return await getNoteFile(pNote.path);
+  return await getNote(pNote.path);
 }
