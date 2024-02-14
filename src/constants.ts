@@ -13,6 +13,8 @@ export const STRINGS = {
   dataview_dql_must_start_with_table: 'DQL must start with "TABLE"',
   dataview_plugin_not_available: "Dataview plugin is not active",
   delete_done: "Successfully deleted",
+  file_not_found: "File couldn't be found",
+  file_opened: "File opened",
   folder_created: "Folder created",
   global_search_feature_not_available: "Global Search plugin is not active",
   monthly_note: {

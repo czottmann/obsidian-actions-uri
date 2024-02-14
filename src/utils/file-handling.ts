@@ -20,7 +20,7 @@ import {
   StringResultObject,
   TFileResultObject,
 } from "../types";
-import { focusOrOpenNote, logErrorToConsole, showBrandedNotice } from "./ui";
+import { focusOrOpenFile, logErrorToConsole, showBrandedNotice } from "./ui";
 
 export function app() {
   return window.app;
@@ -472,11 +472,30 @@ export function getFileMap(): TFile[] {
  *
  * @returns A result object containing either an error or the `TFile`.
  */
+export async function getFile(
+  filepath: string,
+): Promise<TFileResultObject> {
+  const cleanPath = sanitizeFilePath(filepath, false);
+  const file = activeVault().getAbstractFileByPath(cleanPath);
+
+  return file instanceof TFile
+    ? success(file)
+    : failure(404, STRINGS.note_not_found);
+}
+
+/**
+ * Checks whether a particular note file exists and when it does, returns its
+ * `TFile` instance.
+ *
+ * @param filepath - A full filename
+ *
+ * @returns A result object containing either an error or the `TFile`.
+ */
 export async function getNoteFile(
   filepath: string,
 ): Promise<TFileResultObject> {
-  const vault = activeVault();
-  const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
+  const cleanPath = sanitizeFilePath(filepath);
+  const file = activeVault().getAbstractFileByPath(cleanPath);
 
   return file instanceof TFile
     ? success(file)
@@ -501,7 +520,7 @@ export async function applyCorePluginTemplate(
 
   // The core plugin will only apply a template to the open, focussed, and
   // editable note ¯\_(ツ)_/¯
-  await focusOrOpenNote(note.path);
+  await focusOrOpenFile(note.path);
 
   try {
     // Ensure the view is in source mode

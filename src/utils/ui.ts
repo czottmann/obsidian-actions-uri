@@ -1,8 +1,20 @@
-import { FileView, Notice } from "obsidian";
+import { FileView, Notice, WorkspaceLeaf } from "obsidian";
 import { STRINGS } from "../constants";
 import { StringResultObject } from "../types";
-import { activeWorkspace, getNoteFile } from "./file-handling";
+import { activeWorkspace, getFile } from "./file-handling";
 import { failure, success } from "./results-handling";
+
+/**
+ * @returns An array of all open workspace leaves
+ */
+export function allWorkspaceRootSplitLeaves(): WorkspaceLeaf[] {
+  const allLeaves: WorkspaceLeaf[] = [];
+  activeWorkspace().iterateRootLeaves((leaf) => {
+    // NOTE: Removing the brackets causes this function to only return one leaf
+    allLeaves.push(leaf);
+  });
+  return allLeaves;
+}
 
 /**
  * Displays a `Notice` inside Obsidian. The notice is prefixed with
@@ -43,9 +55,8 @@ export function logErrorToConsole(...data: any[]) {
  * @returns Success when file could be found and focussed, error otherwise
  */
 export function focusLeafWithFile(filepath: string): StringResultObject {
-  const leaf = activeWorkspace().getLeavesOfType("markdown")
+  const leaf = allWorkspaceRootSplitLeaves()
     .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
-
   if (!leaf) {
     return failure(405, "File currently not open");
   }
@@ -62,7 +73,7 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
  *
  * @returns A positive string result object specifying the action taken
  */
-export async function focusOrOpenNote(
+export async function focusOrOpenFile(
   filepath: string,
 ): Promise<StringResultObject> {
   // Is this file open already? If so, can we just focus it?
@@ -71,7 +82,7 @@ export async function focusOrOpenNote(
     return res;
   }
 
-  const res1 = await getNoteFile(filepath);
+  const res1 = await getFile(filepath);
   if (res1.isSuccess) {
     activeWorkspace().getLeaf(true).openFile(res1.result);
     return success(STRINGS.note_opened);

@@ -35,7 +35,7 @@ import {
 import { helloRoute } from "../utils/routing";
 import { failure, success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
-import { focusOrOpenNote } from "../utils/ui";
+import { focusOrOpenFile } from "../utils/ui";
 import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
@@ -239,7 +239,7 @@ async function handleGet(
   const shouldFocusNote = !silent;
 
   const res = await getNoteDetails(file);
-  if (res.isSuccess && shouldFocusNote) await focusOrOpenNote(file);
+  if (res.isSuccess && shouldFocusNote) await focusOrOpenFile(file);
   return res;
 }
 
@@ -332,7 +332,7 @@ async function handleCreate(
   const noteExists = res.isSuccess;
   if (noteExists && ifExists === "skip") {
     // `skip` == Leave not as-is, we just return the existing note.
-    if (shouldFocusNote) await focusOrOpenNote(file);
+    if (shouldFocusNote) await focusOrOpenFile(file);
     return await getNoteDetails(file);
   }
 
@@ -355,7 +355,7 @@ async function handleCreate(
       break;
   }
 
-  if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+  if (shouldFocusNote) await focusOrOpenFile(newNote.path);
   return await getNoteDetails(newNote.path);
 }
 
@@ -385,7 +385,7 @@ async function handleAppend(
   if (res.isSuccess) {
     const res1 = await appendAsRequested();
     if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenNote(file);
+      if (shouldFocusNote) await focusOrOpenFile(file);
       return success({ message: res1.result }, file);
     }
     return res1;
@@ -400,7 +400,7 @@ async function handleAppend(
   // Creation was successful. We try to append again.
   const res3 = await appendAsRequested();
   if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenNote(file);
+  if (shouldFocusNote) await focusOrOpenFile(file);
   return success({ message: res3.result }, file);
 }
 
@@ -441,7 +441,7 @@ async function handlePrepend(
   if (res.isSuccess) {
     const res1 = await prependAsRequested();
     if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenNote(file);
+      if (shouldFocusNote) await focusOrOpenFile(file);
       return success({ message: res1.result }, file);
     }
     return res1;
@@ -456,7 +456,7 @@ async function handlePrepend(
   // Creation was successful. We try to append again.
   const res3 = await prependAsRequested();
   if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenNote(file);
+  if (shouldFocusNote) await focusOrOpenFile(file);
   return success({ message: res3.result }, file);
 }
 
@@ -468,7 +468,7 @@ async function handleTouch(
 
   const res = await touchNote(file);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenNote(file);
+  if (shouldFocusNote) await focusOrOpenFile(file);
   return success({ message: STRINGS.touch_done }, file);
 }
 
@@ -482,7 +482,7 @@ async function handleSearchStringAndReplace(
 
   const res = await searchAndReplaceInNote(filepath, search, replace);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  if (shouldFocusNote) await focusOrOpenFile(filepath);
   return success({ message: res.result }, filepath);
 }
 
@@ -499,7 +499,7 @@ async function handleSearchRegexAndReplace(
 
   const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  if (shouldFocusNote) await focusOrOpenFile(filepath);
   return success({ message: res.result }, filepath);
 }
 
