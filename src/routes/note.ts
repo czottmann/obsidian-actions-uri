@@ -185,7 +185,8 @@ export type AnyLocalParams =
   | PrependParams
   | TouchParams
   | SearchAndReplaceParams
-  | DeleteParams;
+  | DeleteParams
+  | RenameParams;
 
 // ROUTES ----------------------------------------
 
