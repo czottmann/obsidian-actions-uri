@@ -100,11 +100,11 @@ export type RouteSubpath = {
 export type AnyParams =
   | AnyCommandParams
   | AnyDataviewParams
-  | AnyNotePropertiesParams
   | AnyFileParams
   | AnyFolderParams
   | AnyInfoParams
   | AnyNoteParams
+  | AnyNotePropertiesParams
   | AnyOmnisearchParams
   | AnyPeriodicNoteParams
   | AnySearchParams
