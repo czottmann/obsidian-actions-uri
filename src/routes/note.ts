@@ -39,7 +39,7 @@ import { focusOrOpenNote } from "../utils/ui";
 import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
-  zodExistingFilePath,
+  zodExistingNotePath,
   zodOptionalBoolean,
   zodSanitizedFilePath,
   zodUndefinedChangedToDefaultValue,
@@ -85,7 +85,7 @@ const readNamedParams = incomingBaseParams.extend({
 type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
 
 const openParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
   silent: zodAlwaysFalse,
 });
 type OpenParams = z.infer<typeof openParams>;
@@ -102,11 +102,11 @@ const createParams = z.discriminatedUnion("apply", [
   }),
   createBaseParams.extend({
     apply: z.literal("templater"),
-    "template-file": zodExistingFilePath,
+    "template-file": zodExistingNotePath,
   }),
   createBaseParams.extend({
     apply: z.literal("templates"),
-    "template-file": zodExistingFilePath,
+    "template-file": zodExistingNotePath,
   }),
   createBaseParams.extend({
     apply: zodEmptyStringChangedToDefaultString("content"),
@@ -155,7 +155,7 @@ const touchParams = incomingBaseParams.extend({
 type TouchParams = z.infer<typeof touchParams>;
 
 const searchAndReplaceParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
   silent: zodOptionalBoolean,
   search: z.string().min(1, { message: "can't be empty" }),
   replace: z.string(),
@@ -163,12 +163,12 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 const deleteParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
 });
 type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
   "new-filename": zodSanitizedFilePath,
   silent: zodOptionalBoolean,
 });

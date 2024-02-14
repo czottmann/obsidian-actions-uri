@@ -89,10 +89,19 @@ export const zodCommaSeparatedStrings = z.string()
 
 /**
  * A schema which tests the passed-in string to see if it's a valid path to an
+ * existing note. If it is, returns a `TFile` instance.
+ */
+export const zodExistingNotePath = z.preprocess(
+  lookupAbstractFileForNotePath,
+  z.instanceof(TFile, { message: "Note doesn't exist" }),
+);
+
+/**
+ * A schema which tests the passed-in string to see if it's a valid path to an
  * existing file. If it is, returns a `TFile` instance.
  */
 export const zodExistingFilePath = z.preprocess(
-  lookupAbstractFileForPath,
+  lookupAbstractFileForFilePath,
   z.instanceof(TFile, { message: "File doesn't exist" }),
 );
 
@@ -139,17 +148,33 @@ export const zodEmptyStringChangedToDefaultString = (defaultString: string) =>
 
 /**
  * Takes an incoming parameter and returns the corresponding `TAbstractFile` if
- * the parameter is a string and the string corresponds to an existing file or
- * folder. Otherwise returns `null`.
+ * the parameter is a string and the string corresponds to an existing note.
+ * Otherwise returns `null`.
  *
  * @param path Any incoming zod parameter
  */
-function lookupAbstractFileForPath(path: any): TAbstractFile | null {
+function lookupAbstractFileForNotePath(path: any): TAbstractFile | null {
   if (typeof path !== "string" || !path) {
     return null;
   }
 
   const filepath = sanitizeFilePath(path as string);
+  return activeVault().getAbstractFileByPath(filepath);
+}
+
+/**
+ * Takes an incoming parameter and returns the corresponding `TAbstractFile` if
+ * the parameter is a string and the string corresponds to an existing file or
+ * folder. Otherwise returns `null`.
+ *
+ * @param path Any incoming zod parameter
+ */
+function lookupAbstractFileForFilePath(path: any): TAbstractFile | null {
+  if (typeof path !== "string" || !path) {
+    return null;
+  }
+
+  const filepath = sanitizeFilePath(path as string, false);
   return activeVault().getAbstractFileByPath(filepath);
 }
 

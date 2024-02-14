@@ -11,7 +11,7 @@ import { propertiesForFile, updateNote } from "../utils/file-handling";
 import { helloRoute } from "../utils/routing";
 import { success } from "../utils/results-handling";
 import {
-  zodExistingFilePath,
+  zodExistingNotePath,
   zodJsonPropertiesObject,
   zodJsonStringArray,
 } from "../utils/zod";
@@ -19,7 +19,7 @@ import {
 // SCHEMATA ----------------------------------------
 
 const defaultParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
