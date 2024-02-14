@@ -1,22 +1,17 @@
-import { Platform, TFile, TFolder } from "obsidian";
+import { Platform, TFolder } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
   HandlerFailure,
-  HandlerFilePathSuccess,
   HandlerPathsSuccess,
   HandlerVaultInfoSuccess,
   HandlerVaultSuccess,
   RealLifeDataAdapter,
   RealLifeVault,
 } from "../types";
-import {
-  activeVault,
-  activeWorkspace,
-  getFileMap,
-} from "../utils/file-handling";
+import { activeVault, getFileMap } from "../utils/file-handling";
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
@@ -38,11 +33,6 @@ export const routePath: RoutePath = {
     { path: "/open", schema: incomingBaseParams, handler: handleOpen },
     { path: "/close", schema: incomingBaseParams, handler: handleClose },
     { path: "/info", schema: defaultParams, handler: handleInfo },
-    {
-      path: "/get-active-file",
-      schema: defaultParams,
-      handler: handleGetActive,
-    },
     {
       path: "/list-folders",
       schema: defaultParams,
@@ -103,13 +93,6 @@ async function handleInfo(
         : basePath
     ),
   });
-}
-
-async function handleGetActive(
-  incomingParams: AnyParams,
-): Promise<HandlerFilePathSuccess | HandlerFailure> {
-  const res = activeWorkspace().getActiveFile();
-  return res ? success({ filepath: res.path }) : failure(404, "No active file");
 }
 
 async function handleListFolders(

@@ -4,7 +4,7 @@
 
 ### New stuff
 
-- New route: [`/note/get-active`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteget-active) returns the currently active/focussed note. (#85)
+- New route path: [`/file`](https://czottmann.github.io/obsidian-actions-uri/routes/file/) for working with non-note files. While the Obsidian API doesn't allow for uploading attachment files, you can now at least list, open, delete, or rename them. (#85)
 - New route: [`/note/touch`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#notetouch) sets the modification date of a note to the current date and time (force Obsidian to reload it in views/ embeddings).
 
 
