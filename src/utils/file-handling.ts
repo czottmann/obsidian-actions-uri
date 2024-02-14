@@ -190,14 +190,15 @@ export async function getNoteDetails(
  * or slashes.
  *
  * @param filename - A full file path
- * @param isFolder - Whether the path is a folder path; if `false`, ensure the
- * path ends in `.md`/`.canvas`. Default: `false`
+ * @param isNote - Whether the path is a note; if `true`, ensure the path ends
+ *                 in `.md`/`.canvas`, otherwise leave the path alone.
+ *                 Default: `true`
  *
  * @returns A normalized file path relative to the vault root
  */
 export function sanitizeFilePath(
   filename: string,
-  isFolder: boolean = false,
+  isNote: boolean = true,
 ): string {
   filename = filename.replace(/[:#^[]|]/g, "-");
   filename = normalizePath(filename)
@@ -206,9 +207,9 @@ export function sanitizeFilePath(
     .join("/")
     .replace(/^[\/\.]+/g, "");
 
-  return (isFolder || /\.(md|canvas)/i.test(extname(filename)))
-    ? filename
-    : `${filename}.md`;
+  return (isNote && !/\.(md|canvas)/i.test(extname(filename)))
+    ? `${filename}.md`
+    : filename;
 }
 
 /**
@@ -596,7 +597,7 @@ export async function renameFilepath(
  */
 export async function createFolderIfNecessary(folder: string) {
   const vault = activeVault();
-  folder = sanitizeFilePath(folder, true);
+  folder = sanitizeFilePath(folder, false);
 
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists

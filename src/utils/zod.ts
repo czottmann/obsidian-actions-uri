@@ -21,7 +21,7 @@ export const zodSanitizedFilePath = z.string()
 
 export const zodSanitizedFolderPath = z.string()
   .min(1, { message: "can't be empty" })
-  .transform((file) => sanitizeFilePath(file, true));
+  .transform((file) => sanitizeFilePath(file, false));
 
 /**
  * A schema which expects a string containing a JSON-encoded array of strings,
