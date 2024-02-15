@@ -39,7 +39,7 @@ export function sendUrlCallback(
     url.searchParams.set("errorMessage", errorMessage);
   }
 
-  if (params["x-source"] == "Actions for Obsidian") {
+  if (params["x-source"]?.toLowerCase() === "actions for obsidian") {
     url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
   }
 
