@@ -6,6 +6,7 @@ import {
   HandlerTagsSuccess,
   RealLifeMetadataCache,
 } from "../types";
+import { app } from "../utils/file-handling";
 import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
@@ -33,7 +34,7 @@ export const routePath: RoutePath = {
 async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerTagsSuccess | HandlerFailure> {
-  const tags = (<RealLifeMetadataCache> app.metadataCache).getTags();
+  const tags = (<RealLifeMetadataCache> app().metadataCache).getTags();
 
   return success({
     tags: Object.keys(tags).sort((a, b) => a.localeCompare(b)),

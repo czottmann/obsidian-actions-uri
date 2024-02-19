@@ -20,10 +20,18 @@ import {
   StringResultObject,
   TFileResultObject,
 } from "../types";
-import { focusOrOpenNote, logErrorToConsole, showBrandedNotice } from "./ui";
+import { focusOrOpenFile, logErrorToConsole, showBrandedNotice } from "./ui";
+
+export function app() {
+  return window.app;
+}
 
 export function activeVault() {
-  return window.app.vault;
+  return app().vault;
+}
+
+export function activeWorkspace() {
+  return app().workspace;
 }
 
 /**
@@ -132,7 +140,7 @@ export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
   const vault = activeVault();
-  const res = await getNoteFile(filepath);
+  const res = await getNote(filepath);
   if (!res.isSuccess) {
     return res;
   }
@@ -154,7 +162,7 @@ export async function getNoteContent(
 export async function getNoteDetails(
   filepath: string,
 ): Promise<NoteDetailsResultObject> {
-  const res = await getNoteFile(filepath);
+  const res = await getNote(filepath);
   if (!res.isSuccess) {
     return res;
   }
@@ -182,14 +190,15 @@ export async function getNoteDetails(
  * or slashes.
  *
  * @param filename - A full file path
- * @param isFolder - Whether the path is a folder path; if `true`, make sure the
- * path ends in `.md`. Default: `false`
+ * @param isNote - Whether the path is a note; if `true`, ensure the path ends
+ *                 in `.md`/`.canvas`, otherwise leave the path alone.
+ *                 Default: `true`
  *
  * @returns A normalized file path relative to the vault root
  */
 export function sanitizeFilePath(
   filename: string,
-  isFolder: boolean = false,
+  isNote: boolean = true,
 ): string {
   filename = filename.replace(/[:#^[]|]/g, "-");
   filename = normalizePath(filename)
@@ -198,9 +207,9 @@ export function sanitizeFilePath(
     .join("/")
     .replace(/^[\/\.]+/g, "");
 
-  return (isFolder || /\.(md|canvas)/i.test(extname(filename)))
-    ? filename
-    : `${filename}.md`;
+  return (isNote && !/\.(md|canvas)/i.test(extname(filename)))
+    ? `${filename}.md`
+    : filename;
 }
 
 /**
@@ -222,7 +231,7 @@ export async function updateNote(
   newFrontMatter?: string,
   newBody?: string,
 ): Promise<NoteDetailsResultObject> {
-  const res = await getNoteFile(filepath);
+  const res = await getNote(filepath);
   if (!res.isSuccess) {
     return res;
   }
@@ -264,10 +273,31 @@ export async function updateNote(
 }
 
 /**
+ * Sets the modification time of the file to now.
+ *
+ * @param filepath - A full filename, relative from vault root
+ *
+ * @returns A `StringResultObject` object containing either an `error` string or
+ * `result` string
+ */
+export async function touchNote(
+  filepath: string,
+): Promise<TFileResultObject> {
+  const res = await getNote(filepath);
+  if (!res.isSuccess) return res;
+
+  const res2 = await getNoteDetails(filepath);
+  if (!res2.isSuccess) return res2;
+
+  await activeVault().modify(res.result, res2.result.content);
+  return res;
+}
+
+/**
  * @param filepath - A full filename, relative from vault root
  * @param searchTerm - The term to search for
  * @param replacement - The term to replace the search term with
- * @returns A `SimpleResult` object containing either an `error` string or a
+ * @returns A `StringResultObject` object containing either an `error` string or
  * `result` string
  */
 export async function searchAndReplaceInNote(
@@ -335,14 +365,14 @@ export async function appendNoteBelowHeadline(
         return section;
       }
 
-      // If the section doesn't end with a newline, add one before appending.
-      // This case might occur if the last headline in the note is the one to
-      // work with, and the file doesn't end with a newline.
-      if (!section.includes("\n")) {
-        section += "\n";
-      }
-
-      return endStringWithNewline(section + textToAppend);
+      // Rebuild the section by trimming it, appending the text, and adding back
+      // the original number of consecutive newlines
+      return endStringWithNewline(
+        section.trim() +
+            "\n" +
+            textToAppend +
+            section.match(/\n+$/)?.[0] || "",
+      );
     })
     .join("");
 
@@ -442,11 +472,30 @@ export function getFileMap(): TFile[] {
  *
  * @returns A result object containing either an error or the `TFile`.
  */
-export async function getNoteFile(
+export async function getFile(
   filepath: string,
 ): Promise<TFileResultObject> {
-  const vault = activeVault();
-  const file = vault.getAbstractFileByPath(sanitizeFilePath(filepath));
+  const cleanPath = sanitizeFilePath(filepath, false);
+  const file = activeVault().getAbstractFileByPath(cleanPath);
+
+  return file instanceof TFile
+    ? success(file)
+    : failure(404, STRINGS.note_not_found);
+}
+
+/**
+ * Checks whether a particular note file exists and when it does, returns its
+ * `TFile` instance.
+ *
+ * @param filepath - A full filename
+ *
+ * @returns A result object containing either an error or the `TFile`.
+ */
+export async function getNote(
+  filepath: string,
+): Promise<TFileResultObject> {
+  const cleanPath = sanitizeFilePath(filepath);
+  const file = activeVault().getAbstractFileByPath(cleanPath);
 
   return file instanceof TFile
     ? success(file)
@@ -465,18 +514,17 @@ export async function applyCorePluginTemplate(
   templateFile: TFile,
   note: TFile,
 ): Promise<BooleanResultObject> {
-  const { app } = window;
   const pluginRes = getEnabledCorePlugin("templates");
   if (!pluginRes.isSuccess) return pluginRes;
   const pluginInstance = pluginRes.result;
 
   // The core plugin will only apply a template to the open, focussed, and
   // editable note ¯\_(ツ)_/¯
-  await focusOrOpenNote(note.path);
+  await focusOrOpenFile(note.path);
 
   try {
     // Ensure the view is in source mode
-    const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+    const activeView = activeWorkspace().getActiveViewOfType(MarkdownView);
     if (activeView && activeView?.getMode() !== "source") {
       await activeView.setState(
         { ...activeView.getState(), mode: "source" },
@@ -568,7 +616,7 @@ export async function renameFilepath(
  */
 export async function createFolderIfNecessary(folder: string) {
   const vault = activeVault();
-  folder = sanitizeFilePath(folder, true);
+  folder = sanitizeFilePath(folder, false);
 
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists
@@ -583,7 +631,7 @@ export async function createFolderIfNecessary(folder: string) {
  *          empty object if none exist.
  */
 export function propertiesForFile(file: TFile): NoteProperties {
-  return app.metadataCache.getFileCache(file)?.frontmatter || {};
+  return app().metadataCache.getFileCache(file)?.frontmatter || {};
 }
 
 // HELPERS ----------------------------------------

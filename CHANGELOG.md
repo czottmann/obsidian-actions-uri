@@ -1,5 +1,28 @@
 # Release history
 
+## 1.5.0, 2024-02-19
+
+### New stuff
+
+- New route path: [`/file`](https://czottmann.github.io/obsidian-actions-uri/routes/file/) for working with files. The Obsidian API doesn't allow for uploading attachment files, but now you can at least handle them. (#85)
+    - `/file/list`: Returns the paths of all files in the vault.
+    - `/file/get-active`: Return the path of the currently active/ focussed file.
+    - `/file/open`: Opens a file in Obsidian.
+    - `/file/delete`: Deletes a file.
+    - `/file/trash`: Moves a file to the trash.
+    - `/file/rename`: Renames a file.
+- New route: [`/note/get-active`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteget-active) returns the currently active/ focussed note.
+- New route: [`/note/get-first-named`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#noteget-first-named) returns the first note found with a given name.
+- New route: [`/note/touch`](https://czottmann.github.io/obsidian-actions-uri/routes/note/#notetouch) sets the modification date of a note to the current date and time (side effect: it makes Obsidian reload it in views/ embeddings).
+
+
+### Changes
+
+- Appending below headline: Now inserts before any trailing new lines in a section instead of after them.
+- Changed route: [`/command/execute`](https://czottmann.github.io/obsidian-actions-uri/routes/command/#commandexecute) no longer requires the `x-success` and `x-error` parameters to be present. If they are, they will be used, but they are optional now. (#84)
+- Removed route: `/vault/list-folders` was marked as deprecated in 0.16, and is now gone for good. Use [`/folder/list`](https://czottmann.github.io/obsidian-actions-uri/routes/folder/#folderlist) instead.
+
+
 ## 1.4.2, 2023-12-12
 
 ### No longer broken

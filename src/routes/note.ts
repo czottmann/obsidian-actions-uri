@@ -11,17 +11,21 @@ import {
 } from "../types";
 import {
   activeVault,
+  activeWorkspace,
+  app,
   appendNote,
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
   createNote,
   createOrOverwriteNote,
+  getNote,
   getNoteDetails,
-  getNoteFile,
   prependNote,
   prependNoteBelowHeadline,
   renameFilepath,
+  sanitizeFilePath,
   searchAndReplaceInNote,
+  touchNote,
   trashFilepath,
 } from "../utils/file-handling";
 import {
@@ -29,15 +33,15 @@ import {
   getEnabledCorePlugin,
 } from "../utils/plugins";
 import { helloRoute } from "../utils/routing";
-import { success } from "../utils/results-handling";
+import { failure, success } from "../utils/results-handling";
 import { parseStringIntoRegex } from "../utils/string-handling";
-import { focusOrOpenNote } from "../utils/ui";
+import { focusOrOpenFile } from "../utils/ui";
 import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
-  zodExistingFilePath,
+  zodExistingNotePath,
   zodOptionalBoolean,
-  zodSanitizedFilePath,
+  zodSanitizedNotePath,
   zodUndefinedChangedToDefaultValue,
 } from "../utils/zod";
 
@@ -50,21 +54,44 @@ const listParams = incomingBaseParams.extend({
 type ListParams = z.infer<typeof listParams>;
 
 const readParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   silent: zodOptionalBoolean,
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
 type ReadParams = z.infer<typeof readParams>;
 
+const readActiveParams = incomingBaseParams.extend({
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ReadActiveParams = z.infer<typeof readActiveParams>;
+
+const readNamedParams = incomingBaseParams.extend({
+  file: zodSanitizedNotePath,
+  "sort-by": z.enum([
+    "best-guess",
+    "path-asc",
+    "path-desc",
+    "ctime-asc",
+    "ctime-desc",
+    "mtime-asc",
+    "mtime-desc",
+    "",
+  ]).optional(),
+  "x-error": z.string().url(),
+  "x-success": z.string().url(),
+});
+type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
+
 const openParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
   silent: zodAlwaysFalse,
 });
 type OpenParams = z.infer<typeof openParams>;
 
 const createBaseParams = incomingBaseParams.extend({
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
   silent: zodOptionalBoolean,
 });
@@ -75,11 +102,11 @@ const createParams = z.discriminatedUnion("apply", [
   }),
   createBaseParams.extend({
     apply: z.literal("templater"),
-    "template-file": zodExistingFilePath,
+    "template-file": zodExistingNotePath,
   }),
   createBaseParams.extend({
     apply: z.literal("templates"),
-    "template-file": zodExistingFilePath,
+    "template-file": zodExistingNotePath,
   }),
   createBaseParams.extend({
     apply: zodEmptyStringChangedToDefaultString("content"),
@@ -102,7 +129,7 @@ type createTemplateParams = {
 
 const appendParams = incomingBaseParams.extend({
   content: z.string(),
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   silent: zodOptionalBoolean,
   "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
@@ -112,7 +139,7 @@ type AppendParams = z.infer<typeof appendParams>;
 
 const prependParams = incomingBaseParams.extend({
   content: z.string(),
-  file: zodSanitizedFilePath,
+  file: zodSanitizedNotePath,
   silent: zodOptionalBoolean,
   "below-headline": z.string().optional(),
   "create-if-not-found": zodOptionalBoolean,
@@ -121,8 +148,14 @@ const prependParams = incomingBaseParams.extend({
 });
 type PrependParams = z.infer<typeof prependParams>;
 
+const touchParams = incomingBaseParams.extend({
+  file: zodSanitizedNotePath,
+  silent: zodOptionalBoolean,
+});
+type TouchParams = z.infer<typeof touchParams>;
+
 const searchAndReplaceParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
   silent: zodOptionalBoolean,
   search: z.string().min(1, { message: "can't be empty" }),
   replace: z.string(),
@@ -130,13 +163,13 @@ const searchAndReplaceParams = incomingBaseParams.extend({
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 const deleteParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
+  file: zodExistingNotePath,
 });
 type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams.extend({
-  file: zodExistingFilePath,
-  "new-filename": zodSanitizedFilePath,
+  file: zodExistingNotePath,
+  "new-filename": zodSanitizedNotePath,
   silent: zodOptionalBoolean,
 });
 type RenameParams = z.infer<typeof renameParams>;
@@ -144,12 +177,16 @@ type RenameParams = z.infer<typeof renameParams>;
 export type AnyLocalParams =
   | ListParams
   | ReadParams
+  | ReadFirstNamedParams
+  | ReadActiveParams
   | OpenParams
   | CreateParams
   | AppendParams
   | PrependParams
+  | TouchParams
   | SearchAndReplaceParams
-  | DeleteParams;
+  | DeleteParams
+  | RenameParams;
 
 // ROUTES ----------------------------------------
 
@@ -158,10 +195,17 @@ export const routePath: RoutePath = {
     helloRoute(),
     { path: "/list", schema: listParams, handler: handleList },
     { path: "/get", schema: readParams, handler: handleGet },
+    {
+      path: "/get-first-named",
+      schema: readNamedParams,
+      handler: handleGetNamed,
+    },
+    { path: "/get-active", schema: readActiveParams, handler: handleGetActive },
     { path: "/open", schema: openParams, handler: handleOpen },
     { path: "/create", schema: createParams, handler: handleCreate },
     { path: "/append", schema: appendParams, handler: handleAppend },
     { path: "/prepend", schema: prependParams, handler: handlePrepend },
+    { path: "/touch", schema: touchParams, handler: handleTouch },
     { path: "/delete", schema: deleteParams, handler: handleDelete },
     { path: "/trash", schema: deleteParams, handler: handleTrash },
     { path: "/rename", schema: renameParams, handler: handleRename },
@@ -195,8 +239,54 @@ async function handleGet(
   const shouldFocusNote = !silent;
 
   const res = await getNoteDetails(file);
-  if (res.isSuccess && shouldFocusNote) await focusOrOpenNote(file);
+  if (res.isSuccess && shouldFocusNote) await focusOrOpenFile(file);
   return res;
+}
+
+async function handleGetActive(
+  incomingParams: AnyParams,
+): Promise<HandlerFileSuccess | HandlerFailure> {
+  const res = activeWorkspace().getActiveFile();
+  if (res?.extension !== "md") return failure(404, "No active note");
+
+  const res1 = await getNoteDetails(res.path);
+  return (res1.isSuccess) ? res1 : failure(404, "No active note");
+}
+
+async function handleGetNamed(
+  incomingParams: AnyParams,
+): Promise<HandlerFileSuccess | HandlerFailure> {
+  const params = <ReadFirstNamedParams> incomingParams;
+  const { file } = params;
+  const sortBy = params["sort-by"] || "best-guess";
+
+  // "Best guess" means utilizing Obsidian's internal link resolution to find
+  // the right note. If it's not found, we return a 404.
+  if (sortBy === "best-guess") {
+    const res = app().metadataCache
+      .getFirstLinkpathDest(sanitizeFilePath(file), "/");
+    return res
+      ? await getNoteDetails(res.path)
+      : failure(404, "No note found with that name");
+  }
+
+  // If we're here, we're sorting by something else. We need to find all notes
+  // with that name, sort them as requested, and return the first one.
+  const sortFns = {
+    "path-asc": (a: TFile, b: TFile) => a.path.localeCompare(b.path),
+    "path-desc": (a: TFile, b: TFile) => b.path.localeCompare(a.path),
+    "ctime-asc": (a: TFile, b: TFile) => a.stat.ctime - b.stat.ctime,
+    "ctime-desc": (a: TFile, b: TFile) => b.stat.ctime - a.stat.ctime,
+    "mtime-asc": (a: TFile, b: TFile) => a.stat.mtime - b.stat.mtime,
+    "mtime-desc": (a: TFile, b: TFile) => b.stat.mtime - a.stat.mtime,
+  };
+
+  const res = activeVault().getMarkdownFiles()
+    .sort(sortFns[sortBy])
+    .find((tf) => tf.name === file);
+  if (!res) return failure(404, "No note found with that name");
+
+  return await getNoteDetails(res.path);
 }
 
 async function handleOpen(
@@ -204,7 +294,7 @@ async function handleOpen(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const { file } = <OpenParams> incomingParams;
 
-  const res = await getNoteFile(file.path);
+  const res = await getNote(file.path);
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
@@ -238,11 +328,11 @@ async function handleCreate(
   }
 
   // If there already is a note with that name or at that path, deal with it.
-  const res = await getNoteFile(file);
+  const res = await getNote(file);
   const noteExists = res.isSuccess;
   if (noteExists && ifExists === "skip") {
     // `skip` == Leave not as-is, we just return the existing note.
-    if (shouldFocusNote) await focusOrOpenNote(file);
+    if (shouldFocusNote) await focusOrOpenFile(file);
     return await getNoteDetails(file);
   }
 
@@ -265,7 +355,7 @@ async function handleCreate(
       break;
   }
 
-  if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+  if (shouldFocusNote) await focusOrOpenFile(newNote.path);
   return await getNoteDetails(newNote.path);
 }
 
@@ -291,11 +381,11 @@ async function handleAppend(
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
   // create it.
-  const res = await getNoteFile(file);
+  const res = await getNote(file);
   if (res.isSuccess) {
     const res1 = await appendAsRequested();
     if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenNote(file);
+      if (shouldFocusNote) await focusOrOpenFile(file);
       return success({ message: res1.result }, file);
     }
     return res1;
@@ -310,7 +400,7 @@ async function handleAppend(
   // Creation was successful. We try to append again.
   const res3 = await appendAsRequested();
   if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenNote(file);
+  if (shouldFocusNote) await focusOrOpenFile(file);
   return success({ message: res3.result }, file);
 }
 
@@ -347,11 +437,11 @@ async function handlePrepend(
 
   // If the file exists, append to it. Otherwise, check if we're supposed to
   // create it.
-  const res = await getNoteFile(file);
+  const res = await getNote(file);
   if (res.isSuccess) {
     const res1 = await prependAsRequested();
     if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenNote(file);
+      if (shouldFocusNote) await focusOrOpenFile(file);
       return success({ message: res1.result }, file);
     }
     return res1;
@@ -366,8 +456,20 @@ async function handlePrepend(
   // Creation was successful. We try to append again.
   const res3 = await prependAsRequested();
   if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenNote(file);
+  if (shouldFocusNote) await focusOrOpenFile(file);
   return success({ message: res3.result }, file);
+}
+
+async function handleTouch(
+  incomingParams: AnyParams,
+): Promise<HandlerTextSuccess | HandlerFailure> {
+  const { file, silent } = <TouchParams> incomingParams;
+  const shouldFocusNote = !silent;
+
+  const res = await touchNote(file);
+  if (!res.isSuccess) return res;
+  if (shouldFocusNote) await focusOrOpenFile(file);
+  return success({ message: STRINGS.touch_done }, file);
 }
 
 async function handleSearchStringAndReplace(
@@ -380,7 +482,7 @@ async function handleSearchStringAndReplace(
 
   const res = await searchAndReplaceInNote(filepath, search, replace);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  if (shouldFocusNote) await focusOrOpenFile(filepath);
   return success({ message: res.result }, filepath);
 }
 
@@ -397,7 +499,7 @@ async function handleSearchRegexAndReplace(
 
   const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenNote(filepath);
+  if (shouldFocusNote) await focusOrOpenFile(filepath);
   return success({ message: res.result }, filepath);
 }
 

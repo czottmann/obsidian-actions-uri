@@ -1,4 +1,4 @@
-import { Platform, TFile, TFolder } from "obsidian";
+import { Platform } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
@@ -11,7 +11,7 @@ import {
   RealLifeDataAdapter,
   RealLifeVault,
 } from "../types";
-import { activeVault, getFileMap } from "../utils/file-handling";
+import { activeVault } from "../utils/file-handling";
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
@@ -33,11 +33,6 @@ export const routePath: RoutePath = {
     { path: "/open", schema: incomingBaseParams, handler: handleOpen },
     { path: "/close", schema: incomingBaseParams, handler: handleClose },
     { path: "/info", schema: defaultParams, handler: handleInfo },
-    {
-      path: "/list-folders",
-      schema: defaultParams,
-      handler: handleListFolders,
-    },
     {
       path: "/list-all-files",
       schema: defaultParams,
@@ -93,16 +88,6 @@ async function handleInfo(
         : basePath
     ),
   });
-}
-
-async function handleListFolders(
-  incomingParams: AnyParams,
-): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const paths = getFileMap()
-    .filter((t) => t instanceof TFolder)
-    .map((t) => t.path.endsWith("/") ? t.path : `${t.path}/`).sort();
-
-  return success({ paths });
 }
 
 async function handleListFiles(

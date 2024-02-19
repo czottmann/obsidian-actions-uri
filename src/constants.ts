@@ -13,6 +13,8 @@ export const STRINGS = {
   dataview_dql_must_start_with_table: 'DQL must start with "TABLE"',
   dataview_plugin_not_available: "Dataview plugin is not active",
   delete_done: "Successfully deleted",
+  file_not_found: "File couldn't be found",
+  file_opened: "File opened",
   folder_created: "Folder created",
   global_search_feature_not_available: "Global Search plugin is not active",
   monthly_note: {
@@ -43,6 +45,7 @@ export const STRINGS = {
   search_pattern_not_found: "Search pattern wasn't found, nothing replaced",
   search_pattern_unparseable: "Search pattern is not correctly formed",
   search_string_not_found: "Search string wasn't found, nothing replaced",
+  touch_done: "Successfully touched",
   trash_done: "Successfully moved to trash",
   unable_to_read_note: "Can't read note file",
   unable_to_write_note: "Can't write note file",

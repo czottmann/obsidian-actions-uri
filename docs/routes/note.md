@@ -98,6 +98,82 @@ On failure:
 &nbsp;
 
 
+## `/note/get-first-named`
+Returns the first note with the specified name.
+
+**Please note:** `result-properties` might be empty if Obsidian can't process the note's front matter. This can happen if the front matter is malformed or if the note contains a YAML block that is not front matter.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter   | Value type | Optional? | Description                                                                                    |
+| ----------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------- |
+| `file`      | string     |           | The name of the note. The extension `.md` can be omitted. |
+| `sort-by`   | enum       | optional  | In case there are multiple notes with the same name, they will be sorted by this criterion before the first is picked from the resulting list. Available options: `best-guess` (using Obsidian's link resolution (starting from root folder), default), `path-asc` (full path alphabetically), `path-desc`, `ctime-asc` (creation time, oldest first), `ctime-desc`, `mtime-asc` (modification time, oldest first), `mtime-desc`. |
+| `x-success` | string     |           | base URL for on-success callbacks                                                              |
+| `x-error`   | string     |           | base URL for on-error callbacks                                                                |
+| `silent`    | boolean    | optional  | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                 |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter             | Description                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                          |
+| `result-content`      | The entire content of the note file.                                                                                            |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                 |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                        |
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
+## `/note/get-active`
+<span class="tag tag-version">v1.5+</span>
+Returns the currently focussed note. If there is no open note or the currently focussed file is not a note, an error 404 is returned.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter   | Value type | Optional? | Description                       |
+| ----------- | ---------- | :-------: | ----------------------------------|
+| `x-success` | string     |           | base URL for on-success callbacks |
+| `x-error`   | string     |           | base URL for on-error callbacks   |
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter             | Description                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.               |
+| `result-content`      | The entire content of the note file.                                                 |
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                      |
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.             |
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties). |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
 ## `/note/open`
 <span class="tag tag-version">v0.12+</span>
 Opens a specific note in Obsidian.
@@ -240,6 +316,42 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `ensure-newline`      | boolean    | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                       |
 | `ignore-front-matter` | boolean    | optional  | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`.                             |
 | `silent`              | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                         |
+
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+On success:
+
+| Parameter        | Description                       |
+| ---------------- | --------------------------------- |
+| `result-message` | A short summary of what was done. |
+
+On failure:
+
+| Parameter      | Description                         |
+| -------------- | ----------------------------------- |
+| `errorCode`    | A HTTP status code.                 |
+| `errorMessage` | A short summary of what went wrong. |
+
+
+&nbsp;
+
+
+## `/note/touch`
+<span class="tag tag-version">v1.5+</span>
+
+Sets the modification time of the note to now.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter             | Value type | Optional? | Description                                                                                                                               |
+| --------------------- | ---------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`                | string     |           | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                            |
+| `silent`              | boolean    | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                         |
+| `x-success` | string     | optional  | base URL for on-success callbacks |
+| `x-error`   | string     | optional  | base URL for on-error callbacks   |
 
 
 ### Return values

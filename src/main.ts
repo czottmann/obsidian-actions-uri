@@ -14,7 +14,7 @@ import {
 import { sendUrlCallback } from "./utils/callbacks";
 import { failure, success } from "./utils/results-handling";
 import {
-  focusOrOpenNote,
+  focusOrOpenFile,
   logErrorToConsole,
   logToConsole,
   showBrandedNotice,
@@ -204,6 +204,6 @@ export default class ActionsURI extends Plugin {
       );
     }
 
-    return await focusOrOpenNote(processedFilepath);
+    return await focusOrOpenFile(processedFilepath);
   }
 }

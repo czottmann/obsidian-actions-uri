@@ -41,8 +41,8 @@ import {
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
   createOrOverwriteNote,
+  getNote,
   getNoteDetails,
-  getNoteFile,
   prependNote,
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
@@ -55,11 +55,11 @@ import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
 import { pause } from "../utils/time";
-import { focusOrOpenNote } from "../utils/ui";
+import { focusOrOpenFile } from "../utils/ui";
 import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
-  zodExistingFilePath,
+  zodExistingNotePath,
   zodOptionalBoolean,
   zodUndefinedChangedToDefaultValue,
 } from "../utils/zod";
@@ -95,11 +95,11 @@ const createParams = z.discriminatedUnion("apply", [
   }),
   createBaseParams.extend({
     apply: z.literal("templater"),
-    "template-file": zodExistingFilePath,
+    "template-file": zodExistingNotePath,
   }),
   createBaseParams.extend({
     apply: z.literal("templates"),
-    "template-file": zodExistingFilePath,
+    "template-file": zodExistingNotePath,
   }),
   createBaseParams.extend({
     apply: zodEmptyStringChangedToDefaultString("content"),
@@ -245,7 +245,7 @@ function getHandleGetCurrent(periodID: PeriodType): HandlerFunction {
     const res = getPeriodNotePathIfPluginIsAvailable(periodID);
     if (!res.isSuccess) return res;
     const filepath = res.result;
-    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    if (shouldFocusNote) await focusOrOpenFile(filepath);
     return await getNoteDetails(filepath);
   };
 }
@@ -260,7 +260,7 @@ function getHandleGetMostRecent(periodID: PeriodType): HandlerFunction {
     const res = await getMostRecentPeriodNote(periodID);
     if (!res.isSuccess) return res;
     const filepath = res.result.path;
-    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    if (shouldFocusNote) await focusOrOpenFile(filepath);
     return await getNoteDetails(filepath);
   };
 }
@@ -335,7 +335,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
       switch (ifExists) {
         // `skip` == Leave not as-is, we just return the existing note.
         case "skip":
-          if (shouldFocusNote) await focusOrOpenNote(pNote.path);
+          if (shouldFocusNote) await focusOrOpenFile(pNote.path);
           return await getNoteDetails(pNote.path);
 
         // Overwrite the existing note.
@@ -380,7 +380,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
         break;
     }
 
-    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    if (shouldFocusNote) await focusOrOpenFile(filepath);
     return await getNoteDetails(filepath);
   };
 }
@@ -416,7 +416,7 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
       const filepath = resDNP.result;
       const res = await appendAsRequested(filepath);
       if (!res.isSuccess) return res;
-      if (shouldFocusNote) await focusOrOpenNote(filepath);
+      if (shouldFocusNote) await focusOrOpenFile(filepath);
       return success({ message: res.result }, filepath);
     }
 
@@ -433,7 +433,7 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     if (newNote instanceof TFile) {
       const res = await appendAsRequested(newNote.path);
       if (!res.isSuccess) return res;
-      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+      if (shouldFocusNote) await focusOrOpenFile(newNote.path);
       return success({ message: res.result }, newNote.path);
     }
 
@@ -480,7 +480,7 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
       const filepath = resDNP.result;
       const res = await prependAsRequested(filepath);
       if (!res.isSuccess) return res;
-      if (shouldFocusNote) await focusOrOpenNote(filepath);
+      if (shouldFocusNote) await focusOrOpenFile(filepath);
       return success({ message: res.result }, filepath);
     }
 
@@ -497,7 +497,7 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     if (newNote instanceof TFile) {
       const res = await prependAsRequested(newNote.path);
       if (!res.isSuccess) return res;
-      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
+      if (shouldFocusNote) await focusOrOpenFile(newNote.path);
       return success({ message: res.result }, newNote.path);
     }
 
@@ -521,7 +521,7 @@ function getHandleSearchStringAndReplace(
 
     const res = await searchAndReplaceInNote(filepath, search, replace);
     if (!res.isSuccess) return res;
-    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    if (shouldFocusNote) await focusOrOpenFile(filepath);
     return success({ message: res.result }, filepath);
   };
 }
@@ -542,7 +542,7 @@ function getHandleSearchRegexAndReplace(periodID: PeriodType): HandlerFunction {
 
     const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
     if (!res.isSuccess) return res;
-    if (shouldFocusNote) await focusOrOpenNote(filepath);
+    if (shouldFocusNote) await focusOrOpenFile(filepath);
     return success({ message: res.result }, filepath);
   };
 }
@@ -693,5 +693,5 @@ async function getMostRecentPeriodNote(
   }
 
   const pNote = notes[mostRecentKey];
-  return await getNoteFile(pNote.path);
+  return await getNote(pNote.path);
 }

@@ -1,4 +1,5 @@
 import { TFile } from "obsidian";
+import { activeWorkspace } from "./file-handling";
 import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "./plugins";
 import { pause } from "./time";
 import { STRINGS } from "../constants";
@@ -23,7 +24,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   // Open the global search panel and wait for it to load
   const pluginInstance = res.result;
   pluginInstance.openGlobalSearch(query);
-  const searchLeaf = window.app.workspace.getLeavesOfType("search")[0];
+  const searchLeaf = activeWorkspace().getLeavesOfType("search")[0];
   const searchView = await searchLeaf.open(searchLeaf.view);
   await pause(2000);
 

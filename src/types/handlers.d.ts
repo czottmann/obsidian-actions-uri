@@ -50,6 +50,14 @@ export type HandlerFileSuccess = Readonly<
     };
   }
 >;
+export type HandlerFilePathSuccess = Readonly<
+  & HandlerSuccess
+  & {
+    result: {
+      filepath: string;
+    };
+  }
+>;
 
 export type HandlerDataviewSuccess = Readonly<
   & HandlerSuccess
@@ -150,6 +158,7 @@ export type AnyHandlerSuccess =
   | HandlerCommandsSuccess
   | HandlerDataviewSuccess
   | HandlerFileSuccess
+  | HandlerFilePathSuccess
   | HandlerInfoSuccess
   | HandlerPathsSuccess
   | HandlerPropertiesSuccess
