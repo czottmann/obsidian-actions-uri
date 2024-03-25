@@ -1,5 +1,12 @@
 # Release history
 
+## 1.6.0, \____-\__-\__
+
+### Changes
+
+- Console output will now print the paths contained in the incoming params, instead of their internal file references. This prevents circular references and "max call stack" errors related to files when using [Logstravaganza](https://github.com/czottmann/obsidian-logstravaganza).
+
+
 ## 1.5.0, 2024-02-19
 
 ### New stuff
