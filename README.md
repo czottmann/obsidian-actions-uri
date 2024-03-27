@@ -47,7 +47,7 @@ Clone the repository, run `pnpm install` OR `npm install` to install the depende
 
 ## Author
 
-Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev/, https://github.com/czottmann
+Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
 
 
 ## Projects using Actions URI
