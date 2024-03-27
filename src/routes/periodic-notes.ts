@@ -59,7 +59,8 @@ import { focusOrOpenFile } from "../utils/ui";
 import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
-  zodExistingNotePath,
+  zodExistingTemplaterPath,
+  zodExistingTemplatesPath,
   zodOptionalBoolean,
   zodUndefinedChangedToDefaultValue,
 } from "../utils/zod";
@@ -95,11 +96,11 @@ const createParams = z.discriminatedUnion("apply", [
   }),
   createBaseParams.extend({
     apply: z.literal("templater"),
-    "template-file": zodExistingNotePath,
+    "template-file": zodExistingTemplaterPath,
   }),
   createBaseParams.extend({
     apply: z.literal("templates"),
-    "template-file": zodExistingNotePath,
+    "template-file": zodExistingTemplatesPath,
   }),
   createBaseParams.extend({
     apply: zodEmptyStringChangedToDefaultString("content"),

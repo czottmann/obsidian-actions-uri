@@ -1,4 +1,9 @@
-import { normalizePath, ObsidianProtocolData, Plugin } from "obsidian";
+import {
+  normalizePath,
+  ObsidianProtocolData,
+  Plugin,
+  TAbstractFile,
+} from "obsidian";
 import { ZodError } from "zod";
 import { URI_NAMESPACE } from "./constants";
 import { AnyParams, RoutePath, routes } from "./routes";
@@ -96,7 +101,7 @@ export default class ActionsURI extends Plugin {
     }
 
     const res = <ProcessingResult> {
-      params,
+      params: this.prepParamsForConsole(params),
       handlerResult,
       sendCallbackResult: this.sendUrlCallbackIfNeeded(handlerResult, params),
       openResult: await this.openFileIfNeeded(handlerResult, params),
@@ -104,6 +109,22 @@ export default class ActionsURI extends Plugin {
 
     logToConsole("Call handled:", res);
     return res;
+  }
+
+  /**
+   * To prevent circular references and max call stack errors related to files,
+   * we'll to convert all `TAbstractFile` instances to path strings which is what
+   * they were in the original incoming call anyways.
+   */
+  private prepParamsForConsole(params: AnyParams): AnyParams {
+    const newParams: any = { ...params };
+
+    Object.keys(params).forEach((key) => {
+      const value = (<any> params)[key];
+      newParams[key] = value instanceof TAbstractFile ? value.path : value;
+    });
+
+    return <AnyParams> newParams;
   }
 
   /**

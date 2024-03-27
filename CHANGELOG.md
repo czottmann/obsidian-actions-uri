@@ -1,5 +1,13 @@
 # Release history
 
+## 1.5.1, 2024-03-27
+
+### Changes
+
+- `/note/create/`, `/periodic-note/create`: If the file name passed in `template-file` can't be found, the plugin will now check the template folder set in Templates or Templater, respectively, before returning an error.
+- Console output will now print the paths contained in the incoming params, instead of their internal file references. This prevents circular references and "max call stack" errors related to files when using [Logstravaganza](https://github.com/czottmann/obsidian-logstravaganza).
+
+
 ## 1.5.0, 2024-02-19
 
 ### New stuff
