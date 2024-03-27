@@ -40,6 +40,8 @@ import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
   zodExistingNotePath,
+  zodExistingTemplaterPath,
+  zodExistingTemplatesPath,
   zodOptionalBoolean,
   zodSanitizedNotePath,
   zodUndefinedChangedToDefaultValue,
@@ -102,11 +104,11 @@ const createParams = z.discriminatedUnion("apply", [
   }),
   createBaseParams.extend({
     apply: z.literal("templater"),
-    "template-file": zodExistingNotePath,
+    "template-file": zodExistingTemplaterPath,
   }),
   createBaseParams.extend({
     apply: z.literal("templates"),
-    "template-file": zodExistingNotePath,
+    "template-file": zodExistingTemplatesPath,
   }),
   createBaseParams.extend({
     apply: zodEmptyStringChangedToDefaultString("content"),
