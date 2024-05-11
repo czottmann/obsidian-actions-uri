@@ -17,6 +17,7 @@ import {
   StringResultObject,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
+import { obsEnv } from "./utils/obsidian-env";
 import { failure, success } from "./utils/results-handling";
 import {
   focusOrOpenFile,
@@ -27,6 +28,7 @@ import {
 
 export default class ActionsURI extends Plugin {
   async onload() {
+    obsEnv.app = this.app;
     this.app.workspace.onLayoutReady(() => this.registerRoutes(routes));
   }
 

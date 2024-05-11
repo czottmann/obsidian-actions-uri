@@ -2,8 +2,22 @@
 
 ## 1.6.0, \____-\__-\__
 
+
+## 1.5.2, 2024-05-11
+
+House keeping release, no new features.
+
 ### Changes
 
+- Replaces deprecated `global.app` references
+- Sets minimum Obsidian version to 1.5.0
+
+
+## 1.5.1, 2024-03-27
+
+### Changes
+
+- `/note/create/`, `/periodic-note/create`: If the file name passed in `template-file` can't be found, the plugin will now check the template folder set in Templates or Templater, respectively, before returning an error.
 - Console output will now print the paths contained in the incoming params, instead of their internal file references. This prevents circular references and "max call stack" errors related to files when using [Logstravaganza](https://github.com/czottmann/obsidian-logstravaganza).
 
 

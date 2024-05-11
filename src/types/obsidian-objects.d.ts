@@ -12,6 +12,8 @@ export interface RealLifeApp extends App {
     executeCommandById(id: string): boolean;
     listCommands(): Command[];
   };
+  internalPlugins: any;
+  plugins: any;
 }
 
 export interface RealLifeVault extends Vault {

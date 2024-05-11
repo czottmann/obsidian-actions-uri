@@ -36,7 +36,6 @@ import {
   TFileResultObject,
 } from "../types";
 import {
-  activeVault,
   appendNote,
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
@@ -47,6 +46,7 @@ import {
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
+import { obsEnv } from "../utils/obsidian-env";
 import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
@@ -59,7 +59,8 @@ import { focusOrOpenFile } from "../utils/ui";
 import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
-  zodExistingNotePath,
+  zodExistingTemplaterPath,
+  zodExistingTemplatesPath,
   zodOptionalBoolean,
   zodUndefinedChangedToDefaultValue,
 } from "../utils/zod";
@@ -95,11 +96,11 @@ const createParams = z.discriminatedUnion("apply", [
   }),
   createBaseParams.extend({
     apply: z.literal("templater"),
-    "template-file": zodExistingNotePath,
+    "template-file": zodExistingTemplaterPath,
   }),
   createBaseParams.extend({
     apply: z.literal("templates"),
-    "template-file": zodExistingNotePath,
+    "template-file": zodExistingTemplatesPath,
   }),
   createBaseParams.extend({
     apply: zodEmptyStringChangedToDefaultString("content"),
@@ -341,7 +342,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
         // Overwrite the existing note.
         case "overwrite":
           // Delete existing note, but keep going afterwards.
-          await activeVault().trash(pNote, false);
+          await obsEnv.activeVault.trash(pNote, false);
           break;
 
         default:

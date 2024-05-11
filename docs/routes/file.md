@@ -58,7 +58,7 @@ On failure:
 &nbsp;
 
 
-## `/vault/get-active`
+## `/file/get-active`
 Returns the currently active/focussed file. If there is no open file, an error 404 is returned.
 
 ### Parameters
@@ -69,9 +69,9 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter          | Description                           |
-| ------------------ | ------------------------------------- |
-| `result-filepath`  | The full filesystem path to the file. |
+| Parameter          | Description                                                 |
+| ------------------ | ----------------------------------------------------------- |
+| `result-filepath`  | The path to the file relative from the vault's root folder. |
 
 
 On failure:

@@ -6,7 +6,7 @@ import {
   HandlerSearchSuccess,
   HandlerTextSuccess,
 } from "../types";
-import { activeVault } from "../utils/file-handling";
+import { obsEnv } from "../utils/obsidian-env";
 import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { doSearch } from "../utils/search";
@@ -58,7 +58,7 @@ async function handleOpen(
   // Let's open the search in the simplest way possible.
   window.open(
     "obsidian://search?" +
-      "vault=" + encodeURIComponent(activeVault().getName()) +
+      "vault=" + encodeURIComponent(obsEnv.activeVault.getName()) +
       "&query=" + encodeURIComponent(params.query.trim()),
   );
 
