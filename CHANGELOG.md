@@ -1,5 +1,15 @@
 # Release history
 
+## 1.5.2, 2024-05-11
+
+House keeping release, no new features.
+
+### Changes
+
+- Replaces deprecated `global.app` references
+- Sets minimum Obsidian version to 1.5.0
+
+
 ## 1.5.1, 2024-03-27
 
 ### Changes
