@@ -36,7 +36,6 @@ import {
   TFileResultObject,
 } from "../types";
 import {
-  activeVault,
   appendNote,
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
@@ -47,6 +46,7 @@ import {
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
+import { obsEnv } from "../utils/obsidian-env";
 import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
@@ -342,7 +342,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
         // Overwrite the existing note.
         case "overwrite":
           // Delete existing note, but keep going afterwards.
-          await activeVault().trash(pNote, false);
+          await obsEnv.activeVault.trash(pNote, false);
           break;
 
         default:

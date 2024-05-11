@@ -8,13 +8,8 @@ import {
   HandlerPathsSuccess,
   HandlerTextSuccess,
 } from "../types";
-import {
-  activeVault,
-  activeWorkspace,
-  getFile,
-  renameFilepath,
-  trashFilepath,
-} from "../utils/file-handling";
+import { getFile, renameFilepath, trashFilepath } from "../utils/file-handling";
+import { obsEnv } from "../utils/obsidian-env";
 import { helloRoute } from "../utils/routing";
 import { failure, success } from "../utils/results-handling";
 import {
@@ -76,14 +71,14 @@ async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: activeVault().getFiles().map((t) => t.path).sort(),
+    paths: obsEnv.activeVault.getFiles().map((t) => t.path).sort(),
   });
 }
 
 async function handleGetActive(
   incomingParams: AnyParams,
 ): Promise<HandlerFilePathSuccess | HandlerFailure> {
-  const res = activeWorkspace().getActiveFile();
+  const res = obsEnv.activeWorkspace.getActiveFile();
   return res ? success({ filepath: res.path }) : failure(404, "No active file");
 }
 
