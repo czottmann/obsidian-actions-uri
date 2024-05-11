@@ -1,8 +1,8 @@
 {
   "id": "actions-uri",
   "name": "Actions URI",
-  "version": "1.5.1",
-  "minAppVersion": "1.4.0",
+  "version": "1.5.2",
+  "minAppVersion": "1.5.0",
   "description": "Adds additional `x-callback-url` endpoints to the app for common actions — it's a clean, super-charged addition to Obsidian URI.",
   "author": "Carlo Zottmann",
   "authorUrl": "https://github.com/czottmann",

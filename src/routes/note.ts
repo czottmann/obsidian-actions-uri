@@ -10,9 +10,6 @@ import {
   HandlerTextSuccess,
 } from "../types";
 import {
-  activeVault,
-  activeWorkspace,
-  app,
   appendNote,
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
@@ -34,6 +31,7 @@ import {
 } from "../utils/plugins";
 import { helloRoute } from "../utils/routing";
 import { failure, success } from "../utils/results-handling";
+import { obsEnv } from "../utils/obsidian-env";
 import { parseStringIntoRegex } from "../utils/string-handling";
 import { focusOrOpenFile } from "../utils/ui";
 import {
@@ -230,7 +228,7 @@ async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: activeVault().getMarkdownFiles().map((t) => t.path).sort(),
+    paths: obsEnv.activeVault.getMarkdownFiles().map((t) => t.path).sort(),
   });
 }
 
@@ -248,7 +246,7 @@ async function handleGet(
 async function handleGetActive(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const res = activeWorkspace().getActiveFile();
+  const res = obsEnv.activeWorkspace.getActiveFile();
   if (res?.extension !== "md") return failure(404, "No active note");
 
   const res1 = await getNoteDetails(res.path);
@@ -265,7 +263,7 @@ async function handleGetNamed(
   // "Best guess" means utilizing Obsidian's internal link resolution to find
   // the right note. If it's not found, we return a 404.
   if (sortBy === "best-guess") {
-    const res = app().metadataCache
+    const res = obsEnv.metadataCache
       .getFirstLinkpathDest(sanitizeFilePath(file), "/");
     return res
       ? await getNoteDetails(res.path)
@@ -283,7 +281,7 @@ async function handleGetNamed(
     "mtime-desc": (a: TFile, b: TFile) => b.stat.mtime - a.stat.mtime,
   };
 
-  const res = activeVault().getMarkdownFiles()
+  const res = obsEnv.activeVault.getMarkdownFiles()
     .sort(sortFns[sortBy])
     .find((tf) => tf.name === file);
   if (!res) return failure(404, "No note found with that name");

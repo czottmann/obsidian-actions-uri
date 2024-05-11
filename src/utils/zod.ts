@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
-import { activeVault } from "./file-handling";
+import { obsEnv } from "./obsidian-env";
 import { sanitizeFilePath } from "./file-handling";
 import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "./plugins";
 
@@ -208,7 +208,7 @@ function lookupAbstractFileForFilePath(path: any): TAbstractFile | null {
  */
 function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
   return (typeof path === "string" && path.length > 0)
-    ? activeVault().getAbstractFileByPath(path as string)
+    ? obsEnv.activeVault.getAbstractFileByPath(path as string)
     : null;
 }
 
@@ -216,7 +216,8 @@ function sanitizeFilePathAndGetAbstractFile(
   path: string,
   isNote?: boolean,
 ): TAbstractFile | null {
-  return activeVault().getAbstractFileByPath(sanitizeFilePath(path, isNote));
+  return obsEnv.activeVault
+    .getAbstractFileByPath(sanitizeFilePath(path, isNote));
 }
 
 /**
