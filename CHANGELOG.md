@@ -3,6 +3,13 @@
 ## 1.6.0, \____-\__-\__
 
 
+## 1.5.3, 2024-06-18
+
+### No longer broken
+
+- Fixes the plugin not sending out return calls when the requested vault wasn't loaded yet, e.g. when Obsidian wasn't running or when another vault was active.
+
+
 ## 1.5.2, 2024-05-11
 
 House keeping release, no new features.
