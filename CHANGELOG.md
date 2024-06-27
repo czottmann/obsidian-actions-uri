@@ -7,6 +7,13 @@
 - Fixes search/replace in notes, which wouldn't work if the search term was a string but contained regex-like characters (`$`, `^`, , etc.) [ZCO-606]
 
 
+## 1.5.3, 2024-06-18
+
+### No longer broken
+
+- Fixes the plugin not sending out return calls when the requested vault wasn't loaded yet, e.g. when Obsidian wasn't running or when another vault was active.
+
+
 ## 1.5.2, 2024-05-11
 
 House keeping release, no new features.

@@ -29,7 +29,7 @@ import {
 export default class ActionsURI extends Plugin {
   async onload() {
     obsEnv.app = this.app;
-    this.app.workspace.onLayoutReady(() => this.registerRoutes(routes));
+    this.registerRoutes(routes);
   }
 
   onunload() {
