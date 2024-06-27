@@ -301,7 +301,7 @@ export async function searchAndReplaceInNote(
 
   const noteContent = res.result;
   const newContent = (typeof searchTerm === "string")
-    ? noteContent.replace(new RegExp(searchTerm, "g"), replacement)
+    ? noteContent.replaceAll(searchTerm, replacement)
     : noteContent.replace(searchTerm, replacement);
 
   if (noteContent === newContent) {

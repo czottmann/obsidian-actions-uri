@@ -2,6 +2,10 @@
 
 ## 1.6.0, \____-\__-\__
 
+### No longer broken
+
+- Fixes search/replace in notes, which wouldn't work if the search term was a string but contained regex-like characters (`$`, `^`, , etc.) [ZCO-606]
+
 
 ## 1.5.2, 2024-05-11
 
