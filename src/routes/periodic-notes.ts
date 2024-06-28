@@ -412,30 +412,30 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resDNP = getPeriodNotePathIfPluginIsAvailable(periodID);
-    if (resDNP.isSuccess) {
-      const filepath = resDNP.result;
-      const res = await appendAsRequested(filepath);
-      if (!res.isSuccess) return res;
+    const resGetPath = getPeriodNotePathIfPluginIsAvailable(periodID);
+    if (resGetPath.isSuccess) {
+      const filepath = resGetPath.result;
+      const resAppend = await appendAsRequested(filepath);
+      if (!resAppend.isSuccess) return resAppend;
       if (shouldFocusNote) await focusOrOpenFile(filepath);
-      return success({ message: res.result }, filepath);
+      return success({ message: resAppend.result }, filepath);
     }
 
     // No, the file didn't exist. Unless it just couldn't be found (as opposed to
     // any other error), we're done.
-    if (resDNP.errorCode !== 404) return resDNP;
+    if (resGetPath.errorCode !== 404) return resGetPath;
 
     // The file didn't exist, because it hasn't been created yet. Should we create
     // it? If not, we're done.
-    if (!shouldCreateNote) return resDNP;
+    if (!shouldCreateNote) return resGetPath;
 
     // We're allowed to create the file, so let's do that.
     const newNote = await createPeriodNote(periodID);
     if (newNote instanceof TFile) {
-      const res = await appendAsRequested(newNote.path);
-      if (!res.isSuccess) return res;
+      const resAppend2 = await appendAsRequested(newNote.path);
+      if (!resAppend2.isSuccess) return resAppend2;
       if (shouldFocusNote) await focusOrOpenFile(newNote.path);
-      return success({ message: res.result }, newNote.path);
+      return success({ message: resAppend2.result }, newNote.path);
     }
 
     // If that didn't work, return an error.
@@ -476,30 +476,30 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resDNP = getPeriodNotePathIfPluginIsAvailable(periodID);
-    if (resDNP.isSuccess) {
-      const filepath = resDNP.result;
-      const res = await prependAsRequested(filepath);
-      if (!res.isSuccess) return res;
+    const resGetPath = getPeriodNotePathIfPluginIsAvailable(periodID);
+    if (resGetPath.isSuccess) {
+      const filepath = resGetPath.result;
+      const resPrepend = await prependAsRequested(filepath);
+      if (!resPrepend.isSuccess) return resPrepend;
       if (shouldFocusNote) await focusOrOpenFile(filepath);
-      return success({ message: res.result }, filepath);
+      return success({ message: resPrepend.result }, filepath);
     }
 
     // No, the file didn't exist. Unless it just couldn't be found (as opposed to
     // any other error), we're done.
-    if (resDNP.errorCode !== 404) return resDNP;
+    if (resGetPath.errorCode !== 404) return resGetPath;
 
     // The file didn't exist, because it hasn't been created yet. Should we create
     // it? If not, we're done.
-    if (!shouldCreateNote) return resDNP;
+    if (!shouldCreateNote) return resGetPath;
 
     // We're allowed to create the file, so let's do that.
     const newNote = await createPeriodNote(periodID);
     if (newNote instanceof TFile) {
-      const res = await prependAsRequested(newNote.path);
-      if (!res.isSuccess) return res;
+      const resPrepend2 = await prependAsRequested(newNote.path);
+      if (!resPrepend2.isSuccess) return resPrepend2;
       if (shouldFocusNote) await focusOrOpenFile(newNote.path);
-      return success({ message: res.result }, newNote.path);
+      return success({ message: resPrepend2.result }, newNote.path);
     }
 
     // If that didn't work, return an error.

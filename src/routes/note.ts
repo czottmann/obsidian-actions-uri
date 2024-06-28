@@ -369,8 +369,6 @@ async function handleAppend(
   const shouldEnsureNewline = params["ensure-newline"];
   const shouldFocusNote = !silent;
 
-  // DRY: This call is used twice below, and I don't want to mess things up by
-  // forgetting a parameter or something in the future.
   async function appendAsRequested() {
     if (belowHeadline) {
       return await appendNoteBelowHeadline(file, belowHeadline, content);
@@ -379,29 +377,26 @@ async function handleAppend(
     return await appendNote(file, content, shouldEnsureNewline);
   }
 
-  // If the file exists, append to it. Otherwise, check if we're supposed to
-  // create it.
-  const res = await getNote(file);
-  if (res.isSuccess) {
-    const res1 = await appendAsRequested();
-    if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenFile(file);
-      return success({ message: res1.result }, file);
-    }
-    return res1;
-  } else if (!shouldCreateNote) {
-    return res;
+  // Check if the file exists.
+  const resTest = await getNote(file);
+
+  // If the file doesn't exist …
+  if (!resTest.isSuccess) {
+    // … check if we're supposed to create it. If not, back off.
+    if (!shouldCreateNote) return resTest;
+
+    // We're supposed to create the note. We try to create it.
+    const resCreate = await createNote(file, "");
+    if (!resCreate.isSuccess) return resCreate;
   }
 
-  // We're supposed to create the note. We try to create it.
-  const res2 = await createNote(file, "");
-  if (!res2.isSuccess) return res2;
-
-  // Creation was successful. We try to append again.
-  const res3 = await appendAsRequested();
-  if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenFile(file);
-  return success({ message: res3.result }, file);
+  // Manipulate the file.
+  const resAppend = await appendAsRequested();
+  if (resAppend.isSuccess) {
+    if (shouldFocusNote) await focusOrOpenFile(file);
+    return success({ message: resAppend.result }, file);
+  }
+  return resAppend;
 }
 
 async function handlePrepend(
@@ -415,8 +410,6 @@ async function handlePrepend(
   const shouldFocusNote = !silent;
   const shouldIgnoreFrontMatter = params["ignore-front-matter"];
 
-  // DRY: This call is used twice below, and I don't want to mess things up by
-  // forgetting a parameter or something in the future.
   async function prependAsRequested() {
     if (belowHeadline) {
       return await prependNoteBelowHeadline(
@@ -435,29 +428,26 @@ async function handlePrepend(
     );
   }
 
-  // If the file exists, append to it. Otherwise, check if we're supposed to
-  // create it.
-  const res = await getNote(file);
-  if (res.isSuccess) {
-    const res1 = await prependAsRequested();
-    if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenFile(file);
-      return success({ message: res1.result }, file);
-    }
-    return res1;
-  } else if (!shouldCreateNote) {
-    return res;
+  // Check if the file exists.
+  const resTest = await getNote(file);
+
+  // If the file doesn't exist …
+  if (!resTest.isSuccess) {
+    // … check if we're supposed to create it. If not, back off.
+    if (!shouldCreateNote) return resTest;
+
+    // We're supposed to create the note. We try to create it.
+    const resCreate = await createNote(file, "");
+    if (!resCreate.isSuccess) return resCreate;
   }
 
-  // We're supposed to create the note. We try to create it.
-  const res2 = await createNote(file, "");
-  if (!res2.isSuccess) return res2;
-
-  // Creation was successful. We try to append again.
-  const res3 = await prependAsRequested();
-  if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenFile(file);
-  return success({ message: res3.result }, file);
+  // Manipulate the file.
+  const resPrepend = await prependAsRequested();
+  if (resPrepend.isSuccess) {
+    if (shouldFocusNote) await focusOrOpenFile(file);
+    return success({ message: resPrepend.result }, file);
+  }
+  return resPrepend;
 }
 
 async function handleTouch(
