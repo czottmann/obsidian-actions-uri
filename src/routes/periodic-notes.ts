@@ -1,26 +1,11 @@
 import { z } from "zod";
 import { TFile } from "obsidian";
 import {
-  appHasDailyNotesPluginLoaded,
-  appHasMonthlyNotesPluginLoaded,
-  appHasQuarterlyNotesPluginLoaded,
-  appHasWeeklyNotesPluginLoaded,
-  appHasYearlyNotesPluginLoaded,
   createDailyNote,
   createMonthlyNote,
   createQuarterlyNote,
   createWeeklyNote,
   createYearlyNote,
-  getAllDailyNotes,
-  getAllMonthlyNotes,
-  getAllQuarterlyNotes,
-  getAllWeeklyNotes,
-  getAllYearlyNotes,
-  getDailyNote,
-  getMonthlyNote,
-  getQuarterlyNote,
-  getWeeklyNote,
-  getYearlyNote,
 } from "obsidian-daily-notes-interface";
 import { PERIOD_IDS, STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
@@ -32,21 +17,25 @@ import {
   HandlerPathsSuccess,
   HandlerTextSuccess,
   PeriodType,
-  StringResultObject,
-  TFileResultObject,
 } from "../types";
 import {
   appendNote,
   appendNoteBelowHeadline,
   applyCorePluginTemplate,
   createOrOverwriteNote,
-  getNote,
   getNoteDetails,
   prependNote,
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
 import { obsEnv } from "../utils/obsidian-env";
+import {
+  appHasPeriodPluginLoaded,
+  getAllPeriodNotes,
+  getCurrentPeriodNote,
+  getMostRecentPeriodNote,
+  getPeriodNotePathIfPluginIsAvailable,
+} from "../utils/periodic-notes-handling";
 import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
@@ -550,76 +539,6 @@ function getHandleSearchRegexAndReplace(periodID: PeriodType): HandlerFunction {
 
 // HELPERS ----------------------------------------
 
-function appHasPeriodPluginLoaded(periodID: PeriodType): boolean {
-  switch (periodID) {
-    case "daily":
-      return appHasDailyNotesPluginLoaded();
-
-    case "weekly":
-      return appHasWeeklyNotesPluginLoaded();
-
-    case "monthly":
-      return appHasMonthlyNotesPluginLoaded();
-
-    case "quarterly":
-      return appHasQuarterlyNotesPluginLoaded();
-
-    case "yearly":
-      return appHasYearlyNotesPluginLoaded();
-  }
-}
-
-/**
- * Checks if the daily/weekly/monthly/etc periodic note feature is available,
- * and gets the path to the current related note.
- *
- * @returns Successful `StringResultObject` containing the path if the PN
- * functionality is available and there is a current daily note. Unsuccessful
- * `StringResultObject` if it isn't.
- */
-function getPeriodNotePathIfPluginIsAvailable(
-  periodID: PeriodType,
-): StringResultObject {
-  var pluginLoadedCheck: () => boolean;
-  var getCurrentPeriodNote: () => TFile;
-  const now = window.moment();
-
-  switch (periodID) {
-    case "daily":
-      pluginLoadedCheck = appHasDailyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getDailyNote(now, getAllDailyNotes());
-      break;
-
-    case "weekly":
-      pluginLoadedCheck = appHasWeeklyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getWeeklyNote(now, getAllWeeklyNotes());
-      break;
-
-    case "monthly":
-      pluginLoadedCheck = appHasMonthlyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getMonthlyNote(now, getAllMonthlyNotes());
-      break;
-
-    case "quarterly":
-      pluginLoadedCheck = appHasQuarterlyNotesPluginLoaded;
-      getCurrentPeriodNote = () =>
-        getQuarterlyNote(now, getAllQuarterlyNotes());
-      break;
-
-    case "yearly":
-      pluginLoadedCheck = appHasYearlyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getYearlyNote(now, getAllYearlyNotes());
-      break;
-  }
-
-  if (!pluginLoadedCheck()) {
-    return failure(412, STRINGS[`${periodID}_note`].feature_not_available);
-  }
-
-  const pNote = getCurrentPeriodNote();
-  return pNote ? success(pNote.path) : failure(404, STRINGS.note_not_found);
-}
-
 async function createPeriodNote(periodID: PeriodType): Promise<TFile> {
   const now = window.moment();
   switch (periodID) {
@@ -638,61 +557,4 @@ async function createPeriodNote(periodID: PeriodType): Promise<TFile> {
     case "yearly":
       return createYearlyNote(now);
   }
-}
-
-function getAllPeriodNotes(periodID: PeriodType): Record<string, TFile> {
-  switch (periodID) {
-    case "daily":
-      return getAllDailyNotes();
-
-    case "weekly":
-      return getAllWeeklyNotes();
-
-    case "monthly":
-      return getAllMonthlyNotes();
-
-    case "quarterly":
-      return getAllQuarterlyNotes();
-
-    case "yearly":
-      return getAllYearlyNotes();
-  }
-}
-
-function getCurrentPeriodNote(periodID: PeriodType): TFile | undefined {
-  const now = window.moment();
-
-  switch (periodID) {
-    case "daily":
-      return getDailyNote(now, getAllDailyNotes());
-
-    case "weekly":
-      return getWeeklyNote(now, getAllWeeklyNotes());
-
-    case "monthly":
-      return getMonthlyNote(now, getAllMonthlyNotes());
-
-    case "quarterly":
-      return getQuarterlyNote(now, getAllQuarterlyNotes());
-
-    case "yearly":
-      return getYearlyNote(now, getAllYearlyNotes());
-  }
-}
-
-async function getMostRecentPeriodNote(
-  periodID: PeriodType,
-): Promise<TFileResultObject> {
-  if (!appHasPeriodPluginLoaded(periodID)) {
-    return failure(412, STRINGS[`${periodID}_note`].feature_not_available);
-  }
-
-  const notes = getAllPeriodNotes(periodID);
-  const mostRecentKey = Object.keys(notes).sort().last();
-  if (!mostRecentKey) {
-    return failure(404, STRINGS.note_not_found);
-  }
-
-  const pNote = notes[mostRecentKey];
-  return await getNote(pNote.path);
 }
