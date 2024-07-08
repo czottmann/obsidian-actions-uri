@@ -42,12 +42,12 @@ Returns a note's properties.
 
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter       | Value type | Optional? | Description                                                                                                                                 |
-| --------------- | ---------- | :-------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `periodic-note` | string     |           | **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly`                             |
-| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                           |
-| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                             |
+| Parameter       | Value type | Optional? | Description                                                                                                                                                |
+| --------------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                |
+| `periodic-note` | string     |           | <span class="tag tag-version">v1.6+</span> **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` |
+| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                                          |
+| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                                            |
 
 ### Return values
 
@@ -82,14 +82,14 @@ The `properties` parameter will only accept object values with valid types (i.e.
 
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter       | Value type | Optional? | Description                                                                                                                                 |
-| --------------- | ---------- | :-------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `periodic-note` | string     |           | **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly`                             |
-| `properties`    | string     |           | The new properties encoded as JSON string.                                                                                                  |
-| `mode`          | string     | optional  | Either `overwrite` or `update`. Defaults to `overwrite`.                                                                                    |
-| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                           |
-| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                             |
+| Parameter       | Value type | Optional? | Description                                                                                                                                                |
+| --------------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                |
+| `periodic-note` | string     |           | <span class="tag tag-version">v1.6+</span> **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` |
+| `properties`    | string     |           | The new properties encoded as JSON string.                                                                                                                 |
+| `mode`          | string     | optional  | Either `overwrite` or `update`. Defaults to `overwrite`.                                                                                                   |
+| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                                          |
+| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                                            |
 
 ### Return values
 
@@ -122,14 +122,14 @@ Removes the entirety of a note's properties (and therefore, its front matter).
 
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter       | Value type | Optional? | Description                                                                                                                                 |
-| --------------- | ---------- | :-------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `periodic-note` | string     |           | **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly`                             |
-| `properties`    | string     |           | The new properties encoded as JSON string.                                                                                                  |
-| `mode`          | string     | optional  | Either `overwrite` or `update`. Defaults to `overwrite`.                                                                                    |
-| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                           |
-| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                             |
+| Parameter       | Value type | Optional? | Description                                                                                                                                                |
+| --------------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                |
+| `periodic-note` | string     |           | <span class="tag tag-version">v1.6+</span> **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` |
+| `properties`    | string     |           | The new properties encoded as JSON string.                                                                                                                 |
+| `mode`          | string     | optional  | Either `overwrite` or `update`. Defaults to `overwrite`.                                                                                                   |
+| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                                          |
+| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                                            |
 
 ### Return values
 
@@ -164,13 +164,13 @@ The `keys` parameter is a JSON-encoded array of strings, e.g. `["createdAt", "al
 
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter       | Value type | Optional? | Description                                                                                                                                 |
-| --------------- | ---------- | :-------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted. |
-| `periodic-note` | string     |           | **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly`                             |
-| `keys`          | string     |           | The list of keys to remove, as a JSON-encoded array of strings.                                                                             |
-| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                           |
-| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                             |
+| Parameter       | Value type | Optional? | Description                                                                                                                                                |
+| --------------- | ---------- | :-------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`          | string     |           | **Mutually exclusive with `periodic-note`.** The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                |
+| `periodic-note` | string     |           | <span class="tag tag-version">v1.6+</span> **Mutually exclusive with `file`.** Allowed values: `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` |
+| `keys`          | string     |           | The list of keys to remove, as a JSON-encoded array of strings.                                                                                            |
+| `x-success`     | string     |           | base URL for on-success callbacks                                                                                                                          |
+| `x-error`       | string     |           | base URL for on-error callbacks                                                                                                                            |
 
 ### Return values
 
