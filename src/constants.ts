@@ -64,12 +64,4 @@ export const STRINGS = {
   },
 };
 
-export const PERIOD_IDS = [
-  "daily",
-  "weekly",
-  "monthly",
-  "quarterly",
-  "yearly",
-] as const;
-
 export const XCALLBACK_RESULT_PREFIX = "result";

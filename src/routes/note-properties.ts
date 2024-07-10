@@ -1,6 +1,5 @@
 import { stringifyYaml } from "obsidian";
 import { z } from "zod";
-import { PERIOD_IDS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
@@ -12,6 +11,7 @@ import {
 import { getNote, propertiesForFile, updateNote } from "../utils/file-handling";
 import {
   getPeriodNotePathIfPluginIsAvailable,
+  PeriodicNoteType,
 } from "../utils/periodic-notes-handling";
 import { helloRoute } from "../utils/routing";
 import { success } from "../utils/results-handling";
@@ -31,7 +31,7 @@ const defaultFileParams = incomingBaseParams.extend({
 type DefaultFileParams = z.infer<typeof defaultFileParams>;
 
 const defaultPeriodicNoteParams = incomingBaseParams.extend({
-  "periodic-note": z.enum(PERIOD_IDS),
+  "periodic-note": z.nativeEnum(PeriodicNoteType),
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
