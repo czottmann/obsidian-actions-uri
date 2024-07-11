@@ -1,6 +1,5 @@
 import { App, Workspace } from "obsidian";
 import { RealLifeApp, RealLifeMetadataCache, RealLifeVault } from "../types";
-import { get } from "http";
 
 const _store: Record<string, any> = {
   app: null,

@@ -1,4 +1,4 @@
-import { AnyZodObject, ZodDiscriminatedUnion, ZodUnion } from "zod";
+import { z } from "zod";
 import {
   AnyLocalParams as AnyCommandParams,
   routePath as commandRoutes,
@@ -48,7 +48,7 @@ import {
   AnyLocalParams as AnyTagsParams,
   routePath as tagsRoutes,
 } from "./routes/tags";
-import { IncomingBaseParams } from "./schemata";
+import { IncomingBaseParams, NoteTargetingComputedValues } from "./schemata";
 import { HandlerFunction } from "./types";
 
 export const routes: RoutePath = {
@@ -91,9 +91,10 @@ export type RoutePath = {
 export type RouteSubpath = {
   path: string;
   schema:
-    | AnyZodObject
-    | ZodUnion<any>
-    | ZodDiscriminatedUnion<string, AnyZodObject[]>;
+    | z.AnyZodObject
+    | z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
+    | z.ZodEffects<any, any, any>
+    | z.ZodUnion<any>;
   handler: HandlerFunction;
 };
 
@@ -104,6 +105,21 @@ export type AnyParams =
   | AnyFolderParams
   | AnyInfoParams
   | AnyNoteParams
+  | AnyNotePropertiesParams
+  | AnyOmnisearchParams
+  | AnyPeriodicNoteParams
+  | AnySearchParams
+  | AnyTagsParams
+  | AnyVaultParams
+  | IncomingBaseParams;
+
+export type AnyProcessedParams =
+  | AnyCommandParams
+  | AnyDataviewParams
+  | AnyFileParams
+  | AnyFolderParams
+  | AnyInfoParams
+  | (AnyNoteParams & NoteTargetingComputedValues)
   | AnyNotePropertiesParams
   | AnyOmnisearchParams
   | AnyPeriodicNoteParams

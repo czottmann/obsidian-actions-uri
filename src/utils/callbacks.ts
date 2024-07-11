@@ -6,7 +6,6 @@ import { success } from "./results-handling";
 import { AnyParams } from "../routes";
 import { toKebabCase } from "./string-handling";
 import {
-  AbstractFile,
   AnyHandlerResult,
   AnyHandlerSuccess,
   HandlerFailure,
@@ -44,7 +43,12 @@ export function sendUrlCallback(
   }
 
   const returnParams: Record<string, string> = params["debug-mode"]
-    ? excludeKeys(params, ["debug-mode", "x-success", "x-error"])
+    ? excludeKeys(<any> params, [
+      "debug-mode",
+      "x-success",
+      "x-error",
+      "_computed",
+    ])
     : {};
   addObjectToUrlSearchParams(returnParams, url, "input");
 

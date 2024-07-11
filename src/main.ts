@@ -6,7 +6,7 @@ import {
 } from "obsidian";
 import { ZodError } from "zod";
 import { URI_NAMESPACE } from "./constants";
-import { AnyParams, RoutePath, routes } from "./routes";
+import { AnyParams, AnyProcessedParams, RoutePath, routes } from "./routes";
 import {
   AnyHandlerResult,
   AnyHandlerSuccess,
@@ -89,7 +89,7 @@ export default class ActionsURI extends Plugin {
    */
   private async handleIncomingCall(
     handlerFunc: HandlerFunction,
-    params: AnyParams,
+    params: AnyProcessedParams,
   ): Promise<ProcessingResult> {
     let handlerResult: AnyHandlerResult;
 
