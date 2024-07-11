@@ -7,12 +7,8 @@ import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "./plugins";
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
 // should all be treated as `false`. My reign shall be merciful.
 export const zodOptionalBoolean = z.preprocess(
-  (param: unknown): boolean => {
-    if (typeof param === "string") {
-      return param !== "false" && param !== "";
-    }
-    return false;
-  },
+  (param: unknown): boolean =>
+    typeof param === "string" && param !== "false" && param !== "",
   z.boolean().optional(),
 );
 
