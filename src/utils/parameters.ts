@@ -133,35 +133,9 @@ function validateNoteTargetingAndResolvePath<T>(
 }
 
 function filepathForUID(uid: string): StringResultObject {
-  const path = findPathForUIDInMetadataCache(uid) ||
-    findPathForUIDInMarkdownFiles(uid);
-
-  return path ? success(path) : failure(404, STRINGS.note_not_found);
-}
-
-function findPathForUIDInMetadataCache(uid: string): string | undefined {
   // TODO: Make frontmatter key configurable
   const uidKey = "uid";
-
-  const hash = Object.entries(obsEnv.app.metadataCache.metadataCache)
-    .find(([_, cached]) =>
-      cached.frontmatter?.[uidKey] &&
-      [cached.frontmatter[uidKey]].flat().map((u) => `${u}`).includes(uid)
-    )
-    ?.[0];
-
-  const filePath = Object.entries(obsEnv.app.metadataCache.fileCache)
-    .find(([_, cache]) => cache.hash === hash)
-    ?.[0];
-
-  return filePath;
-}
-
-function findPathForUIDInMarkdownFiles(uid: string): string | undefined {
-  // TODO: Make frontmatter key configurable
-  const uidKey = "uid";
-
-  return obsEnv.app.vault
+  const path = obsEnv.app.vault
     .getMarkdownFiles()
     .find((note) => {
       let uidValues = parseFrontMatterEntry(
@@ -171,4 +145,6 @@ function findPathForUIDInMarkdownFiles(uid: string): string | undefined {
       return [uidValues].flatMap((u) => `${u}`).includes(uid);
     })
     ?.path;
+
+  return path ? success(path) : failure(404, STRINGS.note_not_found);
 }
