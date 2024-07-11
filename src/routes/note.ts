@@ -384,10 +384,22 @@ async function handleAppend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = incomingParams as AppendParams;
-  const { _computed: { path, pathExists }, content, silent } = params;
+  const {
+    _computed: { inputKey, pathExists, path: computedPath },
+    content,
+    silent,
+    uid,
+  } = params;
   const belowHeadline = params["below-headline"];
   const shouldCreateNote = params["create-if-not-found"];
   const shouldEnsureNewline = params["ensure-newline"];
+
+  // If the note was requested via UID, doesn't exist but should be created,
+  // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
+  // passed in.
+  const path = (!pathExists && inputKey === "uid" && shouldCreateNote)
+    ? uid!
+    : computedPath;
 
   async function appendAsRequested() {
     if (belowHeadline) {
@@ -405,6 +417,16 @@ async function handleAppend(
     // We're supposed to create the note. We try to create it.
     const resCreate = await createNote(path, "");
     if (!resCreate.isSuccess) return resCreate;
+
+    // If the note was requested via UID, we need to set the UID in the front
+    // matter of the newly created note.
+    if (inputKey === "uid") {
+      await obsEnv.app.fileManager.processFrontMatter(
+        resCreate.result,
+        // TODO: Make frontmatter key configurable
+        (fm) => fm.uid = uid!,
+      );
+    }
   }
 
   // Manipulate the file.
@@ -420,11 +442,23 @@ async function handlePrepend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = incomingParams as PrependParams;
-  const { _computed: { path, pathExists }, content, silent } = params;
+  const {
+    _computed: { inputKey, pathExists, path: computedPath },
+    content,
+    silent,
+    uid,
+  } = params;
   const belowHeadline = params["below-headline"];
   const shouldCreateNote = params["create-if-not-found"];
   const shouldEnsureNewline = params["ensure-newline"];
   const shouldIgnoreFrontMatter = params["ignore-front-matter"];
+
+  // If the note was requested via UID, doesn't exist but should be created,
+  // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
+  // passed in.
+  const path = (!pathExists && inputKey === "uid" && shouldCreateNote)
+    ? uid!
+    : computedPath;
 
   async function prependAsRequested() {
     if (belowHeadline) {
@@ -452,6 +486,16 @@ async function handlePrepend(
     // We're supposed to create the note. We try to create it.
     const resCreate = await createNote(path, "");
     if (!resCreate.isSuccess) return resCreate;
+
+    // If the note was requested via UID, we need to set the UID in the front
+    // matter of the newly created note.
+    if (inputKey === "uid") {
+      await obsEnv.app.fileManager.processFrontMatter(
+        resCreate.result,
+        // TODO: Make frontmatter key configurable
+        (fm) => fm.uid = uid!,
+      );
+    }
   }
 
   // Manipulate the file.
