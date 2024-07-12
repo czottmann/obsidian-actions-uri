@@ -29,6 +29,7 @@ import {
 } from "./utils/ui";
 
 export default class ActionsURI extends Plugin {
+  // @ts-ignore
   settings: PluginSettings;
 
   defaultSettings: PluginSettings = {
