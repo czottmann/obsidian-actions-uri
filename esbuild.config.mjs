@@ -41,8 +41,8 @@ esbuild
     banner: {
       js: banner,
     },
-    entryPoints: ["src/main.ts"],
     bundle: true,
+    entryPoints: ["src/main.ts"],
     external: [
       "obsidian",
       "electron",
@@ -60,12 +60,13 @@ esbuild
       ...builtins,
     ],
     format: "cjs",
-    watch: !isProduction,
-    target: "es2018",
     logLevel: "info",
-    sourcemap: isProduction ? false : "inline",
-    treeShaking: true,
+    minify: isProduction,
     outfile: "main.js",
     plugins: [rsyncPlugin],
+    sourcemap: isProduction ? false : "inline",
+    target: "es2022",
+    treeShaking: true,
+    watch: !isProduction,
   })
   .catch(() => process.exit(1));
