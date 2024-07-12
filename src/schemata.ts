@@ -1,3 +1,4 @@
+import { TFile } from "obsidian";
 import { z } from "zod";
 import { zodOptionalBoolean } from "./utils/zod";
 import { PeriodicNoteType } from "./utils/periodic-notes-handling";
@@ -27,6 +28,6 @@ export type NoteTargetingComputedValues = Readonly<{
   _computed: {
     inputKey: string;
     path: string;
-    pathExists: boolean;
+    tFile: TFile | undefined;
   };
 }>;

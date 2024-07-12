@@ -385,7 +385,7 @@ async function handleAppend(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = incomingParams as AppendParams;
   const {
-    _computed: { inputKey, pathExists, path: computedPath },
+    _computed: { inputKey, tFile, path: computedPath },
     content,
     silent,
     uid,
@@ -397,7 +397,7 @@ async function handleAppend(
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
   // passed in.
-  const path = (!pathExists && inputKey === "uid" && shouldCreateNote)
+  const path = (!tFile && inputKey === "uid" && shouldCreateNote)
     ? uid!
     : computedPath;
 
@@ -410,7 +410,7 @@ async function handleAppend(
   }
 
   // If the file doesn't exist …
-  if (!pathExists) {
+  if (!tFile) {
     // … check if we're supposed to create it. If not, back off.
     if (!shouldCreateNote) return failure(404, STRINGS.note_not_found);
 
@@ -442,7 +442,7 @@ async function handlePrepend(
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const params = incomingParams as PrependParams;
   const {
-    _computed: { inputKey, pathExists, path: computedPath },
+    _computed: { inputKey, tFile, path: computedPath },
     content,
     silent,
     uid,
@@ -455,7 +455,7 @@ async function handlePrepend(
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
   // passed in.
-  const path = (!pathExists && inputKey === "uid" && shouldCreateNote)
+  const path = (!tFile && inputKey === "uid" && shouldCreateNote)
     ? uid!
     : computedPath;
 
@@ -478,7 +478,7 @@ async function handlePrepend(
   }
 
   // If the file doesn't exist …
-  if (!pathExists) {
+  if (!tFile) {
     // … check if we're supposed to create it. If not, back off.
     if (!shouldCreateNote) return failure(404, STRINGS.note_not_found);
 

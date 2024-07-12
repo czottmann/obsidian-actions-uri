@@ -1,4 +1,4 @@
-import { parseFrontMatterEntry } from "obsidian";
+import { parseFrontMatterEntry, TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import { self } from "./self";
@@ -112,8 +112,16 @@ function validateNoteTargetingAndResolvePath<T>(
     path = res.isSuccess ? res.result : "";
   }
 
-  const pathExists = path != "" && zodExistingNotePath.safeParse(path).success;
-  if (!pathExists && throwOnMissingNote) {
+  // Validate that the requested note path exists
+  let tFile: TFile | undefined;
+  if (path != "") {
+    const res = zodExistingNotePath.safeParse(path);
+    if (res.success) {
+      tFile = res.data as TFile;
+    }
+  }
+
+  if (!tFile && throwOnMissingNote) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: STRINGS.note_not_found,
@@ -127,7 +135,7 @@ function validateNoteTargetingAndResolvePath<T>(
     _computed: {
       inputKey,
       path,
-      pathExists,
+      tFile,
     },
   };
 }
@@ -140,7 +148,7 @@ function filepathForUID(uid: string): StringResultObject {
         self().app.metadataCache.getFileCache(note)?.frontmatter,
         self().plugin.settings.frontmatterKey,
       );
-      return [uidValues].flatMap((u) => `${u}`).includes(uid);
+      return [uidValues].flat().map((u) => `${u}`).includes(uid);
     })
     ?.path;
 
