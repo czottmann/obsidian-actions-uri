@@ -10,7 +10,7 @@ import { incomingBaseParams } from "../schemata";
 import { HandlerDataviewSuccess, HandlerFailure } from "../types";
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 
 // SCHEMATA ----------------------------------------
 
@@ -61,9 +61,9 @@ async function handleDataviewQuery(
   incomingParams: AnyParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
-  const dataview = getAPI(obsEnv.app);
+  const dataview = getAPI(self().app);
 
-  if (!isDataviewEnabled(obsEnv.app) || !dataview) {
+  if (!isDataviewEnabled(self().app) || !dataview) {
     return failure(412, STRINGS.dataview_plugin_not_available);
   }
 

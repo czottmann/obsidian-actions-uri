@@ -2,7 +2,7 @@ import { z } from "zod";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import { HandlerFailure, HandlerTagsSuccess } from "../types";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
@@ -30,7 +30,7 @@ export const routePath: RoutePath = {
 async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerTagsSuccess | HandlerFailure> {
-  const tags = obsEnv.metadataCache.getTags();
+  const tags = self().app.metadataCache.getTags();
 
   return success({
     tags: Object.keys(tags).sort((a, b) => a.localeCompare(b)),

@@ -25,7 +25,7 @@ import {
   touchNote,
   trashFilepath,
 } from "../utils/file-handling";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 import {
   hardValidateNoteTargetingAndResolvePath,
   softValidateNoteTargetingAndResolvePath,
@@ -245,7 +245,7 @@ async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: obsEnv.activeVault.getMarkdownFiles().map((t) => t.path).sort(),
+    paths: self().app.vault.getMarkdownFiles().map((t) => t.path).sort(),
   });
 }
 
@@ -265,7 +265,7 @@ async function handleGet(
 async function handleGetActive(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const res = obsEnv.activeWorkspace.getActiveFile();
+  const res = self().app.workspace.getActiveFile();
   if (res?.extension !== "md") return failure(404, "No active note");
 
   const res1 = await getNoteDetails(res.path);
@@ -282,7 +282,7 @@ async function handleGetNamed(
   // "Best guess" means utilizing Obsidian's internal link resolution to find
   // the right note. If it's not found, we return a 404.
   if (sortBy === "best-guess") {
-    const res = obsEnv.metadataCache
+    const res = self().app.metadataCache
       .getFirstLinkpathDest(sanitizeFilePath(file), "/");
     return res
       ? await getNoteDetails(res.path)
@@ -300,7 +300,7 @@ async function handleGetNamed(
     "mtime-desc": (a: TFile, b: TFile) => b.stat.mtime - a.stat.mtime,
   };
 
-  const res = obsEnv.activeVault.getMarkdownFiles()
+  const res = self().app.vault.getMarkdownFiles()
     .sort(sortFns[sortBy])
     .find((tf) => tf.name === file);
   if (!res) return failure(404, "No note found with that name");
@@ -421,9 +421,9 @@ async function handleAppend(
     // If the note was requested via UID, we need to set the UID in the front
     // matter of the newly created note.
     if (inputKey === "uid") {
-      await obsEnv.app.fileManager.processFrontMatter(
+      await self().app.fileManager.processFrontMatter(
         resCreate.result,
-        (fm) => fm[obsEnv.plugin.settings.frontmatterKey] = uid!,
+        (fm) => fm[self().settings.frontmatterKey] = uid!,
       );
     }
   }
@@ -489,9 +489,9 @@ async function handlePrepend(
     // If the note was requested via UID, we need to set the UID in the front
     // matter of the newly created note.
     if (inputKey === "uid") {
-      await obsEnv.app.fileManager.processFrontMatter(
+      await self().app.fileManager.processFrontMatter(
         resCreate.result,
-        (fm) => fm[obsEnv.plugin.settings.frontmatterKey] = uid!,
+        (fm) => fm[self().plugin.settings.frontmatterKey] = uid!,
       );
     }
   }

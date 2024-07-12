@@ -27,7 +27,7 @@ import {
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 import {
   appHasPeriodPluginLoaded,
   getAllPeriodNotes,
@@ -349,7 +349,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
         // Overwrite the existing note.
         case "overwrite":
           // Delete existing note, but keep going afterwards.
-          await obsEnv.activeVault.trash(pNote, false);
+          await self().app.vault.trash(pNote, false);
           break;
 
         default:

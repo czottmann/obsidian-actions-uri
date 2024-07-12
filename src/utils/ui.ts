@@ -2,7 +2,7 @@ import { FileView, Notice, WorkspaceLeaf } from "obsidian";
 import { STRINGS } from "../constants";
 import { StringResultObject } from "../types";
 import { getFile } from "./file-handling";
-import { obsEnv } from "./obsidian-env";
+import { self } from "./self";
 import { failure, success } from "./results-handling";
 
 /**
@@ -10,7 +10,7 @@ import { failure, success } from "./results-handling";
  */
 export function allWorkspaceRootSplitLeaves(): WorkspaceLeaf[] {
   const allLeaves: WorkspaceLeaf[] = [];
-  obsEnv.activeWorkspace.iterateRootLeaves((leaf) => {
+  self().app.workspace.iterateRootLeaves((leaf) => {
     // NOTE: Removing the brackets causes this function to only return one leaf
     allLeaves.push(leaf);
   });
@@ -62,7 +62,7 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
     return failure(405, "File currently not open");
   }
 
-  obsEnv.activeWorkspace.setActiveLeaf(leaf, { focus: true });
+  self().app.workspace.setActiveLeaf(leaf, { focus: true });
   return success("Open file found and focussed");
 }
 
@@ -85,7 +85,7 @@ export async function focusOrOpenFile(
 
   const res1 = await getFile(filepath);
   if (res1.isSuccess) {
-    obsEnv.activeWorkspace.getLeaf(true).openFile(res1.result);
+    self().app.workspace.getLeaf(true).openFile(res1.result);
     return success(STRINGS.note_opened);
   }
 

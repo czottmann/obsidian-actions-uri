@@ -1,7 +1,7 @@
 import { parseFrontMatterEntry } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
-import { obsEnv } from "./obsidian-env";
+import { self } from "./self";
 import { getPeriodNotePathIfPluginIsAvailable } from "./periodic-notes-handling";
 import { failure, success } from "./results-handling";
 import { NoteTargetingComputedValues, NoteTargetingParams } from "../schemata";
@@ -133,12 +133,12 @@ function validateNoteTargetingAndResolvePath<T>(
 }
 
 function filepathForUID(uid: string): StringResultObject {
-  const path = obsEnv.app.vault
+  const path = self().app.vault
     .getMarkdownFiles()
     .find((note) => {
       let uidValues = parseFrontMatterEntry(
-        obsEnv.app.metadataCache.getFileCache(note)?.frontmatter,
-        obsEnv.plugin.settings.frontmatterKey,
+        self().app.metadataCache.getFileCache(note)?.frontmatter,
+        self().plugin.settings.frontmatterKey,
       );
       return [uidValues].flatMap((u) => `${u}`).includes(uid);
     })

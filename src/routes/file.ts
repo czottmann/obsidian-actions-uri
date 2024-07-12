@@ -9,7 +9,7 @@ import {
   HandlerTextSuccess,
 } from "../types";
 import { getFile, renameFilepath, trashFilepath } from "../utils/file-handling";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 import { helloRoute } from "../utils/routing";
 import { failure, success } from "../utils/results-handling";
 import {
@@ -71,14 +71,14 @@ async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: obsEnv.activeVault.getFiles().map((t) => t.path).sort(),
+    paths: self().app.vault.getFiles().map((t) => t.path).sort(),
   });
 }
 
 async function handleGetActive(
   incomingParams: AnyParams,
 ): Promise<HandlerFilePathSuccess | HandlerFailure> {
-  const res = obsEnv.activeWorkspace.getActiveFile();
+  const res = self().app.workspace.getActiveFile();
   return res ? success({ filepath: res.path }) : failure(404, "No active file");
 }
 

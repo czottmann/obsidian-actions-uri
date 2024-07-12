@@ -1,5 +1,5 @@
 import { PluginResultObject } from "../types";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "./self";
 import { failure, success } from "../utils/results-handling";
 
 /**
@@ -9,7 +9,7 @@ import { failure, success } from "../utils/results-handling";
  */
 export function enabledCommunityPlugins(): string[] {
   const list: string[] = Array.from(
-    obsEnv.app.plugins?.enabledPlugins || [],
+    self().app.plugins?.enabledPlugins || [],
   );
   return list.sort();
 }
@@ -36,7 +36,7 @@ export function getEnabledCommunityPlugin(
   pluginID: string,
 ): PluginResultObject {
   return isCommunityPluginEnabled(pluginID)
-    ? success(obsEnv.app.plugins.getPlugin(pluginID))
+    ? success(self().app.plugins.getPlugin(pluginID))
     : failure(404, `Community plugin ${pluginID} is not enabled.`);
 }
 
@@ -48,7 +48,7 @@ export function getEnabledCommunityPlugin(
  * @returns {boolean} - True if the plugin is enabled, false otherwise.
  */
 export function isCorePluginEnabled(pluginID: string): boolean {
-  return !!obsEnv.app.internalPlugins?.getEnabledPluginById(pluginID);
+  return !!self().app.internalPlugins?.getEnabledPluginById(pluginID);
 }
 
 /**
@@ -59,7 +59,7 @@ export function isCorePluginEnabled(pluginID: string): boolean {
  * @returns {PluginResultObject} A result object containing the plugin if available.
  */
 export function getEnabledCorePlugin(pluginID: string): PluginResultObject {
-  const plugin = obsEnv.app.internalPlugins?.getEnabledPluginById(pluginID);
+  const plugin = self().app.internalPlugins?.getEnabledPluginById(pluginID);
 
   return plugin
     ? success(plugin)

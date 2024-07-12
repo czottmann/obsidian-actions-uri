@@ -19,7 +19,7 @@ import {
   StringResultObject,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
-import { obsEnv } from "./utils/obsidian-env";
+import { setSelf } from "./utils/self";
 import { failure, success } from "./utils/results-handling";
 import {
   focusOrOpenFile,
@@ -36,9 +36,7 @@ export default class ActionsURI extends Plugin {
   };
 
   async onload() {
-    obsEnv.app = this.app;
-    obsEnv.plugin = this;
-
+    setSelf(this);
     await this.loadSettings();
     this.registerRoutes(routes);
     this.addSettingTab(new SettingsTab(this.app, this));
