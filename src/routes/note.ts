@@ -491,7 +491,7 @@ async function handlePrepend(
     if (inputKey === "uid") {
       await self().app.fileManager.processFrontMatter(
         resCreate.result,
-        (fm) => fm[self().plugin.settings.frontmatterKey] = uid!,
+        (fm) => fm[self().settings.frontmatterKey] = uid!,
       );
     }
   }

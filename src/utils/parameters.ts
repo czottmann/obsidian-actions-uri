@@ -146,7 +146,7 @@ function filepathForUID(uid: string): StringResultObject {
     .find((note) => {
       let uidValues = parseFrontMatterEntry(
         self().app.metadataCache.getFileCache(note)?.frontmatter,
-        self().plugin.settings.frontmatterKey,
+        self().settings.frontmatterKey,
       );
       return [uidValues].flat().map((u) => `${u}`).includes(uid);
     })
