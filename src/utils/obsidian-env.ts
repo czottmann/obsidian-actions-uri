@@ -1,8 +1,10 @@
 import { App, Workspace } from "obsidian";
+import ActionsURI from "../main";
 import { RealLifeApp, RealLifeMetadataCache, RealLifeVault } from "../types";
 
 const _store: Record<string, any> = {
-  app: null,
+  app: App,
+  plugin: ActionsURI,
 };
 
 export const obsEnv = {
@@ -24,5 +26,13 @@ export const obsEnv = {
 
   get metadataCache() {
     return _store.app.metadataCache as RealLifeMetadataCache;
+  },
+
+  set plugin(plugin: ActionsURI) {
+    _store.plugin = plugin;
+  },
+
+  get plugin(): ActionsURI {
+    return _store.plugin;
   },
 };

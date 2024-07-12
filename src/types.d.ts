@@ -7,3 +7,7 @@ export type AbstractFile = {
   filepath: string;
   name: string;
 };
+
+export type PluginSettings = {
+  frontmatterKey: string;
+};

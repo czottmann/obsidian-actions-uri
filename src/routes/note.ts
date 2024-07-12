@@ -423,8 +423,7 @@ async function handleAppend(
     if (inputKey === "uid") {
       await obsEnv.app.fileManager.processFrontMatter(
         resCreate.result,
-        // TODO: Make frontmatter key configurable
-        (fm) => fm.uid = uid!,
+        (fm) => fm[obsEnv.plugin.settings.frontmatterKey] = uid!,
       );
     }
   }
@@ -492,8 +491,7 @@ async function handlePrepend(
     if (inputKey === "uid") {
       await obsEnv.app.fileManager.processFrontMatter(
         resCreate.result,
-        // TODO: Make frontmatter key configurable
-        (fm) => fm.uid = uid!,
+        (fm) => fm[obsEnv.plugin.settings.frontmatterKey] = uid!,
       );
     }
   }

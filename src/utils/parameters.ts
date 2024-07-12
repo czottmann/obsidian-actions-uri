@@ -133,14 +133,12 @@ function validateNoteTargetingAndResolvePath<T>(
 }
 
 function filepathForUID(uid: string): StringResultObject {
-  // TODO: Make frontmatter key configurable
-  const uidKey = "uid";
   const path = obsEnv.app.vault
     .getMarkdownFiles()
     .find((note) => {
       let uidValues = parseFrontMatterEntry(
         obsEnv.app.metadataCache.getFileCache(note)?.frontmatter,
-        uidKey,
+        obsEnv.plugin.settings.frontmatterKey,
       );
       return [uidValues].flatMap((u) => `${u}`).includes(uid);
     })

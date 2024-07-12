@@ -7,12 +7,14 @@ import {
 import { ZodError } from "zod";
 import { URI_NAMESPACE } from "./constants";
 import { AnyParams, AnyProcessedParams, RoutePath, routes } from "./routes";
+import { SettingsTab } from "./settings";
 import {
   AnyHandlerResult,
   AnyHandlerSuccess,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerFunction,
+  PluginSettings,
   ProcessingResult,
   StringResultObject,
 } from "./types";
@@ -27,13 +29,31 @@ import {
 } from "./utils/ui";
 
 export default class ActionsURI extends Plugin {
+  settings: PluginSettings;
+
+  defaultSettings: PluginSettings = {
+    frontmatterKey: "uid",
+  };
+
   async onload() {
     obsEnv.app = this.app;
+    obsEnv.plugin = this;
+
+    await this.loadSettings();
     this.registerRoutes(routes);
+    this.addSettingTab(new SettingsTab(this.app, this));
   }
 
   onunload() {
     // Just act natural.
+  }
+
+  async loadSettings() {
+    this.settings = { ...this.defaultSettings, ...await this.loadData() };
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
   }
 
   /**
@@ -94,7 +114,7 @@ export default class ActionsURI extends Plugin {
     let handlerResult: AnyHandlerResult;
 
     try {
-      handlerResult = await handlerFunc(params);
+      handlerResult = await handlerFunc.bind(this)(params);
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
       handlerResult = failure(500, msg);
