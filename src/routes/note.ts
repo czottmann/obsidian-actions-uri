@@ -1,8 +1,18 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams, noteTargetingParams } from "../schemata";
+import {
+  AnyParams,
+  CreateApplyParameterValue,
+  CreateContentParams,
+  CreateTemplateParams,
+  RoutePath,
+} from "../routes";
+import {
+  incomingBaseParams,
+  NoteTargetingParamKey,
+  noteTargetingParams,
+} from "../schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
@@ -34,18 +44,17 @@ import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
 } from "../utils/plugins";
-import { failure, success } from "../utils/results-handling";
+import { ErrorCode, failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
+import { createPeriodNote } from "../utils/periodic-notes-handling";
 import { focusOrOpenFile } from "../utils/ui";
 import {
   zodAlwaysFalse,
-  zodEmptyStringChangedToDefaultString,
   zodExistingTemplaterPath,
   zodExistingTemplatesPath,
   zodOptionalBoolean,
   zodSanitizedNotePath,
-  zodUndefinedChangedToDefaultValue,
 } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
@@ -94,42 +103,32 @@ const openParams = incomingBaseParams
 type OpenParams = z.infer<typeof openParams>;
 
 const createBaseParams = incomingBaseParams
+  .merge(noteTargetingParams.omit({ uid: true }))
   .extend({
-    file: zodSanitizedNotePath,
     "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
     silent: zodOptionalBoolean,
   });
-const createParams = z.discriminatedUnion("apply", [
+const createParams = z.union([
   createBaseParams.extend({
-    apply: z.literal("content"),
+    // This sets the default value for `apply` to `content`. The default fallback
+    // only works when the `apply` is missing from the input; if it's there but
+    // empty, the default won't be applied, and the route will return an error.
+    apply: z.literal(CreateApplyParameterValue.Content)
+      .optional()
+      .default(CreateApplyParameterValue.Content),
     content: z.string().optional(),
   }),
   createBaseParams.extend({
-    apply: z.literal("templater"),
+    apply: z.literal(CreateApplyParameterValue.Templater),
     "template-file": zodExistingTemplaterPath,
   }),
   createBaseParams.extend({
-    apply: z.literal("templates"),
+    apply: z.literal(CreateApplyParameterValue.Templates),
     "template-file": zodExistingTemplatesPath,
   }),
-  createBaseParams.extend({
-    apply: zodEmptyStringChangedToDefaultString("content"),
-    content: z.string().optional(),
-  }),
-  createBaseParams.extend({
-    apply: zodUndefinedChangedToDefaultValue("content"),
-    content: z.string().optional(),
-  }),
-]);
+])
+  .transform(softValidateNoteTargetingAndResolvePath);
 type CreateParams = z.infer<typeof createParams>;
-type createContentParams = {
-  apply: "content";
-  content?: string;
-};
-type createTemplateParams = {
-  apply: "templater" | "templates";
-  "template-file": TFile;
-};
 
 const appendParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -266,10 +265,14 @@ async function handleGetActive(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const res = self().app.workspace.getActiveFile();
-  if (res?.extension !== "md") return failure(404, "No active note");
+  if (res?.extension !== "md") {
+    return failure(ErrorCode.NotFound, "No active note");
+  }
 
   const res1 = await getNoteDetails(res.path);
-  return (res1.isSuccess) ? res1 : failure(404, "No active note");
+  return (res1.isSuccess)
+    ? res1
+    : failure(ErrorCode.NotFound, "No active note");
 }
 
 async function handleGetNamed(
@@ -286,7 +289,7 @@ async function handleGetNamed(
       .getFirstLinkpathDest(sanitizeFilePath(file), "/");
     return res
       ? await getNoteDetails(res.path)
-      : failure(404, "No note found with that name");
+      : failure(ErrorCode.NotFound, "No note found with that name");
   }
 
   // If we're here, we're sorting by something else. We need to find all notes
@@ -303,7 +306,7 @@ async function handleGetNamed(
   const res = self().app.vault.getMarkdownFiles()
     .sort(sortFns[sortBy])
     .find((tf) => tf.name === file);
-  if (!res) return failure(404, "No note found with that name");
+  if (!res) return failure(ErrorCode.NotFound, "No note found with that name");
 
   return await getNoteDetails(res.path);
 }
@@ -325,54 +328,80 @@ async function handleOpen(
 async function handleCreate(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = incomingParams as CreateParams;
-  const { apply, file, silent } = params;
-  const ifExists = params["if-exists"];
-  const templateFile = (apply === "templater" || apply === "templates")
-    ? (<createTemplateParams> params)["template-file"]
-    : undefined;
-  const content = (apply === "content")
-    ? (<createContentParams> params).content || ""
-    : "";
-  var pluginInstance;
+  const {
+    _computed: { inputKey, path },
+    ["if-exists"]: ifExists,
+    ["periodic-note"]: periodicNoteType,
+    apply,
+    silent,
+  } = incomingParams as CreateParams;
+
+  // If there already is a note with that name or at that path, deal with it.
+  const resNoteExists = await getNote(path);
+  const noteExists = resNoteExists.isSuccess;
+  if (noteExists && ifExists === "skip") {
+    // `skip` == Leave not as-is, we just return the existing note.
+    if (!silent) await focusOrOpenFile(path);
+    return await getNoteDetails(path);
+  }
+
+  // Creating a periodic note
+  if (inputKey === NoteTargetingParamKey.PeriodicNote) {
+    if (noteExists) {
+      if (ifExists === "overwrite") {
+        await trashFilepath(path);
+      } else {
+        if (!silent) await focusOrOpenFile(path);
+        return await getNoteDetails(path);
+      }
+    }
+
+    const newNote = await createPeriodNote(periodicNoteType!);
+    if (!newNote) {
+      return failure(
+        ErrorCode.UnableToCreateNote,
+        STRINGS.unable_to_write_note,
+      );
+    }
+    if (!silent) await focusOrOpenFile(path);
+    return await getNoteDetails(path);
+  }
+
+  // Creating a regular note
+  const resCreate = (noteExists && ifExists === "overwrite")
+    ? await createOrOverwriteNote(path, "")
+    : await createNote(path, "");
+  if (!resCreate.isSuccess) return resCreate;
+  const newNote = resCreate.result;
 
   // If the user wants to apply a template, we need to check if the relevant
   // plugin is available, and if not, we return from here.
-  if (apply === "templater") {
-    const pluginRes = getEnabledCommunityPlugin("templater-obsidian");
-    if (!pluginRes.isSuccess) return pluginRes;
-    pluginInstance = pluginRes.result.templater;
-  } else if (apply === "templates") {
-    const pluginRes = getEnabledCorePlugin("templates");
-    if (!pluginRes.isSuccess) return pluginRes;
-    pluginInstance = pluginRes.result;
-  }
-
-  // If there already is a note with that name or at that path, deal with it.
-  const res = await getNote(file);
-  const noteExists = res.isSuccess;
-  if (noteExists && ifExists === "skip") {
-    // `skip` == Leave not as-is, we just return the existing note.
-    if (!silent) await focusOrOpenFile(file);
-    return await getNoteDetails(file);
-  }
-
-  const res2 = (noteExists && ifExists === "overwrite")
-    ? await createOrOverwriteNote(file, content)
-    : await createNote(file, content);
-  if (!res2.isSuccess) return res2;
-  const newNote = res2.result;
-
-  // If we're applying a template, we need to write it to the file. Testing for
-  // existence of template file is done by a zod schema, so we can be sure the
-  // file exists.
+  // Testing for existence of template file is done by a zod schema, so we can
+  // be sure the file exists.
   switch (apply) {
-    case "templater":
-      await pluginInstance.write_template_to_file(templateFile, newNote);
+    case CreateApplyParameterValue.Content:
+      await self().app.vault.modify(
+        newNote,
+        (incomingParams as CreateContentParams).content || "",
+      );
       break;
 
-    case "templates":
-      await applyCorePluginTemplate(templateFile!, newNote);
+    case CreateApplyParameterValue.Templater:
+      const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
+      if (!resPlugin1.isSuccess) return resPlugin1;
+      await resPlugin1.result.templater.write_template_to_file(
+        (incomingParams as CreateTemplateParams)["template-file"],
+        newNote,
+      );
+      break;
+
+    case CreateApplyParameterValue.Templates:
+      const resPlugin2 = getEnabledCorePlugin("templates");
+      if (!resPlugin2.isSuccess) return resPlugin2;
+      await applyCorePluginTemplate(
+        (<CreateTemplateParams> incomingParams)["template-file"],
+        newNote,
+      );
       break;
   }
 
@@ -383,16 +412,15 @@ async function handleCreate(
 async function handleAppend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = incomingParams as AppendParams;
   const {
     _computed: { inputKey, tFile, path: computedPath },
+    ["below-headline"]: belowHeadline,
+    ["create-if-not-found"]: shouldCreateNote,
+    ["ensure-newline"]: shouldEnsureNewline,
     content,
     silent,
     uid,
-  } = params;
-  const belowHeadline = params["below-headline"];
-  const shouldCreateNote = params["create-if-not-found"];
-  const shouldEnsureNewline = params["ensure-newline"];
+  } = incomingParams as AppendParams;
 
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
@@ -412,7 +440,9 @@ async function handleAppend(
   // If the file doesn't exist …
   if (!tFile) {
     // … check if we're supposed to create it. If not, back off.
-    if (!shouldCreateNote) return failure(404, STRINGS.note_not_found);
+    if (!shouldCreateNote) {
+      return failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    }
 
     // We're supposed to create the note. We try to create it.
     const resCreate = await createNote(path, "");
@@ -440,17 +470,16 @@ async function handleAppend(
 async function handlePrepend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = incomingParams as PrependParams;
   const {
     _computed: { inputKey, tFile, path: computedPath },
+    ["below-headline"]: belowHeadline,
+    ["create-if-not-found"]: shouldCreateNote,
+    ["ensure-newline"]: shouldEnsureNewline,
+    ["ignore-front-matter"]: shouldIgnoreFrontMatter,
     content,
     silent,
     uid,
-  } = params;
-  const belowHeadline = params["below-headline"];
-  const shouldCreateNote = params["create-if-not-found"];
-  const shouldEnsureNewline = params["ensure-newline"];
-  const shouldIgnoreFrontMatter = params["ignore-front-matter"];
+  } = incomingParams as PrependParams;
 
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
@@ -480,7 +509,9 @@ async function handlePrepend(
   // If the file doesn't exist …
   if (!tFile) {
     // … check if we're supposed to create it. If not, back off.
-    if (!shouldCreateNote) return failure(404, STRINGS.note_not_found);
+    if (!shouldCreateNote) {
+      return failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    }
 
     // We're supposed to create the note. We try to create it.
     const resCreate = await createNote(path, "");
@@ -564,9 +595,8 @@ async function handleTrash(
 async function handleRename(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = incomingParams as RenameParams;
-  const { _computed: { path } } = params;
-  const newPath = params["new-filename"];
+  const { _computed: { path }, ["new-filename"]: newPath } =
+    incomingParams as RenameParams;
 
   const res = await renameFilepath(path, newPath);
   return res.isSuccess ? success({ message: res.result }, path) : res;

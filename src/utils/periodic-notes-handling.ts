@@ -1,25 +1,35 @@
-import { TFile } from "obsidian";
+import { moment, TFile } from "obsidian";
 import {
   appHasDailyNotesPluginLoaded,
   appHasMonthlyNotesPluginLoaded,
   appHasQuarterlyNotesPluginLoaded,
   appHasWeeklyNotesPluginLoaded,
   appHasYearlyNotesPluginLoaded,
+  createDailyNote,
+  createMonthlyNote,
+  createQuarterlyNote,
+  createWeeklyNote,
+  createYearlyNote,
   getAllDailyNotes,
   getAllMonthlyNotes,
   getAllQuarterlyNotes,
   getAllWeeklyNotes,
   getAllYearlyNotes,
   getDailyNote,
+  getDailyNoteSettings,
   getMonthlyNote,
+  getMonthlyNoteSettings,
   getQuarterlyNote,
+  getQuarterlyNoteSettings,
   getWeeklyNote,
+  getWeeklyNoteSettings,
   getYearlyNote,
+  getYearlyNoteSettings,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { StringResultObject, TFileResultObject } from "../types";
-import { getNote } from "../utils/file-handling";
-import { failure, success } from "../utils/results-handling";
+import { getNote, sanitizeFilePath } from "../utils/file-handling";
+import { ErrorCode, failure, success } from "../utils/results-handling";
 
 export enum PeriodicNoteType {
   DailyNote = "daily",
@@ -27,6 +37,60 @@ export enum PeriodicNoteType {
   MonthlyNote = "monthly",
   QuarterlyNote = "quarterly",
   YearlyNote = "yearly",
+}
+
+export async function createPeriodNote(
+  periodicNoteType: PeriodicNoteType,
+): Promise<TFile> {
+  const now = moment();
+  switch (periodicNoteType) {
+    case PeriodicNoteType.DailyNote:
+      return createDailyNote(now);
+
+    case PeriodicNoteType.WeeklyNote:
+      return createWeeklyNote(now);
+
+    case PeriodicNoteType.MonthlyNote:
+      return createMonthlyNote(now);
+
+    case PeriodicNoteType.QuarterlyNote:
+      return createQuarterlyNote(now);
+
+    case PeriodicNoteType.YearlyNote:
+      return createYearlyNote(now);
+  }
+}
+
+export function periodicNoteFilePath(
+  periodicNoteType: PeriodicNoteType,
+  date: moment.Moment,
+): string {
+  let getSettingsFn: Function;
+  switch (periodicNoteType) {
+    case PeriodicNoteType.DailyNote:
+      getSettingsFn = getDailyNoteSettings;
+      break;
+
+    case PeriodicNoteType.WeeklyNote:
+      getSettingsFn = getWeeklyNoteSettings;
+      break;
+
+    case PeriodicNoteType.MonthlyNote:
+      getSettingsFn = getMonthlyNoteSettings;
+      break;
+
+    case PeriodicNoteType.QuarterlyNote:
+      getSettingsFn = getQuarterlyNoteSettings;
+      break;
+
+    case PeriodicNoteType.YearlyNote:
+      getSettingsFn = getYearlyNoteSettings;
+      break;
+  }
+
+  const { format, folder } = getSettingsFn();
+  const filename = date.format(format);
+  return sanitizeFilePath(`${folder}/${filename}.md`);
 }
 
 /**
@@ -37,12 +101,12 @@ export enum PeriodicNoteType {
  * functionality is available and there is a current daily note. Unsuccessful
  * `StringResultObject` if it isn't.
  */
-export function getPeriodNotePathIfPluginIsAvailable(
+export function getExistingPeriodNotePathIfPluginIsAvailable(
   periodicNoteType: PeriodicNoteType,
 ): StringResultObject {
-  var pluginLoadedCheck: () => boolean;
-  var getCurrentPeriodNote: () => TFile;
-  const now = window.moment();
+  let pluginLoadedCheck: () => boolean;
+  let getCurrentPeriodNote: () => TFile;
+  const now = moment();
 
   switch (periodicNoteType) {
     case PeriodicNoteType.DailyNote:
@@ -74,19 +138,21 @@ export function getPeriodNotePathIfPluginIsAvailable(
 
   if (!pluginLoadedCheck()) {
     return failure(
-      412,
+      ErrorCode.FeatureUnavailable,
       STRINGS[`${periodicNoteType}_note`].feature_not_available,
     );
   }
 
   const pNote = getCurrentPeriodNote();
-  return pNote ? success(pNote.path) : failure(404, STRINGS.note_not_found);
+  return pNote
+    ? success(pNote.path)
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }
 
 export function getCurrentPeriodNote(
   periodicNoteType: PeriodicNoteType,
 ): TFile | undefined {
-  const now = window.moment();
+  const now = moment();
 
   switch (periodicNoteType) {
     case PeriodicNoteType.DailyNote:

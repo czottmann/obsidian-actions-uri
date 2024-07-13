@@ -1,12 +1,5 @@
 import { z } from "zod";
 import { TFile } from "obsidian";
-import {
-  createDailyNote,
-  createMonthlyNote,
-  createQuarterlyNote,
-  createWeeklyNote,
-  createYearlyNote,
-} from "obsidian-daily-notes-interface";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
@@ -30,10 +23,11 @@ import {
 import { self } from "../utils/self";
 import {
   appHasPeriodPluginLoaded,
+  createPeriodNote,
   getAllPeriodNotes,
   getCurrentPeriodNote,
+  getExistingPeriodNotePathIfPluginIsAvailable,
   getMostRecentPeriodNote,
-  getPeriodNotePathIfPluginIsAvailable,
   PeriodicNoteType,
 } from "../utils/periodic-notes-handling";
 import {
@@ -241,7 +235,7 @@ function getHandleGetCurrent(
     const { silent } = <ReadParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const res = getPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const res = getExistingPeriodNotePathIfPluginIsAvailable(periodicNoteType);
     if (!res.isSuccess) return res;
     const filepath = res.result;
     if (shouldFocusNote) await focusOrOpenFile(filepath);
@@ -277,7 +271,7 @@ function getHandleOpenCurrent(
     // hand it back to the calling `handleIncomingCall()` (see `main.ts`) which
     // will take care of the rest.
 
-    const res = getPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const res = getExistingPeriodNotePathIfPluginIsAvailable(periodicNoteType);
     return res.isSuccess
       ? success({ message: STRINGS.note_opened }, res.result)
       : res;
@@ -316,7 +310,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
     const content = (apply === "content")
       ? (<createContentParams> params).content || ""
       : "";
-    var pluginInstance;
+    let pluginInstance;
 
     if (!appHasPeriodPluginLoaded(periodicNoteType)) {
       return failure(
@@ -419,7 +413,9 @@ function getHandleAppend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resGetPath = getPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const resGetPath = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (resGetPath.isSuccess) {
       const filepath = resGetPath.result;
       const resAppend = await appendAsRequested(filepath);
@@ -483,7 +479,9 @@ function getHandlePrepend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resGetPath = getPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const resGetPath = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (resGetPath.isSuccess) {
       const filepath = resGetPath.result;
       const resPrepend = await prependAsRequested(filepath);
@@ -523,7 +521,9 @@ function getHandleSearchStringAndReplace(
     const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const resDNP = getPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const resDNP = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (!resDNP.isSuccess) return resDNP;
     const filepath = resDNP.result;
 
@@ -543,7 +543,9 @@ function getHandleSearchRegexAndReplace(
     const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const resDNP = getPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const resDNP = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (!resDNP.isSuccess) return resDNP;
     const filepath = resDNP.result;
 
@@ -555,28 +557,4 @@ function getHandleSearchRegexAndReplace(
     if (shouldFocusNote) await focusOrOpenFile(filepath);
     return success({ message: res.result }, filepath);
   };
-}
-
-// HELPERS ----------------------------------------
-
-async function createPeriodNote(
-  periodicNoteType: PeriodicNoteType,
-): Promise<TFile> {
-  const now = window.moment();
-  switch (periodicNoteType) {
-    case PeriodicNoteType.DailyNote:
-      return createDailyNote(now);
-
-    case PeriodicNoteType.WeeklyNote:
-      return createWeeklyNote(now);
-
-    case PeriodicNoteType.MonthlyNote:
-      return createMonthlyNote(now);
-
-    case PeriodicNoteType.QuarterlyNote:
-      return createQuarterlyNote(now);
-
-    case PeriodicNoteType.YearlyNote:
-      return createYearlyNote(now);
-  }
 }

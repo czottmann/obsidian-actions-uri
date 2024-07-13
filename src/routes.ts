@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TFile } from "obsidian";
 import {
   AnyLocalParams as AnyCommandParams,
   routePath as commandRoutes,
@@ -127,3 +128,21 @@ export type AnyProcessedParams =
   | AnyTagsParams
   | AnyVaultParams
   | IncomingBaseParams;
+
+export enum CreateApplyParameterValue {
+  Content = "content",
+  Templater = "templater",
+  Templates = "templates",
+}
+
+export type CreateContentParams = {
+  apply: CreateApplyParameterValue.Content;
+  content?: string;
+};
+
+export type CreateTemplateParams = {
+  apply:
+    | CreateApplyParameterValue.Templater
+    | CreateApplyParameterValue.Templates;
+  "template-file": TFile;
+};

@@ -1,11 +1,18 @@
-import { parseFrontMatterEntry, TFile } from "obsidian";
+import { moment, parseFrontMatterEntry, TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
 import { self } from "./self";
-import { getPeriodNotePathIfPluginIsAvailable } from "./periodic-notes-handling";
+import {
+  appHasPeriodPluginLoaded,
+  periodicNoteFilePath,
+} from "./periodic-notes-handling";
 import { failure, success } from "./results-handling";
-import { NoteTargetingComputedValues, NoteTargetingParams } from "../schemata";
-import { StringResultObject } from "../types";
+import {
+  NoteTargetingComputedValues,
+  NoteTargetingParamKey,
+  NoteTargetingParams,
+} from "../schemata";
+import { StringResultObject } from "../types.d";
 import { zodExistingNotePath } from "./zod";
 
 /**
@@ -84,7 +91,11 @@ function validateNoteTargetingAndResolvePath<T>(
   const input = data as NoteTargetingParams;
 
   // Validate that only one of the three keys is present
-  const keysCount = ["file", "uid", "periodic-note"]
+  const keysCount = [
+    NoteTargetingParamKey.File,
+    NoteTargetingParamKey.UID,
+    NoteTargetingParamKey.PeriodicNote,
+  ]
     .filter((key) => key in input)
     .length;
 
@@ -97,27 +108,42 @@ function validateNoteTargetingAndResolvePath<T>(
   }
 
   // Get the requested file path
-  let inputKey = "";
+  let inputKey: NoteTargetingParamKey;
   let path = "";
-  if (input.file) {
-    inputKey = "file";
-    path = input.file;
-  } else if (input.uid) {
-    inputKey = "uid";
-    const res = filepathForUID(input.uid);
+  if (NoteTargetingParamKey.File in input) {
+    const val = input[NoteTargetingParamKey.File];
+    inputKey = NoteTargetingParamKey.File;
+    path = val!;
+  } //
+  else if (NoteTargetingParamKey.UID in input) {
+    const val = input[NoteTargetingParamKey.UID];
+    inputKey = NoteTargetingParamKey.UID;
+
+    const res = filepathForUID(val!);
     path = res.isSuccess ? res.result : "";
-  } else if (input["periodic-note"]) {
-    inputKey = "periodic-note";
-    const res = getPeriodNotePathIfPluginIsAvailable(input["periodic-note"]);
-    path = res.isSuccess ? res.result : "";
+  } //
+  else if (input[NoteTargetingParamKey.PeriodicNote]) {
+    const val = input[NoteTargetingParamKey.PeriodicNote]!;
+    inputKey = NoteTargetingParamKey.PeriodicNote;
+
+    const isPluginAvailable = appHasPeriodPluginLoaded(val);
+    if (!isPluginAvailable) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: STRINGS[`${val}_note`].feature_not_available,
+      });
+      return z.NEVER;
+    }
+
+    path = periodicNoteFilePath(val, moment());
   }
 
   // Validate that the requested note path exists
   let tFile: TFile | undefined;
   if (path != "") {
-    const res = zodExistingNotePath.safeParse(path);
-    if (res.success) {
-      tFile = res.data as TFile;
+    const resFileTest = zodExistingNotePath.safeParse(path);
+    if (resFileTest.success) {
+      tFile = resFileTest.data as TFile;
     }
   }
 
@@ -133,7 +159,7 @@ function validateNoteTargetingAndResolvePath<T>(
   return {
     ...data,
     _computed: {
-      inputKey,
+      inputKey: inputKey!,
       path,
       tFile,
     },
