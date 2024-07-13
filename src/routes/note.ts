@@ -5,6 +5,7 @@ import {
   AnyParams,
   CreateApplyParameterValue,
   CreateContentParams,
+  CreatePeriodicNoteParams,
   CreateTemplateParams,
   RoutePath,
 } from "../routes";
@@ -105,30 +106,39 @@ const openParams = incomingBaseParams
   .transform(hardValidateNoteTargetingAndResolvePath);
 type OpenParams = z.infer<typeof openParams>;
 
-const createBaseParams = incomingBaseParams
-  .merge(noteTargetingParams.omit({ uid: true }))
+const createStandardNoteParams = incomingBaseParams
   .extend({
+    file: zodSanitizedNotePath,
     "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
     silent: zodOptionalBoolean,
   });
 const createParams = z.union([
-  createBaseParams.extend({
-    // This sets the default value for `apply` to `content`. The default fallback
-    // only works when the `apply` is missing from the input; if it's there but
-    // empty, the default won't be applied, and the route will return an error.
-    apply: z.literal(CreateApplyParameterValue.Content)
-      .optional()
-      .default(CreateApplyParameterValue.Content),
-    content: z.string().optional(),
-  }),
-  createBaseParams.extend({
-    apply: z.literal(CreateApplyParameterValue.Templater),
-    "template-file": zodExistingTemplaterPath,
-  }),
-  createBaseParams.extend({
-    apply: z.literal(CreateApplyParameterValue.Templates),
-    "template-file": zodExistingTemplatesPath,
-  }),
+  createStandardNoteParams
+    .extend({
+      // This sets the default value for `apply` to `content`. The default fallback
+      // only works when the `apply` is missing from the input; if it's there but
+      // empty, the default won't be applied, and the route will return an error.
+      apply: z.literal(CreateApplyParameterValue.Content)
+        .optional()
+        .default(CreateApplyParameterValue.Content),
+      content: z.string().optional(),
+    }),
+  createStandardNoteParams
+    .extend({
+      apply: z.literal(CreateApplyParameterValue.Templater),
+      "template-file": zodExistingTemplaterPath,
+    }),
+  createStandardNoteParams
+    .extend({
+      apply: z.literal(CreateApplyParameterValue.Templates),
+      "template-file": zodExistingTemplatesPath,
+    }),
+  incomingBaseParams
+    .extend({
+      "periodic-note": z.nativeEnum(PeriodicNoteType),
+      "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
+      silent: zodOptionalBoolean,
+    }),
 ])
   .transform(softValidateNoteTargetingAndResolvePath);
 type CreateParams = z.infer<typeof createParams>;
@@ -334,8 +344,6 @@ async function handleCreate(
   const {
     _computed: { inputKey, path },
     ["if-exists"]: ifExists,
-    ["periodic-note"]: periodicNoteType,
-    apply,
     silent,
   } = incomingParams as CreateParams;
   const shouldOverwrite = ifExists === "overwrite";
@@ -353,14 +361,14 @@ async function handleCreate(
   return inputKey === NoteTargetingParamKey.PeriodicNote
     ? await createPeriodicNote(
       path,
-      periodicNoteType!,
+      (incomingParams as CreatePeriodicNoteParams)["periodic-note"],
       noteExists,
       shouldOverwrite,
       shouldFocusNote,
     )
     : await createGeneralNote(
       path,
-      apply,
+      (incomingParams as CreateContentParams).apply,
       (incomingParams as CreateContentParams).content,
       (incomingParams as CreateTemplateParams)["template-file"],
       noteExists,

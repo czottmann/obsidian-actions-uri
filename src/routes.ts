@@ -51,6 +51,7 @@ import {
 } from "./routes/tags";
 import { IncomingBaseParams, NoteTargetingComputedValues } from "./schemata";
 import { HandlerFunction } from "./types";
+import { PeriodicNoteType } from "./utils/periodic-notes-handling";
 
 export const routes: RoutePath = {
   ...rootRoutes,
@@ -145,4 +146,8 @@ export type CreateTemplateParams = {
     | CreateApplyParameterValue.Templater
     | CreateApplyParameterValue.Templates;
   "template-file": TFile;
+};
+
+export type CreatePeriodicNoteParams = {
+  "periodic-note": PeriodicNoteType;
 };
