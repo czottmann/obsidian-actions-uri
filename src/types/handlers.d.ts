@@ -47,6 +47,7 @@ export type HandlerFileSuccess = Readonly<
       body?: string;
       frontMatter?: string;
       properties?: NoteProperties;
+      uid?: string | string[];
     };
   }
 >;

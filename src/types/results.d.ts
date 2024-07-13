@@ -38,5 +38,6 @@ export type NoteDetailsResultObject =
     body: string;
     frontMatter: string;
     properties: NoteProperties;
+    uid?: string | string[];
   }>
   | ErrorObject;

@@ -164,12 +164,14 @@ export async function getNoteDetails(
   const file = res.result;
   const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
+  const properties = propertiesForFile(file);
   return success({
     filepath,
     content,
     body,
     frontMatter: unwrapFrontMatter(frontMatter),
-    properties: propertiesForFile(file),
+    properties,
+    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
   });
 }
 
@@ -251,13 +253,15 @@ export async function updateNote(
 
   // Without this delay, `propertiesForFile()` will return outdated properties.
   await pause(200);
+  const properties = propertiesForFile(file);
 
   return success({
     filepath,
     content: newNoteContent,
     body,
     frontMatter,
-    properties: propertiesForFile(file),
+    properties,
+    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
   });
 }
 
