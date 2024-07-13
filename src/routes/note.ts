@@ -47,7 +47,10 @@ import {
 import { ErrorCode, failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { parseStringIntoRegex } from "../utils/string-handling";
-import { createPeriodNote } from "../utils/periodic-notes-handling";
+import {
+  createPeriodNote,
+  PeriodicNoteType,
+} from "../utils/periodic-notes-handling";
 import { focusOrOpenFile } from "../utils/ui";
 import {
   zodAlwaysFalse,
@@ -335,6 +338,8 @@ async function handleCreate(
     apply,
     silent,
   } = incomingParams as CreateParams;
+  const shouldOverwrite = ifExists === "overwrite";
+  const shouldFocusNote = !silent;
 
   // If there already is a note with that name or at that path, deal with it.
   const resNoteExists = await getNote(path);
@@ -345,68 +350,23 @@ async function handleCreate(
     return await getNoteDetails(path);
   }
 
-  // Creating a periodic note
-  if (inputKey === NoteTargetingParamKey.PeriodicNote) {
-    if (noteExists) {
-      if (ifExists === "overwrite") {
-        await trashFilepath(path);
-      } else {
-        if (!silent) await focusOrOpenFile(path);
-        return await getNoteDetails(path);
-      }
-    }
-
-    const newNote = await createPeriodNote(periodicNoteType!);
-    if (!newNote) {
-      return failure(
-        ErrorCode.UnableToCreateNote,
-        STRINGS.unable_to_write_note,
-      );
-    }
-    if (!silent) await focusOrOpenFile(path);
-    return await getNoteDetails(path);
-  }
-
-  // Creating a regular note
-  const resCreate = (noteExists && ifExists === "overwrite")
-    ? await createOrOverwriteNote(path, "")
-    : await createNote(path, "");
-  if (!resCreate.isSuccess) return resCreate;
-  const newNote = resCreate.result;
-
-  // If the user wants to apply a template, we need to check if the relevant
-  // plugin is available, and if not, we return from here.
-  // Testing for existence of template file is done by a zod schema, so we can
-  // be sure the file exists.
-  switch (apply) {
-    case CreateApplyParameterValue.Content:
-      await self().app.vault.modify(
-        newNote,
-        (incomingParams as CreateContentParams).content || "",
-      );
-      break;
-
-    case CreateApplyParameterValue.Templater:
-      const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
-      if (!resPlugin1.isSuccess) return resPlugin1;
-      await resPlugin1.result.templater.write_template_to_file(
-        (incomingParams as CreateTemplateParams)["template-file"],
-        newNote,
-      );
-      break;
-
-    case CreateApplyParameterValue.Templates:
-      const resPlugin2 = getEnabledCorePlugin("templates");
-      if (!resPlugin2.isSuccess) return resPlugin2;
-      await applyCorePluginTemplate(
-        (<CreateTemplateParams> incomingParams)["template-file"],
-        newNote,
-      );
-      break;
-  }
-
-  if (!silent) await focusOrOpenFile(newNote.path);
-  return await getNoteDetails(newNote.path);
+  return inputKey === NoteTargetingParamKey.PeriodicNote
+    ? await createPeriodicNote(
+      path,
+      periodicNoteType!,
+      noteExists,
+      shouldOverwrite,
+      shouldFocusNote,
+    )
+    : await createGeneralNote(
+      path,
+      apply,
+      (incomingParams as CreateContentParams).content,
+      (incomingParams as CreateTemplateParams)["template-file"],
+      noteExists,
+      shouldOverwrite,
+      shouldFocusNote,
+    );
 }
 
 async function handleAppend(
@@ -600,4 +560,74 @@ async function handleRename(
 
   const res = await renameFilepath(path, newPath);
   return res.isSuccess ? success({ message: res.result }, path) : res;
+}
+
+async function createPeriodicNote(
+  path: string,
+  periodicNoteType: PeriodicNoteType,
+  noteExists: boolean,
+  shouldOverwrite: boolean,
+  shouldFocusNote: boolean,
+): Promise<HandlerFileSuccess | HandlerFailure> {
+  if (noteExists) {
+    if (shouldOverwrite) {
+      await trashFilepath(path);
+    } else {
+      if (shouldFocusNote) await focusOrOpenFile(path);
+      return await getNoteDetails(path);
+    }
+  }
+
+  const newNote = await createPeriodNote(periodicNoteType);
+  if (!newNote) {
+    return failure(
+      ErrorCode.UnableToCreateNote,
+      STRINGS.unable_to_write_note,
+    );
+  }
+
+  if (shouldFocusNote) await focusOrOpenFile(path);
+  return await getNoteDetails(path);
+}
+
+async function createGeneralNote(
+  path: string,
+  apply: CreateApplyParameterValue,
+  content: string | undefined,
+  templateFile: TFile | undefined,
+  noteExists: boolean,
+  shouldOverwrite: boolean,
+  shouldFocusNote: boolean,
+): Promise<HandlerFileSuccess | HandlerFailure> {
+  const resCreate = (noteExists && shouldOverwrite)
+    ? await createOrOverwriteNote(path, "")
+    : await createNote(path, "");
+  if (!resCreate.isSuccess) return resCreate;
+  const newNote = resCreate.result;
+
+  // If the user wants to apply a template, we need to check if the relevant
+  // plugin is available, and if not, we return from here.
+  // Testing for existence of template file is done by a zod schema, so we can
+  // be sure the file exists.
+  switch (apply) {
+    case CreateApplyParameterValue.Content:
+      await self().app.vault.modify(newNote, content || "");
+      break;
+
+    case CreateApplyParameterValue.Templater:
+      const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
+      if (!resPlugin1.isSuccess) return resPlugin1;
+      await resPlugin1.result.templater
+        .write_template_to_file(templateFile!, newNote);
+      break;
+
+    case CreateApplyParameterValue.Templates:
+      const resPlugin2 = getEnabledCorePlugin("templates");
+      if (!resPlugin2.isSuccess) return resPlugin2;
+      await applyCorePluginTemplate(templateFile!, newNote);
+      break;
+  }
+
+  if (shouldFocusNote) await focusOrOpenFile(newNote.path);
+  return await getNoteDetails(newNote.path);
 }
