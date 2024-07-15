@@ -1,66 +1,44 @@
 import { stringifyYaml } from "obsidian";
 import { z } from "zod";
-import { PERIOD_IDS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { incomingBaseParams, noteTargetingParams } from "../schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerPropertiesSuccess,
-  TFileResultObject,
 } from "../types";
-import { getNote, propertiesForFile, updateNote } from "../utils/file-handling";
-import {
-  getPeriodNotePathIfPluginIsAvailable,
-} from "../utils/periodic-notes-handling";
+import { propertiesForFile, updateNote } from "../utils/file-handling";
+import { hardValidateNoteTargetingAndResolvePath } from "../utils/parameters";
 import { helloRoute } from "../utils/routing";
 import { success } from "../utils/results-handling";
-import {
-  zodExistingNotePath,
-  zodJsonPropertiesObject,
-  zodJsonStringArray,
-} from "../utils/zod";
+import { zodJsonPropertiesObject, zodJsonStringArray } from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
-const defaultFileParams = incomingBaseParams.extend({
-  file: zodExistingNotePath,
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
-});
-type DefaultFileParams = z.infer<typeof defaultFileParams>;
-
-const defaultPeriodicNoteParams = incomingBaseParams.extend({
-  "periodic-note": z.enum(PERIOD_IDS),
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
-});
-type DefaultPeriodicNoteParams = z.infer<typeof defaultPeriodicNoteParams>;
-
-const getParams = z.union([defaultFileParams, defaultPeriodicNoteParams]);
+const getParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
+    "x-error": z.string().url(),
+    "x-success": z.string().url(),
+  })
+  .transform(hardValidateNoteTargetingAndResolvePath);
 type GetParams = z.infer<typeof getParams>;
 
-const setParams = z.union([
-  defaultFileParams.extend({
+const setParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
     properties: zodJsonPropertiesObject,
     mode: z.enum(["overwrite", "update"]).optional(),
-  }),
-  defaultPeriodicNoteParams.extend({
-    properties: zodJsonPropertiesObject,
-    mode: z.enum(["overwrite", "update"]).optional(),
-  }),
-]);
+  })
+  .transform(hardValidateNoteTargetingAndResolvePath);
 type SetParams = z.infer<typeof setParams>;
 
-const removeKeysParams = z.union([
-  defaultFileParams.extend({
+const removeKeysParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
     keys: zodJsonStringArray,
-  }),
-  defaultPeriodicNoteParams.extend({
-    keys: zodJsonStringArray,
-  }),
-]);
-
+  })
+  .transform(hardValidateNoteTargetingAndResolvePath);
 type RemoveKeysParams = z.infer<typeof removeKeysParams>;
 
 export type AnyLocalParams =
@@ -89,76 +67,37 @@ export const routePath: RoutePath = {
 async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerPropertiesSuccess | HandlerFailure> {
-  const params = <GetParams> incomingParams;
-  const resFile = await getTargetTFile(params);
-  if (!resFile.isSuccess) return resFile;
-
-  return success({ properties: propertiesForFile(resFile.result) });
+  const { _computed: { tFile } } = incomingParams as GetParams;
+  return success({ properties: propertiesForFile(tFile!) });
 }
 
 async function handleSet(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = <SetParams> incomingParams;
-
-  const resFile = await getTargetTFile(params);
-  if (!resFile.isSuccess) return resFile;
-  const file = resFile.result;
-
-  const { mode, properties } = params;
+  const { _computed: { tFile }, mode, properties } =
+    incomingParams as SetParams;
   const props = mode === "update"
-    ? { ...propertiesForFile(file), ...properties }
+    ? { ...propertiesForFile(tFile!), ...properties }
     : properties;
 
-  return updateNote(file.path, stringifyYaml(props).trim());
+  return updateNote(tFile!.path, stringifyYaml(props).trim());
 }
 
 async function handleClear(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = <GetParams> incomingParams;
-
-  const resFile = await getTargetTFile(params);
-  if (!resFile.isSuccess) return resFile;
-  const file = resFile.result;
-
-  return updateNote(file.path, "");
+  const { _computed: { path } } = incomingParams as GetParams;
+  return updateNote(path, "");
 }
 
 async function handleRemoveKeys(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = <RemoveKeysParams> incomingParams;
+  const { _computed: { path, tFile }, keys } =
+    incomingParams as RemoveKeysParams;
 
-  const resFile = await getTargetTFile(params);
-  if (!resFile.isSuccess) return resFile;
-  const file = resFile.result;
-
-  const { keys } = params;
-  const props = propertiesForFile(file)!;
+  const props = propertiesForFile(tFile!)!;
   (<string[]> keys).forEach((key) => delete props[key]);
 
-  return updateNote(file.path, stringifyYaml(props).trim());
-}
-
-// HELPERS --------------------
-
-function paramsContainFilePath(params: AnyParams): boolean {
-  return "file" in params;
-}
-
-async function getTargetTFile(
-  params: AnyParams,
-): Promise<TFileResultObject> {
-  // Target is a file path
-  if (paramsContainFilePath(params)) {
-    return success((<DefaultFileParams> params).file);
-  }
-
-  const periodicID = (<DefaultPeriodicNoteParams> params)["periodic-note"];
-  const res = getPeriodNotePathIfPluginIsAvailable(periodicID);
-  if (!res.isSuccess) return res;
-
-  const filepath = res.result;
-  return await getNote(filepath);
+  return updateNote(path, stringifyYaml(props).trim());
 }

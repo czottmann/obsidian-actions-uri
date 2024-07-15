@@ -24,3 +24,11 @@ export function success<T>(
 export function failure(errorCode: number, errorMessage: string): ErrorObject {
   return { isSuccess: false, errorCode, errorMessage };
 }
+
+export enum ErrorCode {
+  NotFound = 404,
+  PluginUnavailable = 424,
+  FeatureUnavailable = 424,
+  UnableToCreateNote = 400,
+  NoteAlreadyExists = 409,
+}

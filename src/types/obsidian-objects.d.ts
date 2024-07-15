@@ -13,6 +13,7 @@ export interface RealLifeApp extends App {
     listCommands(): Command[];
   };
   internalPlugins: any;
+  metadataCache: RealLifeMetadataCache;
   plugins: any;
 }
 
@@ -31,4 +32,6 @@ export interface RealLifeDataAdapter extends DataAdapter {
 
 export interface RealLifeMetadataCache extends MetadataCache {
   getTags(): Record<string, number>;
+  fileCache: Record<string, { mtime: number; size: number; hash: string }>;
+  metadataCache: Record<string, { frontmatter: Record<string, any> }>;
 }

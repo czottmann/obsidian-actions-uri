@@ -1,4 +1,4 @@
-import { AnyParams } from "../routes";
+import { AnyProcessedParams } from "../routes";
 
 /**
  * A handler function is a function that is responsible for dealing with a
@@ -10,7 +10,7 @@ import { AnyParams } from "../routes";
  * @returns A handler result object
  */
 export type HandlerFunction = (
-  incomingParams: AnyParams,
+  incomingParams: AnyProcessedParams,
 ) => Promise<AnyHandlerResult>;
 
 type HandlerResult = {
@@ -47,6 +47,7 @@ export type HandlerFileSuccess = Readonly<
       body?: string;
       frontMatter?: string;
       properties?: NoteProperties;
+      uid?: string | string[];
     };
   }
 >;

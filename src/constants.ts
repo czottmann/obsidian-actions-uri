@@ -13,6 +13,8 @@ export const STRINGS = {
   dataview_dql_must_start_with_table: 'DQL must start with "TABLE"',
   dataview_plugin_not_available: "Dataview plugin is not active",
   delete_done: "Successfully deleted",
+  faulty_note_targeting:
+    "Either 'file', 'uid', or 'periodic-note' must be provided",
   file_not_found: "File couldn't be found",
   file_opened: "File opened",
   folder_created: "Folder created",
@@ -63,13 +65,5 @@ export const STRINGS = {
     feature_not_available: "Periodic Notes' Yearly feature is not active",
   },
 };
-
-export const PERIOD_IDS = [
-  "daily",
-  "weekly",
-  "monthly",
-  "quarterly",
-  "yearly",
-] as const;
 
 export const XCALLBACK_RESULT_PREFIX = "result";

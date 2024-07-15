@@ -3,7 +3,7 @@ import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "./plugins";
 import { pause } from "./time";
 import { STRINGS } from "../constants";
 import { OmnisearchAPI, SearchResultObject } from "../types";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "./self";
 import { failure, success } from "../utils/results-handling";
 
 /**
@@ -24,7 +24,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   // Open the global search panel and wait for it to load
   const pluginInstance = res.result;
   pluginInstance.openGlobalSearch(query);
-  const searchLeaf = obsEnv.activeWorkspace.getLeavesOfType("search")[0];
+  const searchLeaf = self().app.workspace.getLeavesOfType("search")[0];
   const searchView = await searchLeaf.open(searchLeaf.view);
   await pause(2000);
 

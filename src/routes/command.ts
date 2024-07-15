@@ -9,7 +9,7 @@ import {
 } from "../types";
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 import { pause } from "../utils/time";
 import { zodAlwaysFalse, zodCommaSeparatedStrings } from "../utils/zod";
 
@@ -51,7 +51,7 @@ export const routePath: RoutePath = {
 async function handleList(
   incomingParams: AnyParams,
 ): Promise<HandlerCommandsSuccess | HandlerFailure> {
-  const commands = obsEnv.app.commands
+  const commands = self().app.commands
     .listCommands()
     .map((cmd) => ({ id: cmd.id, name: cmd.name }));
 
@@ -67,7 +67,7 @@ async function handleExecute(
 
   for (let idx = 0; idx < commands.length; idx++) {
     const cmd = commands[idx];
-    const wasSuccess = obsEnv.app.commands.executeCommandById(cmd);
+    const wasSuccess = self().app.commands.executeCommandById(cmd);
 
     // If this call wasn't successful, stop the sequence and return an error.
     if (!wasSuccess) {

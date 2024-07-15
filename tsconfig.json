@@ -1,26 +1,24 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "baseUrl": ".",
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
     "isolatedModules": true,
     "lib": [
       "DOM",
-      "ES5",
-      "ES6",
-      "ES7",
-      "ESNext"
+      "ES2022",
     ],
     "module": "ESNext",
     "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
     "strict": true,
-    "strictNullChecks": true,
-    "target": "ES6"
+    "target": "ES2022"
   },
   "include": [
     "**/*.ts"

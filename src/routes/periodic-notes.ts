@@ -1,13 +1,6 @@
 import { z } from "zod";
 import { TFile } from "obsidian";
-import {
-  createDailyNote,
-  createMonthlyNote,
-  createQuarterlyNote,
-  createWeeklyNote,
-  createYearlyNote,
-} from "obsidian-daily-notes-interface";
-import { PERIOD_IDS, STRINGS } from "../constants";
+import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
 import {
@@ -16,7 +9,6 @@ import {
   HandlerFunction,
   HandlerPathsSuccess,
   HandlerTextSuccess,
-  PeriodType,
 } from "../types";
 import {
   appendNote,
@@ -28,13 +20,15 @@ import {
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 import {
   appHasPeriodPluginLoaded,
+  createPeriodNote,
   getAllPeriodNotes,
   getCurrentPeriodNote,
+  getExistingPeriodNotePathIfPluginIsAvailable,
   getMostRecentPeriodNote,
-  getPeriodNotePathIfPluginIsAvailable,
+  PeriodicNoteType,
 } from "../utils/periodic-notes-handling";
 import {
   getEnabledCommunityPlugin,
@@ -155,54 +149,58 @@ export type AnyLocalParams =
 // ROUTES ----------------------------------------
 
 const routes: RoutePath = {};
-for (const periodID of PERIOD_IDS) {
-  routes[`${periodID}-note`] = [
+for (const periodicNoteType of Object.values(PeriodicNoteType)) {
+  routes[`${periodicNoteType}-note`] = [
     helloRoute(),
-    { path: "/list", schema: listParams, handler: getHandleList(periodID) },
+    {
+      path: "/list",
+      schema: listParams,
+      handler: getHandleList(periodicNoteType),
+    },
     {
       path: "/get-current",
       schema: readParams,
-      handler: getHandleGetCurrent(periodID),
+      handler: getHandleGetCurrent(periodicNoteType),
     },
     {
       path: "/get-most-recent",
       schema: readParams,
-      handler: getHandleGetMostRecent(periodID),
+      handler: getHandleGetMostRecent(periodicNoteType),
     },
     {
       path: "/open-current",
       schema: openParams,
-      handler: getHandleOpenCurrent(periodID),
+      handler: getHandleOpenCurrent(periodicNoteType),
     },
     {
       path: "/open-most-recent",
       schema: openParams,
-      handler: getHandleOpenMostRecent(periodID),
+      handler: getHandleOpenMostRecent(periodicNoteType),
     },
     {
       path: "/create",
       schema: createParams,
-      handler: getHandleCreate(periodID),
+      handler: getHandleCreate(periodicNoteType),
     },
     {
       path: "/append",
       schema: appendParams,
-      handler: getHandleAppend(periodID),
+      handler: getHandleAppend(periodicNoteType),
     },
     {
       path: "/prepend",
       schema: prependParams,
-      handler: getHandlePrepend(periodID),
+      handler: getHandlePrepend(periodicNoteType),
     },
     {
       path: "/search-string-and-replace",
       schema: searchAndReplaceParams,
-      handler: getHandleSearchStringAndReplace(periodID),
+      handler: getHandleSearchStringAndReplace(periodicNoteType),
     },
     {
       path: "/search-regex-and-replace",
       schema: searchAndReplaceParams,
-      handler: getHandleSearchRegexAndReplace(periodID),
+      handler: getHandleSearchRegexAndReplace(periodicNoteType),
     },
   ];
 }
@@ -210,29 +208,34 @@ export const routePath = routes;
 
 // HANDLERS ----------------------------------------
 
-function getHandleList(periodID: PeriodType): HandlerFunction {
+function getHandleList(periodicNoteType: PeriodicNoteType): HandlerFunction {
   return async function handleList(
     incoming: AnyParams,
   ): Promise<HandlerPathsSuccess | HandlerFailure> {
-    if (!appHasPeriodPluginLoaded(periodID)) {
-      return failure(412, STRINGS[`${periodID}_note`].feature_not_available);
+    if (!appHasPeriodPluginLoaded(periodicNoteType)) {
+      return failure(
+        412,
+        STRINGS[`${periodicNoteType}_note`].feature_not_available,
+      );
     }
 
-    const notes = getAllPeriodNotes(periodID);
+    const notes = getAllPeriodNotes(periodicNoteType);
     return success({
       paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
     });
   };
 }
 
-function getHandleGetCurrent(periodID: PeriodType): HandlerFunction {
+function getHandleGetCurrent(
+  periodicNoteType: PeriodicNoteType,
+): HandlerFunction {
   return async function handleGetCurrent(
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
     const { silent } = <ReadParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const res = getPeriodNotePathIfPluginIsAvailable(periodID);
+    const res = getExistingPeriodNotePathIfPluginIsAvailable(periodicNoteType);
     if (!res.isSuccess) return res;
     const filepath = res.result;
     if (shouldFocusNote) await focusOrOpenFile(filepath);
@@ -240,14 +243,16 @@ function getHandleGetCurrent(periodID: PeriodType): HandlerFunction {
   };
 }
 
-function getHandleGetMostRecent(periodID: PeriodType): HandlerFunction {
+function getHandleGetMostRecent(
+  periodicNoteType: PeriodicNoteType,
+): HandlerFunction {
   return async function handleGetMostRecent(
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
     const { silent } = <ReadParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const res = await getMostRecentPeriodNote(periodID);
+    const res = await getMostRecentPeriodNote(periodicNoteType);
     if (!res.isSuccess) return res;
     const filepath = res.result.path;
     if (shouldFocusNote) await focusOrOpenFile(filepath);
@@ -255,7 +260,9 @@ function getHandleGetMostRecent(periodID: PeriodType): HandlerFunction {
   };
 }
 
-function getHandleOpenCurrent(periodID: PeriodType): HandlerFunction {
+function getHandleOpenCurrent(
+  periodicNoteType: PeriodicNoteType,
+): HandlerFunction {
   return async function handleOpenCurrent(
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
@@ -264,14 +271,16 @@ function getHandleOpenCurrent(periodID: PeriodType): HandlerFunction {
     // hand it back to the calling `handleIncomingCall()` (see `main.ts`) which
     // will take care of the rest.
 
-    const res = getPeriodNotePathIfPluginIsAvailable(periodID);
+    const res = getExistingPeriodNotePathIfPluginIsAvailable(periodicNoteType);
     return res.isSuccess
       ? success({ message: STRINGS.note_opened }, res.result)
       : res;
   };
 }
 
-function getHandleOpenMostRecent(periodID: PeriodType): HandlerFunction {
+function getHandleOpenMostRecent(
+  periodicNoteType: PeriodicNoteType,
+): HandlerFunction {
   return async function handleOpenMostRecent(
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
@@ -280,14 +289,14 @@ function getHandleOpenMostRecent(periodID: PeriodType): HandlerFunction {
     // hand it back to the calling `handleIncomingCall()` (see `main.ts`) which
     // will take care of the rest.
 
-    const res = await getMostRecentPeriodNote(periodID);
+    const res = await getMostRecentPeriodNote(periodicNoteType);
     return res.isSuccess
       ? success({ message: STRINGS.note_opened }, res.result.path)
       : res;
   };
 }
 
-function getHandleCreate(periodID: PeriodType): HandlerFunction {
+function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
   return async function handleCreate(
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
@@ -301,10 +310,13 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
     const content = (apply === "content")
       ? (<createContentParams> params).content || ""
       : "";
-    var pluginInstance;
+    let pluginInstance;
 
-    if (!appHasPeriodPluginLoaded(periodID)) {
-      return failure(412, STRINGS[`${periodID}_note`].feature_not_available);
+    if (!appHasPeriodPluginLoaded(periodicNoteType)) {
+      return failure(
+        412,
+        STRINGS[`${periodicNoteType}_note`].feature_not_available,
+      );
     }
 
     // If the user wants to apply a template, we need to check if the relevant
@@ -320,7 +332,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
     }
 
     // If there already is a note for today, deal with it.
-    const pNote = getCurrentPeriodNote(periodID);
+    const pNote = getCurrentPeriodNote(periodicNoteType);
     if (pNote instanceof TFile) {
       switch (ifExists) {
         // `skip` == Leave not as-is, we just return the existing note.
@@ -331,19 +343,19 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
         // Overwrite the existing note.
         case "overwrite":
           // Delete existing note, but keep going afterwards.
-          await obsEnv.activeVault.trash(pNote, false);
+          await self().app.vault.trash(pNote, false);
           break;
 
         default:
           return failure(
             409,
-            STRINGS[`${periodID}_note`].create_note_already_exists,
+            STRINGS[`${periodicNoteType}_note`].create_note_already_exists,
           );
       }
     }
 
     // There is no note for today.  Let's create one!
-    const newNote = await createPeriodNote(periodID);
+    const newNote = await createPeriodNote(periodicNoteType);
     if (!(newNote instanceof TFile)) {
       return failure(400, STRINGS.unable_to_write_note);
     }
@@ -375,7 +387,7 @@ function getHandleCreate(periodID: PeriodType): HandlerFunction {
   };
 }
 
-function getHandleAppend(periodID: PeriodType): HandlerFunction {
+function getHandleAppend(periodicNoteType: PeriodicNoteType): HandlerFunction {
   return async function handleAppend(
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
@@ -401,7 +413,9 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resGetPath = getPeriodNotePathIfPluginIsAvailable(periodID);
+    const resGetPath = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (resGetPath.isSuccess) {
       const filepath = resGetPath.result;
       const resAppend = await appendAsRequested(filepath);
@@ -419,7 +433,7 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
     if (!shouldCreateNote) return resGetPath;
 
     // We're allowed to create the file, so let's do that.
-    const newNote = await createPeriodNote(periodID);
+    const newNote = await createPeriodNote(periodicNoteType);
     if (newNote instanceof TFile) {
       const resAppend2 = await appendAsRequested(newNote.path);
       if (!resAppend2.isSuccess) return resAppend2;
@@ -432,7 +446,7 @@ function getHandleAppend(periodID: PeriodType): HandlerFunction {
   };
 }
 
-function getHandlePrepend(periodID: PeriodType): HandlerFunction {
+function getHandlePrepend(periodicNoteType: PeriodicNoteType): HandlerFunction {
   return async function handlePrepend(
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
@@ -465,7 +479,9 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resGetPath = getPeriodNotePathIfPluginIsAvailable(periodID);
+    const resGetPath = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (resGetPath.isSuccess) {
       const filepath = resGetPath.result;
       const resPrepend = await prependAsRequested(filepath);
@@ -483,7 +499,7 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
     if (!shouldCreateNote) return resGetPath;
 
     // We're allowed to create the file, so let's do that.
-    const newNote = await createPeriodNote(periodID);
+    const newNote = await createPeriodNote(periodicNoteType);
     if (newNote instanceof TFile) {
       const resPrepend2 = await prependAsRequested(newNote.path);
       if (!resPrepend2.isSuccess) return resPrepend2;
@@ -497,7 +513,7 @@ function getHandlePrepend(periodID: PeriodType): HandlerFunction {
 }
 
 function getHandleSearchStringAndReplace(
-  periodID: PeriodType,
+  periodicNoteType: PeriodicNoteType,
 ): HandlerFunction {
   return async function handleSearchStringAndReplace(
     incomingParams: AnyParams,
@@ -505,7 +521,9 @@ function getHandleSearchStringAndReplace(
     const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const resDNP = getPeriodNotePathIfPluginIsAvailable(periodID);
+    const resDNP = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (!resDNP.isSuccess) return resDNP;
     const filepath = resDNP.result;
 
@@ -516,14 +534,18 @@ function getHandleSearchStringAndReplace(
   };
 }
 
-function getHandleSearchRegexAndReplace(periodID: PeriodType): HandlerFunction {
+function getHandleSearchRegexAndReplace(
+  periodicNoteType: PeriodicNoteType,
+): HandlerFunction {
   return async function handleSearchRegexAndReplace(
     incomingParams: AnyParams,
   ): Promise<HandlerTextSuccess | HandlerFailure> {
     const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const resDNP = getPeriodNotePathIfPluginIsAvailable(periodID);
+    const resDNP = getExistingPeriodNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (!resDNP.isSuccess) return resDNP;
     const filepath = resDNP.result;
 
@@ -535,26 +557,4 @@ function getHandleSearchRegexAndReplace(periodID: PeriodType): HandlerFunction {
     if (shouldFocusNote) await focusOrOpenFile(filepath);
     return success({ message: res.result }, filepath);
   };
-}
-
-// HELPERS ----------------------------------------
-
-async function createPeriodNote(periodID: PeriodType): Promise<TFile> {
-  const now = window.moment();
-  switch (periodID) {
-    case "daily":
-      return createDailyNote(now);
-
-    case "weekly":
-      return createWeeklyNote(now);
-
-    case "monthly":
-      return createMonthlyNote(now);
-
-    case "quarterly":
-      return createQuarterlyNote(now);
-
-    case "yearly":
-      return createYearlyNote(now);
-  }
 }

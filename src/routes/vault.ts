@@ -11,7 +11,7 @@ import {
   RealLifeDataAdapter,
   RealLifeVault,
 } from "../types";
-import { obsEnv } from "../utils/obsidian-env";
+import { self } from "../utils/self";
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
@@ -70,7 +70,7 @@ async function handleClose(
 async function handleInfo(
   incomingParams: AnyParams,
 ): Promise<HandlerVaultInfoSuccess | HandlerFailure> {
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   const { config } = <RealLifeVault> vault;
   const basePath = (<RealLifeDataAdapter> vault.adapter).basePath;
 
@@ -94,14 +94,14 @@ async function handleListFiles(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: obsEnv.activeVault.getFiles().map((t) => t.path).sort(),
+    paths: self().app.vault.getFiles().map((t) => t.path).sort(),
   });
 }
 
 async function handleListFilesExceptNotes(
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   const files = vault.getFiles().map((t) => t.path);
   const notes = vault.getMarkdownFiles().map((t) => t.path);
 

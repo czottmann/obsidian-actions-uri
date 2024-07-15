@@ -1,4 +1,5 @@
-import { AnyZodObject, ZodDiscriminatedUnion, ZodUnion } from "zod";
+import { z } from "zod";
+import { TFile } from "obsidian";
 import {
   AnyLocalParams as AnyCommandParams,
   routePath as commandRoutes,
@@ -48,8 +49,9 @@ import {
   AnyLocalParams as AnyTagsParams,
   routePath as tagsRoutes,
 } from "./routes/tags";
-import { IncomingBaseParams } from "./schemata";
+import { IncomingBaseParams, NoteTargetingComputedValues } from "./schemata";
 import { HandlerFunction } from "./types";
+import { PeriodicNoteType } from "./utils/periodic-notes-handling";
 
 export const routes: RoutePath = {
   ...rootRoutes,
@@ -91,9 +93,10 @@ export type RoutePath = {
 export type RouteSubpath = {
   path: string;
   schema:
-    | AnyZodObject
-    | ZodUnion<any>
-    | ZodDiscriminatedUnion<string, AnyZodObject[]>;
+    | z.AnyZodObject
+    | z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
+    | z.ZodEffects<any, any, any>
+    | z.ZodUnion<any>;
   handler: HandlerFunction;
 };
 
@@ -111,3 +114,40 @@ export type AnyParams =
   | AnyTagsParams
   | AnyVaultParams
   | IncomingBaseParams;
+
+export type AnyProcessedParams =
+  | AnyCommandParams
+  | AnyDataviewParams
+  | AnyFileParams
+  | AnyFolderParams
+  | AnyInfoParams
+  | (AnyNoteParams & NoteTargetingComputedValues)
+  | AnyNotePropertiesParams
+  | AnyOmnisearchParams
+  | AnyPeriodicNoteParams
+  | AnySearchParams
+  | AnyTagsParams
+  | AnyVaultParams
+  | IncomingBaseParams;
+
+export enum CreateApplyParameterValue {
+  Content = "content",
+  Templater = "templater",
+  Templates = "templates",
+}
+
+export type CreateContentParams = {
+  apply: CreateApplyParameterValue.Content;
+  content?: string;
+};
+
+export type CreateTemplateParams = {
+  apply:
+    | CreateApplyParameterValue.Templater
+    | CreateApplyParameterValue.Templates;
+  "template-file": TFile;
+};
+
+export type CreatePeriodicNoteParams = {
+  "periodic-note": PeriodicNoteType;
+};
