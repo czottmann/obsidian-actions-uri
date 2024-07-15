@@ -4,17 +4,32 @@
 
 ### New stuff
 
+- All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) gained support for working with periodic notes (daily, weekly, etc.).
+- All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) gained support for UID-based note references. Notes can now be referenced by their UID instead of their file path, so if you're storing a UID in your front matter, give it a go. Make sure to check that the correct frontmatter key is configured in the …
+- New settings UI. The plugin now has a settings page in Obsidian's settings.
 - [`/note-properties`](https://zottmann.dev/obsidian-actions-uri/routes/note-properties/) now supports working with current periodic notes (daily, weekly, etc.)
+
+### Deprecation notice
+
+All dedicated periodic note-related routes (`/daily-note/*`, `/weekly-note/*`, `/monthly-note/*`, `/quarterly-note/*`, `/yearly-note/*`) are officially deprecated, and will be removed in early 2025. Please update your scripts accordingly.
+
+There will be no further work on these routes going forward.
 
 ### No longer broken
 
 - Fixes search/replace in notes, which wouldn't work if the search term was a string but contained regex-like characters (`$`, `^`, , etc.) [ZCO-606]
+
+
+
 
 ## 1.5.3, 2024-06-18
 
 ### No longer broken
 
 - Fixes the plugin not sending out return calls when the requested vault wasn't loaded yet, e.g. when Obsidian wasn't running or when another vault was active.
+
+
+
 
 ## 1.5.2, 2024-05-11
 
@@ -25,12 +40,18 @@ House keeping release, no new features.
 - Replaces deprecated `global.app` references
 - Sets minimum Obsidian version to 1.5.0
 
+
+
+
 ## 1.5.1, 2024-03-27
 
 ### Changes
 
 - `/note/create/`, `/periodic-note/create`: If the file name passed in `template-file` can't be found, the plugin will now check the template folder set in Templates or Templater, respectively, before returning an error.
 - Console output will now print the paths contained in the incoming params, instead of their internal file references. This prevents circular references and "max call stack" errors related to files when using [Logstravaganza](https://github.com/czottmann/obsidian-logstravaganza).
+
+
+
 
 ## 1.5.0, 2024-02-19
 
@@ -53,12 +74,18 @@ House keeping release, no new features.
 - Changed route: [`/command/execute`](https://zottmann.dev/obsidian-actions-uri/routes/command/#commandexecute) no longer requires the `x-success` and `x-error` parameters to be present. If they are, they will be used, but they are optional now. (#84)
 - Removed route: `/vault/list-folders` was marked as deprecated in 0.16, and is now gone for good. Use [`/folder/list`](https://zottmann.dev/obsidian-actions-uri/routes/folder/#folderlist) instead.
 
+
+
+
 ## 1.4.2, 2023-12-12
 
 ### No longer broken
 
 - Resolves problems with applying templates of the core plugin Templates.
 - Fixes broken handling of `silent` parameter in `note/*`, `daily-note/*`, `weekly-note/*`, `monthly-note/*`, `quarterly-note/*`, and `yearly-note/*` routes
+
+
+
 
 ## 1.4.0, 2023-11-22
 
@@ -96,11 +123,17 @@ The following routes return an additional `result-properties` parameter if the n
 - [`/yearly-note/get-current`](https://zottmann.dev/obsidian-actions-uri/routes/yearly-note/#yearly-noteget-current)
 - [`/yearly-note/get-most-recent`](https://zottmann.dev/obsidian-actions-uri/routes/yearly-note/#yearly-noteget-most-recent)
 
+
+
+
 ## 1.3.1, 2023-10-09
 
 ### Fixes
 
 - Append/prepend to a periodic note that had to be created first would create the note but fail to append/prepend the text. This is now fixed.
+
+
+
 
 ## 1.3.0, 2023-09-04
 
@@ -136,11 +169,17 @@ All of Action UR's existing [`/daily-note`](https://zottmann.dev/obsidian-action
 
 - Updates esbuild and @typescript-eslint packages.
 
+
+
+
 ## 1.2.5, 2023-08-29
 
 ### Fixes
 
 - Ensures Dataview `TABLE` results are correctly nested. (#79)
+
+
+
 
 ## 1.2.4, 2023-08-07
 
@@ -149,11 +188,17 @@ All of Action UR's existing [`/daily-note`](https://zottmann.dev/obsidian-action
 - Appending/prepending below headlines no longer fails if there is no empty line below the headline. (#73)
 - When using a file path ending in `.canvas`, Actions URI will no longer add `.md` to it. (#74)
 
+
+
+
 ## 1.2.3, 2023-07-25
 
 ### Fixes
 
 - Attempting to use the Templates core plugin on iOS would result in an error. This is now fixed.
+
+
+
 
 ## 1.2.2, 2023-07-13
 
@@ -161,6 +206,9 @@ All of Action UR's existing [`/daily-note`](https://zottmann.dev/obsidian-action
 
 - Adjusts the behavior of [`/note/get`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteget) so it no longer breaks Actions for Obsidian's "Check if note exists" action. 😬
 - Fixes a bug in note creation where the default behavior regarding content insertion was not respected.
+
+
+
 
 ## 1.2.0, 2023-07-12
 
@@ -203,12 +251,18 @@ All of Action UR's existing [`/daily-note`](https://zottmann.dev/obsidian-action
 
 - The deprecations made in 0.18.0 are now feasting with the Gods.
 
+
+
+
 ## 1.1.2, 2023-05-10
 
 This is a minor release aimed at fixing an issue with opening notes after creation that came up during the [Actions for Obsidian](https://obsidian.actions.work) iOS TestFlight.
 
 - [FIX] Cleans up opening/focussing notes
 - [DEL] Removes outdated API references
+
+
+
 
 ## 1.1.0, 2023-05-04
 
@@ -223,6 +277,9 @@ The plugin is stable enough and used in production as the companion plugin to my
 ### No longer broken
 
 - Adds code for preventing a race condition in vaults w/ Templater enabled (#61)
+
+
+
 
 ## 0.18.0, 2023-04-14
 
@@ -249,6 +306,9 @@ or `overwrite`. `if-exists=skip` will pretend the existing note was just created
   the `overwrite` parameter is deprecated and will be removed in a future release. Use
   `if-exists=overwrite` instead.
 
+
+
+
 ## 0.17.0, 2023-04-12
 
 - [FIX] Normalizes leading/trailing whitespace in path segments (#54)
@@ -261,21 +321,36 @@ or `overwrite`. `if-exists=skip` will pretend the existing note was just created
   - [`/daily-note/open-current`](https://zottmann.dev/obsidian-actions-uri/routes/daily-note/#daily-noteopen-current-v012)
   - [`/daily-note/open-most-recent`](https://zottmann.dev/obsidian-actions-uri/routes/daily-note/#daily-noteopen-most-recent-v012)
 
+
+
+
 ## 0.16.4, 2023-02-15
 
 - [CHG] Increases time waiting for search results in `/search/all-notes` to 2s (#50)
+
+
+
 
 ## 0.16.3, 2023-02-06
 
 - [FIX] Fixes handling of backslashes and colon characters in file names (#43)
 
+
+
+
 ## 0.16.2, 2023-01-30
 
 - [CHG] Shortens `*/rename` error messages
 
+
+
+
 ## 0.16.1, 2023-01-28
 
 - [FIX] Adds graceful handling of the default "Default location for new notes" configuration setting (#41)
+
+
+
 
 ## 0.16.0, 2023-01-26
 
@@ -289,6 +364,9 @@ or `overwrite`. `if-exists=skip` will pretend the existing note was just created
 - [NEW] Adds [route `/folder/trash`](https://zottmann.dev/obsidian-actions-uri/routes/folder/) for moving a folder to the trash (#30)
 - [DEL] Deprecates route [`/vault/list-folders`](https://zottmann.dev/obsidian-actions-uri/routes/vault/) in favor of [`/folder/list`](https://zottmann.dev/obsidian-actions-uri/routes/folder/) (#30)
 
+
+
+
 ## 0.15.0, 2022-12-31
 
 - [NEW] Adds extra return params for use by [Actions for Obsidian](https://obsidian.actions.work) (#26)
@@ -296,6 +374,9 @@ or `overwrite`. `if-exists=skip` will pretend the existing note was just created
 - [FIX] Addresses endless loop in string search/replace routes which would occur when the replacement included the search term (#28)
 
 Have a wondrous 2023, people 🚀
+
+
+
 
 ## 0.14.2, 2022-12-16
 
@@ -309,12 +390,18 @@ Have a wondrous 2023, people 🚀
 - [FIX] Notes returned will now always contain the four return parameters `result-content`, `result-body`, `result-front-matter` and `result-filepath` (#22)
 - [FIX] Adds missing links to route docs detail pages
 
+
+
+
 ## 0.13.0, 2022-12-07
 
 - [NEW] Adds `tags/list` route (#16)
 - [NEW] Adds `vault/info` route (#20)
 - [CHG] Makes `vault/close` desktop-only (due to the different Obsidian foundations on mobile and desktop)
 - [CHG] Replaces Twitter links w/ Mastodon links in docs
+
+
+
 
 ## 0.12.1, 2022-11-23
 
@@ -324,6 +411,9 @@ Have a wondrous 2023, people 🚀
 - [FIX] Creating a note would sometimes result in the creation of a folder and an error (#16)
 - [FIX] Searching/replacing a string would result in an error if the search term looked like a regex (#15)
 
+
+
+
 ## 0.11.0, 2022-11-07
 
 - [NEW] Refactors error callback parameters (#12)
@@ -332,10 +422,16 @@ Have a wondrous 2023, people 🚀
 - [DEL] Removes support for `call-id` parameter (#7)
 - [CHG] Drops support for Obsidian <v1.0
 
+
+
+
 ## 0.10.6, 2022-10-12
 
 - Fixes outdated success checks in main file handling methods — due to the
   broken check successful file operations weren't recognized as such. Sorry!
+
+
+
 
 ## 0.10.5, 2022-10-01
 
