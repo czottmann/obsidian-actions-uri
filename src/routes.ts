@@ -130,6 +130,12 @@ export type AnyProcessedParams =
   | AnyVaultParams
   | IncomingBaseParams;
 
+export enum NoteTargetingParameterKey {
+  File = "file",
+  UID = "uid",
+  PeriodicNote = "periodic-note",
+}
+
 export enum CreateApplyParameterValue {
   Content = "content",
   Templater = "templater",

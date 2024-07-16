@@ -1,12 +1,13 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
-import { AnyParams, IfExistsParameterValue, RoutePath } from "../routes";
 import {
-  incomingBaseParams,
-  NoteTargetingParamKey,
-  noteTargetingParams,
-} from "../schemata";
+  AnyParams,
+  IfExistsParameterValue,
+  NoteTargetingParameterKey,
+  RoutePath,
+} from "../routes";
+import { incomingBaseParams, noteTargetingParams } from "../schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
@@ -311,7 +312,7 @@ async function handleCreate(
     return await getNoteDetails(path);
   }
 
-  return inputKey === NoteTargetingParamKey.PeriodicNote
+  return inputKey === NoteTargetingParameterKey.PeriodicNote
     ? await createPeriodicNote(
       path,
       (incomingParams as CreatePeriodicNoteParams)["periodic-note"],
@@ -347,7 +348,7 @@ async function handleAppend(
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
   // passed in.
   const path =
-    (!tFile && inputKey === NoteTargetingParamKey.UID && shouldCreateNote)
+    (!tFile && inputKey === NoteTargetingParameterKey.UID && shouldCreateNote)
       ? uid!
       : computedPath;
 
@@ -372,7 +373,7 @@ async function handleAppend(
 
     // If the note was requested via UID, we need to set the UID in the front
     // matter of the newly created note.
-    if (inputKey === NoteTargetingParamKey.UID) {
+    if (inputKey === NoteTargetingParameterKey.UID) {
       await self().app.fileManager.processFrontMatter(
         resCreate.result,
         (fm) => fm[self().settings.frontmatterKey] = uid!,
@@ -407,7 +408,7 @@ async function handlePrepend(
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
   // passed in.
   const path =
-    (!tFile && inputKey === NoteTargetingParamKey.UID && shouldCreateNote)
+    (!tFile && inputKey === NoteTargetingParameterKey.UID && shouldCreateNote)
       ? uid!
       : computedPath;
 
@@ -442,7 +443,7 @@ async function handlePrepend(
 
     // If the note was requested via UID, we need to set the UID in the front
     // matter of the newly created note.
-    if (inputKey === NoteTargetingParamKey.UID) {
+    if (inputKey === NoteTargetingParameterKey.UID) {
       await self().app.fileManager.processFrontMatter(
         resCreate.result,
         (fm) => fm[self().settings.frontmatterKey] = uid!,

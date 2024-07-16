@@ -7,11 +7,8 @@ import {
   periodicNoteFilePath,
 } from "./periodic-notes-handling";
 import { failure, success } from "./results-handling";
-import {
-  NoteTargetingComputedValues,
-  NoteTargetingParamKey,
-  NoteTargetingParams,
-} from "../schemata";
+import { NoteTargetingParameterKey } from "../routes";
+import { NoteTargetingComputedValues, NoteTargetingParams } from "../schemata";
 import { StringResultObject } from "../types.d";
 import { zodExistingNotePath } from "./zod";
 
@@ -92,9 +89,9 @@ function validateNoteTargetingAndResolvePath<T>(
 
   // Validate that only one of the three keys is present
   const keysCount = [
-    NoteTargetingParamKey.File,
-    NoteTargetingParamKey.UID,
-    NoteTargetingParamKey.PeriodicNote,
+    NoteTargetingParameterKey.File,
+    NoteTargetingParameterKey.UID,
+    NoteTargetingParameterKey.PeriodicNote,
   ]
     .filter((key) => key in input)
     .length;
@@ -108,23 +105,23 @@ function validateNoteTargetingAndResolvePath<T>(
   }
 
   // Get the requested file path
-  let inputKey: NoteTargetingParamKey;
+  let inputKey: NoteTargetingParameterKey;
   let path = "";
-  if (NoteTargetingParamKey.File in input) {
-    const val = input[NoteTargetingParamKey.File];
-    inputKey = NoteTargetingParamKey.File;
+  if (NoteTargetingParameterKey.File in input) {
+    const val = input[NoteTargetingParameterKey.File];
+    inputKey = NoteTargetingParameterKey.File;
     path = val!;
   } //
-  else if (NoteTargetingParamKey.UID in input) {
-    const val = input[NoteTargetingParamKey.UID];
-    inputKey = NoteTargetingParamKey.UID;
+  else if (NoteTargetingParameterKey.UID in input) {
+    const val = input[NoteTargetingParameterKey.UID];
+    inputKey = NoteTargetingParameterKey.UID;
 
     const res = filepathForUID(val!);
     path = res.isSuccess ? res.result : "";
   } //
-  else if (input[NoteTargetingParamKey.PeriodicNote]) {
-    const val = input[NoteTargetingParamKey.PeriodicNote]!;
-    inputKey = NoteTargetingParamKey.PeriodicNote;
+  else if (input[NoteTargetingParameterKey.PeriodicNote]) {
+    const val = input[NoteTargetingParameterKey.PeriodicNote]!;
+    inputKey = NoteTargetingParameterKey.PeriodicNote;
 
     const isPluginAvailable = appHasPeriodPluginLoaded(val);
     if (!isPluginAvailable) {
