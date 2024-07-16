@@ -18,6 +18,7 @@ There will be no further work on these routes going forward.
 ### No longer broken
 
 - Fixes search/replace in notes, which wouldn't work if the search term was a string but contained regex-like characters (`$`, `^`, , etc.) [ZCO-606]
+- [`/note-properties/get`](https://zottmann.dev/obsidian-actions-uri/routes/note-properties/#note-propertiesget) won't automatically open the note anymore.
 
 
 

@@ -11,13 +11,18 @@ import { propertiesForFile, updateNote } from "../utils/file-handling";
 import { hardValidateNoteTargetingAndResolvePath } from "../utils/parameters";
 import { helloRoute } from "../utils/routing";
 import { success } from "../utils/results-handling";
-import { zodJsonPropertiesObject, zodJsonStringArray } from "../utils/zod";
+import {
+  zodJsonPropertiesObject,
+  zodJsonStringArray,
+  zodOptionalBoolean,
+} from "../utils/zod";
 
 // SCHEMATA ----------------------------------------
 
 const getParams = incomingBaseParams
   .merge(noteTargetingParams)
   .extend({
+    silent: zodOptionalBoolean,
     "x-error": z.string().url(),
     "x-success": z.string().url(),
   })
@@ -68,7 +73,7 @@ async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerPropertiesSuccess | HandlerFailure> {
   const { _computed: { tFile } } = incomingParams as GetParams;
-  return success({ properties: propertiesForFile(tFile!) });
+  return success({ properties: propertiesForFile(tFile!) }, tFile?.path);
 }
 
 async function handleSet(
