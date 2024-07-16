@@ -1,7 +1,10 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../../constants";
-import { CreateApplyParameterValue } from "../../routes";
+import {
+  CreateApplyParameterValue,
+  IfExistsParameterValue,
+} from "../../routes";
 import { incomingBaseParams } from "../../schemata";
 import { HandlerFailure, HandlerFileSuccess } from "../../types";
 import {
@@ -35,7 +38,7 @@ import {
 const createStandardNoteParams = incomingBaseParams
   .extend({
     file: zodSanitizedNotePath,
-    "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
+    "if-exists": z.nativeEnum(IfExistsParameterValue).optional(),
     silent: zodOptionalBoolean,
   });
 const createNoteApplyContentParams = createStandardNoteParams
@@ -61,7 +64,7 @@ const createNoteApplyTemplatesParams = createStandardNoteParams
 const createPeriodicNoteParams = incomingBaseParams
   .extend({
     "periodic-note": z.nativeEnum(PeriodicNoteType),
-    "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
+    "if-exists": z.nativeEnum(IfExistsParameterValue).optional(),
     silent: zodOptionalBoolean,
   });
 
@@ -89,15 +92,27 @@ export async function createPeriodicNote(
   path: string,
   periodicNoteType: PeriodicNoteType,
   noteExists: boolean,
-  shouldOverwrite: boolean,
+  ifExists: IfExistsParameterValue | undefined,
   shouldFocusNote: boolean,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   if (noteExists) {
-    if (shouldOverwrite) {
-      await trashFilepath(path);
-    } else {
-      if (shouldFocusNote) await focusOrOpenFile(path);
-      return await getNoteDetails(path);
+    switch (ifExists) {
+      // `skip` == Leave not as-is, we just return the existing note.
+      case IfExistsParameterValue.Skip:
+        if (shouldFocusNote) await focusOrOpenFile(path);
+        return await getNoteDetails(path);
+
+      // Overwrite the existing note.
+      case IfExistsParameterValue.Overwrite:
+        // Delete existing note, but keep going afterwards.
+        await trashFilepath(path);
+        break;
+
+      default:
+        return failure(
+          409,
+          STRINGS[`${periodicNoteType}_note`].create_note_already_exists,
+        );
     }
   }
 

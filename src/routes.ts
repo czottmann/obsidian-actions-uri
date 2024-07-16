@@ -136,6 +136,12 @@ export enum CreateApplyParameterValue {
   Templates = "templates",
 }
 
+export enum IfExistsParameterValue {
+  Default = "",
+  Overwrite = "overwrite",
+  Skip = "skip",
+}
+
 export type CreateContentParams = {
   apply: CreateApplyParameterValue.Content;
   content?: string;

@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
+import { AnyParams, IfExistsParameterValue, RoutePath } from "../routes";
 import {
   incomingBaseParams,
   NoteTargetingParamKey,
@@ -299,13 +299,13 @@ async function handleCreate(
     ["if-exists"]: ifExists,
     silent,
   } = incomingParams as CreateParams;
-  const shouldOverwrite = ifExists === "overwrite";
+  const shouldOverwrite = ifExists === IfExistsParameterValue.Overwrite;
   const shouldFocusNote = !silent;
 
   // If there already is a note with that name or at that path, deal with it.
   const resNoteExists = await getNote(path);
   const noteExists = resNoteExists.isSuccess;
-  if (noteExists && ifExists === "skip") {
+  if (noteExists && ifExists === IfExistsParameterValue.Skip) {
     // `skip` == Leave not as-is, we just return the existing note.
     if (!silent) await focusOrOpenFile(path);
     return await getNoteDetails(path);
@@ -316,7 +316,7 @@ async function handleCreate(
       path,
       (incomingParams as CreatePeriodicNoteParams)["periodic-note"],
       noteExists,
-      shouldOverwrite,
+      ifExists,
       shouldFocusNote,
     )
     : await createGeneralNote(
