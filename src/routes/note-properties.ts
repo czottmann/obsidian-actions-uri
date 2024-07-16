@@ -85,7 +85,7 @@ async function handleSet(
     ? { ...propertiesForFile(tFile!), ...properties }
     : properties;
 
-  return updateNote(tFile!.path, stringifyYaml(props).trim());
+  return updateNote(tFile!.path, sanitizedStringifyYaml(props));
 }
 
 async function handleClear(
@@ -104,5 +104,9 @@ async function handleRemoveKeys(
   const props = propertiesForFile(tFile!)!;
   (<string[]> keys).forEach((key) => delete props[key]);
 
-  return updateNote(path, stringifyYaml(props).trim());
+  return updateNote(path, sanitizedStringifyYaml(props));
+}
+
+function sanitizedStringifyYaml(props: any): string {
+  return Object.keys(props).length > 0 ? stringifyYaml(props).trim() : "";
 }
