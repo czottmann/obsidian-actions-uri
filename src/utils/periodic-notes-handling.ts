@@ -39,6 +39,19 @@ export enum PeriodicNoteType {
   YearlyNote = "yearly",
 }
 
+export enum PeriodicNoteTypeWithRecents {
+  DailyNote = "daily",
+  WeeklyNote = "weekly",
+  MonthlyNote = "monthly",
+  QuarterlyNote = "quarterly",
+  YearlyNote = "yearly",
+  RecentDailyNote = "recent-daily",
+  RecentWeeklyNote = "recent-weekly",
+  RecentMonthlyNote = "recent-monthly",
+  RecentQuarterlyNote = "recent-quarterly",
+  RecentYearlyNote = "recent-yearly",
+}
+
 export async function createPeriodNote(
   periodicNoteType: PeriodicNoteType,
 ): Promise<TFile> {
@@ -59,38 +72,6 @@ export async function createPeriodNote(
     case PeriodicNoteType.YearlyNote:
       return createYearlyNote(now);
   }
-}
-
-export function periodicNoteFilePath(
-  periodicNoteType: PeriodicNoteType,
-  date: moment.Moment,
-): string {
-  let getSettingsFn: Function;
-  switch (periodicNoteType) {
-    case PeriodicNoteType.DailyNote:
-      getSettingsFn = getDailyNoteSettings;
-      break;
-
-    case PeriodicNoteType.WeeklyNote:
-      getSettingsFn = getWeeklyNoteSettings;
-      break;
-
-    case PeriodicNoteType.MonthlyNote:
-      getSettingsFn = getMonthlyNoteSettings;
-      break;
-
-    case PeriodicNoteType.QuarterlyNote:
-      getSettingsFn = getQuarterlyNoteSettings;
-      break;
-
-    case PeriodicNoteType.YearlyNote:
-      getSettingsFn = getYearlyNoteSettings;
-      break;
-  }
-
-  const { format, folder } = getSettingsFn();
-  const filename = date.format(format);
-  return sanitizeFilePath(`${folder}/${filename}.md`);
 }
 
 /**

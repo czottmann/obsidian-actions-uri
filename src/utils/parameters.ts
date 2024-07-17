@@ -1,10 +1,13 @@
-import { moment, parseFrontMatterEntry, TFile } from "obsidian";
+import { parseFrontMatterEntry, TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
 import { self } from "src/utils/self";
 import {
   appHasPeriodPluginLoaded,
-  periodicNoteFilePath,
+  getCurrentPeriodNote,
+  getMostRecentPeriodNote,
+  PeriodicNoteType,
+  PeriodicNoteTypeWithRecents,
 } from "src/utils/periodic-notes-handling";
 import { failure, success } from "src/utils/results-handling";
 import { NoteTargetingParameterKey } from "src/routes";
@@ -29,10 +32,10 @@ import { zodExistingNotePath } from "src/utils/zod";
  *
  * @template T - The type of the input data.
  */
-export function softValidateNoteTargetingAndResolvePath<T>(
+export async function softValidateNoteTargetingAndResolvePath<T>(
   data: T,
   ctx: z.RefinementCtx,
-): T & NoteTargetingComputedValues {
+): Promise<T & NoteTargetingComputedValues> {
   return validateNoteTargetingAndResolvePath(data, ctx, false);
 }
 
@@ -55,10 +58,10 @@ export function softValidateNoteTargetingAndResolvePath<T>(
  *
  * @template T - The type of the input data.
  */
-export function hardValidateNoteTargetingAndResolvePath<T>(
+export async function hardValidateNoteTargetingAndResolvePath<T>(
   data: T,
   ctx: z.RefinementCtx,
-): T & NoteTargetingComputedValues {
+): Promise<T & NoteTargetingComputedValues> {
   return validateNoteTargetingAndResolvePath(data, ctx, true);
 }
 
@@ -80,11 +83,11 @@ export function hardValidateNoteTargetingAndResolvePath<T>(
  *
  * @template T - The type of the input data.
  */
-function validateNoteTargetingAndResolvePath<T>(
+async function validateNoteTargetingAndResolvePath<T>(
   data: T,
   ctx: z.RefinementCtx,
   throwOnMissingNote: boolean,
-): T & NoteTargetingComputedValues {
+): Promise<T & NoteTargetingComputedValues> {
   const input = data as NoteTargetingParams;
 
   // Validate that only one of the three keys is present
@@ -108,37 +111,49 @@ function validateNoteTargetingAndResolvePath<T>(
   let inputKey: NoteTargetingParameterKey;
   let path = "";
   if (NoteTargetingParameterKey.File in input) {
-    const val = input[NoteTargetingParameterKey.File];
+    const val = input[NoteTargetingParameterKey.File]!;
     inputKey = NoteTargetingParameterKey.File;
-    path = val!;
+    path = val;
   } //
   else if (NoteTargetingParameterKey.UID in input) {
-    const val = input[NoteTargetingParameterKey.UID];
+    const val = input[NoteTargetingParameterKey.UID]!;
     inputKey = NoteTargetingParameterKey.UID;
 
-    const res = filepathForUID(val!);
+    const res = filepathForUID(val);
     path = res.isSuccess ? res.result : "";
   } //
   else if (input[NoteTargetingParameterKey.PeriodicNote]) {
-    const val = input[NoteTargetingParameterKey.PeriodicNote]!;
+    const val = input[
+      NoteTargetingParameterKey.PeriodicNote
+    ]! as unknown as PeriodicNoteTypeWithRecents;
     inputKey = NoteTargetingParameterKey.PeriodicNote;
+    const periodicNoteType = val.replace(/^recent-/, "") as PeriodicNoteType;
+    const shouldFindMostRecent = val.startsWith("recent-");
 
-    const isPluginAvailable = appHasPeriodPluginLoaded(val);
+    // Normalize "recent-daily" into "daily" etc. then check feature availability
+    const isPluginAvailable = appHasPeriodPluginLoaded(periodicNoteType);
     if (!isPluginAvailable) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: STRINGS[`${val}_note`].feature_not_available,
+        message: STRINGS[`${periodicNoteType}_note`].feature_not_available,
       });
       return z.NEVER;
     }
 
-    path = periodicNoteFilePath(val, moment());
+    if (shouldFindMostRecent) {
+      // Get the most recent note path
+      const resRPN = await getMostRecentPeriodNote(periodicNoteType);
+      path = resRPN.isSuccess ? resRPN.result.path : "";
+    } else {
+      // Get the current note path
+      path = getCurrentPeriodNote(periodicNoteType)?.path || "";
+    }
   }
 
   // Validate that the requested note path exists
   let tFile: TFile | undefined;
   if (path != "") {
-    const resFileTest = zodExistingNotePath.safeParse(path);
+    const resFileTest = await zodExistingNotePath.safeParseAsync(path);
     if (resFileTest.success) {
       tFile = resFileTest.data as TFile;
     }

@@ -68,7 +68,7 @@ export default class ActionsURI extends Plugin {
    * @param routeTree - A `RoutePath` object containing information about the
    * route tree
    */
-  private registerRoutes(routeTree: RoutePath) {
+  private async registerRoutes(routeTree: RoutePath) {
     const registeredRoutes: string[] = [];
 
     for (const [routePath, routeSubpaths] of Object.entries(routeTree)) {
@@ -80,7 +80,7 @@ export default class ActionsURI extends Plugin {
         this.registerObsidianProtocolHandler(
           fullPath,
           async (incomingParams) => {
-            const res = schema.safeParse(incomingParams);
+            const res = await schema.safeParseAsync(incomingParams);
             res.success
               ? await this.handleIncomingCall(handler, <AnyParams> res.data)
               : this.handleParseError(res.error, incomingParams);

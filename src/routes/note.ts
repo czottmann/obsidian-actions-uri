@@ -16,7 +16,11 @@ import {
   createPeriodicNote,
   CreatePeriodicNoteParams,
 } from "src/routes/note/create";
-import { incomingBaseParams, noteTargetingParams } from "src/schemata";
+import {
+  incomingBaseParams,
+  noteTargetingParams,
+  noteTargetingWithRecentsParams,
+} from "src/schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
@@ -68,7 +72,7 @@ const listParams = incomingBaseParams
 type ListParams = z.infer<typeof listParams>;
 
 const getParams = incomingBaseParams
-  .merge(noteTargetingParams)
+  .merge(noteTargetingWithRecentsParams)
   .extend({
     silent: zodOptionalBoolean,
     "x-error": z.string().url(),
@@ -103,7 +107,7 @@ const readNamedParams = incomingBaseParams
 type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
 
 const openParams = incomingBaseParams
-  .merge(noteTargetingParams)
+  .merge(noteTargetingWithRecentsParams)
   .extend({
     silent: zodAlwaysFalse,
   })

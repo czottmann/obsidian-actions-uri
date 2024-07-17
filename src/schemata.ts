@@ -2,7 +2,10 @@ import { TFile } from "obsidian";
 import { z } from "zod";
 import { NoteTargetingParameterKey } from "src/routes";
 import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
-import { PeriodicNoteType } from "src/utils/periodic-notes-handling";
+import {
+  PeriodicNoteType,
+  PeriodicNoteTypeWithRecents,
+} from "src/utils/periodic-notes-handling";
 
 export const incomingBaseParams = z.object({
   action: z.string(),
@@ -24,6 +27,15 @@ export const noteTargetingParams = z.object({
   "periodic-note": z.nativeEnum(PeriodicNoteType).optional(),
 });
 export type NoteTargetingParams = z.output<typeof noteTargetingParams>;
+
+export const noteTargetingWithRecentsParams = z.object({
+  file: zodSanitizedNotePath.optional(),
+  uid: z.string().optional(),
+  "periodic-note": z.nativeEnum(PeriodicNoteTypeWithRecents).optional(),
+});
+export type NoteTargetingWithRecentsParams = z.output<
+  typeof noteTargetingWithRecentsParams
+>;
 
 export type NoteTargetingComputedValues = Readonly<{
   _computed: {
