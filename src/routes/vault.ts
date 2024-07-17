@@ -9,9 +9,9 @@ import {
   HandlerVaultInfoSuccess,
   HandlerVaultSuccess,
   RealLifeDataAdapter,
+  RealLifePlugin,
   RealLifeVault,
 } from "../types";
-import { self } from "../utils/self";
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
@@ -68,9 +68,10 @@ async function handleClose(
 }
 
 async function handleInfo(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerVaultInfoSuccess | HandlerFailure> {
-  const vault = self().app.vault;
+  const vault = this.app.vault;
   const { config } = <RealLifeVault> vault;
   const basePath = (<RealLifeDataAdapter> vault.adapter).basePath;
 
@@ -91,17 +92,19 @@ async function handleInfo(
 }
 
 async function handleListFiles(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: self().app.vault.getFiles().map((t) => t.path).sort(),
+    paths: this.app.vault.getFiles().map((t) => t.path).sort(),
   });
 }
 
 async function handleListFilesExceptNotes(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const vault = self().app.vault;
+  const vault = this.app.vault;
   const files = vault.getFiles().map((t) => t.path);
   const notes = vault.getMarkdownFiles().map((t) => t.path);
 

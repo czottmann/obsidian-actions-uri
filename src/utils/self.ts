@@ -1,18 +1,12 @@
-import ActionsURI from "../main";
-import { PluginSettings, RealLifeApp } from "../types";
+import type ActionsURI from "../main";
+import { RealLifePlugin } from "../types";
 
-type RealLifeThis = {
-  app: RealLifeApp;
-  plugin: ActionsURI;
-  settings: PluginSettings;
-};
+let _self: RealLifePlugin;
 
-let _self: RealLifeThis;
-
-export function self(): RealLifeThis {
+export function self(): RealLifePlugin;
+export function self(pluginInstance: ActionsURI): RealLifePlugin;
+export function self(pluginInstance?: ActionsURI): RealLifePlugin {
+  if (pluginInstance) _self = pluginInstance as unknown as RealLifePlugin;
+  if (!_self) throw new Error("Plugin instance not set");
   return _self;
-}
-
-export function setSelf(globalThis: any) {
-  _self = globalThis as RealLifeThis;
 }

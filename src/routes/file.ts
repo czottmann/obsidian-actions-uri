@@ -7,9 +7,9 @@ import {
   HandlerFilePathSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
+  RealLifePlugin,
 } from "../types";
 import { getFile, renameFilepath, trashFilepath } from "../utils/file-handling";
-import { self } from "../utils/self";
 import { helloRoute } from "../utils/routing";
 import { failure, success } from "../utils/results-handling";
 import {
@@ -68,17 +68,19 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleList(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: self().app.vault.getFiles().map((t) => t.path).sort(),
+    paths: this.app.vault.getFiles().map((t) => t.path).sort(),
   });
 }
 
 async function handleGetActive(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerFilePathSuccess | HandlerFailure> {
-  const res = self().app.workspace.getActiveFile();
+  const res = this.app.workspace.getActiveFile();
   return res ? success({ filepath: res.path }) : failure(404, "No active file");
 }
 

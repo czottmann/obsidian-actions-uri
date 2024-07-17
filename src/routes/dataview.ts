@@ -7,10 +7,13 @@ import { z } from "zod";
 import { STRINGS } from "../constants";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
-import { HandlerDataviewSuccess, HandlerFailure } from "../types";
+import {
+  HandlerDataviewSuccess,
+  HandlerFailure,
+  RealLifePlugin,
+} from "../types";
 import { failure, success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
-import { self } from "../utils/self";
 
 // SCHEMATA ----------------------------------------
 
@@ -37,15 +40,17 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleTableQuery(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  return await handleDataviewQuery("table", incomingParams);
+  return await handleDataviewQuery.bind(this)("table", incomingParams);
 }
 
 async function handleListQuery(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  return await handleDataviewQuery("list", incomingParams);
+  return await handleDataviewQuery.bind(this)("list", incomingParams);
 }
 
 // HELPERS ----------------------------------------
@@ -57,13 +62,14 @@ function dqlValuesMapper(dataview: DataviewApi, v: any): any {
 }
 
 async function handleDataviewQuery(
+  this: RealLifePlugin,
   type: "table" | "list",
   incomingParams: AnyParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
   const params = <ReadParams> incomingParams;
-  const dataview = getAPI(self().app);
+  const dataview = getAPI(this.app);
 
-  if (!isDataviewEnabled(self().app) || !dataview) {
+  if (!isDataviewEnabled(this.app) || !dataview) {
     return failure(412, STRINGS.dataview_plugin_not_available);
   }
 

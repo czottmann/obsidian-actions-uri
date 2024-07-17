@@ -6,7 +6,11 @@ import {
   IfExistsParameterValue,
 } from "../../routes";
 import { incomingBaseParams } from "../../schemata";
-import { HandlerFailure, HandlerFileSuccess } from "../../types";
+import {
+  HandlerFailure,
+  HandlerFileSuccess,
+  RealLifePlugin,
+} from "../../types";
 import {
   applyCorePluginTemplate,
   createNote,
@@ -26,7 +30,6 @@ import {
   softValidateNoteTargetingAndResolvePath,
 } from "../../utils/parameters";
 import { ErrorCode, failure } from "../../utils/results-handling";
-import { self } from "../../utils/self";
 import { focusOrOpenFile } from "../../utils/ui";
 import {
   zodExistingTemplaterPath,
@@ -129,6 +132,7 @@ export async function createPeriodicNote(
 }
 
 export async function createGeneralNote(
+  this: RealLifePlugin,
   path: string,
   apply: CreateApplyParameterValue,
   content: string | undefined,
@@ -149,7 +153,7 @@ export async function createGeneralNote(
   // be sure the file exists.
   switch (apply) {
     case CreateApplyParameterValue.Content:
-      await self().app.vault.modify(newNote, content || "");
+      await this.app.vault.modify(newNote, content || "");
       break;
 
     case CreateApplyParameterValue.Templater:

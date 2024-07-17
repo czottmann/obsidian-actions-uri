@@ -9,6 +9,7 @@ import {
   HandlerFunction,
   HandlerPathsSuccess,
   HandlerTextSuccess,
+  RealLifePlugin,
 } from "../types";
 import {
   appendNote,
@@ -20,7 +21,6 @@ import {
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
 } from "../utils/file-handling";
-import { self } from "../utils/self";
 import {
   appHasPeriodPluginLoaded,
   createPeriodNote,
@@ -298,6 +298,7 @@ function getHandleOpenMostRecent(
 
 function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
   return async function handleCreate(
+    this: RealLifePlugin,
     incomingParams: AnyParams,
   ): Promise<HandlerFileSuccess | HandlerFailure> {
     const params = <CreateParams> incomingParams;
@@ -343,7 +344,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
         // Overwrite the existing note.
         case "overwrite":
           // Delete existing note, but keep going afterwards.
-          await self().app.vault.trash(pNote, false);
+          await this.app.vault.trash(pNote, false);
           break;
 
         default:

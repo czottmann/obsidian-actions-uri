@@ -13,6 +13,7 @@ import {
   HandlerFileSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
+  RealLifePlugin,
 } from "../types";
 import {
   appendNote,
@@ -28,7 +29,6 @@ import {
   touchNote,
   trashFilepath,
 } from "../utils/file-handling";
-import { self } from "../utils/self";
 import {
   hardValidateNoteTargetingAndResolvePath,
   softValidateNoteTargetingAndResolvePath,
@@ -208,10 +208,11 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleList(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
-    paths: self().app.vault.getMarkdownFiles().map((t) => t.path).sort(),
+    paths: this.app.vault.getMarkdownFiles().map((t) => t.path).sort(),
   });
 }
 
@@ -229,9 +230,10 @@ async function handleGet(
 }
 
 async function handleGetActive(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const res = self().app.workspace.getActiveFile();
+  const res = this.app.workspace.getActiveFile();
   if (res?.extension !== "md") {
     return failure(ErrorCode.NotFound, "No active note");
   }
@@ -243,6 +245,7 @@ async function handleGetActive(
 }
 
 async function handleGetNamed(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const params = incomingParams as ReadFirstNamedParams;
@@ -252,7 +255,7 @@ async function handleGetNamed(
   // "Best guess" means utilizing Obsidian's internal link resolution to find
   // the right note. If it's not found, we return a 404.
   if (sortBy === "best-guess") {
-    const res = self().app.metadataCache
+    const res = this.app.metadataCache
       .getFirstLinkpathDest(sanitizeFilePath(file), "/");
     return res
       ? await getNoteDetails(res.path)
@@ -270,7 +273,7 @@ async function handleGetNamed(
     "mtime-desc": (a: TFile, b: TFile) => b.stat.mtime - a.stat.mtime,
   };
 
-  const res = self().app.vault.getMarkdownFiles()
+  const res = this.app.vault.getMarkdownFiles()
     .sort(sortFns[sortBy])
     .find((tf) => tf.name === file);
   if (!res) return failure(ErrorCode.NotFound, "No note found with that name");
@@ -293,6 +296,7 @@ async function handleOpen(
 }
 
 async function handleCreate(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const {
@@ -320,7 +324,7 @@ async function handleCreate(
       ifExists,
       shouldFocusNote,
     )
-    : await createGeneralNote(
+    : await createGeneralNote.bind(this)(
       path,
       (incomingParams as CreateNoteApplyContentParams).apply,
       (incomingParams as CreateNoteApplyContentParams).content,
@@ -332,6 +336,7 @@ async function handleCreate(
 }
 
 async function handleAppend(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const {
@@ -374,9 +379,9 @@ async function handleAppend(
     // If the note was requested via UID, we need to set the UID in the front
     // matter of the newly created note.
     if (inputKey === NoteTargetingParameterKey.UID) {
-      await self().app.fileManager.processFrontMatter(
+      await this.app.fileManager.processFrontMatter(
         resCreate.result,
-        (fm) => fm[self().settings.frontmatterKey] = uid!,
+        (fm) => fm[this.settings.frontmatterKey] = uid!,
       );
     }
   }
@@ -391,6 +396,7 @@ async function handleAppend(
 }
 
 async function handlePrepend(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const {
@@ -444,9 +450,9 @@ async function handlePrepend(
     // If the note was requested via UID, we need to set the UID in the front
     // matter of the newly created note.
     if (inputKey === NoteTargetingParameterKey.UID) {
-      await self().app.fileManager.processFrontMatter(
+      await this.app.fileManager.processFrontMatter(
         resCreate.result,
-        (fm) => fm[self().settings.frontmatterKey] = uid!,
+        (fm) => fm[this.settings.frontmatterKey] = uid!,
       );
     }
   }

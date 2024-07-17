@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { AnyParams, RoutePath } from "../routes";
 import { incomingBaseParams } from "../schemata";
-import { HandlerFailure, HandlerTagsSuccess } from "../types";
-import { self } from "../utils/self";
+import { HandlerFailure, HandlerTagsSuccess, RealLifePlugin } from "../types";
 import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 
@@ -28,9 +27,10 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleList(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerTagsSuccess | HandlerFailure> {
-  const tags = self().app.metadataCache.getTags();
+  const tags = this.app.metadataCache.getTags();
 
   return success({
     tags: Object.keys(tags).sort((a, b) => a.localeCompare(b)),

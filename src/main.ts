@@ -19,7 +19,7 @@ import {
   StringResultObject,
 } from "./types";
 import { sendUrlCallback } from "./utils/callbacks";
-import { setSelf } from "./utils/self";
+import { self } from "./utils/self";
 import { failure, success } from "./utils/results-handling";
 import {
   focusOrOpenFile,
@@ -37,7 +37,7 @@ export default class ActionsURI extends Plugin {
   };
 
   async onload() {
-    setSelf(this);
+    self(this);
     await this.loadSettings();
     this.registerRoutes(routes);
     this.addSettingTab(new SettingsTab(this.app, this));

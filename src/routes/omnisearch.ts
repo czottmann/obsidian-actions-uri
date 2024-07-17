@@ -5,8 +5,8 @@ import {
   HandlerFailure,
   HandlerSearchSuccess,
   HandlerTextSuccess,
+  RealLifePlugin,
 } from "../types";
-import { self } from "../utils/self";
 import { success } from "../utils/results-handling";
 import { helloRoute } from "../utils/routing";
 import { doOmnisearch } from "../utils/search";
@@ -51,6 +51,7 @@ async function handleSearch(
 }
 
 async function handleOpen(
+  this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess> {
   const params = <DefaultParams> incomingParams;
@@ -58,7 +59,7 @@ async function handleOpen(
   // Let's open the search in the simplest way possible.
   window.open(
     "obsidian://omnisearch?" +
-      "vault=" + encodeURIComponent(self().app.vault.getName()) +
+      "vault=" + encodeURIComponent(this.app.vault.getName()) +
       "&query=" + encodeURIComponent(params.query.trim()),
   );
 

@@ -3,9 +3,17 @@ import {
   Command,
   DataAdapter,
   MetadataCache,
+  PluginManifest,
   TFile,
   Vault,
 } from "obsidian";
+import { PluginSettings } from "../types";
+
+export interface RealLifePlugin extends App {
+  app: RealLifeApp;
+  manifest: PluginManifest;
+  vault: RealLifeVault;
+}
 
 export interface RealLifeApp extends App {
   commands: {
