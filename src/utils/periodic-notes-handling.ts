@@ -177,7 +177,7 @@ export async function getMostRecentPeriodNote(
 ): Promise<TFileResultObject> {
   if (!appHasPeriodPluginLoaded(periodicNoteType)) {
     return failure(
-      412,
+      ErrorCode.FeatureUnavailable,
       STRINGS[`${periodicNoteType}_note`].feature_not_available,
     );
   }

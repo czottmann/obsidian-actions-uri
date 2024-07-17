@@ -34,7 +34,7 @@ import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
 } from "src/utils/plugins";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
 import { parseStringIntoRegex } from "src/utils/string-handling";
 import { pause } from "src/utils/time";
@@ -214,7 +214,7 @@ function getHandleList(periodicNoteType: PeriodicNoteType): HandlerFunction {
   ): Promise<HandlerPathsSuccess | HandlerFailure> {
     if (!appHasPeriodPluginLoaded(periodicNoteType)) {
       return failure(
-        412,
+        ErrorCode.FeatureUnavailable,
         STRINGS[`${periodicNoteType}_note`].feature_not_available,
       );
     }
@@ -315,7 +315,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
 
     if (!appHasPeriodPluginLoaded(periodicNoteType)) {
       return failure(
-        412,
+        ErrorCode.FeatureUnavailable,
         STRINGS[`${periodicNoteType}_note`].feature_not_available,
       );
     }

@@ -1,10 +1,13 @@
 import { TFile } from "obsidian";
-import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "src/utils/plugins";
+import {
+  getEnabledCommunityPlugin,
+  getEnabledCorePlugin,
+} from "src/utils/plugins";
 import { pause } from "src/utils/time";
 import { STRINGS } from "src/constants";
 import { OmnisearchAPI, SearchResultObject } from "src/types";
 import { self } from "src/utils/self";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 
 /**
  * Executes a global search for the specified query and returns the search
@@ -18,7 +21,10 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
 
   // If the plugin instance is not available, return an error response
   if (!res.isSuccess) {
-    return failure(412, STRINGS.global_search_feature_not_available);
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS.global_search_feature_not_available,
+    );
   }
 
   // Open the global search panel and wait for it to load

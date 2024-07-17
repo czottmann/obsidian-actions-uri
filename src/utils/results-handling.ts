@@ -21,7 +21,10 @@ export function success<T>(
  * @param errorMessage The `ErrorObject`'s `errorMessage` key
  * @returns An `ErrorObject` with the `isSuccess` key set to `false`
  */
-export function failure(errorCode: number, errorMessage: string): ErrorObject {
+export function failure(
+  errorCode: ErrorCode,
+  errorMessage: string,
+): ErrorObject {
   return { isSuccess: false, errorCode, errorMessage };
 }
 
