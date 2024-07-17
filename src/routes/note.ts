@@ -42,6 +42,11 @@ import {
   hardValidateNoteTargetingAndResolvePath,
   softValidateNoteTargetingAndResolvePath,
 } from "src/utils/parameters";
+import {
+  appHasPeriodPluginLoaded,
+  getAllPeriodNotes,
+  PeriodicNoteType,
+} from "src/utils/periodic-notes-handling";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
 import { parseStringIntoRegex } from "src/utils/string-handling";
@@ -54,12 +59,13 @@ import {
 
 // SCHEMATA ----------------------------------------
 
-const justReturnCallParams = incomingBaseParams
+const listParams = incomingBaseParams
   .extend({
+    "periodic-note": z.nativeEnum(PeriodicNoteType).optional(),
     "x-error": z.string().url(),
     "x-success": z.string().url(),
   });
-type JustReturnCallParams = z.infer<typeof justReturnCallParams>;
+type ListParams = z.infer<typeof listParams>;
 
 const getParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -70,6 +76,13 @@ const getParams = incomingBaseParams
   })
   .transform(hardValidateNoteTargetingAndResolvePath);
 type GetParams = z.infer<typeof getParams>;
+
+const getActiveParams = incomingBaseParams
+  .extend({
+    "x-error": z.string().url(),
+    "x-success": z.string().url(),
+  });
+type GetActiveParams = z.infer<typeof getActiveParams>;
 
 const readNamedParams = incomingBaseParams
   .extend({
@@ -155,8 +168,9 @@ const renameParams = incomingBaseParams
 type RenameParams = z.infer<typeof renameParams>;
 
 export type AnyLocalParams =
-  | JustReturnCallParams
+  | ListParams
   | GetParams
+  | GetActiveParams
   | ReadFirstNamedParams
   | OpenParams
   | CreateParams
@@ -172,7 +186,7 @@ export type AnyLocalParams =
 export const routePath: RoutePath = {
   "/note": [
     helloRoute(),
-    { path: "/list", schema: justReturnCallParams, handler: handleList },
+    { path: "/list", schema: listParams, handler: handleList },
     { path: "/get", schema: getParams, handler: handleGet },
     {
       path: "/get-first-named",
@@ -181,7 +195,7 @@ export const routePath: RoutePath = {
     },
     {
       path: "/get-active",
-      schema: justReturnCallParams,
+      schema: getActiveParams,
       handler: handleGetActive,
     },
     { path: "/open", schema: openParams, handler: handleOpen },
@@ -211,10 +225,27 @@ async function handleList(
   this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
+  const { "periodic-note": periodicNoteType } = incomingParams as ListParams;
+  // If no periodic note type is specified, we return all notes.
+  if (!periodicNoteType) {
     return success({
       paths: this.app.vault.getMarkdownFiles().map((t) => t.path).sort(),
     });
   }
+
+  // If a periodic note type is specified, we return all notes of that type.
+  if (!appHasPeriodPluginLoaded(periodicNoteType)) {
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS[`${periodicNoteType}_note`].feature_not_available,
+    );
+  }
+
+  const notes = getAllPeriodNotes(periodicNoteType);
+  return success({
+    paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
+  });
+}
 
 /**
  * Handler for `/note/get`. Existence of note is checked by the schema, i.e. the
