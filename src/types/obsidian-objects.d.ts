@@ -12,6 +12,7 @@ import { PluginSettings } from "../types";
 export interface RealLifePlugin extends App {
   app: RealLifeApp;
   manifest: PluginManifest;
+  settings: PluginSettings;
   vault: RealLifeVault;
 }
 
@@ -23,6 +24,10 @@ export interface RealLifeApp extends App {
   internalPlugins: any;
   metadataCache: RealLifeMetadataCache;
   plugins: any;
+  setting: {
+    open: () => void;
+    openTabById: (pluginName: string) => void;
+  };
 }
 
 export interface RealLifeVault extends Vault {
