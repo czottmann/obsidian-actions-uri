@@ -34,10 +34,16 @@ On success:
 
 ## `/note/list`
 <span class="tag tag-version">v0.14+</span>
-Returns a list of all notes (Markdown files) in the vault.
+Returns a path list of either all Markdown files in the vault, or just the subset of all notes that are of a specific Periodic Note type. Default is to return all available notes.
 
 ### Parameters
-Only supports the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)).
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter       | Value type                                                  | Optional? | Description                                                                                   
+| --------------- | ----------------------------------------------------------- | :-------: | ----------------------------------------------------------------------------------------------
+| `periodic-note` | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | optional |                                                                                               
+| `x-success`     | string                                                      |           | base URL for on-success callbacks                                                             
+| `x-error`       | string                                                      |           | base URL for on-error callbacks                                                               
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
