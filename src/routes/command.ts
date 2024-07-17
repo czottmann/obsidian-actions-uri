@@ -1,17 +1,17 @@
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { STRINGS } from "src/constants";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
 import {
   HandlerCommandsExecutionSuccess,
   HandlerCommandsSuccess,
   HandlerFailure,
   RealLifePlugin,
-} from "../types";
-import { failure, success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
-import { pause } from "../utils/time";
-import { zodAlwaysFalse, zodCommaSeparatedStrings } from "../utils/zod";
+} from "src/types";
+import { failure, success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
+import { pause } from "src/utils/time";
+import { zodAlwaysFalse, zodCommaSeparatedStrings } from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 

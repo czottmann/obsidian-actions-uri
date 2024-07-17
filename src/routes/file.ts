@@ -1,23 +1,27 @@
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { STRINGS } from "src/constants";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
 import {
   HandlerFailure,
   HandlerFilePathSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
   RealLifePlugin,
-} from "../types";
-import { getFile, renameFilepath, trashFilepath } from "../utils/file-handling";
-import { helloRoute } from "../utils/routing";
-import { failure, success } from "../utils/results-handling";
+} from "src/types";
+import {
+  getFile,
+  renameFilepath,
+  trashFilepath,
+} from "src/utils/file-handling";
+import { helloRoute } from "src/utils/routing";
+import { failure, success } from "src/utils/results-handling";
 import {
   zodAlwaysFalse,
   zodExistingFilePath,
   zodOptionalBoolean,
   zodSanitizedFilePath,
-} from "../utils/zod";
+} from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 

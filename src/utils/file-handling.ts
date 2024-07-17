@@ -1,18 +1,18 @@
 import { MarkdownView, normalizePath, TFile, TFolder } from "obsidian";
-import { STRINGS } from "../constants";
-import { self } from "./self";
+import { STRINGS } from "src/constants";
+import { self } from "src/utils/self";
 import {
   getEnabledCorePlugin,
   isCommunityPluginEnabled,
   isCorePluginEnabled,
-} from "./plugins";
-import { failure, success } from "./results-handling";
+} from "src/utils/plugins";
+import { failure, success } from "src/utils/results-handling";
 import {
   endStringWithNewline,
   extractNoteContentParts,
   unwrapFrontMatter,
-} from "./string-handling";
-import { pause } from "./time";
+} from "src/utils/string-handling";
+import { pause } from "src/utils/time";
 import {
   BooleanResultObject,
   NoteDetailsResultObject,
@@ -20,8 +20,8 @@ import {
   RealLifeVault,
   StringResultObject,
   TFileResultObject,
-} from "../types";
-import { focusOrOpenFile, logErrorToConsole, showBrandedNotice } from "./ui";
+} from "src/types";
+import { focusOrOpenFile, logErrorToConsole, showBrandedNotice } from "src/utils/ui";
 
 /**
  * Create a new note. If the note already exists, find a available numeric

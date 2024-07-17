@@ -1,6 +1,6 @@
-import { PluginResultObject } from "../types";
-import { self } from "./self";
-import { failure, success } from "../utils/results-handling";
+import { PluginResultObject } from "src/types";
+import { self } from "src/utils/self";
+import { failure, success } from "src/utils/results-handling";
 
 /**
  * Returns sorted list of the string IDs of the enabled community plugins.

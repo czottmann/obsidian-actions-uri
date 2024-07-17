@@ -1,5 +1,5 @@
-import type ActionsURI from "../main";
-import { RealLifePlugin } from "../types";
+import type ActionsURI from "src/main";
+import { RealLifePlugin } from "src/types";
 
 let _self: RealLifePlugin;
 

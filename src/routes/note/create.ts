@@ -1,42 +1,33 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
-import { STRINGS } from "../../constants";
-import {
-  CreateApplyParameterValue,
-  IfExistsParameterValue,
-} from "../../routes";
-import { incomingBaseParams } from "../../schemata";
-import {
-  HandlerFailure,
-  HandlerFileSuccess,
-  RealLifePlugin,
-} from "../../types";
+import { STRINGS } from "src/constants";
+import { CreateApplyParameterValue, IfExistsParameterValue } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
+import { HandlerFailure, HandlerFileSuccess, RealLifePlugin } from "src/types";
 import {
   applyCorePluginTemplate,
   createNote,
   createOrOverwriteNote,
   getNoteDetails,
   trashFilepath,
-} from "../../utils/file-handling";
+} from "src/utils/file-handling";
 import {
   createPeriodNote,
   PeriodicNoteType,
-} from "../../utils/periodic-notes-handling";
+} from "src/utils/periodic-notes-handling";
 import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
-} from "../../utils/plugins";
-import {
-  softValidateNoteTargetingAndResolvePath,
-} from "../../utils/parameters";
-import { ErrorCode, failure } from "../../utils/results-handling";
-import { focusOrOpenFile } from "../../utils/ui";
+} from "src/utils/plugins";
+import { softValidateNoteTargetingAndResolvePath } from "src/utils/parameters";
+import { ErrorCode, failure } from "src/utils/results-handling";
+import { focusOrOpenFile } from "src/utils/ui";
 import {
   zodExistingTemplaterPath,
   zodExistingTemplatesPath,
   zodOptionalBoolean,
   zodSanitizedNotePath,
-} from "../../utils/zod";
+} from "src/utils/zod";
 
 const createStandardNoteParams = incomingBaseParams
   .extend({

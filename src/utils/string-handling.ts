@@ -1,6 +1,6 @@
-import { STRINGS } from "../constants";
-import { RegexResultObject } from "../types";
-import { failure, success } from "../utils/results-handling";
+import { STRINGS } from "src/constants";
+import { RegexResultObject } from "src/types";
+import { failure, success } from "src/utils/results-handling";
 
 const FRONT_MATTER_BOUNDARY = "---\n";
 

@@ -1,20 +1,29 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
-import { STRINGS } from "../constants";
+import { STRINGS } from "src/constants";
 import {
   AnyParams,
   IfExistsParameterValue,
   NoteTargetingParameterKey,
   RoutePath,
-} from "../routes";
-import { incomingBaseParams, noteTargetingParams } from "../schemata";
+} from "src/routes";
+import {
+  createGeneralNote,
+  CreateNoteApplyContentParams,
+  CreateNoteApplyTemplateParams,
+  CreateParams,
+  createParams,
+  createPeriodicNote,
+  CreatePeriodicNoteParams,
+} from "src/routes/note/create";
+import { incomingBaseParams, noteTargetingParams } from "src/schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
   RealLifePlugin,
-} from "../types";
+} from "src/types";
 import {
   appendNote,
   appendNoteBelowHeadline,
@@ -28,29 +37,20 @@ import {
   searchAndReplaceInNote,
   touchNote,
   trashFilepath,
-} from "../utils/file-handling";
+} from "src/utils/file-handling";
 import {
   hardValidateNoteTargetingAndResolvePath,
   softValidateNoteTargetingAndResolvePath,
-} from "../utils/parameters";
-import { ErrorCode, failure, success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
-import { parseStringIntoRegex } from "../utils/string-handling";
-import { focusOrOpenFile } from "../utils/ui";
+} from "src/utils/parameters";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
+import { parseStringIntoRegex } from "src/utils/string-handling";
+import { focusOrOpenFile } from "src/utils/ui";
 import {
   zodAlwaysFalse,
   zodOptionalBoolean,
   zodSanitizedNotePath,
-} from "../utils/zod";
-import {
-  createGeneralNote,
-  CreateNoteApplyContentParams,
-  CreateNoteApplyTemplateParams,
-  CreateParams,
-  createParams,
-  createPeriodicNote,
-  CreatePeriodicNoteParams,
-} from "./note/create";
+} from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -211,10 +211,10 @@ async function handleList(
   this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  return success({
-    paths: this.app.vault.getMarkdownFiles().map((t) => t.path).sort(),
-  });
-}
+    return success({
+      paths: this.app.vault.getMarkdownFiles().map((t) => t.path).sort(),
+    });
+  }
 
 /**
  * Handler for `/note/get`. Existence of note is checked by the schema, i.e. the

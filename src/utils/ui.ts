@@ -1,9 +1,9 @@
 import { FileView, Notice, WorkspaceLeaf } from "obsidian";
-import { STRINGS } from "../constants";
-import { StringResultObject } from "../types";
-import { getFile } from "./file-handling";
-import { self } from "./self";
-import { failure, success } from "./results-handling";
+import { STRINGS } from "src/constants";
+import { StringResultObject } from "src/types";
+import { getFile } from "src/utils/file-handling";
+import { self } from "src/utils/self";
+import { failure, success } from "src/utils/results-handling";
 
 /**
  * @returns An array of all open workspace leaves

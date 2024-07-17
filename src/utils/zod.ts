@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
-import { self } from "./self";
-import { sanitizeFilePath } from "./file-handling";
-import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "./plugins";
+import { self } from "src/utils/self";
+import { sanitizeFilePath } from "src/utils/file-handling";
+import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "src/utils/plugins";
 
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
 // should all be treated as `false`. My reign shall be merciful.

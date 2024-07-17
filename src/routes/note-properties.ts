@@ -1,21 +1,21 @@
 import { stringifyYaml } from "obsidian";
 import { z } from "zod";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams, noteTargetingParams } from "../schemata";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams, noteTargetingParams } from "src/schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerPropertiesSuccess,
-} from "../types";
-import { propertiesForFile, updateNote } from "../utils/file-handling";
-import { hardValidateNoteTargetingAndResolvePath } from "../utils/parameters";
-import { helloRoute } from "../utils/routing";
-import { success } from "../utils/results-handling";
+} from "src/types";
+import { propertiesForFile, updateNote } from "src/utils/file-handling";
+import { hardValidateNoteTargetingAndResolvePath } from "src/utils/parameters";
+import { helloRoute } from "src/utils/routing";
+import { success } from "src/utils/results-handling";
 import {
   zodJsonPropertiesObject,
   zodJsonStringArray,
   zodOptionalBoolean,
-} from "../utils/zod";
+} from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 

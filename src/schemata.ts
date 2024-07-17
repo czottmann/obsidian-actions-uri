@@ -1,8 +1,8 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
-import { NoteTargetingParameterKey } from "./routes";
-import { zodOptionalBoolean, zodSanitizedNotePath } from "./utils/zod";
-import { PeriodicNoteType } from "./utils/periodic-notes-handling";
+import { NoteTargetingParameterKey } from "src/routes";
+import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
+import { PeriodicNoteType } from "src/utils/periodic-notes-handling";
 
 export const incomingBaseParams = z.object({
   action: z.string(),

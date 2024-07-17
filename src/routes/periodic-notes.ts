@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { TFile } from "obsidian";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { STRINGS } from "src/constants";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
@@ -10,7 +10,7 @@ import {
   HandlerPathsSuccess,
   HandlerTextSuccess,
   RealLifePlugin,
-} from "../types";
+} from "src/types";
 import {
   appendNote,
   appendNoteBelowHeadline,
@@ -20,7 +20,7 @@ import {
   prependNote,
   prependNoteBelowHeadline,
   searchAndReplaceInNote,
-} from "../utils/file-handling";
+} from "src/utils/file-handling";
 import {
   appHasPeriodPluginLoaded,
   createPeriodNote,
@@ -29,16 +29,16 @@ import {
   getExistingPeriodNotePathIfPluginIsAvailable,
   getMostRecentPeriodNote,
   PeriodicNoteType,
-} from "../utils/periodic-notes-handling";
+} from "src/utils/periodic-notes-handling";
 import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
-} from "../utils/plugins";
-import { failure, success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
-import { parseStringIntoRegex } from "../utils/string-handling";
-import { pause } from "../utils/time";
-import { focusOrOpenFile } from "../utils/ui";
+} from "src/utils/plugins";
+import { failure, success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
+import { parseStringIntoRegex } from "src/utils/string-handling";
+import { pause } from "src/utils/time";
+import { focusOrOpenFile } from "src/utils/ui";
 import {
   zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
@@ -46,7 +46,7 @@ import {
   zodExistingTemplatesPath,
   zodOptionalBoolean,
   zodUndefinedChangedToDefaultValue,
-} from "../utils/zod";
+} from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 

@@ -1,16 +1,16 @@
 import { moment, parseFrontMatterEntry, TFile } from "obsidian";
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { self } from "./self";
+import { STRINGS } from "src/constants";
+import { self } from "src/utils/self";
 import {
   appHasPeriodPluginLoaded,
   periodicNoteFilePath,
-} from "./periodic-notes-handling";
-import { failure, success } from "./results-handling";
-import { NoteTargetingParameterKey } from "../routes";
-import { NoteTargetingComputedValues, NoteTargetingParams } from "../schemata";
-import { StringResultObject } from "../types.d";
-import { zodExistingNotePath } from "./zod";
+} from "src/utils/periodic-notes-handling";
+import { failure, success } from "src/utils/results-handling";
+import { NoteTargetingParameterKey } from "src/routes";
+import { NoteTargetingComputedValues, NoteTargetingParams } from "src/schemata";
+import { StringResultObject } from "src/types.d";
+import { zodExistingNotePath } from "src/utils/zod";
 
 /**
  * Validates the targeting parameters of a note and adds computed values.

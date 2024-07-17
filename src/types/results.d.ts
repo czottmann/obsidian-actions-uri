@@ -1,7 +1,6 @@
 import { TFile } from "obsidian";
-import { AnyParams } from "../routes";
-import { NoteProperties } from "../types";
-import { AnyHandlerResult } from "./handlers";
+import { AnyParams } from "src/routes";
+import { AnyHandlerResult, NoteProperties } from "src/types";
 
 type ErrorObject = {
   isSuccess: false;

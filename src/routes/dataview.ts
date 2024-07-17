@@ -4,16 +4,16 @@ import {
   isPluginEnabled as isDataviewEnabled,
 } from "obsidian-dataview";
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { STRINGS } from "src/constants";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
 import {
   HandlerDataviewSuccess,
   HandlerFailure,
   RealLifePlugin,
-} from "../types";
-import { failure, success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
+} from "src/types";
+import { failure, success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
 
 // SCHEMATA ----------------------------------------
 

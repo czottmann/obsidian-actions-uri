@@ -5,9 +5,9 @@ import {
   TAbstractFile,
 } from "obsidian";
 import { ZodError } from "zod";
-import { URI_NAMESPACE } from "./constants";
-import { AnyParams, AnyProcessedParams, RoutePath, routes } from "./routes";
-import { SettingsTab } from "./settings";
+import { URI_NAMESPACE } from "src/constants";
+import { AnyParams, AnyProcessedParams, RoutePath, routes } from "src/routes";
+import { SettingsTab } from "src/settings";
 import {
   AnyHandlerResult,
   AnyHandlerSuccess,
@@ -17,16 +17,16 @@ import {
   PluginSettings,
   ProcessingResult,
   StringResultObject,
-} from "./types";
-import { sendUrlCallback } from "./utils/callbacks";
-import { self } from "./utils/self";
-import { failure, success } from "./utils/results-handling";
+} from "src/types";
+import { sendUrlCallback } from "src/utils/callbacks";
+import { self } from "src/utils/self";
+import { failure, success } from "src/utils/results-handling";
 import {
   focusOrOpenFile,
   logErrorToConsole,
   logToConsole,
   showBrandedNotice,
-} from "./utils/ui";
+} from "src/utils/ui";
 
 export default class ActionsURI extends Plugin {
   // @ts-ignore

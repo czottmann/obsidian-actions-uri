@@ -1,4 +1,4 @@
-import { ErrorObject, ResultObject } from "../types";
+import { ErrorObject, ResultObject } from "src/types";
 
 /**
  * Returns a `ResultObject` based on the passed-in parameters.

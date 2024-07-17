@@ -1,10 +1,10 @@
 import { apiVersion, Platform } from "obsidian";
 import { z } from "zod";
-import { PLUGIN_INFO } from "../plugin-info";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
-import { HandlerInfoSuccess } from "../types";
-import { success } from "../utils/results-handling";
+import { PLUGIN_INFO } from "src/plugin-info";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
+import { HandlerInfoSuccess } from "src/types";
+import { success } from "src/utils/results-handling";
 
 // SCHEMATA --------------------
 

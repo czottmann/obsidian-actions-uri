@@ -1,10 +1,10 @@
 import { TFile } from "obsidian";
-import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "./plugins";
-import { pause } from "./time";
-import { STRINGS } from "../constants";
-import { OmnisearchAPI, SearchResultObject } from "../types";
-import { self } from "./self";
-import { failure, success } from "../utils/results-handling";
+import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "src/utils/plugins";
+import { pause } from "src/utils/time";
+import { STRINGS } from "src/constants";
+import { OmnisearchAPI, SearchResultObject } from "src/types";
+import { self } from "src/utils/self";
+import { failure, success } from "src/utils/results-handling";
 
 /**
  * Executes a global search for the specified query and returns the search

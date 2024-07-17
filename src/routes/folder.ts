@@ -1,21 +1,21 @@
 import { TFolder } from "obsidian";
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { STRINGS } from "src/constants";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
 import {
   HandlerFailure,
   HandlerPathsSuccess,
   HandlerTextSuccess,
-} from "../types";
+} from "src/types";
 import {
   createFolderIfNecessary,
   getFileMap,
   renameFilepath,
   trashFilepath,
-} from "../utils/file-handling";
-import { helloRoute } from "../utils/routing";
-import { zodExistingFolderPath, zodSanitizedFolderPath } from "../utils/zod";
+} from "src/utils/file-handling";
+import { helloRoute } from "src/utils/routing";
+import { zodExistingFolderPath, zodSanitizedFolderPath } from "src/utils/zod";
 import { success } from "src/utils/results-handling";
 
 // SCHEMATA ----------------------------------------

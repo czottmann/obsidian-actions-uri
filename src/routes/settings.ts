@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
-import { HandlerTextSuccess, RealLifePlugin } from "../types";
-import { success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
+import { AnyParams, RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
+import { HandlerTextSuccess, RealLifePlugin } from "src/types";
+import { success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
 
 // SCHEMATA --------------------
 

@@ -1,4 +1,4 @@
-import { AnyProcessedParams } from "../routes";
+import { AnyProcessedParams } from "src/routes";
 
 /**
  * A handler function is a function that is responsible for dealing with a

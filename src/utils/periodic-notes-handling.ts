@@ -26,10 +26,10 @@ import {
   getYearlyNote,
   getYearlyNoteSettings,
 } from "obsidian-daily-notes-interface";
-import { STRINGS } from "../constants";
-import { StringResultObject, TFileResultObject } from "../types";
-import { getNote, sanitizeFilePath } from "../utils/file-handling";
-import { ErrorCode, failure, success } from "../utils/results-handling";
+import { STRINGS } from "src/constants";
+import { StringResultObject, TFileResultObject } from "src/types";
+import { getNote, sanitizeFilePath } from "src/utils/file-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 
 export enum PeriodicNoteType {
   DailyNote = "daily",

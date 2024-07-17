@@ -1,5 +1,5 @@
 import { App, debounce, PluginSettingTab, Setting } from "obsidian";
-import ActionsURI from "./main";
+import ActionsURI from "src/main";
 
 export class SettingsTab extends PluginSettingTab {
   plugin: ActionsURI;

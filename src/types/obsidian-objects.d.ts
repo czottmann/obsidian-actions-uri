@@ -7,7 +7,7 @@ import {
   TFile,
   Vault,
 } from "obsidian";
-import { PluginSettings } from "../types";
+import { PluginSettings } from "src/types";
 
 export interface RealLifePlugin extends App {
   app: RealLifeApp;
