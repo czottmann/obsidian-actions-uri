@@ -3,9 +3,9 @@ import { z } from "zod";
 import { STRINGS } from "src/constants";
 import { self } from "src/utils/self";
 import {
-  appHasPeriodPluginLoaded,
-  currentPeriodicNoteFilePath,
-  mostRecentPeriodicNoteFilePath,
+  checkForEnabledPeriodFeature,
+  getCurrentPeriodicNotePath,
+  getMostRecentPeriodicNotePath,
   PeriodicNoteType,
   PeriodicNoteTypeWithRecents,
 } from "src/utils/periodic-notes-handling";
@@ -131,7 +131,7 @@ function validateNoteTargetingAndResolvePath<T>(
     const shouldFindMostRecent = val.startsWith("recent-");
 
     // Normalize "recent-daily" into "daily" etc. then check feature availability
-    const isPluginAvailable = appHasPeriodPluginLoaded(periodicNoteType);
+    const isPluginAvailable = checkForEnabledPeriodFeature(periodicNoteType);
     if (!isPluginAvailable) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -142,11 +142,11 @@ function validateNoteTargetingAndResolvePath<T>(
 
     if (shouldFindMostRecent) {
       // Get the most recent note path
-      const resRPN = mostRecentPeriodicNoteFilePath(periodicNoteType);
+      const resRPN = getMostRecentPeriodicNotePath(periodicNoteType);
       path = resRPN.isSuccess ? resRPN.result : "";
     } else {
       // Get the current note path
-      path = currentPeriodicNoteFilePath(periodicNoteType);
+      path = getCurrentPeriodicNotePath(periodicNoteType);
     }
   }
 

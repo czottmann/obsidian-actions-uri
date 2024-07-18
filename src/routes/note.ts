@@ -43,7 +43,7 @@ import {
   softValidateNoteTargetingAndResolvePath,
 } from "src/utils/parameters";
 import {
-  appHasPeriodPluginLoaded,
+  checkForEnabledPeriodFeature,
   getAllPeriodNotes,
   PeriodicNoteType,
 } from "src/utils/periodic-notes-handling";
@@ -234,7 +234,7 @@ async function handleList(
   }
 
   // If a periodic note type is specified, we return all notes of that type.
-  if (!appHasPeriodPluginLoaded(periodicNoteType)) {
+  if (!checkForEnabledPeriodFeature(periodicNoteType)) {
     return failure(
       ErrorCode.FeatureUnavailable,
       STRINGS[`${periodicNoteType}_note`].feature_not_available,

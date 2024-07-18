@@ -27,10 +27,11 @@ import {
   getYearlyNoteSettings,
 } from "obsidian-daily-notes-interface";
 import { STRINGS } from "src/constants";
-import { StringResultObject, TFileResultObject } from "src/types";
-import { getNote, sanitizeFilePath } from "src/utils/file-handling";
+import { StringResultObject } from "src/types";
+import { sanitizeFilePath } from "src/utils/file-handling";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 
+// TYPES ----------------------------------------
 export enum PeriodicNoteType {
   DailyNote = "daily",
   WeeklyNote = "weekly",
@@ -52,32 +53,11 @@ export enum PeriodicNoteTypeWithRecents {
   RecentYearlyNote = "recent-yearly",
 }
 
-export async function createPeriodNote(
-  periodicNoteType: PeriodicNoteType,
-): Promise<TFile> {
-  const now = moment();
-  switch (periodicNoteType) {
-    case PeriodicNoteType.DailyNote:
-      return createDailyNote(now);
+// FUNCTIONS ----------------------------------------
 
-    case PeriodicNoteType.WeeklyNote:
-      return createWeeklyNote(now);
-
-    case PeriodicNoteType.MonthlyNote:
-      return createMonthlyNote(now);
-
-    case PeriodicNoteType.QuarterlyNote:
-      return createQuarterlyNote(now);
-
-    case PeriodicNoteType.YearlyNote:
-      return createYearlyNote(now);
-  }
-}
-
-export function currentPeriodicNoteFilePath(
+export function getCurrentPeriodicNotePath(
   periodicNoteType: PeriodicNoteType,
 ): string {
-  const now = moment();
   let getSettingsFn: Function;
   switch (periodicNoteType) {
     case PeriodicNoteType.DailyNote:
@@ -102,11 +82,11 @@ export function currentPeriodicNoteFilePath(
   }
 
   const { format, folder } = getSettingsFn();
-  const title = now.format(format);
+  const title = moment().format(format);
   return sanitizeFilePath(`${folder}/${title}.md`);
 }
 
-export function mostRecentPeriodicNoteFilePath(
+export function getMostRecentPeriodicNotePath(
   periodicNoteType: PeriodicNoteType,
 ): StringResultObject {
   const notes = getAllPeriodNotes(periodicNoteType);
@@ -116,67 +96,10 @@ export function mostRecentPeriodicNoteFilePath(
     : failure(404, STRINGS.note_not_found);
 }
 
-/**
- * Checks if the daily/weekly/monthly/etc periodic note feature is available,
- * and gets the path to the current related note.
- *
- * @returns Successful `StringResultObject` containing the path if the PN
- * functionality is available and there is a current daily note. Unsuccessful
- * `StringResultObject` if it isn't.
- */
-export function getExistingPeriodNotePathIfPluginIsAvailable(
-  periodicNoteType: PeriodicNoteType,
-): StringResultObject {
-  let pluginLoadedCheck: () => boolean;
-  let getCurrentPeriodNote: () => TFile;
-  const now = moment();
-
-  switch (periodicNoteType) {
-    case PeriodicNoteType.DailyNote:
-      pluginLoadedCheck = appHasDailyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getDailyNote(now, getAllDailyNotes());
-      break;
-
-    case PeriodicNoteType.WeeklyNote:
-      pluginLoadedCheck = appHasWeeklyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getWeeklyNote(now, getAllWeeklyNotes());
-      break;
-
-    case PeriodicNoteType.MonthlyNote:
-      pluginLoadedCheck = appHasMonthlyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getMonthlyNote(now, getAllMonthlyNotes());
-      break;
-
-    case PeriodicNoteType.QuarterlyNote:
-      pluginLoadedCheck = appHasQuarterlyNotesPluginLoaded;
-      getCurrentPeriodNote = () =>
-        getQuarterlyNote(now, getAllQuarterlyNotes());
-      break;
-
-    case PeriodicNoteType.YearlyNote:
-      pluginLoadedCheck = appHasYearlyNotesPluginLoaded;
-      getCurrentPeriodNote = () => getYearlyNote(now, getAllYearlyNotes());
-      break;
-  }
-
-  if (!pluginLoadedCheck()) {
-    return failure(
-      ErrorCode.FeatureUnavailable,
-      STRINGS[`${periodicNoteType}_note`].feature_not_available,
-    );
-  }
-
-  const pNote = getCurrentPeriodNote();
-  return pNote
-    ? success(pNote.path)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
-}
-
-export function getCurrentPeriodNote(
+export function getCurrentPeriodicNote(
   periodicNoteType: PeriodicNoteType,
 ): TFile | undefined {
   const now = moment();
-
   switch (periodicNoteType) {
     case PeriodicNoteType.DailyNote:
       return getDailyNote(now, getAllDailyNotes());
@@ -193,26 +116,6 @@ export function getCurrentPeriodNote(
     case PeriodicNoteType.YearlyNote:
       return getYearlyNote(now, getAllYearlyNotes());
   }
-}
-
-export async function getMostRecentPeriodNote(
-  periodicNoteType: PeriodicNoteType,
-): Promise<TFileResultObject> {
-  if (!appHasPeriodPluginLoaded(periodicNoteType)) {
-    return failure(
-      ErrorCode.FeatureUnavailable,
-      STRINGS[`${periodicNoteType}_note`].feature_not_available,
-    );
-  }
-
-  const notes = getAllPeriodNotes(periodicNoteType);
-  const mostRecentKey = Object.keys(notes).sort().last();
-  if (!mostRecentKey) {
-    return failure(404, STRINGS.note_not_found);
-  }
-
-  const pNote = notes[mostRecentKey];
-  return await getNote(pNote.path);
 }
 
 export function getAllPeriodNotes(
@@ -236,7 +139,7 @@ export function getAllPeriodNotes(
   }
 }
 
-export function appHasPeriodPluginLoaded(
+export function checkForEnabledPeriodFeature(
   periodicNoteType: PeriodicNoteType,
 ): boolean {
   switch (periodicNoteType) {
@@ -255,4 +158,50 @@ export function appHasPeriodPluginLoaded(
     case PeriodicNoteType.YearlyNote:
       return appHasYearlyNotesPluginLoaded();
   }
+}
+
+export async function createPeriodNote(
+  periodicNoteType: PeriodicNoteType,
+): Promise<TFile> {
+  const now = moment();
+  switch (periodicNoteType) {
+    case PeriodicNoteType.DailyNote:
+      return createDailyNote(now);
+
+    case PeriodicNoteType.WeeklyNote:
+      return createWeeklyNote(now);
+
+    case PeriodicNoteType.MonthlyNote:
+      return createMonthlyNote(now);
+
+    case PeriodicNoteType.QuarterlyNote:
+      return createQuarterlyNote(now);
+
+    case PeriodicNoteType.YearlyNote:
+      return createYearlyNote(now);
+  }
+}
+
+/**
+ * Checks if the daily/weekly/monthly/etc periodic note feature is available,
+ * and gets the path to the current related note.
+ *
+ * @returns Successful `StringResultObject` containing the path if the PN
+ * functionality is available and there is a current daily note. Unsuccessful
+ * `StringResultObject` if it isn't.
+ */
+export function getExistingPeriodNotePathIfPluginIsAvailable(
+  periodicNoteType: PeriodicNoteType,
+): StringResultObject {
+  if (!checkForEnabledPeriodFeature(periodicNoteType)) {
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS[`${periodicNoteType}_note`].feature_not_available,
+    );
+  }
+
+  const pNote = getCurrentPeriodicNote(periodicNoteType);
+  return pNote
+    ? success(pNote.path)
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }

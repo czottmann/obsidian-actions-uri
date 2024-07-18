@@ -22,12 +22,12 @@ import {
   searchAndReplaceInNote,
 } from "src/utils/file-handling";
 import {
-  appHasPeriodPluginLoaded,
+  checkForEnabledPeriodFeature,
   createPeriodNote,
   getAllPeriodNotes,
-  getCurrentPeriodNote,
+  getCurrentPeriodicNote,
   getExistingPeriodNotePathIfPluginIsAvailable,
-  getMostRecentPeriodNote,
+  getMostRecentPeriodicNotePath,
   PeriodicNoteType,
 } from "src/utils/periodic-notes-handling";
 import {
@@ -212,7 +212,7 @@ function getHandleList(periodicNoteType: PeriodicNoteType): HandlerFunction {
   return async function handleList(
     incoming: AnyParams,
   ): Promise<HandlerPathsSuccess | HandlerFailure> {
-    if (!appHasPeriodPluginLoaded(periodicNoteType)) {
+    if (!checkForEnabledPeriodFeature(periodicNoteType)) {
       return failure(
         ErrorCode.FeatureUnavailable,
         STRINGS[`${periodicNoteType}_note`].feature_not_available,
@@ -252,9 +252,9 @@ function getHandleGetMostRecent(
     const { silent } = <ReadParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const res = await getMostRecentPeriodNote(periodicNoteType);
+    const res = getMostRecentPeriodicNotePath(periodicNoteType);
     if (!res.isSuccess) return res;
-    const filepath = res.result.path;
+    const filepath = res.result;
     if (shouldFocusNote) await focusOrOpenFile(filepath);
     return await getNoteDetails(filepath);
   };
@@ -289,9 +289,9 @@ function getHandleOpenMostRecent(
     // hand it back to the calling `handleIncomingCall()` (see `main.ts`) which
     // will take care of the rest.
 
-    const res = await getMostRecentPeriodNote(periodicNoteType);
+    const res = await getMostRecentPeriodicNotePath(periodicNoteType);
     return res.isSuccess
-      ? success({ message: STRINGS.note_opened }, res.result.path)
+      ? success({ message: STRINGS.note_opened }, res.result)
       : res;
   };
 }
@@ -313,7 +313,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
       : "";
     let pluginInstance;
 
-    if (!appHasPeriodPluginLoaded(periodicNoteType)) {
+    if (!checkForEnabledPeriodFeature(periodicNoteType)) {
       return failure(
         ErrorCode.FeatureUnavailable,
         STRINGS[`${periodicNoteType}_note`].feature_not_available,
@@ -333,7 +333,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // If there already is a note for today, deal with it.
-    const pNote = getCurrentPeriodNote(periodicNoteType);
+    const pNote = getCurrentPeriodicNote(periodicNoteType);
     if (pNote instanceof TFile) {
       switch (ifExists) {
         // `skip` == Leave not as-is, we just return the existing note.
