@@ -675,7 +675,7 @@ async function createAndPause(filepath: string, content: string) {
     isCorePluginEnabled("templates") ||
     isCommunityPluginEnabled("templater-obsidian")
   ) {
-    await pause(300);
+    await pause(500);
   }
 }
 
