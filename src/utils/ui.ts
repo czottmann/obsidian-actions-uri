@@ -3,7 +3,7 @@ import { STRINGS } from "src/constants";
 import { StringResultObject } from "src/types";
 import { getFile } from "src/utils/file-handling";
 import { self } from "src/utils/self";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 
 /**
  * @returns An array of all open workspace leaves
@@ -59,7 +59,7 @@ export function focusLeafWithFile(filepath: string): StringResultObject {
   const leaf = allWorkspaceRootSplitLeaves()
     .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
   if (!leaf) {
-    return failure(405, "File currently not open");
+    return failure(ErrorCode.NotFound, "File currently not open");
   }
 
   self().app.workspace.setActiveLeaf(leaf, { focus: true });
@@ -89,5 +89,5 @@ export async function focusOrOpenFile(
     return success(STRINGS.note_opened);
   }
 
-  return failure(404, STRINGS.note_not_found);
+  return failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }

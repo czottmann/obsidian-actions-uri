@@ -33,5 +33,9 @@ export enum ErrorCode {
   PluginUnavailable = 424,
   FeatureUnavailable = 424,
   UnableToCreateNote = 400,
+  UnableToWrite = 400,
+  InvalidInput = 406,
   NoteAlreadyExists = 409,
+  HandlerError = 500,
+  UnknownError = 500,
 }

@@ -12,7 +12,7 @@ import {
   isCommunityPluginEnabled,
   isCorePluginEnabled,
 } from "src/utils/plugins";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import {
   endStringWithNewline,
   extractNoteContentParts,
@@ -86,7 +86,7 @@ export async function createNote(
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(400, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -124,7 +124,7 @@ export async function createOrOverwriteNote(
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(400, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -147,7 +147,7 @@ export async function getNoteContent(
   const noteContent = await vault.read(res.result);
   return (typeof noteContent === "string")
     ? success(noteContent)
-    : failure(400, STRINGS.unable_to_read_note);
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_read_note);
 }
 
 /**
@@ -500,7 +500,7 @@ export async function getFile(
 
   return file instanceof TFile
     ? success(file)
-    : failure(404, STRINGS.note_not_found);
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }
 
 /**
@@ -519,7 +519,7 @@ export async function getNote(
 
   return file instanceof TFile
     ? success(file)
-    : failure(404, STRINGS.note_not_found);
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }
 
 /**
@@ -555,7 +555,7 @@ export async function applyCorePluginTemplate(
     const msg = (<Error> error).message;
     showBrandedNotice(msg);
     logErrorToConsole(msg);
-    return failure(500, msg);
+    return failure(ErrorCode.HandlerError, msg);
   }
 
   await pause(200);
@@ -580,7 +580,7 @@ export async function trashFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(404, STRINGS.not_found);
+    return failure(ErrorCode.NotFound, STRINGS.not_found);
   }
 
   if (deleteImmediately) {
@@ -610,7 +610,7 @@ export async function renameFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(404, STRINGS.not_found);
+    return failure(ErrorCode.NotFound, STRINGS.not_found);
   }
 
   try {
@@ -618,7 +618,7 @@ export async function renameFilepath(
   } catch (error) {
     const msg = (<Error> error).message;
     return failure(
-      409,
+      ErrorCode.NotFound,
       msg.contains("no such file or directory")
         ? "No such file or folder"
         : msg,

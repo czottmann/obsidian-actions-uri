@@ -346,7 +346,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
 
         default:
           return failure(
-            409,
+            ErrorCode.NoteAlreadyExists,
             STRINGS[`${periodicNoteType}_note`].create_note_already_exists,
           );
       }
@@ -355,7 +355,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
     // There is no note for today.  Let's create one!
     const newNote = await createPeriodNote(periodicNoteType);
     if (!(newNote instanceof TFile)) {
-      return failure(400, STRINGS.unable_to_write_note);
+      return failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
     }
     const filepath = newNote.path;
     await pause(200);
@@ -440,7 +440,7 @@ function getHandleAppend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // If that didn't work, return an error.
-    return failure(400, STRINGS.unable_to_write_note);
+    return failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
   };
 }
 
@@ -506,7 +506,7 @@ function getHandlePrepend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // If that didn't work, return an error.
-    return failure(400, STRINGS.unable_to_write_note);
+    return failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
   };
 }
 

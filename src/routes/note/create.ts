@@ -119,7 +119,7 @@ export async function createPeriodicNote(
 
       default:
         return failure(
-          409,
+          ErrorCode.NoteAlreadyExists,
           STRINGS[`${periodicNoteType}_note`].create_note_already_exists,
         );
     }

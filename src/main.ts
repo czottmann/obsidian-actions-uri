@@ -20,7 +20,7 @@ import {
 } from "src/types";
 import { sendUrlCallback } from "src/utils/callbacks";
 import { self } from "src/utils/self";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import {
   focusOrOpenFile,
   logErrorToConsole,
@@ -116,7 +116,7 @@ export default class ActionsURI extends Plugin {
       handlerResult = await handlerFunc.bind(this)(params);
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
-      handlerResult = failure(500, msg);
+      handlerResult = failure(ErrorCode.HandlerError, msg);
       showBrandedNotice(msg);
       logErrorToConsole(msg);
     }
@@ -178,7 +178,11 @@ export default class ActionsURI extends Plugin {
           .map((e) => `${e.path.join(".")}: ${e.message}`)
           .join("; ");
 
-      sendUrlCallback(params["x-error"], failure(400, msg2), params);
+      sendUrlCallback(
+        params["x-error"],
+        failure(ErrorCode.HandlerError, msg2),
+        params,
+      );
     }
   }
 

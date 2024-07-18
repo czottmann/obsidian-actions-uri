@@ -15,7 +15,7 @@ import {
   trashFilepath,
 } from "src/utils/file-handling";
 import { helloRoute } from "src/utils/routing";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import {
   zodExistingFilePath,
   zodOptionalBoolean,
@@ -83,7 +83,9 @@ async function handleGetActive(
   incomingParams: AnyParams,
 ): Promise<HandlerFilePathSuccess | HandlerFailure> {
   const res = this.app.workspace.getActiveFile();
-  return res ? success({ filepath: res.path }) : failure(404, "No active file");
+  return res
+    ? success({ filepath: res.path })
+    : failure(ErrorCode.NotFound, "No active file");
 }
 
 async function handleOpen(

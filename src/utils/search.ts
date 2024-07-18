@@ -53,7 +53,10 @@ export async function doOmnisearch(query: string): Promise<SearchResultObject> {
   // Get the Omnisearch plugin instance or back off
   const res = getEnabledCommunityPlugin("omnisearch");
   if (!res.isSuccess) {
-    return failure(412, STRINGS.omnisearch_plugin_not_available);
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS.omnisearch_plugin_not_available,
+    );
   }
 
   // Execute the Omnisearch query

@@ -8,7 +8,7 @@ import {
   HandlerFailure,
   RealLifePlugin,
 } from "src/types";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
 import { pause } from "src/utils/time";
 import { zodCommaSeparatedStrings } from "src/utils/zod";
@@ -72,7 +72,7 @@ async function handleExecute(
 
     // If this call wasn't successful, stop the sequence and return an error.
     if (!wasSuccess) {
-      return failure(500, STRINGS.command_not_found(cmd));
+      return failure(ErrorCode.NotFound, STRINGS.command_not_found(cmd));
     }
 
     // Unless this was the last command of the sequence, put in a short pause.

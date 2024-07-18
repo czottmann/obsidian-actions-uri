@@ -12,7 +12,7 @@ import {
   HandlerFailure,
   RealLifePlugin,
 } from "src/types";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
 
 // SCHEMATA ----------------------------------------
@@ -70,17 +70,23 @@ async function handleDataviewQuery(
   const dataview = getAPI(this.app);
 
   if (!isDataviewEnabled(this.app) || !dataview) {
-    return failure(412, STRINGS.dataview_plugin_not_available);
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS.dataview_plugin_not_available,
+    );
   }
 
   const dql = params.dql.trim() + "\n";
   if (!dql.toLowerCase().startsWith(type)) {
-    return failure(400, STRINGS[`dataview_dql_must_start_with_${type}`]);
+    return failure(
+      ErrorCode.InvalidInput,
+      STRINGS[`dataview_dql_must_start_with_${type}`],
+    );
   }
 
   const res = await dataview.query(dql);
   if (!res.successful) {
-    return failure(400, res.error);
+    return failure(ErrorCode.UnknownError, res.error);
   }
 
   // For some TABLE queries, DV will return a three-dimensional array instead of

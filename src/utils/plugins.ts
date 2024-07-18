@@ -1,6 +1,6 @@
 import { PluginResultObject } from "src/types";
 import { self } from "src/utils/self";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 
 /**
  * Returns sorted list of the string IDs of the enabled community plugins.
@@ -37,7 +37,10 @@ export function getEnabledCommunityPlugin(
 ): PluginResultObject {
   return isCommunityPluginEnabled(pluginID)
     ? success(self().app.plugins.getPlugin(pluginID))
-    : failure(404, `Community plugin ${pluginID} is not enabled.`);
+    : failure(
+      ErrorCode.FeatureUnavailable,
+      `Community plugin ${pluginID} is not enabled.`,
+    );
 }
 
 /**
@@ -63,5 +66,8 @@ export function getEnabledCorePlugin(pluginID: string): PluginResultObject {
 
   return plugin
     ? success(plugin)
-    : failure(404, `Core plugin ${pluginID} is not enabled.`);
+    : failure(
+      ErrorCode.FeatureUnavailable,
+      `Core plugin ${pluginID} is not enabled.`,
+    );
 }

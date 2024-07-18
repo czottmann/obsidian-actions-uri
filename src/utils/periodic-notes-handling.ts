@@ -93,7 +93,7 @@ export function getMostRecentPeriodicNotePath(
   const mostRecentKey = Object.keys(notes).sort().last();
   return mostRecentKey
     ? success(notes[mostRecentKey].path)
-    : failure(404, STRINGS.note_not_found);
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }
 
 export function getCurrentPeriodicNote(

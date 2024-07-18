@@ -12,7 +12,7 @@ import {
   RealLifePlugin,
   RealLifeVault,
 } from "src/types";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
 
 // SCHEMATA --------------------
@@ -59,7 +59,10 @@ async function handleClose(
   incomingParams: AnyParams,
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
   if (Platform.isMobileApp) {
-    return failure(405, STRINGS.not_available_on_mobile);
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS.not_available_on_mobile,
+    );
   }
 
   // This feels wonky, like a race condition waiting to happen.
@@ -76,7 +79,7 @@ async function handleInfo(
   const basePath = (<RealLifeDataAdapter> vault.adapter).basePath;
 
   if (!config || !basePath) {
-    return failure(412, STRINGS.vault_internals_not_found);
+    return failure(ErrorCode.NotFound, STRINGS.vault_internals_not_found);
   }
 
   return success({

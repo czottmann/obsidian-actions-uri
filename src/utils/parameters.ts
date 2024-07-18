@@ -10,7 +10,7 @@ import {
   PeriodicNoteType,
   PeriodicNoteTypeWithRecents,
 } from "src/utils/periodic-notes-handling";
-import { failure, success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { NoteTargetingParameterKey } from "src/routes";
 import { NoteTargetingComputedValues, NoteTargetingParams } from "src/schemata";
 import { StringResultObject } from "src/types.d";
@@ -188,5 +188,7 @@ function filepathForUID(uid: string): StringResultObject {
     })
     ?.path;
 
-  return path ? success(path) : failure(404, STRINGS.note_not_found);
+  return path
+    ? success(path)
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }
