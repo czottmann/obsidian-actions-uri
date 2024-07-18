@@ -68,7 +68,7 @@ export default class ActionsURI extends Plugin {
    * @param routeTree - A `RoutePath` object containing information about the
    * route tree
    */
-  private async registerRoutes(routeTree: RoutePath) {
+  private registerRoutes(routeTree: RoutePath) {
     const registeredRoutes: string[] = [];
 
     for (const [routePath, routeSubpaths] of Object.entries(routeTree)) {

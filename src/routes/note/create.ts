@@ -1,7 +1,6 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
-import { CreateApplyParameterValue, IfExistsParameterValue } from "src/routes";
 import { incomingBaseParams } from "src/schemata";
 import { HandlerFailure, HandlerFileSuccess, RealLifePlugin } from "src/types";
 import {
@@ -28,6 +27,22 @@ import {
   zodOptionalBoolean,
   zodSanitizedNotePath,
 } from "src/utils/zod";
+
+// TYPES ----------------------------------------
+
+enum CreateApplyParameterValue {
+  Content = "content",
+  Templater = "templater",
+  Templates = "templates",
+}
+
+export enum IfExistsParameterValue {
+  Default = "",
+  Overwrite = "overwrite",
+  Skip = "skip",
+}
+
+// SCHEMAS ----------------------------------------
 
 const createStandardNoteParams = incomingBaseParams
   .extend({

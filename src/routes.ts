@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { TFile } from "obsidian";
 import {
   AnyLocalParams as AnyCommandParams,
   routePath as commandRoutes,
@@ -55,7 +54,6 @@ import {
 } from "src/routes/tags";
 import { IncomingBaseParams, NoteTargetingComputedValues } from "src/schemata";
 import { HandlerFunction } from "src/types";
-import { PeriodicNoteType } from "src/utils/periodic-notes-handling";
 
 export const routes: RoutePath = {
   ...rootRoutes,
@@ -142,31 +140,3 @@ export enum NoteTargetingParameterKey {
   UID = "uid",
   PeriodicNote = "periodic-note",
 }
-
-export enum CreateApplyParameterValue {
-  Content = "content",
-  Templater = "templater",
-  Templates = "templates",
-}
-
-export enum IfExistsParameterValue {
-  Default = "",
-  Overwrite = "overwrite",
-  Skip = "skip",
-}
-
-export type CreateContentParams = {
-  apply: CreateApplyParameterValue.Content;
-  content?: string;
-};
-
-export type CreateTemplateParams = {
-  apply:
-    | CreateApplyParameterValue.Templater
-    | CreateApplyParameterValue.Templates;
-  "template-file": TFile;
-};
-
-export type CreatePeriodicNoteParams = {
-  "periodic-note": PeriodicNoteType;
-};

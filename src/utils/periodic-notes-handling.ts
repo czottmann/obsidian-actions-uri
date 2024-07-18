@@ -74,6 +74,48 @@ export async function createPeriodNote(
   }
 }
 
+export function currentPeriodicNoteFilePath(
+  periodicNoteType: PeriodicNoteType,
+): string {
+  const now = moment();
+  let getSettingsFn: Function;
+  switch (periodicNoteType) {
+    case PeriodicNoteType.DailyNote:
+      getSettingsFn = getDailyNoteSettings;
+      break;
+
+    case PeriodicNoteType.WeeklyNote:
+      getSettingsFn = getWeeklyNoteSettings;
+      break;
+
+    case PeriodicNoteType.MonthlyNote:
+      getSettingsFn = getMonthlyNoteSettings;
+      break;
+
+    case PeriodicNoteType.QuarterlyNote:
+      getSettingsFn = getQuarterlyNoteSettings;
+      break;
+
+    case PeriodicNoteType.YearlyNote:
+      getSettingsFn = getYearlyNoteSettings;
+      break;
+  }
+
+  const { format, folder } = getSettingsFn();
+  const title = now.format(format);
+  return sanitizeFilePath(`${folder}/${title}.md`);
+}
+
+export function mostRecentPeriodicNoteFilePath(
+  periodicNoteType: PeriodicNoteType,
+): StringResultObject {
+  const notes = getAllPeriodNotes(periodicNoteType);
+  const mostRecentKey = Object.keys(notes).sort().last();
+  return mostRecentKey
+    ? success(notes[mostRecentKey].path)
+    : failure(404, STRINGS.note_not_found);
+}
+
 /**
  * Checks if the daily/weekly/monthly/etc periodic note feature is available,
  * and gets the path to the current related note.

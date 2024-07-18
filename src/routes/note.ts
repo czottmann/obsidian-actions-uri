@@ -1,12 +1,7 @@
 import { TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
-import {
-  AnyParams,
-  IfExistsParameterValue,
-  NoteTargetingParameterKey,
-  RoutePath,
-} from "src/routes";
+import { AnyParams, NoteTargetingParameterKey, RoutePath } from "src/routes";
 import {
   createGeneralNote,
   CreateNoteApplyContentParams,
@@ -15,6 +10,7 @@ import {
   createParams,
   createPeriodicNote,
   CreatePeriodicNoteParams,
+  IfExistsParameterValue,
 } from "src/routes/note/create";
 import {
   incomingBaseParams,

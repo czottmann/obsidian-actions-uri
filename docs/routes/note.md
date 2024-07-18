@@ -39,11 +39,11 @@ Returns a path list of either all Markdown files in the vault, or just the subse
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter       | Value type                                                  | Optional? | Description                                                                                   
-| --------------- | ----------------------------------------------------------- | :-------: | ----------------------------------------------------------------------------------------------
-| `periodic-note` | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | optional |                                                                                               
-| `x-success`     | string                                                      |           | base URL for on-success callbacks                                                             
-| `x-error`       | string                                                      |           | base URL for on-error callbacks                                                               
+| Parameter       | Value type                                                  | Optional? | Description                      
+| --------------- | ----------------------------------------------------------- | :-------: | ---------------------------------
+| `periodic-note` | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | optional  |                                  
+| `x-success`     | string                                                      |           | base URL for on-success callbacks
+| `x-error`       | string                                                      |           | base URL for on-error callbacks  
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -206,11 +206,11 @@ A note can be targeted by one of three **mutually exclusive** targeting paramete
 
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter       | Value type                                                  | Optional? | Description                                                                                                                                                                                                                                             
-| --------------- | ----------------------------------------------------------- | :-------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-| `file`          | string                                                      | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                                                                                                                                          
-| `uid`           | string                                                      | see above | Note ID as stored in a front matter key. Default key: "uid", configurable in Settings UI.                                                                                                                                                               
-| `periodic-note` | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | see above | Requires either the core Daily Notes plugin needs to be active, or the community plugin, Periodic Notes, must have its Daily Note feature enabled. Working with Weekly, Monthly, Quarterly or Yearly Notes requires the community plugin Periodic Notes.
+| Parameter       | Value type                                                                                                                                                    | Optional? | Description                                                                                   
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------: | ----------------------------------------------------------------------------------------------
+| `file`          | string                                                                                                                                                        | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.
+| `uid`           | string                                                                                                                                                        | see above | Note ID as stored in a front matter key. Default key: "uid", configurable in Settings UI.     
+| `periodic-note` | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` \| `recent-daily` \| `recent-weekly` \| `recent-monthly` \| `recent-quarterly` \| `recent-yearly` | see above |                                                                                               
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -264,15 +264,15 @@ Examples:
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter          | Value type                                                  | Optional? | Description                                                                                                                    
-| ------------------ | ----------------------------------------------------------- | :-------: | -------------------------------------------------------------------------------------------------------------------------------
-| `file`             | string                                                      | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                 
-| +- `apply`         | `content` \| `templater` \| `templates`                     | optional  | What to add to the note after creation. Available options: `content` (implied default), `templates`, `templater`.              
-| +— `content`       | string                                                      | optional  | The initial body of the note. **Prerequisite:** no `apply` parameter or `apply=content`.                                       
-| +— `template-file` | string                                                      | optional  | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                              
-| `periodic-note`    | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | see above |                                                                                                                                
-| `if-exists`        | string                                                      | optional  | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is.
-| `silent`           | boolean                                                     | optional  | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                              
+| Parameter          | Value type                                                                                                                                                    | Optional? | Description                                                                                                                    
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------: | -------------------------------------------------------------------------------------------------------------------------------
+| `file`             | string                                                                                                                                                        | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                 
+| +- `apply`         | `content` \| `templater` \| `templates`                                                                                                                       | optional  | What to add to the note after creation. Available options: `content` (implied default), `templates`, `templater`.              
+| +— `content`       | string                                                                                                                                                        | optional  | The initial body of the note. **Prerequisite:** no `apply` parameter or `apply=content`.                                       
+| +— `template-file` | string                                                                                                                                                        | optional  | The path of the template file to apply. **Prerequisite:** `apply=templater` or `apply=templates`.                              
+| `periodic-note`    | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` \| `recent-daily` \| `recent-weekly` \| `recent-monthly` \| `recent-quarterly` \| `recent-yearly` | see above |                                                                                                                                
+| `if-exists`        | string                                                                                                                                                        | optional  | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is.
+| `silent`           | boolean                                                                                                                                                       | optional  | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                              
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).

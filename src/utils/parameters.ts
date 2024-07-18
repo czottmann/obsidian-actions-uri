@@ -4,8 +4,8 @@ import { STRINGS } from "src/constants";
 import { self } from "src/utils/self";
 import {
   appHasPeriodPluginLoaded,
-  getCurrentPeriodNote,
-  getMostRecentPeriodNote,
+  currentPeriodicNoteFilePath,
+  mostRecentPeriodicNoteFilePath,
   PeriodicNoteType,
   PeriodicNoteTypeWithRecents,
 } from "src/utils/periodic-notes-handling";
@@ -32,10 +32,10 @@ import { zodExistingNotePath } from "src/utils/zod";
  *
  * @template T - The type of the input data.
  */
-export async function softValidateNoteTargetingAndResolvePath<T>(
+export function softValidateNoteTargetingAndResolvePath<T>(
   data: T,
   ctx: z.RefinementCtx,
-): Promise<T & NoteTargetingComputedValues> {
+): T & NoteTargetingComputedValues {
   return validateNoteTargetingAndResolvePath(data, ctx, false);
 }
 
@@ -58,10 +58,10 @@ export async function softValidateNoteTargetingAndResolvePath<T>(
  *
  * @template T - The type of the input data.
  */
-export async function hardValidateNoteTargetingAndResolvePath<T>(
+export function hardValidateNoteTargetingAndResolvePath<T>(
   data: T,
   ctx: z.RefinementCtx,
-): Promise<T & NoteTargetingComputedValues> {
+): T & NoteTargetingComputedValues {
   return validateNoteTargetingAndResolvePath(data, ctx, true);
 }
 
@@ -83,11 +83,11 @@ export async function hardValidateNoteTargetingAndResolvePath<T>(
  *
  * @template T - The type of the input data.
  */
-async function validateNoteTargetingAndResolvePath<T>(
+function validateNoteTargetingAndResolvePath<T>(
   data: T,
   ctx: z.RefinementCtx,
   throwOnMissingNote: boolean,
-): Promise<T & NoteTargetingComputedValues> {
+): T & NoteTargetingComputedValues {
   const input = data as NoteTargetingParams;
 
   // Validate that only one of the three keys is present
@@ -142,18 +142,18 @@ async function validateNoteTargetingAndResolvePath<T>(
 
     if (shouldFindMostRecent) {
       // Get the most recent note path
-      const resRPN = await getMostRecentPeriodNote(periodicNoteType);
-      path = resRPN.isSuccess ? resRPN.result.path : "";
+      const resRPN = mostRecentPeriodicNoteFilePath(periodicNoteType);
+      path = resRPN.isSuccess ? resRPN.result : "";
     } else {
       // Get the current note path
-      path = getCurrentPeriodNote(periodicNoteType)?.path || "";
+      path = currentPeriodicNoteFilePath(periodicNoteType);
     }
   }
 
   // Validate that the requested note path exists
   let tFile: TFile | undefined;
   if (path != "") {
-    const resFileTest = await zodExistingNotePath.safeParseAsync(path);
+    const resFileTest = zodExistingNotePath.safeParse(path);
     if (resFileTest.success) {
       tFile = resFileTest.data as TFile;
     }
