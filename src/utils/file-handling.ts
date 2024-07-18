@@ -1,4 +1,10 @@
-import { MarkdownView, normalizePath, TFile, TFolder } from "obsidian";
+import {
+  MarkdownView,
+  normalizePath,
+  TAbstractFile,
+  TFile,
+  TFolder,
+} from "obsidian";
 import { STRINGS } from "src/constants";
 import { self } from "src/utils/self";
 import {
@@ -21,7 +27,11 @@ import {
   StringResultObject,
   TFileResultObject,
 } from "src/types";
-import { focusOrOpenFile, logErrorToConsole, showBrandedNotice } from "src/utils/ui";
+import {
+  focusOrOpenFile,
+  logErrorToConsole,
+  showBrandedNotice,
+} from "src/utils/ui";
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -201,6 +211,23 @@ export function sanitizeFilePath(
   return (isNote && !/\.(md|canvas)/i.test(extname(filename)))
     ? `${filename}.md`
     : filename;
+}
+
+/**
+ * Make sure user-submitted file paths are relative to the vault root and the
+ * path is normalized and sanitized. Returned paths will never start with dots
+ * or slashes.
+ *
+ * @param filename - A full file path
+ * @param isNote - Whether the path is a note; if `true`, ensure the path ends
+ *                 in `.md`/`.canvas`, otherwise leave the path alone.
+ *                 Default: `true`
+ */
+export function sanitizeFilePathAndGetAbstractFile(
+  path: string,
+  isNote: boolean = true,
+): TAbstractFile | null {
+  return self().app.vault.getAbstractFileByPath(sanitizeFilePath(path, isNote));
 }
 
 /**
@@ -623,7 +650,7 @@ export async function createFolderIfNecessary(folder: string) {
  * @returns An object containing the frontmatter properties of the file, or an
  *          empty object if none exist.
  */
-export function propertiesForFile(file: TFile): NoteProperties {
+export function propertiesForFile(file: TAbstractFile): NoteProperties {
   return self().app.metadataCache.getFileCache(file)?.frontmatter || {};
 }
 

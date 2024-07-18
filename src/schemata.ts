@@ -1,4 +1,4 @@
-import { TFile } from "obsidian";
+import { TAbstractFile } from "obsidian";
 import { z } from "zod";
 import { NoteTargetingParameterKey } from "src/routes";
 import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
@@ -41,6 +41,6 @@ export type NoteTargetingComputedValues = Readonly<{
   _computed: {
     inputKey: NoteTargetingParameterKey;
     path: string;
-    tFile: TFile | undefined;
+    tFile: TAbstractFile | undefined;
   };
 }>;

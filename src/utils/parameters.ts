@@ -1,6 +1,7 @@
-import { parseFrontMatterEntry, TFile } from "obsidian";
+import { parseFrontMatterEntry, TAbstractFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
+import { sanitizeFilePathAndGetAbstractFile } from "src/utils/file-handling";
 import { self } from "src/utils/self";
 import {
   checkForEnabledPeriodFeature,
@@ -13,7 +14,6 @@ import { failure, success } from "src/utils/results-handling";
 import { NoteTargetingParameterKey } from "src/routes";
 import { NoteTargetingComputedValues, NoteTargetingParams } from "src/schemata";
 import { StringResultObject } from "src/types.d";
-import { zodExistingNotePath } from "src/utils/zod";
 
 /**
  * Validates the targeting parameters of a note and adds computed values.
@@ -64,8 +64,6 @@ export function hardValidateNoteTargetingAndResolvePath<T>(
 ): T & NoteTargetingComputedValues {
   return validateNoteTargetingAndResolvePath(data, ctx, true);
 }
-
-// -----------------------------------------------------------------------------
 
 /**
  * Validates the targeting parameters of a note and adds computed values.
@@ -151,15 +149,15 @@ function validateNoteTargetingAndResolvePath<T>(
   }
 
   // Validate that the requested note path exists
-  let tFile: TFile | undefined;
+  let tAFile: TAbstractFile | undefined;
   if (path != "") {
-    const resFileTest = zodExistingNotePath.safeParse(path);
-    if (resFileTest.success) {
-      tFile = resFileTest.data as TFile;
+    const resFileTest = sanitizeFilePathAndGetAbstractFile(path);
+    if (resFileTest) {
+      tAFile = resFileTest;
     }
   }
 
-  if (!tFile && throwOnMissingNote) {
+  if (!tAFile && throwOnMissingNote) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: STRINGS.note_not_found,
@@ -173,7 +171,7 @@ function validateNoteTargetingAndResolvePath<T>(
     _computed: {
       inputKey: inputKey!,
       path,
-      tFile,
+      tFile: tAFile,
     },
   };
 }

@@ -40,7 +40,6 @@ import { parseStringIntoRegex } from "src/utils/string-handling";
 import { pause } from "src/utils/time";
 import { focusOrOpenFile } from "src/utils/ui";
 import {
-  zodAlwaysFalse,
   zodEmptyStringChangedToDefaultString,
   zodExistingTemplaterPath,
   zodExistingTemplatesPath,
@@ -63,9 +62,7 @@ const readParams = incomingBaseParams.extend({
 });
 type ReadParams = z.infer<typeof readParams>;
 
-const openParams = incomingBaseParams.extend({
-  silent: zodAlwaysFalse,
-});
+const openParams = incomingBaseParams;
 type OpenParams = z.infer<typeof openParams>;
 
 const createBaseParams = incomingBaseParams.extend({

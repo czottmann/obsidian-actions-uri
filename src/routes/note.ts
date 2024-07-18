@@ -51,11 +51,7 @@ import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
 import { parseStringIntoRegex } from "src/utils/string-handling";
 import { focusOrOpenFile } from "src/utils/ui";
-import {
-  zodAlwaysFalse,
-  zodOptionalBoolean,
-  zodSanitizedNotePath,
-} from "src/utils/zod";
+import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -104,9 +100,6 @@ type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
 
 const openParams = incomingBaseParams
   .merge(noteTargetingWithRecentsParams)
-  .extend({
-    silent: zodAlwaysFalse,
-  })
   .transform(hardValidateNoteTargetingAndResolvePath);
 type OpenParams = z.infer<typeof openParams>;
 

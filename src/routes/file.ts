@@ -17,7 +17,6 @@ import {
 import { helloRoute } from "src/utils/routing";
 import { failure, success } from "src/utils/results-handling";
 import {
-  zodAlwaysFalse,
   zodExistingFilePath,
   zodOptionalBoolean,
   zodSanitizedFilePath,
@@ -33,7 +32,6 @@ type DefaultParams = z.infer<typeof defaultParams>;
 
 const openParams = incomingBaseParams.extend({
   file: zodExistingFilePath,
-  silent: zodAlwaysFalse,
 });
 type OpenParams = z.infer<typeof openParams>;
 
