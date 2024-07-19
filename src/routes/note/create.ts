@@ -18,7 +18,7 @@ import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
 } from "src/utils/plugins";
-import { softValidateNoteTargetingAndResolvePath } from "src/utils/parameters";
+import { resolveNoteTargeting } from "src/utils/parameters";
 import { ErrorCode, failure } from "src/utils/results-handling";
 import { focusOrOpenFile } from "src/utils/ui";
 import {
@@ -83,7 +83,7 @@ export const createParams = z.union([
   createNoteApplyTemplatesParams,
   createPeriodicNoteParams,
 ])
-  .transform(softValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargeting);
 
 export type CreateParams = z.infer<typeof createParams>;
 export type CreateNoteApplyContentParams = z.infer<

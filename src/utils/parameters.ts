@@ -12,61 +12,16 @@ import {
 } from "src/utils/periodic-notes-handling";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { NoteTargetingParameterKey } from "src/routes";
-import { NoteTargetingComputedValues, NoteTargetingParams } from "src/schemata";
+import { NoteTargetingParams, ResolvedNoteTargetingValues } from "src/schemata";
 import { StringResultObject } from "src/types.d";
 
-/**
- * Validates the targeting parameters of a note and adds computed values.
- *
- * This function ensures that exactly one of the specified targeting parameters
- * (`file`, `uid`, or `periodic-note`) is provided. If the validation passes,
- * it gets the requested note path based on the input and appends it to the
- * returned object.
- *
- * @param data - The input data containing targeting parameters.
- * @param ctx - The Zod refinement context used for adding validation issues.
- * @returns The input object augmented with computed values if validation
- *    succeeds; otherwise, it triggers a Zod validation error.
- * @throws {ZodError} If more than one or none of the targeting parameters are
- *    provided.
- *
- * @template T - The type of the input data.
- */
-export function softValidateNoteTargetingAndResolvePath<T>(
-  data: T,
-  ctx: z.RefinementCtx,
-): T & NoteTargetingComputedValues {
-  return validateNoteTargetingAndResolvePath(data, ctx, false);
-}
+type ResolvedData = {
+  _resolved: any;
+};
 
 /**
- * Validates the targeting parameters of a note and adds computed values.
- * Triggers a Zod validation error if the requested note path does not exist.
- *
- * This function ensures that exactly one of the specified targeting parameters
- * (`file`, `uid`, or `periodic-note`) is provided. If the validation passes,
- * it gets the requested note path based on the input and appends it to the
- * returned object.
- *
- * @param data - The input data containing targeting parameters.
- * @param ctx - The Zod refinement context used for adding validation issues.
- * @returns The input object augmented with computed values if validation
- *    succeeds; otherwise, it triggers a Zod validation error. Also triggers a
- *    Zod validation error if the note path does not exist.
- * @throws {ZodError} If more than one or none of the targeting parameters are
- *    provided.
- *
- * @template T - The type of the input data.
- */
-export function hardValidateNoteTargetingAndResolvePath<T>(
-  data: T,
-  ctx: z.RefinementCtx,
-): T & NoteTargetingComputedValues {
-  return validateNoteTargetingAndResolvePath(data, ctx, true);
-}
-
-/**
- * Validates the targeting parameters of a note and adds computed values.
+ * Validates the targeting parameters of a note and adds computed values to the
+ * input object (under the `_resolved` key).
  *
  * This function ensures that exactly one of the specified targeting parameters
  *  (`file`, `uid`, or `periodic-note`) is provided. If the validation passes,
@@ -75,17 +30,19 @@ export function hardValidateNoteTargetingAndResolvePath<T>(
  *
  * @param data - The input data containing targeting parameters.
  * @param ctx - The Zod refinement context used for adding validation issues.
+ * @param throwOnMissingNote - Whether to throw a Zod validation error if the
+ * requested note path does not exist. Defaults to `false`.
  * @returns The input object augmented with computed values if validation
  * succeeds; otherwise, it triggers a Zod validation error.
- * @throws {ZodError} If more than one or none of the targeting parameters are provided.
+ * @throws {ZodError} When more than one or none of the targeting parameters are provided.
  *
  * @template T - The type of the input data.
  */
-function validateNoteTargetingAndResolvePath<T>(
+export function resolveNoteTargeting<T>(
   data: T,
   ctx: z.RefinementCtx,
-  throwOnMissingNote: boolean,
-): T & NoteTargetingComputedValues {
+  throwOnMissingNote: boolean = false,
+): T & ResolvedNoteTargetingValues {
   const input = data as NoteTargetingParams;
 
   // Validate that only one of the three keys is present
@@ -107,24 +64,25 @@ function validateNoteTargetingAndResolvePath<T>(
 
   // Get the requested file path
   let inputKey: NoteTargetingParameterKey;
-  let path = "";
+  let inputPath = "";
   if (NoteTargetingParameterKey.File in input) {
     const val = input[NoteTargetingParameterKey.File]!;
     inputKey = NoteTargetingParameterKey.File;
-    path = val;
+    inputPath = val;
   } //
   else if (NoteTargetingParameterKey.UID in input) {
     const val = input[NoteTargetingParameterKey.UID]!;
     inputKey = NoteTargetingParameterKey.UID;
 
     const res = filepathForUID(val);
-    path = res.isSuccess ? res.result : "";
+    inputPath = res.isSuccess ? res.result : "";
   } //
   else if (input[NoteTargetingParameterKey.PeriodicNote]) {
     const val = input[
       NoteTargetingParameterKey.PeriodicNote
     ]! as unknown as PeriodicNoteTypeWithRecents;
     inputKey = NoteTargetingParameterKey.PeriodicNote;
+
     const periodicNoteType = val.replace(/^recent-/, "") as PeriodicNoteType;
     const shouldFindMostRecent = val.startsWith("recent-");
 
@@ -141,23 +99,23 @@ function validateNoteTargetingAndResolvePath<T>(
     if (shouldFindMostRecent) {
       // Get the most recent note path
       const resRPN = getMostRecentPeriodicNotePath(periodicNoteType);
-      path = resRPN.isSuccess ? resRPN.result : "";
+      inputPath = resRPN.isSuccess ? resRPN.result : "";
     } else {
       // Get the current note path
-      path = getCurrentPeriodicNotePath(periodicNoteType);
+      inputPath = getCurrentPeriodicNotePath(periodicNoteType);
     }
   }
 
   // Validate that the requested note path exists
-  let tAFile: TAbstractFile | undefined;
-  if (path != "") {
-    const resFileTest = sanitizeFilePathAndGetAbstractFile(path);
+  let inputFile: TAbstractFile | undefined;
+  if (inputPath != "") {
+    const resFileTest = sanitizeFilePathAndGetAbstractFile(inputPath);
     if (resFileTest) {
-      tAFile = resFileTest;
+      inputFile = resFileTest;
     }
   }
 
-  if (!tAFile && throwOnMissingNote) {
+  if (!inputFile && throwOnMissingNote) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: STRINGS.note_not_found,
@@ -165,15 +123,42 @@ function validateNoteTargetingAndResolvePath<T>(
     return z.NEVER;
   }
 
-  // Return original object plus computed values
+  // Return original object plus resolved values
   return {
     ...data,
-    _computed: {
+    _resolved: {
+      ...(data as T & ResolvedData)._resolved || {},
       inputKey: inputKey!,
-      path,
-      tFile: tAFile,
+      inputPath,
+      inputFile,
     },
   };
+}
+
+/**
+ * Validates the targeting parameters of a note and adds computed values.
+ * Triggers a Zod validation error if the requested note path does not exist.
+ *
+ * This function ensures that exactly one of the specified targeting parameters
+ * (`file`, `uid`, or `periodic-note`) is provided. If the validation passes,
+ * it gets the requested note path based on the input and appends it to the
+ * returned object.
+ *
+ * @param data - The input data containing targeting parameters.
+ * @param ctx - The Zod refinement context used for adding validation issues.
+ * @returns The input object augmented with computed values if validation
+ *    succeeds; otherwise, it triggers a Zod validation error. Also triggers a
+ *    Zod validation error if the note path does not exist.
+ * @throws {ZodError} If more than one or none of the targeting parameters are
+ *    provided.
+ *
+ * @template T - The type of the input data.
+ */
+export function resolveNoteTargetingStrict<T>(
+  data: T,
+  ctx: z.RefinementCtx,
+): T & ResolvedNoteTargetingValues {
+  return resolveNoteTargeting(data, ctx, true);
 }
 
 function filepathForUID(uid: string): StringResultObject {

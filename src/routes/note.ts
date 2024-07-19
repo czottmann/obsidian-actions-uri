@@ -39,8 +39,8 @@ import {
   trashFilepath,
 } from "src/utils/file-handling";
 import {
-  hardValidateNoteTargetingAndResolvePath,
-  softValidateNoteTargetingAndResolvePath,
+  resolveNoteTargeting,
+  resolveNoteTargetingStrict,
 } from "src/utils/parameters";
 import {
   checkForEnabledPeriodFeature,
@@ -70,7 +70,7 @@ const getParams = incomingBaseParams
     "x-error": z.string().url(),
     "x-success": z.string().url(),
   })
-  .transform(hardValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargetingStrict);
 type GetParams = z.infer<typeof getParams>;
 
 const getActiveParams = incomingBaseParams
@@ -100,7 +100,7 @@ type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
 
 const openParams = incomingBaseParams
   .merge(noteTargetingWithRecentsParams)
-  .transform(hardValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargetingStrict);
 type OpenParams = z.infer<typeof openParams>;
 
 const appendParams = incomingBaseParams
@@ -112,7 +112,7 @@ const appendParams = incomingBaseParams
     "create-if-not-found": zodOptionalBoolean,
     "ensure-newline": zodOptionalBoolean,
   })
-  .transform(softValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargeting);
 type AppendParams = z.infer<typeof appendParams>;
 
 const prependParams = incomingBaseParams
@@ -125,7 +125,7 @@ const prependParams = incomingBaseParams
     "ensure-newline": zodOptionalBoolean,
     "ignore-front-matter": zodOptionalBoolean,
   })
-  .transform(softValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargeting);
 type PrependParams = z.infer<typeof prependParams>;
 
 const touchParams = incomingBaseParams
@@ -133,7 +133,7 @@ const touchParams = incomingBaseParams
   .extend({
     silent: zodOptionalBoolean,
   })
-  .transform(hardValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargetingStrict);
 type TouchParams = z.infer<typeof touchParams>;
 
 const searchAndReplaceParams = incomingBaseParams
@@ -143,12 +143,12 @@ const searchAndReplaceParams = incomingBaseParams
     search: z.string().min(1, { message: "can't be empty" }),
     replace: z.string(),
   })
-  .transform(hardValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargetingStrict);
 type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 const deleteParams = incomingBaseParams
   .merge(noteTargetingParams)
-  .transform(hardValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargetingStrict);
 type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams
@@ -157,7 +157,7 @@ const renameParams = incomingBaseParams
     "new-filename": zodSanitizedNotePath,
     silent: zodOptionalBoolean,
   })
-  .transform(hardValidateNoteTargetingAndResolvePath);
+  .transform(resolveNoteTargetingStrict);
 type RenameParams = z.infer<typeof renameParams>;
 
 export type AnyLocalParams =
@@ -247,9 +247,9 @@ async function handleList(
 async function handleGet(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const { _computed: { path }, silent } = incomingParams as GetParams;
-  const res = await getNoteDetails(path);
-  if (res.isSuccess && !silent) await focusOrOpenFile(path);
+  const { _resolved: { inputPath }, silent } = incomingParams as GetParams;
+  const res = await getNoteDetails(inputPath);
+  if (res.isSuccess && !silent) await focusOrOpenFile(inputPath);
   return res;
 }
 
@@ -312,8 +312,8 @@ async function handleGetNamed(
 async function handleOpen(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _computed: { path } } = incomingParams as OpenParams;
-  const res = await getNote(path);
+  const { _resolved: { inputPath } } = incomingParams as OpenParams;
+  const res = await getNote(inputPath);
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
@@ -324,7 +324,7 @@ async function handleCreate(
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const {
-    _computed: { inputKey, path },
+    _resolved: { inputKey, inputPath },
     ["if-exists"]: ifExists,
     silent,
   } = incomingParams as CreateParams;
@@ -332,24 +332,24 @@ async function handleCreate(
   const shouldFocusNote = !silent;
 
   // If there already is a note with that name or at that path, deal with it.
-  const resNoteExists = await getNote(path);
+  const resNoteExists = await getNote(inputPath);
   const noteExists = resNoteExists.isSuccess;
   if (noteExists && ifExists === IfExistsParameterValue.Skip) {
     // `skip` == Leave not as-is, we just return the existing note.
-    if (!silent) await focusOrOpenFile(path);
-    return await getNoteDetails(path);
+    if (!silent) await focusOrOpenFile(inputPath);
+    return await getNoteDetails(inputPath);
   }
 
   return inputKey === NoteTargetingParameterKey.PeriodicNote
     ? await createPeriodicNote(
-      path,
+      inputPath,
       (incomingParams as CreatePeriodicNoteParams)["periodic-note"],
       noteExists,
       ifExists,
       shouldFocusNote,
     )
     : await createGeneralNote.bind(this)(
-      path,
+      inputPath,
       (incomingParams as CreateNoteApplyContentParams).apply,
       (incomingParams as CreateNoteApplyContentParams).content,
       (incomingParams as CreateNoteApplyTemplateParams)["template-file"],
@@ -364,7 +364,7 @@ async function handleAppend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const {
-    _computed: { inputKey, tFile, path: computedPath },
+    _resolved: { inputKey, inputFile, inputPath },
     ["below-headline"]: belowHeadline,
     ["create-if-not-found"]: shouldCreateNote,
     ["ensure-newline"]: shouldEnsureNewline,
@@ -376,10 +376,13 @@ async function handleAppend(
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
   // passed in.
-  const path =
-    (!tFile && inputKey === NoteTargetingParameterKey.UID && shouldCreateNote)
-      ? uid!
-      : computedPath;
+  const path = (
+      !inputFile &&
+      inputKey === NoteTargetingParameterKey.UID &&
+      shouldCreateNote
+    )
+    ? uid!
+    : inputPath;
 
   async function appendAsRequested() {
     if (belowHeadline) {
@@ -390,7 +393,7 @@ async function handleAppend(
   }
 
   // If the file doesn't exist …
-  if (!tFile) {
+  if (!inputFile) {
     // … check if we're supposed to create it. If not, back off.
     if (!shouldCreateNote) {
       return failure(ErrorCode.NotFound, STRINGS.note_not_found);
@@ -424,7 +427,7 @@ async function handlePrepend(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const {
-    _computed: { inputKey, tFile, path: computedPath },
+    _resolved: { inputKey, inputFile, inputPath },
     ["below-headline"]: belowHeadline,
     ["create-if-not-found"]: shouldCreateNote,
     ["ensure-newline"]: shouldEnsureNewline,
@@ -437,10 +440,13 @@ async function handlePrepend(
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
   // passed in.
-  const path =
-    (!tFile && inputKey === NoteTargetingParameterKey.UID && shouldCreateNote)
-      ? uid!
-      : computedPath;
+  const path = (
+      !inputFile &&
+      inputKey === NoteTargetingParameterKey.UID &&
+      shouldCreateNote
+    )
+    ? uid!
+    : inputPath;
 
   async function prependAsRequested() {
     if (belowHeadline) {
@@ -461,7 +467,7 @@ async function handlePrepend(
   }
 
   // If the file doesn't exist …
-  if (!tFile) {
+  if (!inputFile) {
     // … check if we're supposed to create it. If not, back off.
     if (!shouldCreateNote) {
       return failure(ErrorCode.NotFound, STRINGS.note_not_found);
@@ -493,65 +499,65 @@ async function handlePrepend(
 async function handleTouch(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _computed: { path }, silent } = incomingParams as TouchParams;
+  const { _resolved: { inputPath }, silent } = incomingParams as TouchParams;
 
-  const res = await touchNote(path);
+  const res = await touchNote(inputPath);
   if (!res.isSuccess) return res;
-  if (!silent) await focusOrOpenFile(path);
-  return success({ message: STRINGS.touch_done }, path);
+  if (!silent) await focusOrOpenFile(inputPath);
+  return success({ message: STRINGS.touch_done }, inputPath);
 }
 
 async function handleSearchStringAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _computed: { path }, search, replace, silent } =
+  const { _resolved: { inputPath }, search, replace, silent } =
     incomingParams as SearchAndReplaceParams;
 
-  const res = await searchAndReplaceInNote(path, search, replace);
+  const res = await searchAndReplaceInNote(inputPath, search, replace);
   if (!res.isSuccess) return res;
-  if (!silent) await focusOrOpenFile(path);
-  return success({ message: res.result }, path);
+  if (!silent) await focusOrOpenFile(inputPath);
+  return success({ message: res.result }, inputPath);
 }
 
 async function handleSearchRegexAndReplace(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _computed: { path }, search, replace, silent } =
+  const { _resolved: { inputPath }, search, replace, silent } =
     incomingParams as SearchAndReplaceParams;
 
   const resSir = parseStringIntoRegex(search);
   if (!resSir.isSuccess) return resSir;
 
-  const res = await searchAndReplaceInNote(path, resSir.result, replace);
+  const res = await searchAndReplaceInNote(inputPath, resSir.result, replace);
   if (!res.isSuccess) return res;
-  if (!silent) await focusOrOpenFile(path);
-  return success({ message: res.result }, path);
+  if (!silent) await focusOrOpenFile(inputPath);
+  return success({ message: res.result }, inputPath);
 }
 
 async function handleDelete(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _computed: { path } } = incomingParams as DeleteParams;
+  const { _resolved: { inputPath } } = incomingParams as DeleteParams;
 
-  const res = await trashFilepath(path, true);
-  return res.isSuccess ? success({ message: res.result }, path) : res;
+  const res = await trashFilepath(inputPath, true);
+  return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }
 
 async function handleTrash(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _computed: { path } } = incomingParams as DeleteParams;
+  const { _resolved: { inputPath } } = incomingParams as DeleteParams;
 
-  const res = await trashFilepath(path);
-  return res.isSuccess ? success({ message: res.result }, path) : res;
+  const res = await trashFilepath(inputPath);
+  return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }
 
 async function handleRename(
   incomingParams: AnyParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _computed: { path }, ["new-filename"]: newPath } =
+  const { _resolved: { inputPath }, ["new-filename"]: newPath } =
     incomingParams as RenameParams;
 
-  const res = await renameFilepath(path, newPath);
-  return res.isSuccess ? success({ message: res.result }, path) : res;
+  const res = await renameFilepath(inputPath, newPath);
+  return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }

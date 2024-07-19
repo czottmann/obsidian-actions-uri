@@ -37,10 +37,10 @@ export type NoteTargetingWithRecentsParams = z.output<
   typeof noteTargetingWithRecentsParams
 >;
 
-export type NoteTargetingComputedValues = Readonly<{
-  _computed: {
+export type ResolvedNoteTargetingValues = Readonly<{
+  _resolved: {
     inputKey: NoteTargetingParameterKey;
-    path: string;
-    tFile: TAbstractFile | undefined;
+    inputPath: string;
+    inputFile: TAbstractFile | undefined;
   };
 }>;
