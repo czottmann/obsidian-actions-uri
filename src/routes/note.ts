@@ -26,12 +26,14 @@ import {
   HandlerTextSuccess,
   Prettify,
   RealLifePlugin,
+  StringResultObject,
 } from "src/types";
 import {
   appendNote,
   appendNoteBelowHeadline,
   createNote,
   getNote,
+  getNoteContent,
   getNoteDetails,
   prependNote,
   prependNoteBelowHeadline,
@@ -52,11 +54,20 @@ import {
 } from "src/utils/periodic-notes-handling";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
-import { parseStringIntoRegex } from "src/utils/string-handling";
+import {
+  escapeRegExpChars,
+  parseStringIntoRegex,
+} from "src/utils/string-handling";
 import { focusOrOpenFile } from "src/utils/ui";
 import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
+
+enum IfHeadlineMissingParameterValue {
+  Error = "error",
+  AddHeadline = "add-headline",
+  Skip = "skip",
+}
 
 const listParams = incomingBaseParams
   .extend({
@@ -109,6 +120,9 @@ const appendParams = incomingBaseParams
     "below-headline": z.string().optional(),
     "create-if-not-found": zodOptionalBoolean,
     "ensure-newline": zodOptionalBoolean,
+    "if-headline-missing": z.nativeEnum(IfHeadlineMissingParameterValue)
+      .optional()
+      .default(IfHeadlineMissingParameterValue.Error),
   })
   .transform(resolveNoteTargeting);
 
@@ -119,7 +133,11 @@ const prependParams = incomingBaseParams
     silent: zodOptionalBoolean,
     "below-headline": z.string().optional(),
     "create-if-not-found": zodOptionalBoolean,
+    "ensure-headline": zodOptionalBoolean,
     "ensure-newline": zodOptionalBoolean,
+    "if-headline-missing": z.nativeEnum(IfHeadlineMissingParameterValue)
+      .optional()
+      .default(IfHeadlineMissingParameterValue.Error),
     "ignore-front-matter": zodOptionalBoolean,
   })
   .transform(resolveNoteTargeting);
@@ -365,6 +383,7 @@ async function handleAppend(
     ["below-headline"]: belowHeadline,
     ["create-if-not-found"]: shouldCreateNote,
     ["ensure-newline"]: shouldEnsureNewline,
+    ["if-headline-missing"]: ifHeadlineMissing,
     content,
     silent,
     uid,
@@ -383,6 +402,14 @@ async function handleAppend(
 
   async function appendAsRequested() {
     if (belowHeadline) {
+      const resHeadline = await prepareNoteForHeadlineBlockManipulation(
+        path,
+        belowHeadline,
+        ifHeadlineMissing,
+      );
+      if (!resHeadline.isSuccess) {
+        return resHeadline;
+      }
       return await appendNoteBelowHeadline(path, belowHeadline, content);
     }
 
@@ -429,6 +456,7 @@ async function handlePrepend(
     ["create-if-not-found"]: shouldCreateNote,
     ["ensure-newline"]: shouldEnsureNewline,
     ["ignore-front-matter"]: shouldIgnoreFrontMatter,
+    ["if-headline-missing"]: ifHeadlineMissing,
     content,
     silent,
     uid,
@@ -447,12 +475,23 @@ async function handlePrepend(
 
   async function prependAsRequested() {
     if (belowHeadline) {
-      return await prependNoteBelowHeadline(
-        path,
-        belowHeadline,
-        content,
-        shouldEnsureNewline,
-      );
+      if (belowHeadline) {
+        const resHeadline = await prepareNoteForHeadlineBlockManipulation(
+          path,
+          belowHeadline,
+          ifHeadlineMissing,
+        );
+        if (!resHeadline.isSuccess) {
+          return resHeadline;
+        }
+
+        return await prependNoteBelowHeadline(
+          path,
+          belowHeadline,
+          content,
+          shouldEnsureNewline,
+        );
+      }
     }
 
     return await prependNote(
@@ -557,4 +596,32 @@ async function handleRename(
 
   const res = await renameFilepath(inputPath, newPath);
   return res.isSuccess ? success({ message: res.result }, inputPath) : res;
+}
+
+async function prepareNoteForHeadlineBlockManipulation(
+  path: string,
+  headline: string,
+  ifHeadlineMissing: IfHeadlineMissingParameterValue,
+): Promise<StringResultObject> {
+  // Test if the headline exists in the note.
+  const resNote = await getNoteContent(path);
+  if (!resNote.isSuccess) return resNote;
+
+  const noteContent = resNote.result;
+  const regex = new RegExp(`^${escapeRegExpChars(headline)}\s*$`, "m");
+  if (noteContent.match(regex)) {
+    return success("Note contains headline");
+  }
+
+  // The note doesn't contain the headline!
+  switch (ifHeadlineMissing) {
+    case IfHeadlineMissingParameterValue.AddHeadline:
+      return await appendNote(path, `\n${headline}`, true);
+
+    case IfHeadlineMissingParameterValue.Skip:
+      return success(STRINGS.headline_not_found);
+
+    case IfHeadlineMissingParameterValue.Error:
+      return failure(ErrorCode.NotFound, STRINGS.headline_not_found);
+  }
 }

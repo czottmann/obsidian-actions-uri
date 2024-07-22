@@ -50,6 +50,21 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
 }
 
 /**
+ * Escapes special characters in a string that are used in regular expressions.
+ * This function is useful when a string is to be treated as a literal pattern
+ * inside a regular expression, rather than as part of the regular expression
+ * syntax.
+ *
+ * @param string - The string to be escaped.
+ * @returns The escaped string, with special regular expression characters prefixed
+ * with a backslash. This makes the string safe to use within a RegExp constructor
+ * or function.
+ */
+export function escapeRegExpChars(string: string) {
+  return string.replace(/([.*+?^${}()|[\]\\])/g, "\\$1");
+}
+
+/**
  * Extracts front matter and body from a passed-in string.
  *
  * @param noteContent - The content of the note to be searched

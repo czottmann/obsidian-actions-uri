@@ -172,14 +172,14 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter             | Description                                                                         
-| --------------------- | ------------------------------------------------------------------------------------
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.              
-| `result-content`      | The entire content of the note file.                                                
-| `result-filepath`     | The file path of the note, relative from the vault root folder.                     
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.            
-| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).
-| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available             
+| Parameter             | Description                                                                                                      
+| --------------------- | -----------------------------------------------------------------------------------------------------------------
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                           
+| `result-content`      | The entire content of the note file.                                                                             
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                  
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                         
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).                             
+| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                          
 | `result-selection`    | <span class="tag tag-version">v1.6+</span> The current text selection, if available. (Plain text, no formatting.)
 
 On failure:
@@ -274,6 +274,7 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `periodic-note`    | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` \| `recent-daily` \| `recent-weekly` \| `recent-monthly` \| `recent-quarterly` \| `recent-yearly` | see above |                                                                                                                                
 | `if-exists`        | string                                                                                                                                                        | optional  | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is.
 | `silent`           | boolean                                                                                                                                                       | optional  | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                              
+[/note/create]
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -316,16 +317,18 @@ A note can be targeted by one of three **mutually exclusive** targeting paramete
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter             | Value type                                                  | Optional? | Description                                                                                                                             
-| --------------------- | ----------------------------------------------------------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------
-| `file`                | string                                                      | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                          
-| `uid`                 | string                                                      | see above | Note ID as stored in a front matter key. Default key: "uid", configurable in Settings UI.                                               
-| `periodic-note`       | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | see above |                                                                                                                                         
-| `content`             | string                                                      |           | The text to be added at the end of the note.                                                                                            
-| `below-headline`      | string                                                      | optional  | Appends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span>
-| `create-if-not-found` | boolean                                                     | optional  | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span>             
-| `ensure-newline`      | boolean                                                     | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                     
-| `silent`              | boolean                                                     | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                       
+| Parameter             | Value type                                                  | Optional? | Description                                                                                                                                                                                                                        
+| --------------------- | ----------------------------------------------------------- | :-------: | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| `file`                | string                                                      | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                                                                                                                     
+| `uid`                 | string                                                      | see above | Note ID as stored in a front matter key. Default key: "uid", configurable in Settings UI.                                                                                                                                          
+| `periodic-note`       | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | see above |                                                                                                                                                                                                                                    
+| `content`             | string                                                      |           | The text to be added at the end of the note.                                                                                                                                                                                       
+| `below-headline`      | string                                                      | optional  | <span class="tag tag-version">v1.2+</span> Appends text below the given headline, before the next headline or EOF, whatever comes first.                                                                                           
+| `if-headline-missing` | `error` \| `skip` \| `add-headline`                         | optional  | <span class="tag tag-version">v1.6+</span> Only available together with `below-headline`. If the requested headline is missing, return an error, do nothing (`skip`), or add the headline to the end of the note. Default: `error`.
+| `create-if-not-found` | boolean                                                     | optional  | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span>                                                                                                        
+| `ensure-newline`      | boolean                                                     | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                                                                                                                
+| `silent`              | boolean                                                     | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                                                                                                                  
+[/note/append]
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -363,17 +366,19 @@ A note can be targeted by one of three **mutually exclusive** targeting paramete
 ### Parameters
 In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
 
-| Parameter             | Value type                                                  | Optional? | Description                                                                                                                              
-| --------------------- | ----------------------------------------------------------- | :-------: | -----------------------------------------------------------------------------------------------------------------------------------------
-| `file`                | string                                                      | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                           
-| `uid`                 | string                                                      | see above | Note ID as stored in a front matter key. Default key: "uid", configurable in Settings UI.                                                
-| `periodic-note`       | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | see above |                                                                                                                                          
-| `content`             | string                                                      |           | The text to be added at the beginning of the note.                                                                                       
-| `below-headline`      | string                                                      | optional  | Prepends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span>
-| `create-if-not-found` | boolean                                                     | optional  | *"If the note does not exist, create it before prepending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span>             
-| `ensure-newline`      | boolean                                                     | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                      
-| `ignore-front-matter` | boolean                                                     | optional  | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`.                            
-| `silent`              | boolean                                                     | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                        
+| Parameter             | Value type                                                  | Optional? | Description                                                                                                                                                                                                                        
+| --------------------- | ----------------------------------------------------------- | :-------: | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| `file`                | string                                                      | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.                                                                                                                                     
+| `uid`                 | string                                                      | see above | Note ID as stored in a front matter key. Default key: "uid", configurable in Settings UI.                                                                                                                                          
+| `periodic-note`       | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | see above |                                                                                                                                                                                                                                    
+| `content`             | string                                                      |           | The text to be added at the beginning of the note.                                                                                                                                                                                 
+| `below-headline`      | string                                                      | optional  | Prepends text below the given headline, before the next headline or EOF, whatever comes first. <span class="tag tag-version">v1.2+</span>                                                                                          
+| `if-headline-missing` | `error` \| `skip` \| `add-headline`                         | optional  | <span class="tag tag-version">v1.6+</span> Only available together with `below-headline`. If the requested headline is missing, return an error, do nothing (`skip`), or add the headline to the end of the note. Default: `error`.
+| `create-if-not-found` | boolean                                                     | optional  | *"If the note does not exist, create it before prepending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span>                                                                                                       
+| `ensure-newline`      | boolean                                                     | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                                                                                                                
+| `ignore-front-matter` | boolean                                                     | optional  | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`.                                                                                                                      
+| `silent`              | boolean                                                     | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                                                                                                                  
+[/note/prepend]
 
 
 ### Return values

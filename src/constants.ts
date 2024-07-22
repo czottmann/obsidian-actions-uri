@@ -20,6 +20,7 @@ export const STRINGS = {
   file_opened: "File opened",
   folder_created: "Folder created",
   global_search_feature_not_available: "Global Search plugin is not active",
+  headline_not_found: "Headline not found",
   monthly_note: {
     create_note_already_exists: "Monthly note already exists",
     create_note_no_content:
