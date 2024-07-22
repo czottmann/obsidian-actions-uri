@@ -198,8 +198,7 @@ function lookupAbstractFileForTemplaterPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false) ||
-    sanitizeFilePathAndGetAbstractFile(`${path}.md`, false);
+  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false);
   if (abstractFile) return abstractFile;
 
   const res = getEnabledCommunityPlugin("templater-obsidian");
@@ -227,8 +226,7 @@ function lookupAbstractFileForTemplatesPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false) ||
-    sanitizeFilePathAndGetAbstractFile(`${path}.md`, false);
+  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false);
   if (abstractFile) return abstractFile;
 
   const res = getEnabledCorePlugin("templates");

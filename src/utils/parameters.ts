@@ -4,7 +4,7 @@ import { STRINGS } from "src/constants";
 import { sanitizeFilePathAndGetAbstractFile } from "src/utils/file-handling";
 import { self } from "src/utils/self";
 import {
-  checkForEnabledPeriodFeature,
+  checkForEnabledPeriodicNoteFeature,
   getCurrentPeriodicNotePath,
   getMostRecentPeriodicNotePath,
   PeriodicNoteType,
@@ -12,15 +12,27 @@ import {
 } from "src/utils/periodic-notes-handling";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { NoteTargetingParameterKey } from "src/routes";
-import { NoteTargetingParams, ResolvedNoteTargetingValues } from "src/schemata";
+import { NoteTargetingParams } from "src/schemata";
 import { StringResultObject } from "src/types.d";
 
+// TYPES ----------------------------------------
+
 type ResolvedData = {
-  _resolved: any;
+  _resolved: Record<string, any>;
 };
 
+export type ResolvedNoteTargetingValues = Readonly<{
+  _resolved: {
+    inputKey: NoteTargetingParameterKey;
+    inputPath: string;
+    inputFile: TAbstractFile | undefined;
+  };
+}>;
+
+// RESOLVERS ----------------------------------------
+
 /**
- * Validates the targeting parameters of a note and adds computed values to the
+ * Validates the note targeting parameters and adds computed values to the
  * input object (under the `_resolved` key).
  *
  * This function ensures that exactly one of the specified targeting parameters
@@ -87,7 +99,9 @@ export function resolveNoteTargeting<T>(
     const shouldFindMostRecent = val.startsWith("recent-");
 
     // Normalize "recent-daily" into "daily" etc. then check feature availability
-    const isPluginAvailable = checkForEnabledPeriodFeature(periodicNoteType);
+    const isPluginAvailable = checkForEnabledPeriodicNoteFeature(
+      periodicNoteType,
+    );
     if (!isPluginAvailable) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -124,20 +138,16 @@ export function resolveNoteTargeting<T>(
   }
 
   // Return original object plus resolved values
-  return {
-    ...data,
-    _resolved: {
-      ...(data as T & ResolvedData)._resolved || {},
-      inputKey: inputKey!,
-      inputPath,
-      inputFile,
-    },
-  };
+  return mergeResolvedData(data, {
+    inputKey: inputKey!,
+    inputPath,
+    inputFile,
+  });
 }
 
 /**
- * Validates the targeting parameters of a note and adds computed values.
- * Triggers a Zod validation error if the requested note path does not exist.
+ * Validates the note targeting parameters and adds computed values. Triggers a
+ * Zod validation error if the requested note path does not exist.
  *
  * This function ensures that exactly one of the specified targeting parameters
  * (`file`, `uid`, or `periodic-note`) is provided. If the validation passes,
@@ -159,6 +169,25 @@ export function resolveNoteTargetingStrict<T>(
   ctx: z.RefinementCtx,
 ): T & ResolvedNoteTargetingValues {
   return resolveNoteTargeting(data, ctx, true);
+}
+
+// HELPERS ----------------------------------------
+
+/**
+ * Merges the resolved values into the input object. If the input object already
+ * contains a `_resolved` key, the new values are merged into it.
+ */
+export function mergeResolvedData<T, U>(
+  data: T,
+  resolved: U,
+): T & { _resolved: U } {
+  return {
+    ...data,
+    _resolved: {
+      ...(data as T & ResolvedData)._resolved || {},
+      ...resolved,
+    },
+  };
 }
 
 function filepathForUID(uid: string): StringResultObject {

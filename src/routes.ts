@@ -52,7 +52,7 @@ import {
   AnyLocalParams as AnyTagsParams,
   routePath as tagsRoutes,
 } from "src/routes/tags";
-import { IncomingBaseParams, ResolvedNoteTargetingValues } from "src/schemata";
+import { IncomingBaseParams } from "src/schemata";
 import { HandlerFunction } from "src/types";
 
 export const routes: RoutePath = {
@@ -110,22 +110,6 @@ export type AnyParams =
   | AnyFolderParams
   | AnyInfoParams
   | AnyNoteParams
-  | AnyNotePropertiesParams
-  | AnyOmnisearchParams
-  | AnyPeriodicNoteParams
-  | AnySearchParams
-  | AnySettingsParams
-  | AnyTagsParams
-  | AnyVaultParams
-  | IncomingBaseParams;
-
-export type AnyProcessedParams =
-  | AnyCommandParams
-  | AnyDataviewParams
-  | AnyFileParams
-  | AnyFolderParams
-  | AnyInfoParams
-  | (AnyNoteParams & ResolvedNoteTargetingValues)
   | AnyNotePropertiesParams
   | AnyOmnisearchParams
   | AnyPeriodicNoteParams

@@ -531,7 +531,7 @@ export async function getNote(
  * @returns A result object containing either an error or `true`.
  */
 export async function applyCorePluginTemplate(
-  templateFile: TFile,
+  templateFile: TAbstractFile,
   note: TFile,
 ): Promise<BooleanResultObject> {
   const pluginRes = getEnabledCorePlugin("templates");

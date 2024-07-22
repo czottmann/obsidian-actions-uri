@@ -3,14 +3,16 @@ import { z } from "zod";
 import { STRINGS } from "src/constants";
 import { AnyParams, NoteTargetingParameterKey, RoutePath } from "src/routes";
 import {
-  createGeneralNote,
+  _handleCreateNoteFromContent,
+  _handleCreateNoteFromTemplate,
+  _handleCreatePeriodicNote,
+  AnyCreateNoteApplyParams,
+  CreateApplyParameterValue,
   CreateNoteApplyContentParams,
   CreateNoteApplyTemplateParams,
   CreateParams,
   createParams,
-  createPeriodicNote,
   CreatePeriodicNoteParams,
-  IfExistsParameterValue,
 } from "src/routes/note/create";
 import {
   incomingBaseParams,
@@ -22,6 +24,7 @@ import {
   HandlerFileSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
+  Prettify,
   RealLifePlugin,
 } from "src/types";
 import {
@@ -43,8 +46,8 @@ import {
   resolveNoteTargetingStrict,
 } from "src/utils/parameters";
 import {
-  checkForEnabledPeriodFeature,
-  getAllPeriodNotes,
+  checkForEnabledPeriodicNoteFeature,
+  getAllPeriodicNotes,
   PeriodicNoteType,
 } from "src/utils/periodic-notes-handling";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
@@ -61,7 +64,6 @@ const listParams = incomingBaseParams
     "x-error": z.string().url(),
     "x-success": z.string().url(),
   });
-type ListParams = z.infer<typeof listParams>;
 
 const getParams = incomingBaseParams
   .merge(noteTargetingWithRecentsParams)
@@ -71,14 +73,12 @@ const getParams = incomingBaseParams
     "x-success": z.string().url(),
   })
   .transform(resolveNoteTargetingStrict);
-type GetParams = z.infer<typeof getParams>;
 
 const getActiveParams = incomingBaseParams
   .extend({
     "x-error": z.string().url(),
     "x-success": z.string().url(),
   });
-type GetActiveParams = z.infer<typeof getActiveParams>;
 
 const readNamedParams = incomingBaseParams
   .extend({
@@ -96,12 +96,10 @@ const readNamedParams = incomingBaseParams
     "x-error": z.string().url(),
     "x-success": z.string().url(),
   });
-type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
 
 const openParams = incomingBaseParams
   .merge(noteTargetingWithRecentsParams)
   .transform(resolveNoteTargetingStrict);
-type OpenParams = z.infer<typeof openParams>;
 
 const appendParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -113,7 +111,6 @@ const appendParams = incomingBaseParams
     "ensure-newline": zodOptionalBoolean,
   })
   .transform(resolveNoteTargeting);
-type AppendParams = z.infer<typeof appendParams>;
 
 const prependParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -126,7 +123,6 @@ const prependParams = incomingBaseParams
     "ignore-front-matter": zodOptionalBoolean,
   })
   .transform(resolveNoteTargeting);
-type PrependParams = z.infer<typeof prependParams>;
 
 const touchParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -134,7 +130,6 @@ const touchParams = incomingBaseParams
     silent: zodOptionalBoolean,
   })
   .transform(resolveNoteTargetingStrict);
-type TouchParams = z.infer<typeof touchParams>;
 
 const searchAndReplaceParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -144,12 +139,10 @@ const searchAndReplaceParams = incomingBaseParams
     replace: z.string(),
   })
   .transform(resolveNoteTargetingStrict);
-type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
 
 const deleteParams = incomingBaseParams
   .merge(noteTargetingParams)
   .transform(resolveNoteTargetingStrict);
-type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -158,7 +151,20 @@ const renameParams = incomingBaseParams
     silent: zodOptionalBoolean,
   })
   .transform(resolveNoteTargetingStrict);
-type RenameParams = z.infer<typeof renameParams>;
+
+// TYPES ----------------------------------------
+
+type ListParams = Prettify<z.infer<typeof listParams>>;
+type GetParams = Prettify<z.infer<typeof getParams>>;
+type GetActiveParams = Prettify<z.infer<typeof getActiveParams>>;
+type ReadFirstNamedParams = Prettify<z.infer<typeof readNamedParams>>;
+type OpenParams = Prettify<z.infer<typeof openParams>>;
+type AppendParams = Prettify<z.infer<typeof appendParams>>;
+type PrependParams = Prettify<z.infer<typeof prependParams>>;
+type TouchParams = Prettify<z.infer<typeof touchParams>>;
+type SearchAndReplaceParams = Prettify<z.infer<typeof searchAndReplaceParams>>;
+type DeleteParams = Prettify<z.infer<typeof deleteParams>>;
+type RenameParams = Prettify<z.infer<typeof renameParams>>;
 
 export type AnyLocalParams =
   | ListParams
@@ -227,14 +233,14 @@ async function handleList(
   }
 
   // If a periodic note type is specified, we return all notes of that type.
-  if (!checkForEnabledPeriodFeature(periodicNoteType)) {
+  if (!checkForEnabledPeriodicNoteFeature(periodicNoteType)) {
     return failure(
       ErrorCode.FeatureUnavailable,
       STRINGS[`${periodicNoteType}_note`].feature_not_available,
     );
   }
 
-  const notes = getAllPeriodNotes(periodicNoteType);
+  const notes = getAllPeriodicNotes(periodicNoteType);
   return success({
     paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
   });
@@ -323,40 +329,24 @@ async function handleCreate(
   this: RealLifePlugin,
   incomingParams: AnyParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const {
-    _resolved: { inputKey, inputPath },
-    ["if-exists"]: ifExists,
-    silent,
-  } = incomingParams as CreateParams;
-  const shouldOverwrite = ifExists === IfExistsParameterValue.Overwrite;
-  const shouldFocusNote = !silent;
+  const { _resolved: { inputKey } } = incomingParams as CreateParams;
 
-  // If there already is a note with that name or at that path, deal with it.
-  const resNoteExists = await getNote(inputPath);
-  const noteExists = resNoteExists.isSuccess;
-  if (noteExists && ifExists === IfExistsParameterValue.Skip) {
-    // `skip` == Leave not as-is, we just return the existing note.
-    if (!silent) await focusOrOpenFile(inputPath);
-    return await getNoteDetails(inputPath);
+  if (inputKey === NoteTargetingParameterKey.PeriodicNote) {
+    return _handleCreatePeriodicNote
+      .bind(this)(incomingParams as CreatePeriodicNoteParams);
   }
 
-  return inputKey === NoteTargetingParameterKey.PeriodicNote
-    ? await createPeriodicNote(
-      inputPath,
-      (incomingParams as CreatePeriodicNoteParams)["periodic-note"],
-      noteExists,
-      ifExists,
-      shouldFocusNote,
-    )
-    : await createGeneralNote.bind(this)(
-      inputPath,
-      (incomingParams as CreateNoteApplyContentParams).apply,
-      (incomingParams as CreateNoteApplyContentParams).content,
-      (incomingParams as CreateNoteApplyTemplateParams)["template-file"],
-      noteExists,
-      shouldOverwrite,
-      shouldFocusNote,
-    );
+  const applyValue = (incomingParams as AnyCreateNoteApplyParams).apply;
+  switch (applyValue) {
+    case CreateApplyParameterValue.Content:
+      return _handleCreateNoteFromContent
+        .bind(this)(incomingParams as CreateNoteApplyContentParams);
+
+    case CreateApplyParameterValue.Templater:
+    case CreateApplyParameterValue.Templates:
+      return _handleCreateNoteFromTemplate
+        .bind(this)(incomingParams as CreateNoteApplyTemplateParams);
+  }
 }
 
 async function handleAppend(

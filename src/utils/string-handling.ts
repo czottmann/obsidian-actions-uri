@@ -50,18 +50,6 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
 }
 
 /**
- * Tests whether the passed-in string starts with front matter.
- *
- * @param noteContent - The content of the note to be searched
- *
- * @see {@link https://help.obsidian.md/Advanced+topics/YAML+front+matter | Obsidian's YAML front matter documentation}
- */
-export function containsFrontMatter(noteContent: string) {
-  return noteContent.startsWith(FRONT_MATTER_BOUNDARY) &&
-    (noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) > -1);
-}
-
-/**
  * Extracts front matter and body from a passed-in string.
  *
  * @param noteContent - The content of the note to be searched
@@ -77,7 +65,10 @@ export function extractNoteContentParts(
 ): { frontMatter: string; body: string } {
   const bodyStartPos = noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) + 4;
 
-  return containsFrontMatter(noteContent)
+  return (
+      noteContent.startsWith(FRONT_MATTER_BOUNDARY) &&
+      (noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) > -1)
+    )
     ? {
       frontMatter: noteContent.slice(0, bodyStartPos),
       body: noteContent.slice(bodyStartPos),

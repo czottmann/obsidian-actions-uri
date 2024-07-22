@@ -1,6 +1,4 @@
-import { TAbstractFile } from "obsidian";
 import { z } from "zod";
-import { NoteTargetingParameterKey } from "src/routes";
 import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
 import {
   PeriodicNoteType,
@@ -33,14 +31,7 @@ export const noteTargetingWithRecentsParams = z.object({
   uid: z.string().optional(),
   "periodic-note": z.nativeEnum(PeriodicNoteTypeWithRecents).optional(),
 });
+
 export type NoteTargetingWithRecentsParams = z.output<
   typeof noteTargetingWithRecentsParams
 >;
-
-export type ResolvedNoteTargetingValues = Readonly<{
-  _resolved: {
-    inputKey: NoteTargetingParameterKey;
-    inputPath: string;
-    inputFile: TAbstractFile | undefined;
-  };
-}>;

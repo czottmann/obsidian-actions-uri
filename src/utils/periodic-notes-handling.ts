@@ -89,7 +89,7 @@ export function getCurrentPeriodicNotePath(
 export function getMostRecentPeriodicNotePath(
   periodicNoteType: PeriodicNoteType,
 ): StringResultObject {
-  const notes = getAllPeriodNotes(periodicNoteType);
+  const notes = getAllPeriodicNotes(periodicNoteType);
   const mostRecentKey = Object.keys(notes).sort().last();
   return mostRecentKey
     ? success(notes[mostRecentKey].path)
@@ -118,7 +118,7 @@ export function getCurrentPeriodicNote(
   }
 }
 
-export function getAllPeriodNotes(
+export function getAllPeriodicNotes(
   periodicNoteType: PeriodicNoteType,
 ): Record<string, TFile> {
   switch (periodicNoteType) {
@@ -139,7 +139,7 @@ export function getAllPeriodNotes(
   }
 }
 
-export function checkForEnabledPeriodFeature(
+export function checkForEnabledPeriodicNoteFeature(
   periodicNoteType: PeriodicNoteType,
 ): boolean {
   switch (periodicNoteType) {
@@ -160,7 +160,7 @@ export function checkForEnabledPeriodFeature(
   }
 }
 
-export async function createPeriodNote(
+export async function createPeriodicNote(
   periodicNoteType: PeriodicNoteType,
 ): Promise<TFile> {
   const now = moment();
@@ -190,10 +190,10 @@ export async function createPeriodNote(
  * functionality is available and there is a current daily note. Unsuccessful
  * `StringResultObject` if it isn't.
  */
-export function getExistingPeriodNotePathIfPluginIsAvailable(
+export function getExistingPeriodicNotePathIfPluginIsAvailable(
   periodicNoteType: PeriodicNoteType,
 ): StringResultObject {
-  if (!checkForEnabledPeriodFeature(periodicNoteType)) {
+  if (!checkForEnabledPeriodicNoteFeature(periodicNoteType)) {
     return failure(
       ErrorCode.FeatureUnavailable,
       STRINGS[`${periodicNoteType}_note`].feature_not_available,

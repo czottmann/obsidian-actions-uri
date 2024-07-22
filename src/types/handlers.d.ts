@@ -1,4 +1,4 @@
-import { AnyProcessedParams } from "src/routes";
+import { AnyParams } from "src/routes";
 
 /**
  * A handler function is a function that is responsible for dealing with a
@@ -10,7 +10,7 @@ import { AnyProcessedParams } from "src/routes";
  * @returns A handler result object
  */
 export type HandlerFunction = (
-  incomingParams: AnyProcessedParams,
+  incomingParams: AnyParams,
 ) => Promise<AnyHandlerResult>;
 
 type HandlerResult = {

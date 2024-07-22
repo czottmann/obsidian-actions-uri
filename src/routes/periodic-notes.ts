@@ -22,11 +22,11 @@ import {
   searchAndReplaceInNote,
 } from "src/utils/file-handling";
 import {
-  checkForEnabledPeriodFeature,
-  createPeriodNote,
-  getAllPeriodNotes,
+  checkForEnabledPeriodicNoteFeature,
+  createPeriodicNote,
+  getAllPeriodicNotes,
   getCurrentPeriodicNote,
-  getExistingPeriodNotePathIfPluginIsAvailable,
+  getExistingPeriodicNotePathIfPluginIsAvailable,
   getMostRecentPeriodicNotePath,
   PeriodicNoteType,
 } from "src/utils/periodic-notes-handling";
@@ -209,14 +209,14 @@ function getHandleList(periodicNoteType: PeriodicNoteType): HandlerFunction {
   return async function handleList(
     incoming: AnyParams,
   ): Promise<HandlerPathsSuccess | HandlerFailure> {
-    if (!checkForEnabledPeriodFeature(periodicNoteType)) {
+    if (!checkForEnabledPeriodicNoteFeature(periodicNoteType)) {
       return failure(
         ErrorCode.FeatureUnavailable,
         STRINGS[`${periodicNoteType}_note`].feature_not_available,
       );
     }
 
-    const notes = getAllPeriodNotes(periodicNoteType);
+    const notes = getAllPeriodicNotes(periodicNoteType);
     return success({
       paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
     });
@@ -232,7 +232,9 @@ function getHandleGetCurrent(
     const { silent } = <ReadParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const res = getExistingPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const res = getExistingPeriodicNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     if (!res.isSuccess) return res;
     const filepath = res.result;
     if (shouldFocusNote) await focusOrOpenFile(filepath);
@@ -268,7 +270,9 @@ function getHandleOpenCurrent(
     // hand it back to the calling `handleIncomingCall()` (see `main.ts`) which
     // will take care of the rest.
 
-    const res = getExistingPeriodNotePathIfPluginIsAvailable(periodicNoteType);
+    const res = getExistingPeriodicNotePathIfPluginIsAvailable(
+      periodicNoteType,
+    );
     return res.isSuccess
       ? success({ message: STRINGS.note_opened }, res.result)
       : res;
@@ -310,7 +314,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
       : "";
     let pluginInstance;
 
-    if (!checkForEnabledPeriodFeature(periodicNoteType)) {
+    if (!checkForEnabledPeriodicNoteFeature(periodicNoteType)) {
       return failure(
         ErrorCode.FeatureUnavailable,
         STRINGS[`${periodicNoteType}_note`].feature_not_available,
@@ -353,7 +357,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // There is no note for today.  Let's create one!
-    const newNote = await createPeriodNote(periodicNoteType);
+    const newNote = await createPeriodicNote(periodicNoteType);
     if (!(newNote instanceof TFile)) {
       return failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
     }
@@ -411,7 +415,7 @@ function getHandleAppend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resGetPath = getExistingPeriodNotePathIfPluginIsAvailable(
+    const resGetPath = getExistingPeriodicNotePathIfPluginIsAvailable(
       periodicNoteType,
     );
     if (resGetPath.isSuccess) {
@@ -431,7 +435,7 @@ function getHandleAppend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     if (!shouldCreateNote) return resGetPath;
 
     // We're allowed to create the file, so let's do that.
-    const newNote = await createPeriodNote(periodicNoteType);
+    const newNote = await createPeriodicNote(periodicNoteType);
     if (newNote instanceof TFile) {
       const resAppend2 = await appendAsRequested(newNote.path);
       if (!resAppend2.isSuccess) return resAppend2;
@@ -477,7 +481,7 @@ function getHandlePrepend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     }
 
     // See if the file exists, and if so, append to it.
-    const resGetPath = getExistingPeriodNotePathIfPluginIsAvailable(
+    const resGetPath = getExistingPeriodicNotePathIfPluginIsAvailable(
       periodicNoteType,
     );
     if (resGetPath.isSuccess) {
@@ -497,7 +501,7 @@ function getHandlePrepend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     if (!shouldCreateNote) return resGetPath;
 
     // We're allowed to create the file, so let's do that.
-    const newNote = await createPeriodNote(periodicNoteType);
+    const newNote = await createPeriodicNote(periodicNoteType);
     if (newNote instanceof TFile) {
       const resPrepend2 = await prependAsRequested(newNote.path);
       if (!resPrepend2.isSuccess) return resPrepend2;
@@ -519,7 +523,7 @@ function getHandleSearchStringAndReplace(
     const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const resDNP = getExistingPeriodNotePathIfPluginIsAvailable(
+    const resDNP = getExistingPeriodicNotePathIfPluginIsAvailable(
       periodicNoteType,
     );
     if (!resDNP.isSuccess) return resDNP;
@@ -541,7 +545,7 @@ function getHandleSearchRegexAndReplace(
     const { search, replace, silent } = <SearchAndReplaceParams> incomingParams;
     const shouldFocusNote = !silent;
 
-    const resDNP = getExistingPeriodNotePathIfPluginIsAvailable(
+    const resDNP = getExistingPeriodicNotePathIfPluginIsAvailable(
       periodicNoteType,
     );
     if (!resDNP.isSuccess) return resDNP;
