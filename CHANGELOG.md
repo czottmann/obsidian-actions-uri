@@ -7,6 +7,7 @@
 - All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) gained support for working with periodic notes (daily, weekly, etc.).
 - All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) gained support for UID-based note references. Notes can now be referenced by their UID instead of their file path, so if you're storing a UID in your front matter, give it a go. Make sure to check that the correct frontmatter key is configured in the …
 - New settings UI. The plugin now has a settings page in Obsidian's settings.
+- [`/note/get-active-note`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteget-active) returns the current selection as part of its result. (Plain-text only for now.) (#90, ZCO-629)
 - [`/note-properties`](https://zottmann.dev/obsidian-actions-uri/routes/note-properties/) now supports working with current periodic notes (daily, weekly, etc.)
 
 ### Deprecation notice

@@ -180,6 +180,7 @@ On success:
 | `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.            
 | `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).
 | `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available             
+| `result-selection`    | <span class="tag tag-version">v1.6+</span> The current text selection, if available. (Plain text, no formatting.)
 
 On failure:
 

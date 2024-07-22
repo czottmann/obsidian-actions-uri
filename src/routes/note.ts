@@ -1,4 +1,4 @@
-import { TFile } from "obsidian";
+import { MarkdownView, TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
 import { AnyParams, NoteTargetingParameterKey, RoutePath } from "src/routes";
@@ -269,9 +269,16 @@ async function handleGetActive(
   }
 
   const res1 = await getNoteDetails(res.path);
-  return (res1.isSuccess)
-    ? res1
-    : failure(ErrorCode.NotFound, "No active note");
+  if (!res1.isSuccess) {
+    return failure(ErrorCode.NotFound, "No active note");
+  }
+
+  const mdView = this.app.workspace.getActiveViewOfType(MarkdownView);
+  const selection = mdView
+    ? (mdView.currentMode as any).getSelection()
+    : undefined;
+
+  return selection ? success({ ...res1.result, selection }) : res1;
 }
 
 async function handleGetNamed(
