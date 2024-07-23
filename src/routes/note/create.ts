@@ -238,7 +238,12 @@ export async function _handleCreateNoteFromTemplate(
         resCreate = await createNote(inputPath, "");
         break;
     }
+  } //
+  // The note doesn't exist yet, so we create it.
+  else {
+    resCreate = await createNote(inputPath, "");
   }
+
   if (!resCreate?.isSuccess) return resCreate!;
   const newNote = resCreate.result;
 
