@@ -274,7 +274,6 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `periodic-note`    | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` \| `recent-daily` \| `recent-weekly` \| `recent-monthly` \| `recent-quarterly` \| `recent-yearly` | see above |                                                                                                                                
 | `if-exists`        | string                                                                                                                                                        | optional  | What to do if the specified note exists. Set to `overwrite` for replacing the note or `skip` for using the existing note as-is.
 | `silent`           | boolean                                                                                                                                                       | optional  | *"After creating the note, do **not** open it in Obsidian."* Defaults to `false`.                                              
-[/note/create]
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -328,7 +327,6 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `create-if-not-found` | boolean                                                     | optional  | *"If the note does not exist, create it before appending."* Defaults to `false`. <span class="tag tag-version">v1.2+</span>                                                                                                        
 | `ensure-newline`      | boolean                                                     | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                                                                                                                
 | `silent`              | boolean                                                     | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                                                                                                                  
-[/note/append]
 
 ### Return values
 These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
@@ -378,7 +376,6 @@ In addition to the base parameters (see section ["Parameters required in/ accept
 | `ensure-newline`      | boolean                                                     | optional  | *"Make sure the note ends with a line break."* Defaults to `false`.                                                                                                                                                                
 | `ignore-front-matter` | boolean                                                     | optional  | *"Put the text at the very beginning of the note file, even if there is front matter."*  Defaults to `false`.                                                                                                                      
 | `silent`              | boolean                                                     | optional  | *"After updating the note, do **not** open it in Obsidian."* Defaults to `false`.                                                                                                                                                  
-[/note/prepend]
 
 
 ### Return values
