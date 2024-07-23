@@ -8,6 +8,16 @@ These routes deal with reading, writing and updating daily notes. Their URLs sta
 
 All routes listed here will test whether Daily Note functionality is enabled in Obsidian and if not, will return an `x-error` callback.  Both the official core plugin and the [@liamcain](https://github.com/liamcain)'s community plugin [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) are supported.  The configurations from those plugins is honored, i.e. date format, the set folder for daily notes etc. are taken into account when fetching, creating and updating notes.
 
+
+## <span class="tag tag-version">v1.6</span> DEPRECATION NOTICE
+All dedicated periodic note-related routes (`/daily-note/*`, `/weekly-note/*`, `/monthly-note/*`, `/quarterly-note/*`, `/yearly-note/*`) are officially deprecated, and will be removed in early 2025. Their functionality is now part of the [`/note` routes](/obsidian-actions-uri/routes/note/). Please update your scripts accordingly.
+
+There will be no further work on these routes going forward!
+
+
+&nbsp;
+
+
 <div id="toc"></div>
 
 

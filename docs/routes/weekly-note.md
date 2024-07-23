@@ -9,6 +9,16 @@ These routes deal with reading, writing and updating weekly notes. Their URLs st
 
 All routes listed here will test whether Weekly Note functionality is enabled in Obsidian and if not, will return an `x-error` callback.  (Weekly Notes are a feature of [@liamcain](https://github.com/liamcain)'s community plugin [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes).)  The settings made in the plugin's UI are honored, i.e. date format, the set folder for weekly notes etc. are taken into account when fetching, creating and updating notes.
 
+
+## <span class="tag tag-version">v1.6</span> DEPRECATION NOTICE
+All dedicated periodic note-related routes (`/daily-note/*`, `/weekly-note/*`, `/monthly-note/*`, `/quarterly-note/*`, `/yearly-note/*`) are officially deprecated, and will be removed in early 2025. Their functionality is now part of the [`/note` routes](/obsidian-actions-uri/routes/note/). Please update your scripts accordingly.
+
+There will be no further work on these routes going forward!
+
+
+&nbsp;
+
+
 <div id="toc"></div>
 
 
