@@ -1,7 +1,7 @@
 import { TFolder } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
-import { AnyParams, RoutePath } from "src/routes";
+import { RoutePath } from "src/routes";
 import { incomingBaseParams } from "src/schemata";
 import {
   HandlerFailure,
@@ -24,22 +24,25 @@ const listParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
-type ListParams = z.infer<typeof listParams>;
 
 const createParams = incomingBaseParams.extend({
   folder: zodSanitizedFolderPath,
 });
-type CreateParams = z.infer<typeof createParams>;
 
 const deleteParams = incomingBaseParams.extend({
   folder: zodExistingFolderPath,
 });
-type DeleteParams = z.infer<typeof deleteParams>;
 
 const renameParams = incomingBaseParams.extend({
   folder: zodExistingFolderPath,
   "new-foldername": zodSanitizedFolderPath,
 });
+
+// TYPES ----------------------------------------
+
+type ListParams = z.infer<typeof listParams>;
+type CreateParams = z.infer<typeof createParams>;
+type DeleteParams = z.infer<typeof deleteParams>;
 type RenameParams = z.infer<typeof renameParams>;
 
 export type AnyLocalParams =
@@ -63,52 +66,43 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleList(
-  incomingParams: AnyParams,
+  params: ListParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const paths = getFileMap()
-    .filter((t) => t instanceof TFolder)
-    .map((t) => t.path.endsWith("/") ? t.path : `${t.path}/`).sort();
-
-  return success({ paths });
+  return success({
+    paths: getFileMap()
+      .filter((t) => t instanceof TFolder)
+      .map((t) => t.path.endsWith("/") ? t.path : `${t.path}/`).sort(),
+  });
 }
 
 async function handleCreate(
-  incomingParams: AnyParams,
+  params: CreateParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <CreateParams> incomingParams;
   const { folder } = params;
-
   await createFolderIfNecessary(folder);
   return success({ message: STRINGS.folder_created }, folder);
 }
 
 async function handleRename(
-  incomingParams: AnyParams,
+  params: RenameParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <RenameParams> incomingParams;
   const { folder } = params;
-  const folderpath = folder.path;
-  const res = await renameFilepath(folderpath, params["new-foldername"]);
-
-  return res.isSuccess ? success({ message: res.result }, folderpath) : res;
+  const res = await renameFilepath(folder.path, params["new-foldername"]);
+  return res.isSuccess ? success({ message: res.result }, folder.path) : res;
 }
 
 async function handleDelete(
-  incomingParams: AnyParams,
+  params: DeleteParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { folder } = <DeleteParams> incomingParams;
-  const folderpath = folder.path;
-  const res = await trashFilepath(folderpath, true);
-
-  return res.isSuccess ? success({ message: res.result }, folderpath) : res;
+  const { folder } = params;
+  const res = await trashFilepath(folder.path, true);
+  return res.isSuccess ? success({ message: res.result }, folder.path) : res;
 }
 
 async function handleTrash(
-  incomingParams: AnyParams,
+  params: DeleteParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { folder } = <DeleteParams> incomingParams;
-  const folderpath = folder.path;
-  const res = await trashFilepath(folderpath);
-
-  return res.isSuccess ? success({ message: res.result }, folderpath) : res;
+  const { folder } = params;
+  const res = await trashFilepath(folder.path);
+  return res.isSuccess ? success({ message: res.result }, folder.path) : res;
 }

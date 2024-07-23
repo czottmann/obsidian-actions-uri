@@ -1,11 +1,12 @@
 import { stringifyYaml } from "obsidian";
 import { z } from "zod";
-import { AnyParams, RoutePath } from "src/routes";
+import { RoutePath } from "src/routes";
 import { incomingBaseParams, noteTargetingParams } from "src/schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerPropertiesSuccess,
+  Prettify,
 } from "src/types";
 import { propertiesForFile, updateNote } from "src/utils/file-handling";
 import { resolveNoteTargetingStrict } from "src/utils/parameters";
@@ -27,7 +28,6 @@ const getParams = incomingBaseParams
     "x-success": z.string().url(),
   })
   .transform(resolveNoteTargetingStrict);
-type GetParams = z.infer<typeof getParams>;
 
 const setParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -36,7 +36,6 @@ const setParams = incomingBaseParams
     mode: z.enum(["overwrite", "update"]).optional(),
   })
   .transform(resolveNoteTargetingStrict);
-type SetParams = z.infer<typeof setParams>;
 
 const removeKeysParams = incomingBaseParams
   .merge(noteTargetingParams)
@@ -44,7 +43,12 @@ const removeKeysParams = incomingBaseParams
     keys: zodJsonStringArray,
   })
   .transform(resolveNoteTargetingStrict);
-type RemoveKeysParams = z.infer<typeof removeKeysParams>;
+
+// TYPES ----------------------------------------
+
+type GetParams = Prettify<z.infer<typeof getParams>>;
+type SetParams = Prettify<z.infer<typeof setParams>>;
+type RemoveKeysParams = Prettify<z.infer<typeof removeKeysParams>>;
 
 export type AnyLocalParams =
   | GetParams
@@ -70,9 +74,9 @@ export const routePath: RoutePath = {
 // HANDLERS --------------------
 
 async function handleGet(
-  incomingParams: AnyParams,
+  params: GetParams,
 ): Promise<HandlerPropertiesSuccess | HandlerFailure> {
-  const { _resolved: { inputFile } } = incomingParams as GetParams;
+  const { _resolved: { inputFile } } = params;
   return success(
     { properties: propertiesForFile(inputFile!) },
     inputFile?.path,
@@ -80,10 +84,9 @@ async function handleGet(
 }
 
 async function handleSet(
-  incomingParams: AnyParams,
+  params: SetParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const { _resolved: { inputFile }, mode, properties } =
-    incomingParams as SetParams;
+  const { _resolved: { inputFile }, mode, properties } = params;
   const props = mode === "update"
     ? { ...propertiesForFile(inputFile!), ...properties }
     : properties;
@@ -92,17 +95,16 @@ async function handleSet(
 }
 
 async function handleClear(
-  incomingParams: AnyParams,
+  params: GetParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const { _resolved: { inputPath: path } } = incomingParams as GetParams;
+  const { _resolved: { inputPath: path } } = params;
   return updateNote(path, "");
 }
 
 async function handleRemoveKeys(
-  incomingParams: AnyParams,
+  params: RemoveKeysParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const { _resolved: { inputPath: path, inputFile }, keys } =
-    incomingParams as RemoveKeysParams;
+  const { _resolved: { inputPath: path, inputFile }, keys } = params;
 
   const props = propertiesForFile(inputFile!)!;
   (<string[]> keys).forEach((key) => delete props[key]);

@@ -1,8 +1,8 @@
 import { Platform } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
-import { AnyParams, RoutePath } from "src/routes";
-import { incomingBaseParams } from "src/schemata";
+import { RoutePath } from "src/routes";
+import { IncomingBaseParams, incomingBaseParams } from "src/schemata";
 import {
   HandlerFailure,
   HandlerPathsSuccess,
@@ -21,6 +21,9 @@ const defaultParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
+
+// TYPES ----------------------------------------
+
 type DefaultParams = z.infer<typeof defaultParams>;
 
 export type AnyLocalParams = DefaultParams;
@@ -49,14 +52,14 @@ export const routePath: RoutePath = {
 // HANDLERS --------------------
 
 async function handleOpen(
-  incomingParams: AnyParams,
+  params: IncomingBaseParams,
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
   // If we're here, then the vault is already open.
   return success({});
 }
 
 async function handleClose(
-  incomingParams: AnyParams,
+  params: IncomingBaseParams,
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
   if (Platform.isMobileApp) {
     return failure(
@@ -72,9 +75,9 @@ async function handleClose(
 
 async function handleInfo(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: DefaultParams,
 ): Promise<HandlerVaultInfoSuccess | HandlerFailure> {
-  const vault = this.app.vault;
+  const { vault } = this.app;
   const { config } = <RealLifeVault> vault;
   const basePath = (<RealLifeDataAdapter> vault.adapter).basePath;
 
@@ -96,7 +99,7 @@ async function handleInfo(
 
 async function handleListFiles(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: DefaultParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
   return success({
     paths: this.app.vault.getFiles().map((t) => t.path).sort(),
@@ -105,9 +108,9 @@ async function handleListFiles(
 
 async function handleListFilesExceptNotes(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: DefaultParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const vault = this.app.vault;
+  const { vault } = this.app;
   const files = vault.getFiles().map((t) => t.path);
   const notes = vault.getMarkdownFiles().map((t) => t.path);
 

@@ -1,7 +1,7 @@
 import { MarkdownView, TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
-import { AnyParams, NoteTargetingParameterKey, RoutePath } from "src/routes";
+import { NoteTargetingParameterKey, RoutePath } from "src/routes";
 import {
   _handleCreateNoteFromContent,
   _handleCreateNoteFromTemplate,
@@ -240,9 +240,9 @@ export const routePath: RoutePath = {
 
 async function handleList(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: ListParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
-  const { "periodic-note": periodicNoteType } = incomingParams as ListParams;
+  const { "periodic-note": periodicNoteType } = params;
   // If no periodic note type is specified, we return all notes.
   if (!periodicNoteType) {
     return success({
@@ -269,9 +269,9 @@ async function handleList(
  * handler won't be called if the file doesn't exist.
  */
 async function handleGet(
-  incomingParams: AnyParams,
+  params: GetParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const { _resolved: { inputPath }, silent } = incomingParams as GetParams;
+  const { _resolved: { inputPath }, silent } = params;
   const res = await getNoteDetails(inputPath);
   if (res.isSuccess && !silent) await focusOrOpenFile(inputPath);
   return res;
@@ -279,7 +279,7 @@ async function handleGet(
 
 async function handleGetActive(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: GetActiveParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const res = this.app.workspace.getActiveFile();
   if (res?.extension !== "md") {
@@ -301,9 +301,8 @@ async function handleGetActive(
 
 async function handleGetNamed(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: ReadFirstNamedParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = incomingParams as ReadFirstNamedParams;
   const { file } = params;
   const sortBy = params["sort-by"] || "best-guess";
 
@@ -341,9 +340,9 @@ async function handleGetNamed(
  * handler won't be called if the file doesn't exist.
  */
 async function handleOpen(
-  incomingParams: AnyParams,
+  params: OpenParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _resolved: { inputPath } } = incomingParams as OpenParams;
+  const { _resolved: { inputPath } } = params;
   const res = await getNote(inputPath);
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
@@ -352,31 +351,31 @@ async function handleOpen(
 
 async function handleCreate(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: CreateParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const { _resolved: { inputKey } } = incomingParams as CreateParams;
+  const { _resolved: { inputKey } } = params;
 
   if (inputKey === NoteTargetingParameterKey.PeriodicNote) {
     return _handleCreatePeriodicNote
-      .bind(this)(incomingParams as CreatePeriodicNoteParams);
+      .bind(this)(params as CreatePeriodicNoteParams);
   }
 
-  const applyValue = (incomingParams as AnyCreateNoteApplyParams).apply;
+  const applyValue = (params as AnyCreateNoteApplyParams).apply;
   switch (applyValue) {
     case CreateApplyParameterValue.Content:
       return _handleCreateNoteFromContent
-        .bind(this)(incomingParams as CreateNoteApplyContentParams);
+        .bind(this)(params as CreateNoteApplyContentParams);
 
     case CreateApplyParameterValue.Templater:
     case CreateApplyParameterValue.Templates:
       return _handleCreateNoteFromTemplate
-        .bind(this)(incomingParams as CreateNoteApplyTemplateParams);
+        .bind(this)(params as CreateNoteApplyTemplateParams);
   }
 }
 
 async function handleAppend(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: AppendParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const {
     _resolved: { inputKey, inputFile, inputPath },
@@ -387,7 +386,7 @@ async function handleAppend(
     content,
     silent,
     uid,
-  } = incomingParams as AppendParams;
+  } = params;
 
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
@@ -448,7 +447,7 @@ async function handleAppend(
 
 async function handlePrepend(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: PrependParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
   const {
     _resolved: { inputKey, inputFile, inputPath },
@@ -460,7 +459,7 @@ async function handlePrepend(
     content,
     silent,
     uid,
-  } = incomingParams as PrependParams;
+  } = params;
 
   // If the note was requested via UID, doesn't exist but should be created,
   // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
@@ -533,9 +532,9 @@ async function handlePrepend(
 }
 
 async function handleTouch(
-  incomingParams: AnyParams,
+  params: TouchParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _resolved: { inputPath }, silent } = incomingParams as TouchParams;
+  const { _resolved: { inputPath }, silent } = params;
 
   const res = await touchNote(inputPath);
   if (!res.isSuccess) return res;
@@ -544,10 +543,9 @@ async function handleTouch(
 }
 
 async function handleSearchStringAndReplace(
-  incomingParams: AnyParams,
+  params: SearchAndReplaceParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _resolved: { inputPath }, search, replace, silent } =
-    incomingParams as SearchAndReplaceParams;
+  const { _resolved: { inputPath }, search, replace, silent } = params;
 
   const res = await searchAndReplaceInNote(inputPath, search, replace);
   if (!res.isSuccess) return res;
@@ -556,10 +554,9 @@ async function handleSearchStringAndReplace(
 }
 
 async function handleSearchRegexAndReplace(
-  incomingParams: AnyParams,
+  params: SearchAndReplaceParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _resolved: { inputPath }, search, replace, silent } =
-    incomingParams as SearchAndReplaceParams;
+  const { _resolved: { inputPath }, search, replace, silent } = params;
 
   const resSir = parseStringIntoRegex(search);
   if (!resSir.isSuccess) return resSir;
@@ -571,32 +568,36 @@ async function handleSearchRegexAndReplace(
 }
 
 async function handleDelete(
-  incomingParams: AnyParams,
+  params: DeleteParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _resolved: { inputPath } } = incomingParams as DeleteParams;
+  const { _resolved: { inputPath } } = params;
 
   const res = await trashFilepath(inputPath, true);
   return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }
 
 async function handleTrash(
-  incomingParams: AnyParams,
+  params: DeleteParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _resolved: { inputPath } } = incomingParams as DeleteParams;
+  const { _resolved: { inputPath } } = params;
 
   const res = await trashFilepath(inputPath);
   return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }
 
 async function handleRename(
-  incomingParams: AnyParams,
+  params: RenameParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { _resolved: { inputPath }, ["new-filename"]: newPath } =
-    incomingParams as RenameParams;
+  const {
+    _resolved: { inputPath },
+    ["new-filename"]: newPath,
+  } = params;
 
   const res = await renameFilepath(inputPath, newPath);
   return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }
+
+// HELPERS ----------------------------------------
 
 async function prepareNoteForHeadlineBlockManipulation(
   path: string,

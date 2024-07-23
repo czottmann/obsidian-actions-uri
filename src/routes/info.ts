@@ -1,7 +1,7 @@
 import { apiVersion, Platform } from "obsidian";
 import { z } from "zod";
 import { PLUGIN_INFO } from "src/plugin-info";
-import { AnyParams, RoutePath } from "src/routes";
+import { RoutePath } from "src/routes";
 import { incomingBaseParams } from "src/schemata";
 import { HandlerInfoSuccess } from "src/types";
 import { success } from "src/utils/results-handling";
@@ -27,7 +27,7 @@ export const routePath: RoutePath = {
 // HANDLERS --------------------
 
 async function handleInfo(
-  incomingParams: AnyParams,
+  params: DefaultParams,
 ): Promise<HandlerInfoSuccess> {
   const uaMatch = navigator.userAgent.match(/\((.+?)\)/);
   const os: string = uaMatch ? uaMatch[1] : "unknown";

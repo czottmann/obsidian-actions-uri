@@ -4,7 +4,7 @@ import {
   Plugin,
   TAbstractFile,
 } from "obsidian";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 import { URI_NAMESPACE } from "src/constants";
 import { AnyParams, RoutePath, routes } from "src/routes";
 import { SettingsTab } from "src/settings";
@@ -82,7 +82,10 @@ export default class ActionsURI extends Plugin {
           async (incomingParams) => {
             const res = await schema.safeParseAsync(incomingParams);
             res.success
-              ? await this.handleIncomingCall(handler, <AnyParams> res.data)
+              ? await this.handleIncomingCall(
+                handler,
+                res.data as z.infer<typeof schema>,
+              )
               : this.handleParseError(res.error, incomingParams);
           },
         );

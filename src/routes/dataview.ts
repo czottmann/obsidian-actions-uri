@@ -5,7 +5,7 @@ import {
 } from "obsidian-dataview";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
-import { AnyParams, RoutePath } from "src/routes";
+import { RoutePath } from "src/routes";
 import { incomingBaseParams } from "src/schemata";
 import {
   HandlerDataviewSuccess,
@@ -22,6 +22,9 @@ const readParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
+
+// TYPES ----------------------------------------
+
 type ReadParams = z.infer<typeof readParams>;
 
 export type AnyLocalParams = ReadParams;
@@ -41,16 +44,16 @@ export const routePath: RoutePath = {
 
 async function handleTableQuery(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: ReadParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  return await handleDataviewQuery.bind(this)("table", incomingParams);
+  return await executeDataviewQuery.bind(this)("table", params);
 }
 
 async function handleListQuery(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: ReadParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  return await handleDataviewQuery.bind(this)("list", incomingParams);
+  return await executeDataviewQuery.bind(this)("list", params);
 }
 
 // HELPERS ----------------------------------------
@@ -61,12 +64,11 @@ function dqlValuesMapper(dataview: DataviewApi, v: any): any {
     : dataview.value.toString(v);
 }
 
-async function handleDataviewQuery(
+async function executeDataviewQuery(
   this: RealLifePlugin,
   type: "table" | "list",
-  incomingParams: AnyParams,
+  params: ReadParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  const params = <ReadParams> incomingParams;
   const dataview = getAPI(this.app);
 
   if (!isDataviewEnabled(this.app) || !dataview) {

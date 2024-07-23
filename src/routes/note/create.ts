@@ -172,8 +172,8 @@ export async function _handleCreateNoteFromContent(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const {
     _resolved: { inputPath },
-    content,
     ["if-exists"]: ifExists,
+    content,
     silent,
   } = params;
   const shouldFocusNote = !silent;
@@ -213,8 +213,8 @@ export async function _handleCreateNoteFromTemplate(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const {
     _resolved: { inputPath, templateFile },
-    apply,
     ["if-exists"]: ifExists,
+    apply,
     silent,
   } = params;
   const shouldFocusNote = !silent;
@@ -266,7 +266,7 @@ export async function _handleCreateNoteFromTemplate(
 
 // RESOLVERS ----------------------------------------
 
-export type ResolvedTemplatePathValues = Readonly<{
+type ResolvedTemplatePathValues = Readonly<{
   _resolved: {
     templatePath: string;
     templateFile: TAbstractFile | undefined;

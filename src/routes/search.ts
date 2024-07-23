@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AnyParams, RoutePath } from "src/routes";
+import { RoutePath } from "src/routes";
 import { incomingBaseParams } from "src/schemata";
 import {
   HandlerFailure,
@@ -18,11 +18,14 @@ const defaultParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
-type DefaultParams = z.infer<typeof defaultParams>;
 
 const openParams = incomingBaseParams.extend({
   query: z.string().min(1, { message: "can't be empty" }),
 });
+
+// TYPES ----------------------------------------
+
+type DefaultParams = z.infer<typeof defaultParams>;
 type OpenParams = z.infer<typeof openParams>;
 
 export type AnyLocalParams =
@@ -42,20 +45,16 @@ export const routePath: RoutePath = {
 // HANDLERS --------------------
 
 async function handleSearch(
-  incomingParams: AnyParams,
+  params: DefaultParams,
 ): Promise<HandlerSearchSuccess | HandlerFailure> {
-  const params = <DefaultParams> incomingParams;
   const res = await doSearch(params.query);
-
   return res.isSuccess ? success(res.result) : res;
 }
 
 async function handleOpen(
   this: RealLifePlugin,
-  incomingParams: AnyParams,
+  params: DefaultParams,
 ): Promise<HandlerTextSuccess> {
-  const params = <DefaultParams> incomingParams;
-
   // Let's open the search in the simplest way possible.
   window.open(
     "obsidian://search?" +

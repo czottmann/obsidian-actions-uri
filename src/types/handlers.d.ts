@@ -1,5 +1,3 @@
-import { AnyParams } from "src/routes";
-
 /**
  * A handler function is a function that is responsible for dealing with a
  * particular route. It takes a payload (i.e. the parameters from the incoming
@@ -10,7 +8,7 @@ import { AnyParams } from "src/routes";
  * @returns A handler result object
  */
 export type HandlerFunction = (
-  incomingParams: AnyParams,
+  incomingParams: any,
 ) => Promise<AnyHandlerResult>;
 
 type HandlerResult = {
