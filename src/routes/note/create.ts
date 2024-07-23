@@ -331,18 +331,23 @@ export function resolveTemplatePathStrict<T>(
       return z.NEVER;
   }
 
-  const templatePath = sanitizeFilePath(`${folder}/${input}`, true);
-  const templateFile = self().app.vault.getAbstractFileByPath(templatePath);
+  // Check if the file exists in the specified folder. We try two paths: the
+  // input prefixed with the template folder as configured in the relevant plugin,
+  // and the input as is (in case the input already is a full path).
+  const { vault } = self().app;
+  const templateFile =
+    vault.getAbstractFileByPath(sanitizeFilePath(`${folder}/${input}`)) ||
+    vault.getAbstractFileByPath(sanitizeFilePath(input));
   if (!templateFile) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: STRINGS.template_not_found.replace("%s", templatePath),
+      message: STRINGS.template_not_found,
     });
     return z.NEVER;
   }
 
   return mergeResolvedData(data, {
-    templatePath,
+    templatePath: templateFile.path,
     templateFile,
   });
 }

@@ -49,7 +49,7 @@ export const STRINGS = {
   search_pattern_not_found: "Search pattern wasn't found, nothing replaced",
   search_pattern_unparseable: "Search pattern is not correctly formed",
   search_string_not_found: "Search string wasn't found, nothing replaced",
-  template_not_found: "Template '%s' not found",
+  template_not_found: "Template not found",
   templater: {
     feature_not_available: "Templater plugin is not active",
   },
