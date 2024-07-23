@@ -78,7 +78,12 @@
       const listItem = document.createElement("li");
       const link = document.createElement("a");
       link.href = "#" + heading.id;
-      link.appendChild(heading.querySelector("code").cloneNode(true));
+      link.appendChild(
+        (
+          heading.querySelector("code") ||
+          document.createTextNode($0.textContent)
+        ).cloneNode(true)
+      );
       listItem.appendChild(link);
       list.appendChild(listItem);
     }
