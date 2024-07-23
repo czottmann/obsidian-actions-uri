@@ -1,10 +1,9 @@
 import { z } from "zod";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
-import { HandlerFailure, HandlerTagsSuccess } from "../types";
-import { obsEnv } from "../utils/obsidian-env";
-import { success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
+import { RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
+import { HandlerFailure, HandlerTagsSuccess, RealLifePlugin } from "src/types";
+import { success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
 
 // SCHEMATA ----------------------------------------
 
@@ -12,6 +11,9 @@ const listParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
+
+// TYPES ----------------------------------------
+
 type ListParams = z.infer<typeof listParams>;
 
 export type AnyLocalParams = ListParams;
@@ -28,11 +30,11 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleList(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: ListParams,
 ): Promise<HandlerTagsSuccess | HandlerFailure> {
-  const tags = obsEnv.metadataCache.getTags();
-
   return success({
-    tags: Object.keys(tags).sort((a, b) => a.localeCompare(b)),
+    tags: Object.keys(this.app.metadataCache.getTags())
+      .sort((a, b) => a.localeCompare(b)),
   });
 }

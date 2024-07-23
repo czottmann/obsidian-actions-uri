@@ -1,17 +1,17 @@
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { STRINGS } from "src/constants";
+import { RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
 import {
   HandlerCommandsExecutionSuccess,
   HandlerCommandsSuccess,
   HandlerFailure,
-} from "../types";
-import { failure, success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
-import { obsEnv } from "../utils/obsidian-env";
-import { pause } from "../utils/time";
-import { zodAlwaysFalse, zodCommaSeparatedStrings } from "../utils/zod";
+  RealLifePlugin,
+} from "src/types";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
+import { pause } from "src/utils/time";
+import { zodCommaSeparatedStrings } from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 
@@ -19,13 +19,15 @@ const listParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
-type ListParams = z.infer<typeof listParams>;
 
 const executeParams = incomingBaseParams.extend({
   commands: zodCommaSeparatedStrings,
   "pause-in-secs": z.coerce.number().optional(),
-  silent: zodAlwaysFalse,
 });
+
+// TYPES ----------------------------------------
+
+type ListParams = z.infer<typeof listParams>;
 type ExecuteParams = z.infer<typeof executeParams>;
 
 export type AnyLocalParams =
@@ -49,9 +51,10 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleList(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: ListParams,
 ): Promise<HandlerCommandsSuccess | HandlerFailure> {
-  const commands = obsEnv.app.commands
+  const commands = this.app.commands
     .listCommands()
     .map((cmd) => ({ id: cmd.id, name: cmd.name }));
 
@@ -59,19 +62,19 @@ async function handleList(
 }
 
 async function handleExecute(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: ExecuteParams,
 ): Promise<HandlerCommandsExecutionSuccess | HandlerFailure> {
-  const params = <ExecuteParams> incomingParams;
   const { commands } = params;
   const pauseInMilliseconds = (params["pause-in-secs"] || 0.2) * 1000;
 
   for (let idx = 0; idx < commands.length; idx++) {
     const cmd = commands[idx];
-    const wasSuccess = obsEnv.app.commands.executeCommandById(cmd);
+    const wasSuccess = this.app.commands.executeCommandById(cmd);
 
     // If this call wasn't successful, stop the sequence and return an error.
     if (!wasSuccess) {
-      return failure(500, STRINGS.command_not_found(cmd));
+      return failure(ErrorCode.NotFound, STRINGS.command_not_found(cmd));
     }
 
     // Unless this was the last command of the sequence, put in a short pause.

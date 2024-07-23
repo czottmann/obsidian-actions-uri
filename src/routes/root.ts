@@ -1,5 +1,5 @@
-import { RoutePath } from "../routes";
-import { helloRoute } from "../utils/routing";
+import { RoutePath } from "src/routes";
+import { helloRoute } from "src/utils/routing";
 
 // ROUTES --------------------
 

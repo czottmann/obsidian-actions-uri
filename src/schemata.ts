@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { zodOptionalBoolean } from "./utils/zod";
+import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
+import {
+  PeriodicNoteType,
+  PeriodicNoteTypeWithRecents,
+} from "src/utils/periodic-notes-handling";
 
 export const incomingBaseParams = z.object({
   action: z.string(),
@@ -13,4 +17,21 @@ export const incomingBaseParams = z.object({
   "x-success": z.string().url().optional(),
   "x-source": z.string().optional(),
 });
-export type IncomingBaseParams = z.infer<typeof incomingBaseParams>;
+export type IncomingBaseParams = z.output<typeof incomingBaseParams>;
+
+export const noteTargetingParams = z.object({
+  file: zodSanitizedNotePath.optional(),
+  uid: z.string().optional(),
+  "periodic-note": z.nativeEnum(PeriodicNoteType).optional(),
+});
+export type NoteTargetingParams = z.output<typeof noteTargetingParams>;
+
+export const noteTargetingWithRecentsParams = z.object({
+  file: zodSanitizedNotePath.optional(),
+  uid: z.string().optional(),
+  "periodic-note": z.nativeEnum(PeriodicNoteTypeWithRecents).optional(),
+});
+
+export type NoteTargetingWithRecentsParams = z.output<
+  typeof noteTargetingWithRecentsParams
+>;

@@ -1,8 +1,8 @@
-import { success } from "./results-handling";
-import { AnyParams, RouteSubpath } from "../routes";
-import { incomingBaseParams } from "../schemata";
-import { HandlerTextSuccess } from "../types";
-import { showBrandedNotice } from "./ui";
+import { success } from "src/utils/results-handling";
+import { AnyParams, RouteSubpath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
+import { HandlerTextSuccess } from "src/types";
+import { showBrandedNotice } from "src/utils/ui";
 
 export function helloRoute(path: string = "/"): RouteSubpath {
   return { path, schema: incomingBaseParams.extend({}), handler: handleHello };

@@ -1,21 +1,39 @@
-import { TFile } from "obsidian";
+import { MarkdownView, TFile } from "obsidian";
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
+import { STRINGS } from "src/constants";
+import { NoteTargetingParameterKey, RoutePath } from "src/routes";
+import {
+  _handleCreateNoteFromContent,
+  _handleCreateNoteFromTemplate,
+  _handleCreatePeriodicNote,
+  AnyCreateNoteApplyParams,
+  CreateApplyParameterValue,
+  CreateNoteApplyContentParams,
+  CreateNoteApplyTemplateParams,
+  CreateParams,
+  createParams,
+  CreatePeriodicNoteParams,
+} from "src/routes/note/create";
+import {
+  incomingBaseParams,
+  noteTargetingParams,
+  noteTargetingWithRecentsParams,
+} from "src/schemata";
 import {
   HandlerFailure,
   HandlerFileSuccess,
   HandlerPathsSuccess,
   HandlerTextSuccess,
-} from "../types";
+  Prettify,
+  RealLifePlugin,
+  StringResultObject,
+} from "src/types";
 import {
   appendNote,
   appendNoteBelowHeadline,
-  applyCorePluginTemplate,
   createNote,
-  createOrOverwriteNote,
   getNote,
+  getNoteContent,
   getNoteDetails,
   prependNote,
   prependNoteBelowHeadline,
@@ -24,161 +42,153 @@ import {
   searchAndReplaceInNote,
   touchNote,
   trashFilepath,
-} from "../utils/file-handling";
+} from "src/utils/file-handling";
 import {
-  getEnabledCommunityPlugin,
-  getEnabledCorePlugin,
-} from "../utils/plugins";
-import { helloRoute } from "../utils/routing";
-import { failure, success } from "../utils/results-handling";
-import { obsEnv } from "../utils/obsidian-env";
-import { parseStringIntoRegex } from "../utils/string-handling";
-import { focusOrOpenFile } from "../utils/ui";
+  resolveNoteTargeting,
+  resolveNoteTargetingStrict,
+} from "src/utils/parameters";
 import {
-  zodAlwaysFalse,
-  zodEmptyStringChangedToDefaultString,
-  zodExistingNotePath,
-  zodExistingTemplaterPath,
-  zodExistingTemplatesPath,
-  zodOptionalBoolean,
-  zodSanitizedNotePath,
-  zodUndefinedChangedToDefaultValue,
-} from "../utils/zod";
+  checkForEnabledPeriodicNoteFeature,
+  getAllPeriodicNotes,
+  PeriodicNoteType,
+} from "src/utils/periodic-notes-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
+import {
+  escapeRegExpChars,
+  parseStringIntoRegex,
+} from "src/utils/string-handling";
+import { focusOrOpenFile } from "src/utils/ui";
+import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
 
-const listParams = incomingBaseParams.extend({
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
-});
-type ListParams = z.infer<typeof listParams>;
+enum IfHeadlineMissingParameterValue {
+  Error = "error",
+  AddHeadline = "add-headline",
+  Skip = "skip",
+}
 
-const readParams = incomingBaseParams.extend({
-  file: zodSanitizedNotePath,
-  silent: zodOptionalBoolean,
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
-});
-type ReadParams = z.infer<typeof readParams>;
+const listParams = incomingBaseParams
+  .extend({
+    "periodic-note": z.nativeEnum(PeriodicNoteType).optional(),
+    "x-error": z.string().url(),
+    "x-success": z.string().url(),
+  });
 
-const readActiveParams = incomingBaseParams.extend({
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
-});
-type ReadActiveParams = z.infer<typeof readActiveParams>;
+const getParams = incomingBaseParams
+  .merge(noteTargetingWithRecentsParams)
+  .extend({
+    silent: zodOptionalBoolean,
+    "x-error": z.string().url(),
+    "x-success": z.string().url(),
+  })
+  .transform(resolveNoteTargetingStrict);
 
-const readNamedParams = incomingBaseParams.extend({
-  file: zodSanitizedNotePath,
-  "sort-by": z.enum([
-    "best-guess",
-    "path-asc",
-    "path-desc",
-    "ctime-asc",
-    "ctime-desc",
-    "mtime-asc",
-    "mtime-desc",
-    "",
-  ]).optional(),
-  "x-error": z.string().url(),
-  "x-success": z.string().url(),
-});
-type ReadFirstNamedParams = z.infer<typeof readNamedParams>;
+const getActiveParams = incomingBaseParams
+  .extend({
+    "x-error": z.string().url(),
+    "x-success": z.string().url(),
+  });
 
-const openParams = incomingBaseParams.extend({
-  file: zodExistingNotePath,
-  silent: zodAlwaysFalse,
-});
-type OpenParams = z.infer<typeof openParams>;
+const readNamedParams = incomingBaseParams
+  .extend({
+    file: zodSanitizedNotePath,
+    "sort-by": z.enum([
+      "best-guess",
+      "path-asc",
+      "path-desc",
+      "ctime-asc",
+      "ctime-desc",
+      "mtime-asc",
+      "mtime-desc",
+      "",
+    ]).optional(),
+    "x-error": z.string().url(),
+    "x-success": z.string().url(),
+  });
 
-const createBaseParams = incomingBaseParams.extend({
-  file: zodSanitizedNotePath,
-  "if-exists": z.enum(["overwrite", "skip", ""]).optional(),
-  silent: zodOptionalBoolean,
-});
-const createParams = z.discriminatedUnion("apply", [
-  createBaseParams.extend({
-    apply: z.literal("content"),
-    content: z.string().optional(),
-  }),
-  createBaseParams.extend({
-    apply: z.literal("templater"),
-    "template-file": zodExistingTemplaterPath,
-  }),
-  createBaseParams.extend({
-    apply: z.literal("templates"),
-    "template-file": zodExistingTemplatesPath,
-  }),
-  createBaseParams.extend({
-    apply: zodEmptyStringChangedToDefaultString("content"),
-    content: z.string().optional(),
-  }),
-  createBaseParams.extend({
-    apply: zodUndefinedChangedToDefaultValue("content"),
-    content: z.string().optional(),
-  }),
-]);
-type CreateParams = z.infer<typeof createParams>;
-type createContentParams = {
-  apply: "content";
-  content?: string;
-};
-type createTemplateParams = {
-  apply: "templater" | "templates";
-  "template-file": TFile;
-};
+const openParams = incomingBaseParams
+  .merge(noteTargetingWithRecentsParams)
+  .transform(resolveNoteTargetingStrict);
 
-const appendParams = incomingBaseParams.extend({
-  content: z.string(),
-  file: zodSanitizedNotePath,
-  silent: zodOptionalBoolean,
-  "below-headline": z.string().optional(),
-  "create-if-not-found": zodOptionalBoolean,
-  "ensure-newline": zodOptionalBoolean,
-});
-type AppendParams = z.infer<typeof appendParams>;
+const appendParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
+    content: z.string(),
+    silent: zodOptionalBoolean,
+    "below-headline": z.string().optional(),
+    "create-if-not-found": zodOptionalBoolean,
+    "ensure-newline": zodOptionalBoolean,
+    "if-headline-missing": z.nativeEnum(IfHeadlineMissingParameterValue)
+      .optional()
+      .default(IfHeadlineMissingParameterValue.Error),
+  })
+  .transform(resolveNoteTargeting);
 
-const prependParams = incomingBaseParams.extend({
-  content: z.string(),
-  file: zodSanitizedNotePath,
-  silent: zodOptionalBoolean,
-  "below-headline": z.string().optional(),
-  "create-if-not-found": zodOptionalBoolean,
-  "ensure-newline": zodOptionalBoolean,
-  "ignore-front-matter": zodOptionalBoolean,
-});
-type PrependParams = z.infer<typeof prependParams>;
+const prependParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
+    content: z.string(),
+    silent: zodOptionalBoolean,
+    "below-headline": z.string().optional(),
+    "create-if-not-found": zodOptionalBoolean,
+    "ensure-headline": zodOptionalBoolean,
+    "ensure-newline": zodOptionalBoolean,
+    "if-headline-missing": z.nativeEnum(IfHeadlineMissingParameterValue)
+      .optional()
+      .default(IfHeadlineMissingParameterValue.Error),
+    "ignore-front-matter": zodOptionalBoolean,
+  })
+  .transform(resolveNoteTargeting);
 
-const touchParams = incomingBaseParams.extend({
-  file: zodSanitizedNotePath,
-  silent: zodOptionalBoolean,
-});
-type TouchParams = z.infer<typeof touchParams>;
+const touchParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
+    silent: zodOptionalBoolean,
+  })
+  .transform(resolveNoteTargetingStrict);
 
-const searchAndReplaceParams = incomingBaseParams.extend({
-  file: zodExistingNotePath,
-  silent: zodOptionalBoolean,
-  search: z.string().min(1, { message: "can't be empty" }),
-  replace: z.string(),
-});
-type SearchAndReplaceParams = z.infer<typeof searchAndReplaceParams>;
+const searchAndReplaceParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
+    silent: zodOptionalBoolean,
+    search: z.string().min(1, { message: "can't be empty" }),
+    replace: z.string(),
+  })
+  .transform(resolveNoteTargetingStrict);
 
-const deleteParams = incomingBaseParams.extend({
-  file: zodExistingNotePath,
-});
-type DeleteParams = z.infer<typeof deleteParams>;
+const deleteParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .transform(resolveNoteTargetingStrict);
 
-const renameParams = incomingBaseParams.extend({
-  file: zodExistingNotePath,
-  "new-filename": zodSanitizedNotePath,
-  silent: zodOptionalBoolean,
-});
-type RenameParams = z.infer<typeof renameParams>;
+const renameParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
+    "new-filename": zodSanitizedNotePath,
+    silent: zodOptionalBoolean,
+  })
+  .transform(resolveNoteTargetingStrict);
+
+// TYPES ----------------------------------------
+
+type ListParams = Prettify<z.infer<typeof listParams>>;
+type GetParams = Prettify<z.infer<typeof getParams>>;
+type GetActiveParams = Prettify<z.infer<typeof getActiveParams>>;
+type ReadFirstNamedParams = Prettify<z.infer<typeof readNamedParams>>;
+type OpenParams = Prettify<z.infer<typeof openParams>>;
+type AppendParams = Prettify<z.infer<typeof appendParams>>;
+type PrependParams = Prettify<z.infer<typeof prependParams>>;
+type TouchParams = Prettify<z.infer<typeof touchParams>>;
+type SearchAndReplaceParams = Prettify<z.infer<typeof searchAndReplaceParams>>;
+type DeleteParams = Prettify<z.infer<typeof deleteParams>>;
+type RenameParams = Prettify<z.infer<typeof renameParams>>;
 
 export type AnyLocalParams =
   | ListParams
-  | ReadParams
+  | GetParams
+  | GetActiveParams
   | ReadFirstNamedParams
-  | ReadActiveParams
   | OpenParams
   | CreateParams
   | AppendParams
@@ -194,13 +204,17 @@ export const routePath: RoutePath = {
   "/note": [
     helloRoute(),
     { path: "/list", schema: listParams, handler: handleList },
-    { path: "/get", schema: readParams, handler: handleGet },
+    { path: "/get", schema: getParams, handler: handleGet },
     {
       path: "/get-first-named",
       schema: readNamedParams,
       handler: handleGetNamed,
     },
-    { path: "/get-active", schema: readActiveParams, handler: handleGetActive },
+    {
+      path: "/get-active",
+      schema: getActiveParams,
+      handler: handleGetActive,
+    },
     { path: "/open", schema: openParams, handler: handleOpen },
     { path: "/create", schema: createParams, handler: handleCreate },
     { path: "/append", schema: appendParams, handler: handleAppend },
@@ -225,49 +239,81 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleList(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: ListParams,
 ): Promise<HandlerPathsSuccess | HandlerFailure> {
+  const { "periodic-note": periodicNoteType } = params;
+  // If no periodic note type is specified, we return all notes.
+  if (!periodicNoteType) {
+    return success({
+      paths: this.app.vault.getMarkdownFiles().map((t) => t.path).sort(),
+    });
+  }
+
+  // If a periodic note type is specified, we return all notes of that type.
+  if (!checkForEnabledPeriodicNoteFeature(periodicNoteType)) {
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS[`${periodicNoteType}_note`].feature_not_available,
+    );
+  }
+
+  const notes = getAllPeriodicNotes(periodicNoteType);
   return success({
-    paths: obsEnv.activeVault.getMarkdownFiles().map((t) => t.path).sort(),
+    paths: Object.keys(notes).sort().reverse().map((k) => notes[k].path),
   });
 }
 
+/**
+ * Handler for `/note/get`. Existence of note is checked by the schema, i.e. the
+ * handler won't be called if the file doesn't exist.
+ */
 async function handleGet(
-  incomingParams: AnyParams,
+  params: GetParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const { file, silent } = <ReadParams> incomingParams;
-  const shouldFocusNote = !silent;
-
-  const res = await getNoteDetails(file);
-  if (res.isSuccess && shouldFocusNote) await focusOrOpenFile(file);
+  const { _resolved: { inputPath }, silent } = params;
+  const res = await getNoteDetails(inputPath);
+  if (res.isSuccess && !silent) await focusOrOpenFile(inputPath);
   return res;
 }
 
 async function handleGetActive(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: GetActiveParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const res = obsEnv.activeWorkspace.getActiveFile();
-  if (res?.extension !== "md") return failure(404, "No active note");
+  const res = this.app.workspace.getActiveFile();
+  if (res?.extension !== "md") {
+    return failure(ErrorCode.NotFound, "No active note");
+  }
 
   const res1 = await getNoteDetails(res.path);
-  return (res1.isSuccess) ? res1 : failure(404, "No active note");
+  if (!res1.isSuccess) {
+    return failure(ErrorCode.NotFound, "No active note");
+  }
+
+  const mdView = this.app.workspace.getActiveViewOfType(MarkdownView);
+  const selection = mdView
+    ? (mdView.currentMode as any).getSelection()
+    : undefined;
+
+  return selection ? success({ ...res1.result, selection }) : res1;
 }
 
 async function handleGetNamed(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: ReadFirstNamedParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = <ReadFirstNamedParams> incomingParams;
   const { file } = params;
   const sortBy = params["sort-by"] || "best-guess";
 
   // "Best guess" means utilizing Obsidian's internal link resolution to find
   // the right note. If it's not found, we return a 404.
   if (sortBy === "best-guess") {
-    const res = obsEnv.metadataCache
+    const res = this.app.metadataCache
       .getFirstLinkpathDest(sanitizeFilePath(file), "/");
     return res
       ? await getNoteDetails(res.path)
-      : failure(404, "No note found with that name");
+      : failure(ErrorCode.NotFound, "No note found with that name");
   }
 
   // If we're here, we're sorting by something else. We need to find all notes
@@ -281,254 +327,302 @@ async function handleGetNamed(
     "mtime-desc": (a: TFile, b: TFile) => b.stat.mtime - a.stat.mtime,
   };
 
-  const res = obsEnv.activeVault.getMarkdownFiles()
+  const res = this.app.vault.getMarkdownFiles()
     .sort(sortFns[sortBy])
     .find((tf) => tf.name === file);
-  if (!res) return failure(404, "No note found with that name");
+  if (!res) return failure(ErrorCode.NotFound, "No note found with that name");
 
   return await getNoteDetails(res.path);
 }
 
+/**
+ * Handler for `/note/open`. Existence of note is checked by the schema, i.e. the
+ * handler won't be called if the file doesn't exist.
+ */
 async function handleOpen(
-  incomingParams: AnyParams,
+  params: OpenParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { file } = <OpenParams> incomingParams;
-
-  const res = await getNote(file.path);
+  const { _resolved: { inputPath } } = params;
+  const res = await getNote(inputPath);
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
 }
 
 async function handleCreate(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: CreateParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
-  const params = <CreateParams> incomingParams;
-  const { apply, file, silent } = params;
-  const ifExists = params["if-exists"];
-  const shouldFocusNote = !silent;
-  const templateFile = (apply === "templater" || apply === "templates")
-    ? (<createTemplateParams> params)["template-file"]
-    : undefined;
-  const content = (apply === "content")
-    ? (<createContentParams> params).content || ""
-    : "";
-  var pluginInstance;
+  const { _resolved: { inputKey } } = params;
 
-  // If the user wants to apply a template, we need to check if the relevant
-  // plugin is available, and if not, we return from here.
-  if (apply === "templater") {
-    const pluginRes = getEnabledCommunityPlugin("templater-obsidian");
-    if (!pluginRes.isSuccess) return pluginRes;
-    pluginInstance = pluginRes.result.templater;
-  } else if (apply === "templates") {
-    const pluginRes = getEnabledCorePlugin("templates");
-    if (!pluginRes.isSuccess) return pluginRes;
-    pluginInstance = pluginRes.result;
+  if (inputKey === NoteTargetingParameterKey.PeriodicNote) {
+    return _handleCreatePeriodicNote
+      .bind(this)(params as CreatePeriodicNoteParams);
   }
 
-  // If there already is a note with that name or at that path, deal with it.
-  const res = await getNote(file);
-  const noteExists = res.isSuccess;
-  if (noteExists && ifExists === "skip") {
-    // `skip` == Leave not as-is, we just return the existing note.
-    if (shouldFocusNote) await focusOrOpenFile(file);
-    return await getNoteDetails(file);
+  const applyValue = (params as AnyCreateNoteApplyParams).apply;
+  switch (applyValue) {
+    case CreateApplyParameterValue.Content:
+      return _handleCreateNoteFromContent
+        .bind(this)(params as CreateNoteApplyContentParams);
+
+    case CreateApplyParameterValue.Templater:
+    case CreateApplyParameterValue.Templates:
+      return _handleCreateNoteFromTemplate
+        .bind(this)(params as CreateNoteApplyTemplateParams);
   }
-
-  const res2 = (noteExists && ifExists === "overwrite")
-    ? await createOrOverwriteNote(file, content)
-    : await createNote(file, content);
-  if (!res2.isSuccess) return res2;
-  const newNote = res2.result;
-
-  // If we're applying a template, we need to write it to the file. Testing for
-  // existence of template file is done by a zod schema, so we can be sure the
-  // file exists.
-  switch (apply) {
-    case "templater":
-      await pluginInstance.write_template_to_file(templateFile, newNote);
-      break;
-
-    case "templates":
-      await applyCorePluginTemplate(templateFile!, newNote);
-      break;
-  }
-
-  if (shouldFocusNote) await focusOrOpenFile(newNote.path);
-  return await getNoteDetails(newNote.path);
 }
 
 async function handleAppend(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: AppendParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <AppendParams> incomingParams;
-  const { file, content, silent } = params;
-  const belowHeadline = params["below-headline"];
-  const shouldCreateNote = params["create-if-not-found"];
-  const shouldEnsureNewline = params["ensure-newline"];
-  const shouldFocusNote = !silent;
+  const {
+    _resolved: { inputKey, inputFile, inputPath },
+    ["below-headline"]: belowHeadline,
+    ["create-if-not-found"]: shouldCreateNote,
+    ["ensure-newline"]: shouldEnsureNewline,
+    ["if-headline-missing"]: ifHeadlineMissing,
+    content,
+    silent,
+    uid,
+  } = params;
 
-  // DRY: This call is used twice below, and I don't want to mess things up by
-  // forgetting a parameter or something in the future.
+  // If the note was requested via UID, doesn't exist but should be created,
+  // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
+  // passed in.
+  const path = (
+      !inputFile &&
+      inputKey === NoteTargetingParameterKey.UID &&
+      shouldCreateNote
+    )
+    ? uid!
+    : inputPath;
+
   async function appendAsRequested() {
     if (belowHeadline) {
-      return await appendNoteBelowHeadline(file, belowHeadline, content);
+      const resHeadline = await prepareNoteForHeadlineBlockManipulation(
+        path,
+        belowHeadline,
+        ifHeadlineMissing,
+      );
+      if (!resHeadline.isSuccess) {
+        return resHeadline;
+      }
+      return await appendNoteBelowHeadline(path, belowHeadline, content);
     }
 
-    return await appendNote(file, content, shouldEnsureNewline);
+    return await appendNote(path, content, shouldEnsureNewline);
   }
 
-  // If the file exists, append to it. Otherwise, check if we're supposed to
-  // create it.
-  const res = await getNote(file);
-  if (res.isSuccess) {
-    const res1 = await appendAsRequested();
-    if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenFile(file);
-      return success({ message: res1.result }, file);
+  // If the file doesn't exist …
+  if (!inputFile) {
+    // … check if we're supposed to create it. If not, back off.
+    if (!shouldCreateNote) {
+      return failure(ErrorCode.NotFound, STRINGS.note_not_found);
     }
-    return res1;
-  } else if (!shouldCreateNote) {
-    return res;
+
+    // We're supposed to create the note. We try to create it.
+    const resCreate = await createNote(path, "");
+    if (!resCreate.isSuccess) return resCreate;
+
+    // If the note was requested via UID, we need to set the UID in the front
+    // matter of the newly created note.
+    if (inputKey === NoteTargetingParameterKey.UID) {
+      await this.app.fileManager.processFrontMatter(
+        resCreate.result,
+        (fm) => fm[this.settings.frontmatterKey] = uid!,
+      );
+    }
   }
 
-  // We're supposed to create the note. We try to create it.
-  const res2 = await createNote(file, "");
-  if (!res2.isSuccess) return res2;
-
-  // Creation was successful. We try to append again.
-  const res3 = await appendAsRequested();
-  if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenFile(file);
-  return success({ message: res3.result }, file);
+  // Manipulate the file.
+  const resAppend = await appendAsRequested();
+  if (resAppend.isSuccess) {
+    if (!silent) await focusOrOpenFile(path);
+    return success({ message: resAppend.result }, path);
+  }
+  return resAppend;
 }
 
 async function handlePrepend(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: PrependParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <PrependParams> incomingParams;
-  const { file, content, silent } = params;
-  const belowHeadline = params["below-headline"];
-  const shouldCreateNote = params["create-if-not-found"];
-  const shouldEnsureNewline = params["ensure-newline"];
-  const shouldFocusNote = !silent;
-  const shouldIgnoreFrontMatter = params["ignore-front-matter"];
+  const {
+    _resolved: { inputKey, inputFile, inputPath },
+    ["below-headline"]: belowHeadline,
+    ["create-if-not-found"]: shouldCreateNote,
+    ["ensure-newline"]: shouldEnsureNewline,
+    ["ignore-front-matter"]: shouldIgnoreFrontMatter,
+    ["if-headline-missing"]: ifHeadlineMissing,
+    content,
+    silent,
+    uid,
+  } = params;
 
-  // DRY: This call is used twice below, and I don't want to mess things up by
-  // forgetting a parameter or something in the future.
+  // If the note was requested via UID, doesn't exist but should be created,
+  // we'll use the UID as path. Otherwise, we'll use the resolved path as it was
+  // passed in.
+  const path = (
+      !inputFile &&
+      inputKey === NoteTargetingParameterKey.UID &&
+      shouldCreateNote
+    )
+    ? uid!
+    : inputPath;
+
   async function prependAsRequested() {
     if (belowHeadline) {
-      return await prependNoteBelowHeadline(
-        file,
-        belowHeadline,
-        content,
-        shouldEnsureNewline,
-      );
+      if (belowHeadline) {
+        const resHeadline = await prepareNoteForHeadlineBlockManipulation(
+          path,
+          belowHeadline,
+          ifHeadlineMissing,
+        );
+        if (!resHeadline.isSuccess) {
+          return resHeadline;
+        }
+
+        return await prependNoteBelowHeadline(
+          path,
+          belowHeadline,
+          content,
+          shouldEnsureNewline,
+        );
+      }
     }
 
     return await prependNote(
-      file,
+      path,
       content,
       shouldEnsureNewline,
       shouldIgnoreFrontMatter,
     );
   }
 
-  // If the file exists, append to it. Otherwise, check if we're supposed to
-  // create it.
-  const res = await getNote(file);
-  if (res.isSuccess) {
-    const res1 = await prependAsRequested();
-    if (res1.isSuccess) {
-      if (shouldFocusNote) await focusOrOpenFile(file);
-      return success({ message: res1.result }, file);
+  // If the file doesn't exist …
+  if (!inputFile) {
+    // … check if we're supposed to create it. If not, back off.
+    if (!shouldCreateNote) {
+      return failure(ErrorCode.NotFound, STRINGS.note_not_found);
     }
-    return res1;
-  } else if (!shouldCreateNote) {
-    return res;
+
+    // We're supposed to create the note. We try to create it.
+    const resCreate = await createNote(path, "");
+    if (!resCreate.isSuccess) return resCreate;
+
+    // If the note was requested via UID, we need to set the UID in the front
+    // matter of the newly created note.
+    if (inputKey === NoteTargetingParameterKey.UID) {
+      await this.app.fileManager.processFrontMatter(
+        resCreate.result,
+        (fm) => fm[this.settings.frontmatterKey] = uid!,
+      );
+    }
   }
 
-  // We're supposed to create the note. We try to create it.
-  const res2 = await createNote(file, "");
-  if (!res2.isSuccess) return res2;
-
-  // Creation was successful. We try to append again.
-  const res3 = await prependAsRequested();
-  if (!res3.isSuccess) return res3;
-  if (shouldFocusNote) await focusOrOpenFile(file);
-  return success({ message: res3.result }, file);
+  // Manipulate the file.
+  const resPrepend = await prependAsRequested();
+  if (resPrepend.isSuccess) {
+    if (!silent) await focusOrOpenFile(path);
+    return success({ message: resPrepend.result }, path);
+  }
+  return resPrepend;
 }
 
 async function handleTouch(
-  incomingParams: AnyParams,
+  params: TouchParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { file, silent } = <TouchParams> incomingParams;
-  const shouldFocusNote = !silent;
+  const { _resolved: { inputPath }, silent } = params;
 
-  const res = await touchNote(file);
+  const res = await touchNote(inputPath);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenFile(file);
-  return success({ message: STRINGS.touch_done }, file);
+  if (!silent) await focusOrOpenFile(inputPath);
+  return success({ message: STRINGS.touch_done }, inputPath);
 }
 
 async function handleSearchStringAndReplace(
-  incomingParams: AnyParams,
+  params: SearchAndReplaceParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { search, file, replace, silent } =
-    <SearchAndReplaceParams> incomingParams;
-  const filepath = file.path;
-  const shouldFocusNote = !silent;
+  const { _resolved: { inputPath }, search, replace, silent } = params;
 
-  const res = await searchAndReplaceInNote(filepath, search, replace);
+  const res = await searchAndReplaceInNote(inputPath, search, replace);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenFile(filepath);
-  return success({ message: res.result }, filepath);
+  if (!silent) await focusOrOpenFile(inputPath);
+  return success({ message: res.result }, inputPath);
 }
 
 async function handleSearchRegexAndReplace(
-  incomingParams: AnyParams,
+  params: SearchAndReplaceParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { search, file, replace, silent } =
-    <SearchAndReplaceParams> incomingParams;
-  const filepath = file.path;
-  const shouldFocusNote = !silent;
+  const { _resolved: { inputPath }, search, replace, silent } = params;
 
   const resSir = parseStringIntoRegex(search);
   if (!resSir.isSuccess) return resSir;
 
-  const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
+  const res = await searchAndReplaceInNote(inputPath, resSir.result, replace);
   if (!res.isSuccess) return res;
-  if (shouldFocusNote) await focusOrOpenFile(filepath);
-  return success({ message: res.result }, filepath);
+  if (!silent) await focusOrOpenFile(inputPath);
+  return success({ message: res.result }, inputPath);
 }
 
 async function handleDelete(
-  incomingParams: AnyParams,
+  params: DeleteParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { file } = <DeleteParams> incomingParams;
-  const filepath = file.path;
+  const { _resolved: { inputPath } } = params;
 
-  const res = await trashFilepath(filepath, true);
-  return res.isSuccess ? success({ message: res.result }, filepath) : res;
+  const res = await trashFilepath(inputPath, true);
+  return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }
 
 async function handleTrash(
-  incomingParams: AnyParams,
+  params: DeleteParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const { file } = <DeleteParams> incomingParams;
-  const filepath = file.path;
+  const { _resolved: { inputPath } } = params;
 
-  const res = await trashFilepath(filepath);
-  return res.isSuccess ? success({ message: res.result }, filepath) : res;
+  const res = await trashFilepath(inputPath);
+  return res.isSuccess ? success({ message: res.result }, inputPath) : res;
 }
 
 async function handleRename(
-  incomingParams: AnyParams,
+  params: RenameParams,
 ): Promise<HandlerTextSuccess | HandlerFailure> {
-  const params = <RenameParams> incomingParams;
-  const filepath = params.file.path;
+  const {
+    _resolved: { inputPath },
+    ["new-filename"]: newPath,
+  } = params;
 
-  const res = await renameFilepath(filepath, params["new-filename"]);
-  return res.isSuccess ? success({ message: res.result }, filepath) : res;
+  const res = await renameFilepath(inputPath, newPath);
+  return res.isSuccess ? success({ message: res.result }, inputPath) : res;
+}
+
+// HELPERS ----------------------------------------
+
+async function prepareNoteForHeadlineBlockManipulation(
+  path: string,
+  headline: string,
+  ifHeadlineMissing: IfHeadlineMissingParameterValue,
+): Promise<StringResultObject> {
+  // Test if the headline exists in the note.
+  const resNote = await getNoteContent(path);
+  if (!resNote.isSuccess) return resNote;
+
+  const noteContent = resNote.result;
+  const regex = new RegExp(`^${escapeRegExpChars(headline)}\s*$`, "m");
+  if (noteContent.match(regex)) {
+    return success("Note contains headline");
+  }
+
+  // The note doesn't contain the headline!
+  switch (ifHeadlineMissing) {
+    case IfHeadlineMissingParameterValue.AddHeadline:
+      return await appendNote(path, `\n${headline}`, true);
+
+    case IfHeadlineMissingParameterValue.Skip:
+      return success(STRINGS.headline_not_found);
+
+    case IfHeadlineMissingParameterValue.Error:
+      return failure(ErrorCode.NotFound, STRINGS.headline_not_found);
+  }
 }

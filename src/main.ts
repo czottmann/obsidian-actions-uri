@@ -4,36 +4,55 @@ import {
   Plugin,
   TAbstractFile,
 } from "obsidian";
-import { ZodError } from "zod";
-import { URI_NAMESPACE } from "./constants";
-import { AnyParams, RoutePath, routes } from "./routes";
+import { z, ZodError } from "zod";
+import { URI_NAMESPACE } from "src/constants";
+import { AnyParams, RoutePath, routes } from "src/routes";
+import { SettingsTab } from "src/settings";
 import {
   AnyHandlerResult,
   AnyHandlerSuccess,
   HandlerFailure,
   HandlerFileSuccess,
   HandlerFunction,
+  PluginSettings,
   ProcessingResult,
   StringResultObject,
-} from "./types";
-import { sendUrlCallback } from "./utils/callbacks";
-import { obsEnv } from "./utils/obsidian-env";
-import { failure, success } from "./utils/results-handling";
+} from "src/types";
+import { sendUrlCallback } from "src/utils/callbacks";
+import { self } from "src/utils/self";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import {
   focusOrOpenFile,
   logErrorToConsole,
   logToConsole,
   showBrandedNotice,
-} from "./utils/ui";
+} from "src/utils/ui";
 
 export default class ActionsURI extends Plugin {
+  // @ts-ignore
+  settings: PluginSettings;
+
+  defaultSettings: PluginSettings = {
+    frontmatterKey: "uid",
+  };
+
   async onload() {
-    obsEnv.app = this.app;
+    self(this);
+    await this.loadSettings();
     this.registerRoutes(routes);
+    this.addSettingTab(new SettingsTab(this.app, this));
   }
 
   onunload() {
     // Just act natural.
+  }
+
+  async loadSettings() {
+    this.settings = { ...this.defaultSettings, ...await this.loadData() };
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
   }
 
   /**
@@ -61,9 +80,12 @@ export default class ActionsURI extends Plugin {
         this.registerObsidianProtocolHandler(
           fullPath,
           async (incomingParams) => {
-            const res = schema.safeParse(incomingParams);
+            const res = await schema.safeParseAsync(incomingParams);
             res.success
-              ? await this.handleIncomingCall(handler, <AnyParams> res.data)
+              ? await this.handleIncomingCall(
+                handler,
+                res.data as z.infer<typeof schema>,
+              )
               : this.handleParseError(res.error, incomingParams);
           },
         );
@@ -94,10 +116,10 @@ export default class ActionsURI extends Plugin {
     let handlerResult: AnyHandlerResult;
 
     try {
-      handlerResult = await handlerFunc(params);
+      handlerResult = await handlerFunc.bind(this)(params);
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
-      handlerResult = failure(500, msg);
+      handlerResult = failure(ErrorCode.HandlerError, msg);
       showBrandedNotice(msg);
       logErrorToConsole(msg);
     }
@@ -159,7 +181,11 @@ export default class ActionsURI extends Plugin {
           .map((e) => `${e.path.join(".")}: ${e.message}`)
           .join("; ");
 
-      sendUrlCallback(params["x-error"], failure(400, msg2), params);
+      sendUrlCallback(
+        params["x-error"],
+        failure(ErrorCode.HandlerError, msg2),
+        params,
+      );
     }
   }
 

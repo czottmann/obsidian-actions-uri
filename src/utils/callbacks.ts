@@ -1,17 +1,16 @@
 import { excludeKeys } from "filter-obj";
 import { ObsidianProtocolData, TAbstractFile } from "obsidian";
-import { XCALLBACK_RESULT_PREFIX } from "../constants";
-import { PLUGIN_INFO } from "../plugin-info";
-import { success } from "./results-handling";
-import { AnyParams } from "../routes";
-import { toKebabCase } from "./string-handling";
+import { XCALLBACK_RESULT_PREFIX } from "src/constants";
+import { PLUGIN_INFO } from "src/plugin-info";
+import { success } from "src/utils/results-handling";
+import { AnyParams } from "src/routes";
+import { toKebabCase } from "src/utils/string-handling";
 import {
-  AbstractFile,
   AnyHandlerResult,
   AnyHandlerSuccess,
   HandlerFailure,
   StringResultObject,
-} from "../types";
+} from "src/types";
 
 /**
  * @param baseURL - The base `x-callback-url` of the receiver, e.g.
@@ -44,7 +43,12 @@ export function sendUrlCallback(
   }
 
   const returnParams: Record<string, string> = params["debug-mode"]
-    ? excludeKeys(params, ["debug-mode", "x-success", "x-error"])
+    ? excludeKeys(<any> params, [
+      "debug-mode",
+      "x-success",
+      "x-error",
+      "_computed",
+    ])
     : {};
   addObjectToUrlSearchParams(returnParams, url, "input");
 

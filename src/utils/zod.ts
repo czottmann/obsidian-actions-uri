@@ -1,18 +1,20 @@
 import { z } from "zod";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
-import { obsEnv } from "./obsidian-env";
-import { sanitizeFilePath } from "./file-handling";
-import { getEnabledCommunityPlugin, getEnabledCorePlugin } from "./plugins";
+import { self } from "src/utils/self";
+import {
+  sanitizeFilePath,
+  sanitizeFilePathAndGetAbstractFile,
+} from "src/utils/file-handling";
+import {
+  getEnabledCommunityPlugin,
+  getEnabledCorePlugin,
+} from "src/utils/plugins";
 
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
 // should all be treated as `false`. My reign shall be merciful.
 export const zodOptionalBoolean = z.preprocess(
-  (param: unknown): boolean => {
-    if (typeof param === "string") {
-      return param !== "false" && param !== "";
-    }
-    return false;
-  },
+  (param: unknown): boolean =>
+    typeof param === "string" && param !== "false" && param !== "",
   z.boolean().optional(),
 );
 
@@ -94,15 +96,6 @@ export const zodCommaSeparatedStrings = z.string()
 
 /**
  * A schema which tests the passed-in string to see if it's a valid path to an
- * existing note. If it is, returns a `TFile` instance.
- */
-export const zodExistingNotePath = z.preprocess(
-  lookupAbstractFileForNotePath,
-  z.instanceof(TFile, { message: "Note doesn't exist" }),
-);
-
-/**
- * A schema which tests the passed-in string to see if it's a valid path to an
  * existing template. If it is, returns a `TFile` instance.
  */
 export const zodExistingTemplaterPath = z.preprocess(
@@ -142,15 +135,6 @@ export const zodExistingFolderPath = z.preprocess(
 );
 
 /**
- * An always-false boolean. Looks stupid but it's used by the handlers in
- * `../routes/open.ts`, see section "HANDLERS" there.
- */
-export const zodAlwaysFalse = z.preprocess(
-  (param: unknown): boolean => false,
-  z.boolean().optional(),
-);
-
-/**
  * A schema which expects an undefined value (i.e. no parameter passed in), and
  * returns a default value instead.
  *
@@ -175,19 +159,6 @@ export const zodEmptyStringChangedToDefaultString = (defaultString: string) =>
 
 /**
  * Takes an incoming parameter and returns the corresponding `TAbstractFile` if
- * the parameter is a string and the string corresponds to an existing note.
- * Otherwise returns `null`.
- *
- * @param path Any incoming zod parameter
- */
-function lookupAbstractFileForNotePath(path: any): TAbstractFile | null {
-  return (typeof path === "string" && path.length > 0)
-    ? sanitizeFilePathAndGetAbstractFile(path)
-    : null;
-}
-
-/**
- * Takes an incoming parameter and returns the corresponding `TAbstractFile` if
  * the parameter is a string and the string corresponds to an existing file or
  * folder. Otherwise returns `null`.
  *
@@ -208,16 +179,8 @@ function lookupAbstractFileForFilePath(path: any): TAbstractFile | null {
  */
 function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
   return (typeof path === "string" && path.length > 0)
-    ? obsEnv.activeVault.getAbstractFileByPath(path as string)
+    ? self().app.vault.getAbstractFileByPath(path as string)
     : null;
-}
-
-function sanitizeFilePathAndGetAbstractFile(
-  path: string,
-  isNote?: boolean,
-): TAbstractFile | null {
-  return obsEnv.activeVault
-    .getAbstractFileByPath(sanitizeFilePath(path, isNote));
 }
 
 /**
@@ -235,8 +198,7 @@ function lookupAbstractFileForTemplaterPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false) ||
-    sanitizeFilePathAndGetAbstractFile(`${path}.md`, false);
+  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false);
   if (abstractFile) return abstractFile;
 
   const res = getEnabledCommunityPlugin("templater-obsidian");
@@ -264,8 +226,7 @@ function lookupAbstractFileForTemplatesPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false) ||
-    sanitizeFilePathAndGetAbstractFile(`${path}.md`, false);
+  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false);
   if (abstractFile) return abstractFile;
 
   const res = getEnabledCorePlugin("templates");

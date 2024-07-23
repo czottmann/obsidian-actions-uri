@@ -1,4 +1,4 @@
-import { ErrorObject, ResultObject } from "../types";
+import { ErrorObject, ResultObject } from "src/types";
 
 /**
  * Returns a `ResultObject` based on the passed-in parameters.
@@ -21,6 +21,21 @@ export function success<T>(
  * @param errorMessage The `ErrorObject`'s `errorMessage` key
  * @returns An `ErrorObject` with the `isSuccess` key set to `false`
  */
-export function failure(errorCode: number, errorMessage: string): ErrorObject {
+export function failure(
+  errorCode: ErrorCode,
+  errorMessage: string,
+): ErrorObject {
   return { isSuccess: false, errorCode, errorMessage };
+}
+
+export enum ErrorCode {
+  NotFound = 404,
+  PluginUnavailable = 424,
+  FeatureUnavailable = 424,
+  UnableToCreateNote = 400,
+  UnableToWrite = 400,
+  InvalidInput = 406,
+  NoteAlreadyExists = 409,
+  HandlerError = 500,
+  UnknownError = 500,
 }

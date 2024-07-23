@@ -4,13 +4,16 @@ import {
   isPluginEnabled as isDataviewEnabled,
 } from "obsidian-dataview";
 import { z } from "zod";
-import { STRINGS } from "../constants";
-import { AnyParams, RoutePath } from "../routes";
-import { incomingBaseParams } from "../schemata";
-import { HandlerDataviewSuccess, HandlerFailure } from "../types";
-import { failure, success } from "../utils/results-handling";
-import { helloRoute } from "../utils/routing";
-import { obsEnv } from "../utils/obsidian-env";
+import { STRINGS } from "src/constants";
+import { RoutePath } from "src/routes";
+import { incomingBaseParams } from "src/schemata";
+import {
+  HandlerDataviewSuccess,
+  HandlerFailure,
+  RealLifePlugin,
+} from "src/types";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
+import { helloRoute } from "src/utils/routing";
 
 // SCHEMATA ----------------------------------------
 
@@ -19,6 +22,9 @@ const readParams = incomingBaseParams.extend({
   "x-error": z.string().url(),
   "x-success": z.string().url(),
 });
+
+// TYPES ----------------------------------------
+
 type ReadParams = z.infer<typeof readParams>;
 
 export type AnyLocalParams = ReadParams;
@@ -37,15 +43,17 @@ export const routePath: RoutePath = {
 // HANDLERS ----------------------------------------
 
 async function handleTableQuery(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: ReadParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  return await handleDataviewQuery("table", incomingParams);
+  return await executeDataviewQuery.bind(this)("table", params);
 }
 
 async function handleListQuery(
-  incomingParams: AnyParams,
+  this: RealLifePlugin,
+  params: ReadParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  return await handleDataviewQuery("list", incomingParams);
+  return await executeDataviewQuery.bind(this)("list", params);
 }
 
 // HELPERS ----------------------------------------
@@ -56,25 +64,31 @@ function dqlValuesMapper(dataview: DataviewApi, v: any): any {
     : dataview.value.toString(v);
 }
 
-async function handleDataviewQuery(
+async function executeDataviewQuery(
+  this: RealLifePlugin,
   type: "table" | "list",
-  incomingParams: AnyParams,
+  params: ReadParams,
 ): Promise<HandlerDataviewSuccess | HandlerFailure> {
-  const params = <ReadParams> incomingParams;
-  const dataview = getAPI(obsEnv.app);
+  const dataview = getAPI(this.app);
 
-  if (!isDataviewEnabled(obsEnv.app) || !dataview) {
-    return failure(412, STRINGS.dataview_plugin_not_available);
+  if (!isDataviewEnabled(this.app) || !dataview) {
+    return failure(
+      ErrorCode.FeatureUnavailable,
+      STRINGS.dataview_plugin_not_available,
+    );
   }
 
   const dql = params.dql.trim() + "\n";
   if (!dql.toLowerCase().startsWith(type)) {
-    return failure(400, STRINGS[`dataview_dql_must_start_with_${type}`]);
+    return failure(
+      ErrorCode.InvalidInput,
+      STRINGS[`dataview_dql_must_start_with_${type}`],
+    );
   }
 
   const res = await dataview.query(dql);
   if (!res.successful) {
-    return failure(400, res.error);
+    return failure(ErrorCode.UnknownError, res.error);
   }
 
   // For some TABLE queries, DV will return a three-dimensional array instead of

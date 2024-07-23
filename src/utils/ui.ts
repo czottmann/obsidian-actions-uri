@@ -1,21 +1,9 @@
 import { FileView, Notice, WorkspaceLeaf } from "obsidian";
-import { STRINGS } from "../constants";
-import { StringResultObject } from "../types";
-import { getFile } from "./file-handling";
-import { obsEnv } from "./obsidian-env";
-import { failure, success } from "./results-handling";
-
-/**
- * @returns An array of all open workspace leaves
- */
-export function allWorkspaceRootSplitLeaves(): WorkspaceLeaf[] {
-  const allLeaves: WorkspaceLeaf[] = [];
-  obsEnv.activeWorkspace.iterateRootLeaves((leaf) => {
-    // NOTE: Removing the brackets causes this function to only return one leaf
-    allLeaves.push(leaf);
-  });
-  return allLeaves;
-}
+import { STRINGS } from "src/constants";
+import { StringResultObject } from "src/types";
+import { getFile } from "src/utils/file-handling";
+import { self } from "src/utils/self";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 
 /**
  * Displays a `Notice` inside Obsidian. The notice is prefixed with
@@ -48,25 +36,6 @@ export function logErrorToConsole(...data: any[]) {
 }
 
 /**
- * Finds an open file with the passed-in filepath and focusses it.  When the
- * file isn't open, it does nothing.
- *
- * @param filepath - The path to the file to be focussed
- *
- * @returns Success when file could be found and focussed, error otherwise
- */
-export function focusLeafWithFile(filepath: string): StringResultObject {
-  const leaf = allWorkspaceRootSplitLeaves()
-    .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
-  if (!leaf) {
-    return failure(405, "File currently not open");
-  }
-
-  obsEnv.activeWorkspace.setActiveLeaf(leaf, { focus: true });
-  return success("Open file found and focussed");
-}
-
-/**
  * Given a file path, the function will check whether the note file is already
  * open and then focus it, or it'll open the note.
  *
@@ -85,9 +54,40 @@ export async function focusOrOpenFile(
 
   const res1 = await getFile(filepath);
   if (res1.isSuccess) {
-    obsEnv.activeWorkspace.getLeaf(true).openFile(res1.result);
+    self().app.workspace.getLeaf(true).openFile(res1.result);
     return success(STRINGS.note_opened);
   }
 
-  return failure(404, STRINGS.note_not_found);
+  return failure(ErrorCode.NotFound, STRINGS.note_not_found);
+}
+
+/**
+ * @returns An array of all open workspace leaves
+ */
+function allWorkspaceRootSplitLeaves(): WorkspaceLeaf[] {
+  const allLeaves: WorkspaceLeaf[] = [];
+  self().app.workspace.iterateRootLeaves((leaf) => {
+    // NOTE: Removing the brackets causes this function to only return one leaf
+    allLeaves.push(leaf);
+  });
+  return allLeaves;
+}
+
+/**
+ * Finds an open file with the passed-in filepath and focusses it.  When the
+ * file isn't open, it does nothing.
+ *
+ * @param filepath - The path to the file to be focussed
+ *
+ * @returns Success when file could be found and focussed, error otherwise
+ */
+function focusLeafWithFile(filepath: string): StringResultObject {
+  const leaf = allWorkspaceRootSplitLeaves()
+    .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
+  if (!leaf) {
+    return failure(ErrorCode.NotFound, "File currently not open");
+  }
+
+  self().app.workspace.setActiveLeaf(leaf, { focus: true });
+  return success("Open file found and focussed");
 }

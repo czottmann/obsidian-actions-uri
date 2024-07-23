@@ -1,6 +1,6 @@
-import { STRINGS } from "../constants";
-import { RegexResultObject } from "../types";
-import { failure, success } from "../utils/results-handling";
+import { STRINGS } from "src/constants";
+import { RegexResultObject } from "src/types";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 
 const FRONT_MATTER_BOUNDARY = "---\n";
 
@@ -25,7 +25,7 @@ export function endStringWithNewline(str: string = ""): string {
  */
 export function parseStringIntoRegex(search: string): RegexResultObject {
   if (!search.startsWith("/")) {
-    return failure(422, STRINGS.search_pattern_invalid);
+    return failure(ErrorCode.InvalidInput, STRINGS.search_pattern_invalid);
   }
 
   // Starts to look like a regex, let's try to parse it.
@@ -33,7 +33,7 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   const lastSlashIdx = re.lastIndexOf("/");
 
   if (lastSlashIdx === 0) {
-    return failure(406, STRINGS.search_pattern_empty);
+    return failure(ErrorCode.InvalidInput, STRINGS.search_pattern_empty);
   }
 
   let searchPattern: RegExp;
@@ -43,22 +43,25 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   try {
     searchPattern = new RegExp(re, flags);
   } catch (e) {
-    return failure(422, STRINGS.search_pattern_unparseable);
+    return failure(ErrorCode.InvalidInput, STRINGS.search_pattern_unparseable);
   }
 
   return success(searchPattern);
 }
 
 /**
- * Tests whether the passed-in string starts with front matter.
+ * Escapes special characters in a string that are used in regular expressions.
+ * This function is useful when a string is to be treated as a literal pattern
+ * inside a regular expression, rather than as part of the regular expression
+ * syntax.
  *
- * @param noteContent - The content of the note to be searched
- *
- * @see {@link https://help.obsidian.md/Advanced+topics/YAML+front+matter | Obsidian's YAML front matter documentation}
+ * @param string - The string to be escaped.
+ * @returns The escaped string, with special regular expression characters prefixed
+ * with a backslash. This makes the string safe to use within a RegExp constructor
+ * or function.
  */
-export function containsFrontMatter(noteContent: string) {
-  return noteContent.startsWith(FRONT_MATTER_BOUNDARY) &&
-    (noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) > -1);
+export function escapeRegExpChars(string: string) {
+  return string.replace(/([.*+?^${}()|[\]\\])/g, "\\$1");
 }
 
 /**
@@ -77,7 +80,10 @@ export function extractNoteContentParts(
 ): { frontMatter: string; body: string } {
   const bodyStartPos = noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) + 4;
 
-  return containsFrontMatter(noteContent)
+  return (
+      noteContent.startsWith(FRONT_MATTER_BOUNDARY) &&
+      (noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) > -1)
+    )
     ? {
       frontMatter: noteContent.slice(0, bodyStartPos),
       body: noteContent.slice(bodyStartPos),

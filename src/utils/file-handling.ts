@@ -1,18 +1,24 @@
-import { MarkdownView, normalizePath, TFile, TFolder } from "obsidian";
-import { STRINGS } from "../constants";
-import { obsEnv } from "./obsidian-env";
+import {
+  MarkdownView,
+  normalizePath,
+  TAbstractFile,
+  TFile,
+  TFolder,
+} from "obsidian";
+import { STRINGS } from "src/constants";
+import { self } from "src/utils/self";
 import {
   getEnabledCorePlugin,
   isCommunityPluginEnabled,
   isCorePluginEnabled,
-} from "./plugins";
-import { failure, success } from "./results-handling";
+} from "src/utils/plugins";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 import {
   endStringWithNewline,
   extractNoteContentParts,
   unwrapFrontMatter,
-} from "./string-handling";
-import { pause } from "./time";
+} from "src/utils/string-handling";
+import { pause } from "src/utils/time";
 import {
   BooleanResultObject,
   NoteDetailsResultObject,
@@ -20,8 +26,12 @@ import {
   RealLifeVault,
   StringResultObject,
   TFileResultObject,
-} from "../types";
-import { focusOrOpenFile, logErrorToConsole, showBrandedNotice } from "./ui";
+} from "src/types";
+import {
+  focusOrOpenFile,
+  logErrorToConsole,
+  showBrandedNotice,
+} from "src/utils/ui";
 
 /**
  * Create a new note. If the note already exists, find a available numeric
@@ -46,7 +56,7 @@ export async function createNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   let file = vault.getAbstractFileByPath(filepath);
   let doesFileExist = file instanceof TFile;
 
@@ -76,7 +86,7 @@ export async function createNote(
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(400, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -97,7 +107,7 @@ export async function createOrOverwriteNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   const file = vault.getAbstractFileByPath(filepath);
 
   // Update the file if it already exists, but give any other creation-hooked
@@ -114,7 +124,7 @@ export async function createOrOverwriteNote(
   const newFile = vault.getAbstractFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(400, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -128,7 +138,7 @@ export async function createOrOverwriteNote(
 export async function getNoteContent(
   filepath: string,
 ): Promise<StringResultObject> {
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   const res = await getNote(filepath);
   if (!res.isSuccess) {
     return res;
@@ -137,7 +147,7 @@ export async function getNoteContent(
   const noteContent = await vault.read(res.result);
   return (typeof noteContent === "string")
     ? success(noteContent)
-    : failure(400, STRINGS.unable_to_read_note);
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_read_note);
 }
 
 /**
@@ -164,12 +174,14 @@ export async function getNoteDetails(
   const file = res.result;
   const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
+  const properties = propertiesForFile(file);
   return success({
     filepath,
     content,
     body,
     frontMatter: unwrapFrontMatter(frontMatter),
-    properties: propertiesForFile(file),
+    properties,
+    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
   });
 }
 
@@ -199,6 +211,23 @@ export function sanitizeFilePath(
   return (isNote && !/\.(md|canvas)/i.test(extname(filename)))
     ? `${filename}.md`
     : filename;
+}
+
+/**
+ * Make sure user-submitted file paths are relative to the vault root and the
+ * path is normalized and sanitized. Returned paths will never start with dots
+ * or slashes.
+ *
+ * @param filename - A full file path
+ * @param isNote - Whether the path is a note; if `true`, ensure the path ends
+ *                 in `.md`/`.canvas`, otherwise leave the path alone.
+ *                 Default: `true`
+ */
+export function sanitizeFilePathAndGetAbstractFile(
+  path: string,
+  isNote: boolean = true,
+): TAbstractFile | null {
+  return self().app.vault.getAbstractFileByPath(sanitizeFilePath(path, isNote));
 }
 
 /**
@@ -247,17 +276,19 @@ export async function updateNote(
     ? ["---", frontMatter, "---", body].join("\n")
     : body;
 
-  await obsEnv.activeVault.modify(file, newNoteContent);
+  await self().app.vault.modify(file, newNoteContent);
 
   // Without this delay, `propertiesForFile()` will return outdated properties.
   await pause(200);
+  const properties = propertiesForFile(file);
 
   return success({
     filepath,
     content: newNoteContent,
     body,
     frontMatter,
-    properties: propertiesForFile(file),
+    properties,
+    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
   });
 }
 
@@ -278,7 +309,7 @@ export async function touchNote(
   const res2 = await getNoteDetails(filepath);
   if (!res2.isSuccess) return res2;
 
-  await obsEnv.activeVault.modify(res.result, res2.result.content);
+  await self().app.vault.modify(res.result, res2.result.content);
   return res;
 }
 
@@ -301,7 +332,7 @@ export async function searchAndReplaceInNote(
 
   const noteContent = res.result;
   const newContent = (typeof searchTerm === "string")
-    ? noteContent.replace(new RegExp(searchTerm, "g"), replacement)
+    ? noteContent.replaceAll(searchTerm, replacement)
     : noteContent.replace(searchTerm, replacement);
 
   if (noteContent === newContent) {
@@ -448,7 +479,7 @@ export async function prependNoteBelowHeadline(
  * @returns An array of `TFile` instances
  */
 export function getFileMap(): TFile[] {
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   const { fileMap } = <RealLifeVault> vault;
   return Object.values(fileMap);
 }
@@ -465,11 +496,11 @@ export async function getFile(
   filepath: string,
 ): Promise<TFileResultObject> {
   const cleanPath = sanitizeFilePath(filepath, false);
-  const file = obsEnv.activeVault.getAbstractFileByPath(cleanPath);
+  const file = self().app.vault.getAbstractFileByPath(cleanPath);
 
   return file instanceof TFile
     ? success(file)
-    : failure(404, STRINGS.note_not_found);
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }
 
 /**
@@ -484,11 +515,11 @@ export async function getNote(
   filepath: string,
 ): Promise<TFileResultObject> {
   const cleanPath = sanitizeFilePath(filepath);
-  const file = obsEnv.activeVault.getAbstractFileByPath(cleanPath);
+  const file = self().app.vault.getAbstractFileByPath(cleanPath);
 
   return file instanceof TFile
     ? success(file)
-    : failure(404, STRINGS.note_not_found);
+    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
 }
 
 /**
@@ -500,7 +531,7 @@ export async function getNote(
  * @returns A result object containing either an error or `true`.
  */
 export async function applyCorePluginTemplate(
-  templateFile: TFile,
+  templateFile: TAbstractFile,
   note: TFile,
 ): Promise<BooleanResultObject> {
   const pluginRes = getEnabledCorePlugin("templates");
@@ -513,7 +544,7 @@ export async function applyCorePluginTemplate(
 
   try {
     // Ensure the view is in source mode
-    const activeView = obsEnv.activeWorkspace.getActiveViewOfType(MarkdownView);
+    const activeView = self().app.workspace.getActiveViewOfType(MarkdownView);
     if (activeView && activeView?.getMode() !== "source") {
       await activeView.setState(
         { ...activeView.getState(), mode: "source" },
@@ -524,7 +555,7 @@ export async function applyCorePluginTemplate(
     const msg = (<Error> error).message;
     showBrandedNotice(msg);
     logErrorToConsole(msg);
-    return failure(500, msg);
+    return failure(ErrorCode.HandlerError, msg);
   }
 
   await pause(200);
@@ -545,11 +576,11 @@ export async function trashFilepath(
   filepath: string,
   deleteImmediately: boolean = false,
 ): Promise<StringResultObject> {
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(404, STRINGS.not_found);
+    return failure(ErrorCode.NotFound, STRINGS.not_found);
   }
 
   if (deleteImmediately) {
@@ -575,11 +606,11 @@ export async function renameFilepath(
   filepath: string,
   newFilepath: string,
 ): Promise<StringResultObject> {
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(404, STRINGS.not_found);
+    return failure(ErrorCode.NotFound, STRINGS.not_found);
   }
 
   try {
@@ -587,7 +618,7 @@ export async function renameFilepath(
   } catch (error) {
     const msg = (<Error> error).message;
     return failure(
-      409,
+      ErrorCode.NotFound,
       msg.contains("no such file or directory")
         ? "No such file or folder"
         : msg,
@@ -604,7 +635,7 @@ export async function renameFilepath(
  * @param folder - A folder path relative from the vault root
  */
 export async function createFolderIfNecessary(folder: string) {
-  const vault = obsEnv.activeVault;
+  const vault = self().app.vault;
   folder = sanitizeFilePath(folder, false);
 
   if (folder === "" || folder === ".") return;
@@ -619,8 +650,8 @@ export async function createFolderIfNecessary(folder: string) {
  * @returns An object containing the frontmatter properties of the file, or an
  *          empty object if none exist.
  */
-export function propertiesForFile(file: TFile): NoteProperties {
-  return obsEnv.metadataCache.getFileCache(file)?.frontmatter || {};
+export function propertiesForFile(file: TAbstractFile): NoteProperties {
+  return self().app.metadataCache.getFileCache(file)?.frontmatter || {};
 }
 
 // HELPERS ----------------------------------------
@@ -638,13 +669,13 @@ export function propertiesForFile(file: TFile): NoteProperties {
  */
 async function createAndPause(filepath: string, content: string) {
   // Create the new note
-  await obsEnv.activeVault.create(filepath, content);
+  await self().app.vault.create(filepath, content);
 
   if (
     isCorePluginEnabled("templates") ||
     isCommunityPluginEnabled("templater-obsidian")
   ) {
-    await pause(300);
+    await pause(500);
   }
 }
 

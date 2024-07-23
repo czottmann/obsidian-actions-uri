@@ -1,15 +1,15 @@
-import { PluginResultObject } from "../types";
-import { obsEnv } from "../utils/obsidian-env";
-import { failure, success } from "../utils/results-handling";
+import { PluginResultObject } from "src/types";
+import { self } from "src/utils/self";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
 
 /**
  * Returns sorted list of the string IDs of the enabled community plugins.
  *
  * @returns {string[]} - A sorted list of enabled community plugins.
  */
-export function enabledCommunityPlugins(): string[] {
+function enabledCommunityPlugins(): string[] {
   const list: string[] = Array.from(
-    obsEnv.app.plugins?.enabledPlugins || [],
+    self().app.plugins?.enabledPlugins || [],
   );
   return list.sort();
 }
@@ -36,8 +36,11 @@ export function getEnabledCommunityPlugin(
   pluginID: string,
 ): PluginResultObject {
   return isCommunityPluginEnabled(pluginID)
-    ? success(obsEnv.app.plugins.getPlugin(pluginID))
-    : failure(404, `Community plugin ${pluginID} is not enabled.`);
+    ? success(self().app.plugins.getPlugin(pluginID))
+    : failure(
+      ErrorCode.FeatureUnavailable,
+      `Community plugin ${pluginID} is not enabled.`,
+    );
 }
 
 /**
@@ -48,7 +51,7 @@ export function getEnabledCommunityPlugin(
  * @returns {boolean} - True if the plugin is enabled, false otherwise.
  */
 export function isCorePluginEnabled(pluginID: string): boolean {
-  return !!obsEnv.app.internalPlugins?.getEnabledPluginById(pluginID);
+  return !!self().app.internalPlugins?.getEnabledPluginById(pluginID);
 }
 
 /**
@@ -59,9 +62,10 @@ export function isCorePluginEnabled(pluginID: string): boolean {
  * @returns {PluginResultObject} A result object containing the plugin if available.
  */
 export function getEnabledCorePlugin(pluginID: string): PluginResultObject {
-  const plugin = obsEnv.app.internalPlugins?.getEnabledPluginById(pluginID);
+  const plugin = self().app.internalPlugins?.getEnabledPluginById(pluginID);
 
-  return plugin
-    ? success(plugin)
-    : failure(404, `Core plugin ${pluginID} is not enabled.`);
+  return plugin ? success(plugin) : failure(
+    ErrorCode.FeatureUnavailable,
+    `Core plugin ${pluginID} is not enabled.`,
+  );
 }
