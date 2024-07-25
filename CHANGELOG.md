@@ -1,5 +1,14 @@
 # Release history
 
+## 1.6.1, 2024-07-25
+
+### No longer broken
+
+- Under some circumstances, [`/note/create`](https://zottmann.dev/obsidian-actions-uri/routes/note/#notecreate) with `apply=content` would not create a note. Sorry about that! <!-- ZCO-633 -->
+
+
+
+
 ## 1.6.0, 2024-07-23
 
 ### New stuff
@@ -7,9 +16,9 @@
 - All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) gained support for working with periodic notes (daily, weekly, etc.).
 - All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) gained support for UID-based note references. Notes can now be referenced by their UID instead of their file path, so if you're storing a UID in your front matter, give it a go. Make sure to check that the correct frontmatter key is configured in the …
 - New settings UI. The plugin now has a settings page in Obsidian's settings.
-- [`/note/get-active-note`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteget-active) returns the current selection as part of its result. (Plain-text only for now.) Thanks to [@FelipeRearden](https://github.com/FelipeRearden) for the suggestion! [#90] <!-- (ZCO-629) -->
+- [`/note/get-active-note`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteget-active) returns the current selection as part of its result. (Plain-text only for now.) Thanks to [@FelipeRearden](https://github.com/FelipeRearden) for the suggestion! [#90] <!-- ZCO-629 -->
 - [`/note-properties`](https://zottmann.dev/obsidian-actions-uri/routes/note-properties/) now supports working with current periodic notes (daily, weekly, etc.)
-- When using [/note/append](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteappend) or [/note/prepend](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteprepend) to insert text below a headline, the route no longer joyfully reports success even when the headline couldn't be found. Instead, the routes now support a conditional `if-headline-missing` parameter to specify what to do in that case: report an error (the new default), skip the operation (the old default behavior), or add the headline to the end of the note. Thanks to [@vitaly-rudenko](https://github.com/vitaly-rudenko) for the bug report! [#91] <!-- (ZCO-630) -->
+- When using [`/note/append`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteappend) or [/note/prepend](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteprepend) to insert text below a headline, the route no longer joyfully reports success even when the headline couldn't be found. Instead, the routes now support a conditional `if-headline-missing` parameter to specify what to do in that case: report an error (the new default), skip the operation (the old default behavior), or add the headline to the end of the note. Thanks to [@vitaly-rudenko](https://github.com/vitaly-rudenko) for the bug report! [#91] <!-- ZCO-630 -->
 
 ### Deprecation notice
 
@@ -19,9 +28,10 @@ There will be no further work on these routes going forward.
 
 ### No longer broken
 
-- Fixes search/replace in notes, which wouldn't work if the search term was a string but contained regex-like characters (`$`, `^`, etc.) <!-- (ZCO-606) -->
+- Fixes search/replace in notes, which wouldn't work if the search term was a string but contained regex-like characters (`$`, `^`, etc.) <!-- ZCO-606 -->
 - [`/note-properties/get`](https://zottmann.dev/obsidian-actions-uri/routes/note-properties/#note-propertiesget) won't automatically open the note anymore.
-- Fixes template path handling in [`/note/create`](https://zottmann.dev/obsidian-actions-uri/routes/note/#notecreate), which was very strict, and didn't allow for specifying a template file outside the configured template folder. <!-- (ZCO-480) -->
+- Fixes template path handling in [`/note/create`](https://zottmann.dev/obsidian-actions-uri/routes/note/#notecreate), which was very strict, and didn't allow for specifying a template file outside the configured template folder. <!-- ZCO-480 -->
+
 
 
 
