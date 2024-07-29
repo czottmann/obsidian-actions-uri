@@ -15,6 +15,7 @@ import {
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 import {
   endStringWithNewline,
+  escapeRegExpChars,
   extractNoteContentParts,
   unwrapFrontMatter,
 } from "src/utils/string-handling";
@@ -376,12 +377,17 @@ export async function appendNoteBelowHeadline(
     return res;
   }
 
+  const headlineRegex = new RegExp(
+    `^${escapeRegExpChars(belowHeadline.trim())}\\s*\\n`,
+    "s",
+  );
+
   // Split into sections by headline, find the section below the specified
   // headline, and append the text to that section
   const newContent = res.result
     .split(/(?=^#+ )/m)
     .map((section) => {
-      if (!section.startsWith(belowHeadline)) {
+      if (!headlineRegex.test(section)) {
         return section;
       }
 
@@ -444,12 +450,17 @@ export async function prependNoteBelowHeadline(
     return res;
   }
 
+  const headlineRegex = new RegExp(
+    `^${escapeRegExpChars(belowHeadline.trim())}\\s*\\n`,
+    "s",
+  );
+
   // Split into sections by headline, find the section below the specified
   // headline, and prepend the text to that section
   const newContent = res.result
     .split(/(?=^#+ )/m)
     .map((section) => {
-      if (!section.startsWith(belowHeadline)) {
+      if (!headlineRegex.test(section)) {
         return section;
       }
 
