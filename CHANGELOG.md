@@ -1,5 +1,15 @@
 # Release history
 
+## 1.6.2, 2024-07-29
+
+### No longer broken
+
+- When a note couldn't be found, the wrong error code would be returned (500 instead of 404). <!-- ZCO-636 -->
+- Appending/prepending below a headline could fail if either the input headline or the headline in the note contained trailing whitespace. This is now fixed by ignoring trailing whitespace when checking, appending, and prepending. <!-- ZCO-634 -->
+
+
+
+
 ## 1.6.1, 2024-07-25
 
 ### No longer broken

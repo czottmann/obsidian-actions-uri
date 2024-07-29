@@ -133,6 +133,7 @@ export function resolveNoteTargeting<T>(
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: STRINGS.note_not_found,
+      path: [inputPath],
     });
     return z.NEVER;
   }

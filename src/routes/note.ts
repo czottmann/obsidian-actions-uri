@@ -608,16 +608,20 @@ async function prepareNoteForHeadlineBlockManipulation(
   const resNote = await getNoteContent(path);
   if (!resNote.isSuccess) return resNote;
 
-  const noteContent = resNote.result;
-  const regex = new RegExp(`^${escapeRegExpChars(headline)}\s*$`, "m");
-  if (noteContent.match(regex)) {
+  const trimmedHeadline = headline.trim();
+  const headlineRegex = new RegExp(
+    `^${escapeRegExpChars(trimmedHeadline)}\\s*$`,
+    "m",
+  );
+
+  if (headlineRegex.test(resNote.result)) {
     return success("Note contains headline");
   }
 
   // The note doesn't contain the headline!
   switch (ifHeadlineMissing) {
     case IfHeadlineMissingParameterValue.AddHeadline:
-      return await appendNote(path, `\n${headline}`, true);
+      return await appendNote(path, `\n${trimmedHeadline}`, true);
 
     case IfHeadlineMissingParameterValue.Skip:
       return success(STRINGS.headline_not_found);
