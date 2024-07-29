@@ -1,5 +1,14 @@
 # Release history
 
+## 1.6.2, 2024-07-29
+
+### No longer broken
+
+- When a note couldn't be found, the wrong error code would be returned (500 instead of 404). <!-- ZCO-636 -->
+
+
+
+
 ## 1.6.1, 2024-07-25
 
 ### No longer broken

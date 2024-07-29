@@ -5,7 +5,7 @@ import {
   TAbstractFile,
 } from "obsidian";
 import { z, ZodError } from "zod";
-import { URI_NAMESPACE } from "src/constants";
+import { STRINGS, URI_NAMESPACE } from "src/constants";
 import { AnyParams, RoutePath, routes } from "src/routes";
 import { SettingsTab } from "src/settings";
 import {
@@ -168,25 +168,44 @@ export default class ActionsURI extends Plugin {
         // Some zod errors are too verbose, from them we strip everything but
         // the important part.
         const message = e.message.replace(/^.+(Expected )/g, "$1");
-        return `- ${e.path.join(".")}: ${message}`;
+        return e.path.length > 0
+          ? `- ${e.path.join(".")}: ${message}`
+          : `- ${message}`;
       }),
-    ].flat().join("\n");
+    ]
+      .flat()
+      .join("\n");
 
     showBrandedNotice(msg);
     logErrorToConsole(msg);
+    if (!params["x-error"]) return;
 
-    if (params["x-error"]) {
-      const msg2 = "[Bad request] " +
-        parseError.errors
-          .map((e) => `${e.path.join(".")}: ${e.message}`)
-          .join("; ");
-
-      sendUrlCallback(
+    // If there's a "note not found" error, that's the biggest issue, we'll
+    // return only that
+    const error404 = parseError.errors
+      .find((e) => e.message === STRINGS.note_not_found);
+    if (error404) {
+      return sendUrlCallback(
         params["x-error"],
-        failure(ErrorCode.HandlerError, msg2),
+        failure(ErrorCode.NotFound, `[Not found] ${error404.path.join(", ")}`),
         params,
       );
     }
+
+    const msg2 = "[Bad request] " +
+      parseError.errors
+        .map((e) => {
+          return e.path.length > 0
+            ? `${e.path.join(", ")}: ${e.message}`
+            : e.message;
+        })
+        .join("; ");
+
+    sendUrlCallback(
+      params["x-error"],
+      failure(ErrorCode.HandlerError, msg2),
+      params,
+    );
   }
 
   /**
