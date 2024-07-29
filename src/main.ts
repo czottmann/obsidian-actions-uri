@@ -185,11 +185,12 @@ export default class ActionsURI extends Plugin {
     const error404 = parseError.errors
       .find((e) => e.message === STRINGS.note_not_found);
     if (error404) {
-      return sendUrlCallback(
+      sendUrlCallback(
         params["x-error"],
         failure(ErrorCode.NotFound, `[Not found] ${error404.path.join(", ")}`),
         params,
       );
+      return;
     }
 
     const msg2 = "[Bad request] " +
