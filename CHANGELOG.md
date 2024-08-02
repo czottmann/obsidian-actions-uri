@@ -1,5 +1,14 @@
 # Release history
 
+## 1.6.3, 2024-08-02
+
+### No longer broken
+
+- When calling `/*-note/create` with a `template-file` parameter, the template wouldn't be found unless the template path contained both folder and file extension. Fixed! <!-- ZCO-642 -->
+
+
+
+
 ## 1.6.2, 2024-07-29
 
 ### No longer broken
