@@ -198,14 +198,14 @@ function lookupAbstractFileForTemplaterPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false);
+  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, true);
   if (abstractFile) return abstractFile;
 
   const res = getEnabledCommunityPlugin("templater-obsidian");
   if (res.isSuccess) {
     const folder = res.result.settings?.templates_folder;
-    return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, false) ||
-      sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, false);
+    return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, true) ||
+      sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, true);
   }
 
   return null;
@@ -226,14 +226,14 @@ function lookupAbstractFileForTemplatesPath(path: any): TAbstractFile | null {
     return null;
   }
 
-  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, false);
+  const abstractFile = sanitizeFilePathAndGetAbstractFile(path, true);
   if (abstractFile) return abstractFile;
 
   const res = getEnabledCorePlugin("templates");
   if (res.isSuccess) {
     const folder = res.result.options?.folder;
-    return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, false) ||
-      sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, false);
+    return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, true) ||
+      sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, true);
   }
 
   return null;
