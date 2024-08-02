@@ -81,9 +81,28 @@ const createNoteApplyTemplateParams = incomingBaseParams
   })
   .transform(resolveTemplatePathStrict);
 
-const createPeriodicNoteParams = incomingBaseParams
+const createPeriodicNoteApplyContentParams = incomingBaseParams
   .extend({
     "periodic-note": z.nativeEnum(PeriodicNoteType),
+    // This sets the default value for `apply` to `content`. The default fallback
+    // only works when the `apply` is missing from the input; if it's there but
+    // empty, the default won't be applied, and the route will return an error.
+    apply: z.literal(CreateApplyParameterValue.Content)
+      .optional()
+      .default(CreateApplyParameterValue.Content),
+    content: z.string().optional(),
+    "if-exists": optionalIfExists,
+    silent: zodOptionalBoolean,
+  });
+
+const createPeriodicNoteApplyTemplateParams = incomingBaseParams
+  .extend({
+    "periodic-note": z.nativeEnum(PeriodicNoteType),
+    apply: z.enum([
+      CreateApplyParameterValue.Templater,
+      CreateApplyParameterValue.Templates,
+    ]),
+    "template-file": z.string(),
     "if-exists": optionalIfExists,
     silent: zodOptionalBoolean,
   });
@@ -91,7 +110,8 @@ const createPeriodicNoteParams = incomingBaseParams
 export const createParams = z.union([
   createNoteApplyContentParams,
   createNoteApplyTemplateParams,
-  createPeriodicNoteParams,
+  createPeriodicNoteApplyContentParams,
+  createPeriodicNoteApplyTemplateParams,
 ])
   .transform(resolveNoteTargeting);
 
@@ -112,21 +132,30 @@ export type AnyCreateNoteApplyParams =
   | CreateNoteApplyContentParams
   | CreateNoteApplyTemplateParams;
 
-export type CreatePeriodicNoteParams = Prettify<
-  & z.infer<typeof createPeriodicNoteParams>
+export type CreatePeriodicNoteApplyContentParams = Prettify<
+  & z.infer<typeof createPeriodicNoteApplyContentParams>
   & ResolvedNoteTargetingValues
 >;
+export type CreatePeriodicNoteApplyTemplateParams = Prettify<
+  & z.infer<typeof createPeriodicNoteApplyTemplateParams>
+  & ResolvedNoteTargetingValues
+  & ResolvedTemplatePathValues
+>;
+export type AnyCreatePeriodicNoteApplyParams =
+  | CreatePeriodicNoteApplyContentParams
+  | CreatePeriodicNoteApplyTemplateParams;
 
 // HANDLERS ----------------------------------------
 
-export async function _handleCreatePeriodicNote(
+export async function _handleCreatePeriodicNoteFromContent(
   this: RealLifePlugin,
-  params: CreatePeriodicNoteParams,
+  params: CreatePeriodicNoteApplyContentParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const {
     _resolved: { inputPath },
     ["if-exists"]: ifExists,
     ["periodic-note"]: periodicNoteType,
+    content,
     silent,
   } = params;
   const shouldFocusNote = !silent;
@@ -160,6 +189,76 @@ export async function _handleCreatePeriodicNote(
       ErrorCode.UnableToCreateNote,
       STRINGS.unable_to_write_note,
     );
+  }
+
+  if (content) {
+    await this.app.vault.modify(newNote, content);
+  }
+
+  if (shouldFocusNote) await focusOrOpenFile(inputPath);
+  return await getNoteDetails(inputPath);
+}
+
+export async function _handleCreatePeriodicNoteFromTemplate(
+  this: RealLifePlugin,
+  params: CreatePeriodicNoteApplyTemplateParams,
+): Promise<HandlerFileSuccess | HandlerFailure> {
+  const {
+    _resolved: { inputPath, templateFile },
+    ["if-exists"]: ifExists,
+    ["periodic-note"]: periodicNoteType,
+    apply,
+    silent,
+  } = params;
+  const shouldFocusNote = !silent;
+
+  // If there already is a note with that name or at that path, deal with it.
+  const resNoteExists = await getNote(inputPath);
+  if (resNoteExists.isSuccess) {
+    switch (ifExists) {
+      // `skip` == Leave not as-is, we just return the existing note.
+      case IfExistsParameterValue.Skip:
+        if (shouldFocusNote) await focusOrOpenFile(inputPath);
+        return await getNoteDetails(inputPath);
+
+      // Overwrite the existing note.
+      case IfExistsParameterValue.Overwrite:
+        // Delete existing note, but keep going afterwards.
+        await trashFilepath(inputPath);
+        break;
+
+      default:
+        return failure(
+          ErrorCode.NoteAlreadyExists,
+          STRINGS[`${periodicNoteType}_note`].create_note_already_exists,
+        );
+    }
+  }
+
+  const newNote = await createPeriodicNote(periodicNoteType);
+  if (!newNote) {
+    return failure(
+      ErrorCode.UnableToCreateNote,
+      STRINGS.unable_to_write_note,
+    );
+  }
+
+  // We need to check if the relevant plugin is available, and if not, we return
+  // from here. Testing for existence of template file is done by a zod transform,
+  // so we can be sure the file exists.
+  switch (apply) {
+    case CreateApplyParameterValue.Templater:
+      const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
+      if (!resPlugin1.isSuccess) return resPlugin1;
+      await resPlugin1.result.templater
+        .write_template_to_file(templateFile!, newNote);
+      break;
+
+    case CreateApplyParameterValue.Templates:
+      const resPlugin2 = getEnabledCorePlugin("templates");
+      if (!resPlugin2.isSuccess) return resPlugin2;
+      await applyCorePluginTemplate(templateFile!, newNote);
+      break;
   }
 
   if (shouldFocusNote) await focusOrOpenFile(inputPath);

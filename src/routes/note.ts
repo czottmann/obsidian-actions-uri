@@ -5,14 +5,17 @@ import { NoteTargetingParameterKey, RoutePath } from "src/routes";
 import {
   _handleCreateNoteFromContent,
   _handleCreateNoteFromTemplate,
-  _handleCreatePeriodicNote,
+  _handleCreatePeriodicNoteFromContent,
+  _handleCreatePeriodicNoteFromTemplate,
   AnyCreateNoteApplyParams,
+  AnyCreatePeriodicNoteApplyParams,
   CreateApplyParameterValue,
   CreateNoteApplyContentParams,
   CreateNoteApplyTemplateParams,
   CreateParams,
   createParams,
-  CreatePeriodicNoteParams,
+  CreatePeriodicNoteApplyContentParams,
+  CreatePeriodicNoteApplyTemplateParams,
 } from "src/routes/note/create";
 import {
   incomingBaseParams,
@@ -356,8 +359,17 @@ async function handleCreate(
   const { _resolved: { inputKey } } = params;
 
   if (inputKey === NoteTargetingParameterKey.PeriodicNote) {
-    return _handleCreatePeriodicNote
-      .bind(this)(params as CreatePeriodicNoteParams);
+    const applyValue = (params as AnyCreatePeriodicNoteApplyParams).apply;
+    switch (applyValue) {
+      case CreateApplyParameterValue.Content:
+        return _handleCreatePeriodicNoteFromContent
+          .bind(this)(params as CreatePeriodicNoteApplyContentParams);
+
+      case CreateApplyParameterValue.Templater:
+      case CreateApplyParameterValue.Templates:
+        return _handleCreatePeriodicNoteFromTemplate
+          .bind(this)(params as CreatePeriodicNoteApplyTemplateParams);
+    }
   }
 
   const applyValue = (params as AnyCreateNoteApplyParams).apply;
