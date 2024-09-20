@@ -1,5 +1,16 @@
 # Release history
 
+## 1.6.4, 2024-09-20
+
+### No longer broken
+
+- Both [`/note/append`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteappend) and [`/note/prepend`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteprepend) now correctly work with headlines at the end of a note which don't have a trailing newline. <!-- ZCO-692 -->
+
+
+
+
+# Release history
+
 ## 1.6.3, 2024-08-02
 
 ### No longer broken
