@@ -108,7 +108,7 @@ export async function createOrOverwriteNote(
   content: string,
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
-  const vault = self().app.vault;
+  const { vault } = self().app;
   const file = vault.getAbstractFileByPath(filepath);
 
   // Update the file if it already exists, but give any other creation-hooked
@@ -372,9 +372,9 @@ export async function appendNoteBelowHeadline(
   belowHeadline: string,
   textToAppend: string,
 ): Promise<StringResultObject> {
-  const res = await getNoteContent(filepath);
-  if (!res.isSuccess) {
-    return res;
+  const resTFile = await getNote(filepath);
+  if (!resTFile.isSuccess) {
+    return resTFile;
   }
 
   const headlineRegex = new RegExp(
@@ -382,32 +382,34 @@ export async function appendNoteBelowHeadline(
     "s",
   );
 
-  // Split into sections by headline, find the section below the specified
-  // headline, and append the text to that section
-  const newContent = res.result
-    .split(/(?=^#+ )/m)
-    .map((section) => {
-      if (!headlineRegex.test(section)) {
-        return section;
-      }
+  const resProcess = await self().app.vault.process(
+    resTFile.result,
+    (contents) => {
+      // Split into sections by headline, find the section below the specified
+      // headline, and append the text to that section
+      return endStringWithNewline(contents)
+        .split(/(?=^#+ )/m)
+        .map((section) => {
+          if (!headlineRegex.test(section)) {
+            return section;
+          }
 
-      // Rebuild the section by trimming it, appending the text, and adding back
-      // the original number of consecutive newlines
-      return endStringWithNewline(
-        section.trim() +
-            "\n" +
-            textToAppend +
-            section.match(/\n+$/)?.[0] || "",
-      );
-    })
-    .join("");
+          // Rebuild the section by trimming it, appending the text, and adding back
+          // the original number of consecutive newlines
+          return endStringWithNewline(
+            section.trim() +
+                "\n" +
+                textToAppend +
+                section.match(/\n+$/)?.[0] || "",
+          );
+        })
+        .join("");
+    },
+  );
 
-  const resFile = await createOrOverwriteNote(filepath, newContent);
-  if (resFile.isSuccess) {
-    return success(STRINGS.append_done);
-  }
-
-  return resFile;
+  return resProcess
+    ? success(STRINGS.append_done)
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
 }
 
 export async function prependNote(
@@ -445,9 +447,9 @@ export async function prependNoteBelowHeadline(
   textToPrepend: string,
   shouldEnsureNewline: boolean = false,
 ): Promise<StringResultObject> {
-  const res = await getNoteContent(filepath);
-  if (!res.isSuccess) {
-    return res;
+  const resTFile = await getNote(filepath);
+  if (!resTFile.isSuccess) {
+    return resTFile;
   }
 
   const headlineRegex = new RegExp(
@@ -455,33 +457,35 @@ export async function prependNoteBelowHeadline(
     "s",
   );
 
-  // Split into sections by headline, find the section below the specified
-  // headline, and prepend the text to that section
-  const newContent = res.result
-    .split(/(?=^#+ )/m)
-    .map((section) => {
-      if (!headlineRegex.test(section)) {
-        return section;
-      }
+  const resProcess = await self().app.vault.process(
+    resTFile.result,
+    (contents) => {
+      // Split into sections by headline, find the section below the specified
+      // headline, and prepend the text to that section
+      return endStringWithNewline(contents)
+        .split(/(?=^#+ )/m)
+        .map((section) => {
+          if (!headlineRegex.test(section)) {
+            return section;
+          }
 
-      if (shouldEnsureNewline) {
-        textToPrepend = endStringWithNewline(textToPrepend);
-      }
+          if (shouldEnsureNewline) {
+            textToPrepend = endStringWithNewline(textToPrepend);
+          }
 
-      const prependedSection = section.split("\n");
-      prependedSection[1] = textToPrepend + (prependedSection[1] || "");
-      const newSection = prependedSection.join("\n");
+          const prependedSection = section.split("\n");
+          prependedSection[1] = textToPrepend + (prependedSection[1] || "");
+          const newSection = prependedSection.join("\n");
 
-      return endStringWithNewline(newSection);
-    })
-    .join("");
+          return endStringWithNewline(newSection);
+        })
+        .join("");
+    },
+  );
 
-  const resFile = await createOrOverwriteNote(filepath, newContent);
-  if (resFile.isSuccess) {
-    return success(STRINGS.append_done);
-  }
-
-  return resFile;
+  return resProcess
+    ? success(STRINGS.append_done)
+    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
