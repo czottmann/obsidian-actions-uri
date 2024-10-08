@@ -49,6 +49,7 @@ import {
 } from "src/utils/parameters";
 import {
   checkForEnabledPeriodicNoteFeature,
+  createPeriodicNote,
   getAllPeriodicNotes,
   PeriodicNoteType,
 } from "src/utils/periodic-notes-handling";
@@ -383,6 +384,7 @@ async function handleAppend(
     ["create-if-not-found"]: shouldCreateNote,
     ["ensure-newline"]: shouldEnsureNewline,
     ["if-headline-missing"]: ifHeadlineMissing,
+    ["periodic-note"]: periodicNoteType,
     content,
     silent,
     uid,
@@ -422,17 +424,31 @@ async function handleAppend(
       return failure(ErrorCode.NotFound, STRINGS.note_not_found);
     }
 
-    // We're supposed to create the note. We try to create it.
-    const resCreate = await createNote(path, "");
-    if (!resCreate.isSuccess) return resCreate;
+    // We're supposed to create the note!
 
-    // If the note was requested via UID, we need to set the UID in the front
-    // matter of the newly created note.
-    if (inputKey === NoteTargetingParameterKey.UID) {
-      await this.app.fileManager.processFrontMatter(
-        resCreate.result,
-        (fm) => fm[this.settings.frontmatterKey] = uid!,
-      );
+    // The requested note is a periodic note.
+    if (inputKey === NoteTargetingParameterKey.PeriodicNote) {
+      const newNote = await createPeriodicNote(periodicNoteType!);
+      if (!newNote) {
+        return failure(
+          ErrorCode.UnableToCreateNote,
+          STRINGS.unable_to_write_note,
+        );
+      }
+    } //
+    // The requested note is not a periodic note.
+    else {
+      const resCreate = await createNote(path, "");
+      if (!resCreate.isSuccess) return resCreate;
+
+      // If the note was requested via UID, we need to set the UID in the front
+      // matter of the newly created note.
+      if (inputKey === NoteTargetingParameterKey.UID) {
+        await this.app.fileManager.processFrontMatter(
+          resCreate.result,
+          (fm) => fm[this.settings.frontmatterKey] = uid!,
+        );
+      }
     }
   }
 
@@ -456,6 +472,7 @@ async function handlePrepend(
     ["ensure-newline"]: shouldEnsureNewline,
     ["ignore-front-matter"]: shouldIgnoreFrontMatter,
     ["if-headline-missing"]: ifHeadlineMissing,
+    ["periodic-note"]: periodicNoteType,
     content,
     silent,
     uid,
@@ -508,9 +525,32 @@ async function handlePrepend(
       return failure(ErrorCode.NotFound, STRINGS.note_not_found);
     }
 
-    // We're supposed to create the note. We try to create it.
-    const resCreate = await createNote(path, "");
-    if (!resCreate.isSuccess) return resCreate;
+    // We're supposed to create the note!
+
+    // The requested note is a periodic note.
+    if (inputKey === NoteTargetingParameterKey.PeriodicNote) {
+      const newNote = await createPeriodicNote(periodicNoteType!);
+      if (!newNote) {
+        return failure(
+          ErrorCode.UnableToCreateNote,
+          STRINGS.unable_to_write_note,
+        );
+      }
+    } //
+    // The requested note is not a periodic note.
+    else {
+      const resCreate = await createNote(path, "");
+      if (!resCreate.isSuccess) return resCreate;
+
+      // If the note was requested via UID, we need to set the UID in the front
+      // matter of the newly created note.
+      if (inputKey === NoteTargetingParameterKey.UID) {
+        await this.app.fileManager.processFrontMatter(
+          resCreate.result,
+          (fm) => fm[this.settings.frontmatterKey] = uid!,
+        );
+      }
+    }
 
     // If the note was requested via UID, we need to set the UID in the front
     // matter of the newly created note.
