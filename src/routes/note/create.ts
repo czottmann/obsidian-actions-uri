@@ -346,8 +346,8 @@ export function resolveTemplatePathStrict<T>(
   // and the input as is (in case the input already is a full path).
   const { vault } = self().app;
   const templateFile =
-    vault.getAbstractFileByPath(sanitizeFilePath(`${folder}/${input}`)) ||
-    vault.getAbstractFileByPath(sanitizeFilePath(input));
+    vault.getFileByPath(sanitizeFilePath(`${folder}/${input}`)) ||
+    vault.getFileByPath(sanitizeFilePath(input));
   if (!templateFile) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

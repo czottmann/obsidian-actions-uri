@@ -36,7 +36,9 @@ import {
 
 /**
  * Create a new note. If the note already exists, find a available numeric
- * suffix for the filename and create a new note with that suffix.
+ * suffix for the filename and create a new note with that suffix. After creation,
+ * there will be a short pause to allow other plugins to do their thing (Templates,
+ * Templater, etc.).
  *
  * @example
  * - `test.md` exists → `test 1.md`
@@ -58,7 +60,7 @@ export async function createNote(
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
   const vault = self().app.vault;
-  let file = vault.getAbstractFileByPath(filepath);
+  let file = vault.getFileByPath(filepath);
   let doesFileExist = file instanceof TFile;
 
   if (doesFileExist) {
@@ -73,7 +75,7 @@ export async function createNote(
     do {
       numSuffix++;
       filepath = filepath.replace(/( \d+)?\.md$/, ` ${numSuffix}.md`);
-      file = vault.getAbstractFileByPath(filepath);
+      file = vault.getFileByPath(filepath);
       doesFileExist = file instanceof TFile;
     } while (doesFileExist);
   }
@@ -84,7 +86,7 @@ export async function createNote(
   // Create the new note
   await createAndPause(filepath, content);
 
-  const newFile = vault.getAbstractFileByPath(filepath);
+  const newFile = vault.getFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
     : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
@@ -109,20 +111,20 @@ export async function createOrOverwriteNote(
 ): Promise<TFileResultObject> {
   filepath = sanitizeFilePath(filepath);
   const { vault } = self().app;
-  const file = vault.getAbstractFileByPath(filepath);
+  const file = vault.getFileByPath(filepath);
 
   // Update the file if it already exists, but give any other creation-hooked
   // functions some time to do their things first
   if (file instanceof TFile) {
     await pause(500);
     await vault.modify(file, content);
-    return success(<TFile> vault.getAbstractFileByPath(filepath));
+    return success(<TFile> vault.getFileByPath(filepath));
   }
 
   // Create the new note
   await createFolderIfNecessary(dirname(filepath));
   await createAndPause(filepath, content);
-  const newFile = vault.getAbstractFileByPath(filepath);
+  const newFile = vault.getFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
     : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
@@ -511,7 +513,7 @@ export async function getFile(
   filepath: string,
 ): Promise<TFileResultObject> {
   const cleanPath = sanitizeFilePath(filepath, false);
-  const file = self().app.vault.getAbstractFileByPath(cleanPath);
+  const file = self().app.vault.getFileByPath(cleanPath);
 
   return file instanceof TFile
     ? success(file)
@@ -530,7 +532,7 @@ export async function getNote(
   filepath: string,
 ): Promise<TFileResultObject> {
   const cleanPath = sanitizeFilePath(filepath);
-  const file = self().app.vault.getAbstractFileByPath(cleanPath);
+  const file = self().app.vault.getFileByPath(cleanPath);
 
   return file instanceof TFile
     ? success(file)
@@ -655,7 +657,7 @@ export async function createFolderIfNecessary(folder: string) {
 
   if (folder === "" || folder === ".") return;
   // Back off if the folder already exists
-  if (vault.getAbstractFileByPath(folder) instanceof TFolder) return;
+  if (vault.getFolderByPath(folder)) return;
   await vault.createFolder(folder);
 }
 
