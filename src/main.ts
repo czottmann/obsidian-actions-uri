@@ -22,7 +22,7 @@ import { sendUrlCallback } from "src/utils/callbacks";
 import { self } from "src/utils/self";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 import {
-  focusOrOpenFile,
+  focusOrOpenNote,
   logErrorToConsole,
   logToConsole,
   showBrandedNotice,
@@ -273,6 +273,6 @@ export default class ActionsURI extends Plugin {
       );
     }
 
-    return await focusOrOpenFile(processedFilepath);
+    return await focusOrOpenNote(processedFilepath);
   }
 }

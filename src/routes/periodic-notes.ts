@@ -38,7 +38,7 @@ import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
 import { parseStringIntoRegex } from "src/utils/string-handling";
 import { pause } from "src/utils/time";
-import { focusOrOpenFile } from "src/utils/ui";
+import { focusOrOpenNote } from "src/utils/ui";
 import {
   zodEmptyStringChangedToDefaultString,
   zodExistingTemplaterPath,
@@ -237,7 +237,7 @@ function getHandleGetCurrent(
     );
     if (!res.isSuccess) return res;
     const filepath = res.result;
-    if (shouldFocusNote) await focusOrOpenFile(filepath);
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
     return await getNoteDetails(filepath);
   };
 }
@@ -254,7 +254,7 @@ function getHandleGetMostRecent(
     const res = getMostRecentPeriodicNotePath(periodicNoteType);
     if (!res.isSuccess) return res;
     const filepath = res.result;
-    if (shouldFocusNote) await focusOrOpenFile(filepath);
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
     return await getNoteDetails(filepath);
   };
 }
@@ -339,7 +339,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
       switch (ifExists) {
         // `skip` == Leave not as-is, we just return the existing note.
         case "skip":
-          if (shouldFocusNote) await focusOrOpenFile(pNote.path);
+          if (shouldFocusNote) await focusOrOpenNote(pNote.path);
           return await getNoteDetails(pNote.path);
 
         // Overwrite the existing note.
@@ -384,7 +384,7 @@ function getHandleCreate(periodicNoteType: PeriodicNoteType): HandlerFunction {
         break;
     }
 
-    if (shouldFocusNote) await focusOrOpenFile(filepath);
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
     return await getNoteDetails(filepath);
   };
 }
@@ -422,7 +422,7 @@ function getHandleAppend(periodicNoteType: PeriodicNoteType): HandlerFunction {
       const filepath = resGetPath.result;
       const resAppend = await appendAsRequested(filepath);
       if (!resAppend.isSuccess) return resAppend;
-      if (shouldFocusNote) await focusOrOpenFile(filepath);
+      if (shouldFocusNote) await focusOrOpenNote(filepath);
       return success({ message: resAppend.result }, filepath);
     }
 
@@ -439,7 +439,7 @@ function getHandleAppend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     if (newNote instanceof TFile) {
       const resAppend2 = await appendAsRequested(newNote.path);
       if (!resAppend2.isSuccess) return resAppend2;
-      if (shouldFocusNote) await focusOrOpenFile(newNote.path);
+      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
       return success({ message: resAppend2.result }, newNote.path);
     }
 
@@ -488,7 +488,7 @@ function getHandlePrepend(periodicNoteType: PeriodicNoteType): HandlerFunction {
       const filepath = resGetPath.result;
       const resPrepend = await prependAsRequested(filepath);
       if (!resPrepend.isSuccess) return resPrepend;
-      if (shouldFocusNote) await focusOrOpenFile(filepath);
+      if (shouldFocusNote) await focusOrOpenNote(filepath);
       return success({ message: resPrepend.result }, filepath);
     }
 
@@ -505,7 +505,7 @@ function getHandlePrepend(periodicNoteType: PeriodicNoteType): HandlerFunction {
     if (newNote instanceof TFile) {
       const resPrepend2 = await prependAsRequested(newNote.path);
       if (!resPrepend2.isSuccess) return resPrepend2;
-      if (shouldFocusNote) await focusOrOpenFile(newNote.path);
+      if (shouldFocusNote) await focusOrOpenNote(newNote.path);
       return success({ message: resPrepend2.result }, newNote.path);
     }
 
@@ -531,7 +531,7 @@ function getHandleSearchStringAndReplace(
 
     const res = await searchAndReplaceInNote(filepath, search, replace);
     if (!res.isSuccess) return res;
-    if (shouldFocusNote) await focusOrOpenFile(filepath);
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
     return success({ message: res.result }, filepath);
   };
 }
@@ -556,7 +556,7 @@ function getHandleSearchRegexAndReplace(
 
     const res = await searchAndReplaceInNote(filepath, resSir.result, replace);
     if (!res.isSuccess) return res;
-    if (shouldFocusNote) await focusOrOpenFile(filepath);
+    if (shouldFocusNote) await focusOrOpenNote(filepath);
     return success({ message: res.result }, filepath);
   };
 }

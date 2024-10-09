@@ -59,7 +59,8 @@ import {
   escapeRegExpChars,
   parseStringIntoRegex,
 } from "src/utils/string-handling";
-import { focusOrOpenFile } from "src/utils/ui";
+
+import { focusOrOpenNote } from "src/utils/ui";
 import { zodOptionalBoolean, zodSanitizedNotePath } from "src/utils/zod";
 
 // SCHEMATA ----------------------------------------
@@ -274,7 +275,7 @@ async function handleGet(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const { _resolved: { inputPath }, silent } = params;
   const res = await getNoteDetails(inputPath);
-  if (res.isSuccess && !silent) await focusOrOpenFile(inputPath);
+  if (res.isSuccess && !silent) await focusOrOpenNote(inputPath);
   return res;
 }
 
@@ -455,7 +456,7 @@ async function handleAppend(
   // Manipulate the file.
   const resAppend = await appendAsRequested();
   if (resAppend.isSuccess) {
-    if (!silent) await focusOrOpenFile(path);
+    if (!silent) await focusOrOpenNote(path);
     return success({ message: resAppend.result }, path);
   }
   return resAppend;
@@ -551,21 +552,12 @@ async function handlePrepend(
         );
       }
     }
-
-    // If the note was requested via UID, we need to set the UID in the front
-    // matter of the newly created note.
-    if (inputKey === NoteTargetingParameterKey.UID) {
-      await this.app.fileManager.processFrontMatter(
-        resCreate.result,
-        (fm) => fm[this.settings.frontmatterKey] = uid!,
-      );
-    }
   }
 
   // Manipulate the file.
   const resPrepend = await prependAsRequested();
   if (resPrepend.isSuccess) {
-    if (!silent) await focusOrOpenFile(path);
+    if (!silent) await focusOrOpenNote(path);
     return success({ message: resPrepend.result }, path);
   }
   return resPrepend;
@@ -578,7 +570,7 @@ async function handleTouch(
 
   const res = await touchNote(inputPath);
   if (!res.isSuccess) return res;
-  if (!silent) await focusOrOpenFile(inputPath);
+  if (!silent) await focusOrOpenNote(inputPath);
   return success({ message: STRINGS.touch_done }, inputPath);
 }
 
@@ -589,7 +581,7 @@ async function handleSearchStringAndReplace(
 
   const res = await searchAndReplaceInNote(inputPath, search, replace);
   if (!res.isSuccess) return res;
-  if (!silent) await focusOrOpenFile(inputPath);
+  if (!silent) await focusOrOpenNote(inputPath);
   return success({ message: res.result }, inputPath);
 }
 
@@ -603,7 +595,7 @@ async function handleSearchRegexAndReplace(
 
   const res = await searchAndReplaceInNote(inputPath, resSir.result, replace);
   if (!res.isSuccess) return res;
-  if (!silent) await focusOrOpenFile(inputPath);
+  if (!silent) await focusOrOpenNote(inputPath);
   return success({ message: res.result }, inputPath);
 }
 

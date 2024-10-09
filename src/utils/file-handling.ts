@@ -1,10 +1,4 @@
-import {
-  MarkdownView,
-  normalizePath,
-  TAbstractFile,
-  TFile,
-  TFolder,
-} from "obsidian";
+import { MarkdownView, normalizePath, TAbstractFile, TFile } from "obsidian";
 import { STRINGS } from "src/constants";
 import { self } from "src/utils/self";
 import {
@@ -29,7 +23,7 @@ import {
   TFileResultObject,
 } from "src/types";
 import {
-  focusOrOpenFile,
+  focusOrOpenNote,
   logErrorToConsole,
   showBrandedNotice,
 } from "src/utils/ui";
@@ -557,7 +551,7 @@ export async function applyCorePluginTemplate(
 
   // The core plugin will only apply a template to the open, focussed, and
   // editable note ¯\_(ツ)_/¯
-  await focusOrOpenFile(note.path);
+  await focusOrOpenNote(note.path);
 
   try {
     // Ensure the view is in source mode
