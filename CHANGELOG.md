@@ -1,5 +1,18 @@
 # Release history
 
+## 1.6.5, 2024-10-10
+
+### No longer broken
+
+- For some users, both [`/note/append`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteappend) and [`/note/prepend`](https://zottmann.dev/obsidian-actions-uri/routes/note/#noteprepend) would create empty periodic notes when the `create-if-not-found` parameter was used. <!-- ZCO-695 -->
+
+### Changes
+
+- Adjusted opening/focussing notes for API changes in Obsidian 1.7. <!-- ZCO-695 -->
+
+
+
+
 ## 1.6.4, 2024-09-20
 
 ### No longer broken

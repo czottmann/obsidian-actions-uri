@@ -1,4 +1,4 @@
-import { FileView, Notice, WorkspaceLeaf } from "obsidian";
+import { FileView, Notice, requireApiVersion, WorkspaceLeaf } from "obsidian";
 import { STRINGS } from "src/constants";
 import { StringResultObject } from "src/types";
 import { getFile } from "src/utils/file-handling";
@@ -43,11 +43,11 @@ export function logErrorToConsole(...data: any[]) {
  *
  * @returns A positive string result object specifying the action taken
  */
-export async function focusOrOpenFile(
+export async function focusOrOpenNote(
   filepath: string,
 ): Promise<StringResultObject> {
   // Is this file open already? If so, can we just focus it?
-  const res = focusLeafWithFile(filepath);
+  const res = await revealLeafWithFilePath(filepath);
   if (res.isSuccess) {
     return res;
   }
@@ -62,32 +62,28 @@ export async function focusOrOpenFile(
 }
 
 /**
- * @returns An array of all open workspace leaves
- */
-function allWorkspaceRootSplitLeaves(): WorkspaceLeaf[] {
-  const allLeaves: WorkspaceLeaf[] = [];
-  self().app.workspace.iterateRootLeaves((leaf) => {
-    // NOTE: Removing the brackets causes this function to only return one leaf
-    allLeaves.push(leaf);
-  });
-  return allLeaves;
-}
-
-/**
- * Finds an open file with the passed-in filepath and focusses it.  When the
- * file isn't open, it does nothing.
+ * Finds an open note with the passed-in filepath. If it's found, it'll be
+ * revealed, otherwise nothing happens.
  *
  * @param filepath - The path to the file to be focussed
  *
- * @returns Success when file could be found and focussed, error otherwise
+ * @returns Success when note could be found and focussed, error otherwise
  */
-function focusLeafWithFile(filepath: string): StringResultObject {
-  const leaf = allWorkspaceRootSplitLeaves()
-    .find((leaf) => (<FileView> leaf.view).file?.path === filepath);
-  if (!leaf) {
-    return failure(ErrorCode.NotFound, "File currently not open");
+async function revealLeafWithFilePath(
+  filepath: string,
+): Promise<StringResultObject> {
+  for (let leaf of self().app.workspace.getLeavesOfType("markdown")) {
+    // See https://publish.obsidian.md/dev-docs-test/Plugins/Guides/Understanding+deferred+views
+    if (requireApiVersion("1.7.2")) {
+      // @ts-ignore
+      await leaf.loadIfDeferred();
+    }
+
+    if (leaf.view instanceof FileView && leaf.view.file?.path === filepath) {
+      await self().app.workspace.revealLeaf(leaf);
+      return success("Open file found and focussed");
+    }
   }
 
-  self().app.workspace.setActiveLeaf(leaf, { focus: true });
-  return success("Open file found and focussed");
+  return failure(ErrorCode.NotFound, "File currently not open");
 }

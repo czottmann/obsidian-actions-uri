@@ -179,7 +179,7 @@ function lookupAbstractFileForFilePath(path: any): TAbstractFile | null {
  */
 function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
   return (typeof path === "string" && path.length > 0)
-    ? self().app.vault.getAbstractFileByPath(path as string)
+    ? self().app.vault.getFolderByPath(path)
     : null;
 }
 

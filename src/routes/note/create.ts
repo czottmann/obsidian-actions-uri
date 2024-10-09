@@ -33,7 +33,7 @@ import {
 } from "src/utils/parameters";
 import { ErrorCode, failure } from "src/utils/results-handling";
 import { self } from "src/utils/self";
-import { focusOrOpenFile } from "src/utils/ui";
+import { focusOrOpenNote } from "src/utils/ui";
 import { zodOptionalBoolean } from "src/utils/zod";
 
 // TYPES ----------------------------------------
@@ -137,7 +137,7 @@ export async function _handleCreatePeriodicNote(
     switch (ifExists) {
       // `skip` == Leave not as-is, we just return the existing note.
       case IfExistsParameterValue.Skip:
-        if (shouldFocusNote) await focusOrOpenFile(inputPath);
+        if (shouldFocusNote) await focusOrOpenNote(inputPath);
         return await getNoteDetails(inputPath);
 
       // Overwrite the existing note.
@@ -162,7 +162,7 @@ export async function _handleCreatePeriodicNote(
     );
   }
 
-  if (shouldFocusNote) await focusOrOpenFile(inputPath);
+  if (shouldFocusNote) await focusOrOpenNote(inputPath);
   return await getNoteDetails(inputPath);
 }
 
@@ -185,7 +185,7 @@ export async function _handleCreateNoteFromContent(
     switch (ifExists) {
       // `skip` == Leave not as-is, we just return the existing note.
       case IfExistsParameterValue.Skip:
-        if (shouldFocusNote) await focusOrOpenFile(inputPath);
+        if (shouldFocusNote) await focusOrOpenNote(inputPath);
         return await getNoteDetails(inputPath);
 
       case IfExistsParameterValue.Overwrite:
@@ -208,7 +208,7 @@ export async function _handleCreateNoteFromContent(
 
   await this.app.vault.modify(newNote, content || "");
 
-  if (shouldFocusNote) await focusOrOpenFile(newNote.path);
+  if (shouldFocusNote) await focusOrOpenNote(newNote.path);
   return await getNoteDetails(newNote.path);
 }
 
@@ -231,7 +231,7 @@ export async function _handleCreateNoteFromTemplate(
     switch (ifExists) {
       // `skip` == Leave not as-is, we just return the existing note.
       case IfExistsParameterValue.Skip:
-        if (shouldFocusNote) await focusOrOpenFile(inputPath);
+        if (shouldFocusNote) await focusOrOpenNote(inputPath);
         return await getNoteDetails(inputPath);
 
       case IfExistsParameterValue.Overwrite:
@@ -270,7 +270,7 @@ export async function _handleCreateNoteFromTemplate(
       break;
   }
 
-  if (shouldFocusNote) await focusOrOpenFile(newNote.path);
+  if (shouldFocusNote) await focusOrOpenNote(newNote.path);
   return await getNoteDetails(newNote.path);
 }
 
@@ -346,8 +346,8 @@ export function resolveTemplatePathStrict<T>(
   // and the input as is (in case the input already is a full path).
   const { vault } = self().app;
   const templateFile =
-    vault.getAbstractFileByPath(sanitizeFilePath(`${folder}/${input}`)) ||
-    vault.getAbstractFileByPath(sanitizeFilePath(input));
+    vault.getFileByPath(sanitizeFilePath(`${folder}/${input}`)) ||
+    vault.getFileByPath(sanitizeFilePath(input));
   if (!templateFile) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
