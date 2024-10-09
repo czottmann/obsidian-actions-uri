@@ -1,4 +1,4 @@
-import { FileView, Notice, requireApiVersion, WorkspaceLeaf } from "obsidian";
+import { FileView, Notice, requireApiVersion } from "obsidian";
 import { STRINGS } from "src/constants";
 import { StringResultObject } from "src/types";
 import { getFile } from "src/utils/file-handling";
