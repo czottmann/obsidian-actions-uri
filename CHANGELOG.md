@@ -1,5 +1,14 @@
 # Release history
 
+## 1.7.0, TODO-TO-DO
+
+### Changes
+
+- Adjusted [`/dataview/list-query`](https://zottmann.dev/obsidian-actions-uri/routes/dataview/#dataviewlist-query) to consistently return a two-dimensional array. <!-- ZCO-918 -->
+
+
+
+
 ## 1.6.5, 2024-10-10
 
 ### No longer broken

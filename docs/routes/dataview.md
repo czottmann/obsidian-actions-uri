@@ -49,9 +49,9 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter     | Description                                                             |
-| ------------- | ----------------------------------------------------------------------- |
-| `result-data` | An array containing strings (the list results), encoded as JSON string. |
+| Parameter     | Description                                                                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `result-data` | An array containing strings (the list results), encoded as JSON string. Every result is returned as string array. |
 
 On failure:
 

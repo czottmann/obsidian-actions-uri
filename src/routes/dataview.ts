@@ -100,17 +100,17 @@ async function executeDataviewQuery(
 
   // For LIST queries, DV will return a two-dimensional array instead of a one-
   // dimensional one *if* one of the queried files returns more than one hit.
+  // This is inconsistent, and AFO will nope out. So we'll make it consistent.
   //
-  // Example: If you query for an inline tag (`whatever::`), and one file contains
-  // two `whatever::`, e.g. `whatever:: something 1` and `whatever:: something 2`,
-  // and another file contains `whatever:: something 3`, DV will return:
+  // Example: If you query for an inline field (`whatever::`), and one file
+  // contains two of this field, e.g. `whatever:: something 1` and
+  // `whatever:: something 2`, while another file contains just one
+  // (e.g., `whatever:: something 3`), DV will return:
   //
   //     [
   //       ["something 1", "something 2"],
   //       "something 3"
   //     ]
-  //
-  // This is inconsistent, and AFO will nope out. So we'll make it consistent.
   if (type === "list") {
     res.value.values = res.value.values.map((v: any) => Array.isArray(v) ? v : [v])
   }
