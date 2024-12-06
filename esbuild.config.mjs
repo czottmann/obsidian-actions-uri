@@ -13,60 +13,63 @@ const isProduction = process.argv[2] === "production";
 const rsyncPlugin = {
   name: "rsyncPlugin",
   setup(build) {
-    build.onEnd((result) => {
+    build.onEnd((_) => {
       if (process.env.USER !== "czottmann" || isProduction) {
         return;
       }
 
       exec(
         "../bin/sync-current-plugins-to-workbench-vault.fish",
-        (error, stdout, stderr) => {
+        (error, _, stderr) => {
           if (error) {
             console.log(`exec error: ${error}`);
           }
-          if (stderr) {
-            console.log(stderr);
-          } else
-            console.log(
-              "[watch] sync'd via `../bin/sync-current-plugins-to-workbench-vault.fish`"
-            );
-        }
+
+          console.log(
+            stderr
+              ? stderr
+              : "[watch] sync'd via `../bin/sync-current-plugins-to-workbench-vault.fish`",
+          );
+        },
       );
     });
   },
 };
 
-esbuild
-  .build({
-    banner: {
-      js: banner,
-    },
-    bundle: true,
-    entryPoints: ["src/main.ts"],
-    external: [
-      "obsidian",
-      "electron",
-      "@codemirror/autocomplete",
-      "@codemirror/collab",
-      "@codemirror/commands",
-      "@codemirror/language",
-      "@codemirror/lint",
-      "@codemirror/search",
-      "@codemirror/state",
-      "@codemirror/view",
-      "@lezer/common",
-      "@lezer/highlight",
-      "@lezer/lr",
-      ...builtins,
-    ],
-    format: "cjs",
-    logLevel: "info",
-    minify: isProduction,
-    outfile: "main.js",
-    plugins: [rsyncPlugin],
-    sourcemap: isProduction ? false : "inline",
-    target: "es2022",
-    treeShaking: true,
-    watch: !isProduction,
-  })
-  .catch(() => process.exit(1));
+const config = {
+  banner: { js: banner },
+  bundle: true,
+  entryPoints: ["src/main.ts"],
+  external: [
+    "obsidian",
+    "electron",
+    "@codemirror/autocomplete",
+    "@codemirror/collab",
+    "@codemirror/commands",
+    "@codemirror/language",
+    "@codemirror/lint",
+    "@codemirror/search",
+    "@codemirror/state",
+    "@codemirror/view",
+    "@lezer/common",
+    "@lezer/highlight",
+    "@lezer/lr",
+    ...builtins,
+  ],
+  format: "cjs",
+  logLevel: "info",
+  minify: isProduction,
+  outfile: "main.js",
+  plugins: [rsyncPlugin],
+  sourcemap: isProduction ? false : "inline",
+  target: "es2022",
+  treeShaking: true,
+};
+
+if (isProduction) {
+  await esbuild.build(config);
+} else {
+  const ctx = await esbuild.context(config);
+  ctx.watch();
+  await ctx.rebuild().catch(() => process.exit(1));
+}
