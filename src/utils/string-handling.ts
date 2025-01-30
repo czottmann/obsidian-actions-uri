@@ -3,8 +3,6 @@ import { STRINGS } from "src/constants";
 import { RegexResultObject } from "src/types";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 
-const FRONT_MATTER_BOUNDARY = "---\n";
-
 /**
  * Makes sure the passed-in string ends in a newline.
  *
