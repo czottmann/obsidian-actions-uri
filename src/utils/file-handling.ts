@@ -11,7 +11,6 @@ import {
   endStringWithNewline,
   escapeRegExpChars,
   extractNoteContentParts,
-  unwrapFrontMatter,
 } from "src/utils/string-handling";
 import { pause } from "src/utils/time";
 import {
@@ -176,7 +175,7 @@ export async function getNoteDetails(
     filepath,
     content,
     body,
-    frontMatter: unwrapFrontMatter(frontMatter),
+    frontMatter: frontMatter,
     properties,
     uid: properties[self().settings.frontmatterKey] as string | string[] || "",
   });
@@ -430,7 +429,7 @@ export async function prependNote(
     newContent = textToPrepend + noteContent;
   } else {
     const { frontMatter, body } = extractNoteContentParts(noteContent);
-    newContent = frontMatter + textToPrepend + body;
+    newContent = `---\n${frontMatter}---\n` + textToPrepend + body;
   }
 
   const resFile = await createOrOverwriteNote(filepath, newContent);

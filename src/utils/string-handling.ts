@@ -1,3 +1,4 @@
+import { getFrontMatterInfo } from "obsidian";
 import { STRINGS } from "src/constants";
 import { RegexResultObject } from "src/types";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
@@ -78,31 +79,12 @@ export function escapeRegExpChars(string: string) {
 export function extractNoteContentParts(
   noteContent: string,
 ): { frontMatter: string; body: string } {
-  const bodyStartPos = noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) + 4;
+  const info = getFrontMatterInfo(noteContent);
 
-  return (
-      noteContent.startsWith(FRONT_MATTER_BOUNDARY) &&
-      (noteContent.indexOf(FRONT_MATTER_BOUNDARY, 4) > -1)
-    )
-    ? {
-      frontMatter: noteContent.slice(0, bodyStartPos),
-      body: noteContent.slice(bodyStartPos),
-    }
-    : {
-      frontMatter: "",
-      body: noteContent,
-    };
-}
-
-/**
- * Removes the YAML boundary lines from a passed-in front matter block.
- *
- * @param frontMatter - A full YAML front matter string, including the boundary lines
- *
- * @returns The YAML front matter string without the boundary lines
- */
-export function unwrapFrontMatter(frontMatter: string): string {
-  return frontMatter.replace(/^---\n/, "").replace(/---\n$/, "");
+  return {
+    frontMatter: info.frontmatter,
+    body: noteContent.slice(info.contentStart),
+  };
 }
 
 /**

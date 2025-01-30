@@ -1,21 +1,21 @@
 {
   "name": "obsidian-actions-uri",
-  "version": "1.6.5",
+  "version": "1.7.0",
   "description": "This plugin for Obsidian (https://obsidian.md) adds additional `x-callback-url` endpoints to the app for common actions — it's a clean, super-charged addition to Obsidian URI.",
   "main": "main.js",
   "scripts": {
-    "dev": "node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs ",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
   },
   "keywords": [],
   "author": "Carlo Zottmann, https://github.com/czottmann/",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.19.50",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
+    "@types/node": "^18.19.67",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
     "builtin-modules": "3.3.0",
-    "esbuild": "^0.16.17",
+    "esbuild": "^0.24.0",
     "filter-obj": "^5.1.0",
     "obsidian": "latest",
     "obsidian-daily-notes-interface": "^0.9.4",
