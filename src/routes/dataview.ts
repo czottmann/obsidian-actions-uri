@@ -120,6 +120,8 @@ async function executeDataviewQuery(
       data: dqlValuesMapper(dataview, res.value.values).map((v: any) => v.join(", "))
     });
   }
+
+  return failure(ErrorCode.InvalidInput, "Neither LIST nor TABLE query");
 }
 
 function getArrayDimensions(input: any[]) {
