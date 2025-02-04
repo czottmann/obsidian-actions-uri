@@ -94,13 +94,16 @@ async function executeDataviewQuery(
   // For some TABLE queries, DV will return a three-dimensional array instead of
   // a two-dimensional one. Not sure what's the cause but I'll need to account
   // for this. (https://github.com/czottmann/obsidian-actions-uri/issues/79)
-  if (type === "table" && getArrayDimensions(res.value.values) > 2) {
-    return success({ data: dqlValuesMapper(dataview, res.value.values[0]) });
+  if (type === "table") {
+    return (getArrayDimensions(res.value.values) > 2)
+      ? success({ data: dqlValuesMapper(dataview, res.value.values[0]) })
+      : success({ data: dqlValuesMapper(dataview, res.value.values) });
   }
 
   // For LIST queries, DV will return a two-dimensional array instead of a one-
   // dimensional one *if* one of the queried files returns more than one hit.
-  // This is inconsistent, and AFO will nope out. So we'll make it consistent.
+  // This is inconsistent, and AFO will nope out. So we'll need to make it
+  // consistent before rendering out the result.
   //
   // Example: If you query for an inline field (`whatever::`), and one file
   // contains two of this field, e.g. `whatever:: something 1` and
@@ -113,9 +116,10 @@ async function executeDataviewQuery(
   //     ]
   if (type === "list") {
     res.value.values = res.value.values.map((v: any) => Array.isArray(v) ? v : [v])
+    return success({
+      data: dqlValuesMapper(dataview, res.value.values).map((v: any) => v.join(", "))
+    });
   }
-
-  return success({ data: dqlValuesMapper(dataview, res.value.values) });
 }
 
 function getArrayDimensions(input: any[]) {
