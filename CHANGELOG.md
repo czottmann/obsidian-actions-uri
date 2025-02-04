@@ -1,6 +1,15 @@
 # Release history
 
-## 1.7.0, TODO-TO-DO
+## 1.7.1, 2025-02-04
+
+### No longer broken
+
+- Fixed output of [`/dataview/list-query`](https://zottmann.dev/obsidian-actions-uri/routes/dataview/#dataviewlist-query) to return a one-dimensional array. (Regression introduced in 1.7.0.) <!-- ZCO-985 -->
+
+
+
+
+## 1.7.0, 2025-01-30
 
 ### Changes
 
