@@ -1,6 +1,6 @@
 # Release history
 
-## 1.7.1, TODO-TO-DO
+## 1.7.1, 2025-02-04
 
 ### No longer broken
 
