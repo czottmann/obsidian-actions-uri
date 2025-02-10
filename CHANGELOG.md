@@ -1,5 +1,14 @@
 # Release history
 
+## 1.7.2, 2025-02-10
+
+### No longer broken
+
+- When using Templater with periodic notes, the created notes would sometimes end up with Templater placeholders still unreplaced or content not applied.  <!-- ZCO-987 -->
+
+
+
+
 ## 1.7.1, 2025-02-04
 
 ### No longer broken
