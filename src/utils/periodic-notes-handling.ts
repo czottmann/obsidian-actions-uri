@@ -29,7 +29,12 @@ import {
 import { STRINGS } from "src/constants";
 import { StringResultObject } from "src/types";
 import { sanitizeFilePath } from "src/utils/file-handling";
+import {
+  isCommunityPluginEnabled,
+  isCorePluginEnabled,
+} from "src/utils/plugins";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
+import { pause } from "src/utils/time";
 
 // TYPES ----------------------------------------
 export enum PeriodicNoteType {
@@ -164,22 +169,38 @@ export async function createPeriodicNote(
   periodicNoteType: PeriodicNoteType,
 ): Promise<TFile> {
   const now = moment();
+  let newFile: Promise<TFile>;
+
   switch (periodicNoteType) {
     case PeriodicNoteType.DailyNote:
-      return createDailyNote(now);
+      newFile = createDailyNote(now);
+      break;
 
     case PeriodicNoteType.WeeklyNote:
-      return createWeeklyNote(now);
+      newFile = createWeeklyNote(now);
+      break;
 
     case PeriodicNoteType.MonthlyNote:
-      return createMonthlyNote(now);
+      newFile = createMonthlyNote(now);
+      break;
 
     case PeriodicNoteType.QuarterlyNote:
-      return createQuarterlyNote(now);
+      newFile = createQuarterlyNote(now);
+      break;
 
     case PeriodicNoteType.YearlyNote:
-      return createYearlyNote(now);
+      newFile = createYearlyNote(now);
+      break;
   }
+
+  if (
+    isCorePluginEnabled("templates") ||
+    isCommunityPluginEnabled("templater-obsidian")
+  ) {
+    await pause(500);
+  }
+
+  return newFile;
 }
 
 /**

@@ -62,7 +62,7 @@ export async function createNote(
     // starting to increment from there, eg. `test.md` → `test 1.md`,
     // `test 17.md` → `test 18.md`, etc.
     const currentNumSuffix: string | undefined =
-      (<RegExpMatchArray> filepath.match(/( (\d+))?\.md$/))[2];
+      (<RegExpMatchArray>filepath.match(/( (\d+))?\.md$/))[2];
     let numSuffix = currentNumSuffix ? +currentNumSuffix : 0;
 
     do {
@@ -111,7 +111,7 @@ export async function createOrOverwriteNote(
   if (file instanceof TFile) {
     await pause(500);
     await vault.modify(file, content);
-    return success(<TFile> vault.getFileByPath(filepath));
+    return success(<TFile>vault.getFileByPath(filepath));
   }
 
   // Create the new note
@@ -393,9 +393,9 @@ export async function appendNoteBelowHeadline(
           // the original number of consecutive newlines
           return endStringWithNewline(
             section.trim() +
-                "\n" +
-                textToAppend +
-                section.match(/\n+$/)?.[0] || "",
+            "\n" +
+            textToAppend +
+            section.match(/\n+$/)?.[0] || "",
           );
         })
         .join("");
@@ -490,7 +490,7 @@ export async function prependNoteBelowHeadline(
  */
 export function getFileMap(): TFile[] {
   const vault = self().app.vault;
-  const { fileMap } = <RealLifeVault> vault;
+  const { fileMap } = <RealLifeVault>vault;
   return Object.values(fileMap);
 }
 
@@ -562,7 +562,7 @@ export async function applyCorePluginTemplate(
       );
     }
   } catch (error) {
-    const msg = (<Error> error).message;
+    const msg = (<Error>error).message;
     showBrandedNotice(msg);
     logErrorToConsole(msg);
     return failure(ErrorCode.HandlerError, msg);
@@ -597,7 +597,7 @@ export async function trashFilepath(
     await vault.delete(fileOrFolder, true);
   } else {
     const isSystemTrashPreferred =
-      (<any> vault).config?.trashOption === "system";
+      (<any>vault).config?.trashOption === "system";
     await vault.trash(fileOrFolder, isSystemTrashPreferred);
   }
 
@@ -626,7 +626,7 @@ export async function renameFilepath(
   try {
     await vault.rename(fileOrFolder, newFilepath);
   } catch (error) {
-    const msg = (<Error> error).message;
+    const msg = (<Error>error).message;
     return failure(
       ErrorCode.NotFound,
       msg.contains("no such file or directory")
