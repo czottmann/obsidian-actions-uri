@@ -15,7 +15,7 @@
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "builtin-modules": "3.3.0",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.25.0",
     "filter-obj": "^5.1.0",
     "obsidian": "latest",
     "obsidian-daily-notes-interface": "^0.9.4",
