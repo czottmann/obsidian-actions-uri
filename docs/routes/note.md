@@ -302,6 +302,57 @@ On failure:
 &nbsp;
 
 
+## `/note/open-or-create`
+Tries to open a note if it exists, or creates it if it doesn't. This is useful for workflows where you want to access a note without having to check if it exists first.
+
+A note can be targeted by one of three **mutually exclusive** targeting parameters: `file`, `uid`, or `periodic-note`.
+
+- `file`: a full file path.
+- <span class="tag tag-version">v1.6+</span> `uid`: a unique identifier in the note's front matter. The key default is `uid`, e.g. "uid: 01ARZ3NDEKTSV4RRFFQ69G5FAV". That key can be changed using the Actions URI settings UI. The URL parameter name will remain the same, i.e. the front matter key might be "id" or "uuid", but the URL parameter will still be `uid`.
+- <span class="tag tag-version">v1.6+</span> `periodic-note`: a current periodic note (daily, weekly, etc.). Requires either the core Daily Notes plugin needs to be active, or the community plugin, Periodic Notes, must have its Daily Note feature enabled. Working with Weekly, Monthly, Quarterly or Yearly Notes requires the community plugin Periodic Notes.
+
+### Parameters
+In addition to the base parameters (see section ["Parameters required in/ accepted by all calls"](../parameters.md)):
+
+| Parameter       | Value type                                                  | Optional? | Description                                                                                   
+| --------------- | ----------------------------------------------------------- | :-------: | ----------------------------------------------------------------------------------------------
+| `file`          | string                                                      | see above | The file path of the note, relative from the vault's root. The extension `.md` can be omitted.
+| `uid`           | string                                                      | see above | Note ID as stored in a front matter key. Default key: "uid", configurable in Settings UI.     
+| `periodic-note`       | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | see above |                                                                                              
+| `content`       | string                                                      | optional  | Initial content for the note if it needs to be created.                                       
+| `silent`        | boolean                                                     | optional  | *"Do **not** open the note in Obsidian."* Defaults to `false`.                                
+
+### Return values
+These parameters will be added to the callbacks used for [getting data back from Actions URI](../callbacks.md).
+
+When a note is opened (it already existed):
+
+| Parameter        | Description                      
+| ---------------- | ---------------------------------
+| `result-message` | A short summary of what was done.
+
+When a note is created (it didn't exist):
+
+| Parameter             | Description                                                                                                                    
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                         
+| `result-content`      | The entire content of the note file.                                                                                           
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                       
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).
+| `result-uid`          | The note's UID, if available                                                        
+
+On failure:
+
+| Parameter      | Description                        
+| -------------- | -----------------------------------
+| `errorCode`    | A HTTP status code.                
+| `errorMessage` | A short summary of what went wrong.
+
+
+&nbsp;
+
+
 ## `/note/append`
 Appends text to a note, either to the very end of the note (default) or to the section below a particular headline in a note.
 

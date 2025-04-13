@@ -44,7 +44,7 @@ export enum CreateApplyParameterValue {
   Templates = "templates",
 }
 
-enum IfExistsParameterValue {
+export enum IfExistsParameterValue {
   Default = "",
   Overwrite = "overwrite",
   Skip = "skip",

@@ -13,6 +13,7 @@ import {
   CreateParams,
   createParams,
   CreatePeriodicNoteParams,
+  IfExistsParameterValue,
 } from "src/routes/note/create";
 import {
   incomingBaseParams,
@@ -114,6 +115,14 @@ const openParams = incomingBaseParams
   .merge(noteTargetingWithRecentsParams)
   .transform(resolveNoteTargetingStrict);
 
+const openOrCreateParams = incomingBaseParams
+  .merge(noteTargetingParams)
+  .extend({
+    silent: zodOptionalBoolean,
+    content: z.string().optional(),
+  })
+  .transform(resolveNoteTargeting);
+
 const appendParams = incomingBaseParams
   .merge(noteTargetingParams)
   .extend({
@@ -179,6 +188,7 @@ type GetParams = Prettify<z.infer<typeof getParams>>;
 type GetActiveParams = Prettify<z.infer<typeof getActiveParams>>;
 type ReadFirstNamedParams = Prettify<z.infer<typeof readNamedParams>>;
 type OpenParams = Prettify<z.infer<typeof openParams>>;
+type OpenOrCreateParams = Prettify<z.infer<typeof openOrCreateParams>>;
 type AppendParams = Prettify<z.infer<typeof appendParams>>;
 type PrependParams = Prettify<z.infer<typeof prependParams>>;
 type TouchParams = Prettify<z.infer<typeof touchParams>>;
@@ -192,6 +202,7 @@ export type AnyLocalParams =
   | GetActiveParams
   | ReadFirstNamedParams
   | OpenParams
+  | OpenOrCreateParams
   | CreateParams
   | AppendParams
   | PrependParams
@@ -218,6 +229,7 @@ export const routePath: RoutePath = {
       handler: handleGetActive,
     },
     { path: "/open", schema: openParams, handler: handleOpen },
+    { path: "/open-or-create", schema: openOrCreateParams, handler: handleOpenOrCreate },
     { path: "/create", schema: createParams, handler: handleCreate },
     { path: "/append", schema: appendParams, handler: handleAppend },
     { path: "/prepend", schema: prependParams, handler: handlePrepend },
@@ -349,6 +361,30 @@ async function handleOpen(
   return res.isSuccess
     ? success({ message: STRINGS.note_opened }, res.result.path)
     : res;
+}
+
+/**
+ * Handler for `/note/open-or-create`. This tries to open a note first, and if it
+ * doesn't exist, it creates it.
+ */
+async function handleOpenOrCreate(
+  this: RealLifePlugin,
+  params: OpenOrCreateParams,
+): Promise<HandlerTextSuccess | HandlerFileSuccess | HandlerFailure> {
+  const { _resolved: { inputFile } } = params;
+
+  if (inputFile) {
+    return handleOpen.call(this, params);
+  }
+
+  // File doesn't exist, use the create handler
+  const createParams: CreateParams = {
+    ...params,
+    apply: CreateApplyParameterValue.Content,
+    "if-exists": IfExistsParameterValue.Skip // May be redundant
+  };
+
+  return handleCreate.call(this, createParams);
 }
 
 async function handleCreate(
