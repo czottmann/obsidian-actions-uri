@@ -126,6 +126,7 @@ export function resolveNoteTargeting<T>(
     const resFileTest = sanitizeFilePathAndGetAbstractFile(inputPath);
     if (resFileTest) {
       inputFile = resFileTest;
+      inputPath = resFileTest.path
     }
   }
 
