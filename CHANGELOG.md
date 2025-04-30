@@ -1,5 +1,14 @@
 # Release history
 
+## 1.7.3, 2025-04-30
+
+### No longer broken
+
+- [`/note/create`](https://zottmann.dev/obsidian-actions-uri/routes/note/#notecreate): Using `if-exists=skip&silent=false` would not open an already existing note in Obsidian. ([#99](https://github.com/czottmann/obsidian-actions-uri/issues/99))  <!-- ZCO-1182 -->
+
+
+
+
 ## 1.7.2, 2025-02-10
 
 ### No longer broken
