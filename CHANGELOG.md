@@ -6,6 +6,10 @@
 
 As announced last year (see 1.6.0, 2024-07-23), the periodic note routes are now gone for good. All their functionality is now part of the [`/note`](https://zottmann.dev/obsidian-actions-uri/routes/note/) routes. <!-- ZCO-977 -->
 
+### No longer broken
+
+- `x-success` results will no longer wrap undefined values as strings, so let's bid farewell to `result-some-value=undefined`.
+
 
 
 

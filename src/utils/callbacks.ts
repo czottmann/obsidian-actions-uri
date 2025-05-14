@@ -76,18 +76,17 @@ function addObjectToUrlSearchParams(
   for (const key of sortedKeys) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
 
-    let val: string;
+    let val: string | undefined;
     if (typeof obj[key] === "string") {
       val = <string> obj[key];
     } else if (obj[key] instanceof TAbstractFile) {
       val = (<TAbstractFile> obj[key]).path;
-    } else {
+    } else if (typeof obj[key] !== "undefined") {
       val = JSON.stringify(obj[key]);
     }
 
-    url.searchParams.set(
-      toKebabCase(`${prefix}-${key}`),
-      val,
-    );
+    if (val === undefined) continue;
+
+    url.searchParams.set(toKebabCase(`${prefix}-${key}`), val);
   }
 }
