@@ -42,6 +42,8 @@ export type HandlerFileSuccess = Readonly<
     result: {
       content: string;
       filepath: string;
+      uriPath: string;
+      uriUID?: string;
       body?: string;
       frontMatter?: string;
       properties?: NoteProperties;

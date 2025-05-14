@@ -171,13 +171,18 @@ export async function getNoteDetails(
   const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
   const properties = propertiesForFile(file);
+  const vaultName = self().app.vault.getName();
+  const uid = getFirstUID(properties);
+
   return success({
     filepath,
     content,
+    uriPath: getUriPath(filepath, vaultName),
+    uriUID: getUriUID(uid, vaultName),
     body,
-    frontMatter: frontMatter,
+    frontMatter,
     properties,
-    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
+    uid,
   });
 }
 
@@ -260,6 +265,7 @@ export async function updateNote(
     return res2;
   }
 
+  const vaultName = self().app.vault.getName();
   const file = res.result;
   const noteDetails = res2.result;
   const body = (typeof newBody === "string") ? newBody : noteDetails.body;
@@ -277,15 +283,47 @@ export async function updateNote(
   // Without this delay, `propertiesForFile()` will return outdated properties.
   await pause(200);
   const properties = propertiesForFile(file);
+  const uid = getFirstUID(properties);
 
   return success({
     filepath,
     content: newNoteContent,
+    uriPath: getUriPath(vaultName, filepath),
+    uriUID: getUriUID(uid, vaultName),
     body,
     frontMatter,
     properties,
-    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
+    uid,
   });
+}
+
+function getUriPath(filepath: string, vaultName: string): string {
+  return `obsidian://actions-uri/note/open` +
+    "?vault=" + encodeURIComponent(vaultName) +
+    "&file=" + encodeURIComponent(filepath);
+}
+
+function getUriUID(
+  uid: string | undefined,
+  vaultName: string,
+): string | undefined {
+  if (!uid) return undefined;
+
+  return `obsidian://actions-uri/note/open` +
+    "?vault=" + encodeURIComponent(vaultName) +
+    "&uid=" + encodeURIComponent(uid);
+}
+
+/**
+ *  Returns the first UID from the frontmatter properties of a note.
+ */
+function getFirstUID(properties: NoteProperties): string | undefined {
+  const uid = properties[self().settings.frontmatterKey] as
+    | string
+    | string[]
+    | undefined;
+
+  return Array.isArray(uid) ? uid[0] : uid;
 }
 
 /**
