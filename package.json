@@ -14,14 +14,14 @@
     "@types/node": "^18.19.67",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
-    "builtin-modules": "3.3.0",
-    "esbuild": "^0.24.0",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.25.0",
     "filter-obj": "^5.1.0",
-    "obsidian": "latest",
+    "obsidian": "^1.8.0",
     "obsidian-daily-notes-interface": "^0.9.4",
     "obsidian-dataview": "^0.5.67",
-    "tslib": "2.4.0",
-    "typescript": "4.7.4",
+    "tslib": "2.5.2",
+    "typescript": "^5.0.4",
     "zod": "^3.23.8"
   }
 }
