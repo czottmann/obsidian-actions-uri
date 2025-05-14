@@ -31,10 +31,6 @@ import {
   AnyLocalParams as AnyOmnisearchParams,
   routePath as omnisearchRoutes,
 } from "src/routes/omnisearch";
-import {
-  AnyLocalParams as AnyPeriodicNoteParams,
-  routePath as periodicNoteRoutes,
-} from "src/routes/periodic-notes";
 import { routePath as rootRoutes } from "src/routes/root";
 import {
   AnyLocalParams as AnySearchParams,
@@ -65,7 +61,6 @@ export const routes: RoutePath = {
   ...notePropertiesRoutes,
   ...noteRoutes,
   ...omnisearchRoutes,
-  ...periodicNoteRoutes,
   ...searchRoutes,
   ...settingsRoutes,
   ...tagsRoutes,
@@ -96,10 +91,10 @@ export type RoutePath = {
 export type RouteSubpath = {
   path: string;
   schema:
-    | z.AnyZodObject
-    | z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
-    | z.ZodEffects<any, any, any>
-    | z.ZodUnion<any>;
+  | z.AnyZodObject
+  | z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
+  | z.ZodEffects<any, any, any>
+  | z.ZodUnion<any>;
   handler: HandlerFunction;
 };
 
@@ -112,7 +107,6 @@ export type AnyParams =
   | AnyNoteParams
   | AnyNotePropertiesParams
   | AnyOmnisearchParams
-  | AnyPeriodicNoteParams
   | AnySearchParams
   | AnySettingsParams
   | AnyTagsParams

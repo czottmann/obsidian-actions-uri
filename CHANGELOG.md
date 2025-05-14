@@ -1,5 +1,14 @@
 # Release history
 
+## 1.8.0, 2️⃣0️⃣2️⃣5️⃣
+
+### Removals
+
+As announced last year (see 1.6.0, 2024-07-23), the periodic note routes are now gone for good. All their functionality is now part of the [`/note`](https://zottmann.dev/obsidian-actions-uri/routes/note/) routes. <!-- ZCO-977 -->
+
+
+
+
 ## 1.7.3, 2025-04-30
 
 ### No longer broken
