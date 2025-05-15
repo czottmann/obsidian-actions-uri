@@ -78,7 +78,7 @@ async function handleGet(
 ): Promise<HandlerPropertiesSuccess | HandlerFailure> {
   const { _resolved: { inputFile } } = params;
   return success(
-    { properties: propertiesForFile(inputFile!) },
+    { properties: await propertiesForFile(inputFile!) },
     inputFile?.path,
   );
 }
@@ -88,7 +88,7 @@ async function handleSet(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const { _resolved: { inputFile }, mode, properties } = params;
   const props = mode === "update"
-    ? { ...propertiesForFile(inputFile!), ...properties }
+    ? { ...await propertiesForFile(inputFile!), ...properties }
     : properties;
 
   return updateNote(inputFile!.path, sanitizedStringifyYaml(props));

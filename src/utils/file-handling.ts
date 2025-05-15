@@ -170,7 +170,7 @@ export async function getNoteDetails(
   const file = res.result;
   const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
-  const properties = propertiesForFile(file);
+  const properties = await propertiesForFile(file);
   const vaultName = self().app.vault.getName();
   const uid = getFirstUID(properties);
 
@@ -280,9 +280,7 @@ export async function updateNote(
 
   await self().app.vault.modify(file, newNoteContent);
 
-  // Without this delay, `propertiesForFile()` will return outdated properties.
-  await pause(200);
-  const properties = propertiesForFile(file);
+  const properties = await propertiesForFile(file);
   const uid = getFirstUID(properties);
 
   return success({
@@ -698,7 +696,12 @@ export async function createFolderIfNecessary(folder: string) {
  * @returns An object containing the frontmatter properties of the file, or an
  *          empty object if none exist.
  */
-export function propertiesForFile(file: TAbstractFile): NoteProperties {
+export async function propertiesForFile(
+  file: TAbstractFile,
+): Promise<NoteProperties> {
+  // Without this delay, more often than not, `propertiesForFile()` will return
+  // outdated properties.
+  await pause(200);
   return self().app.metadataCache.getFileCache(file)?.frontmatter || {};
 }
 
