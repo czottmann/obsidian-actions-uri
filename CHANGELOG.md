@@ -5,6 +5,7 @@
 ### New stuff
 
 - All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) that return note information (like path, UID, body, etc.) now also return a `result-uri-path` and `result-uri-uid` (where available), containing URLs that can be used to link to the note from other places on the same device.
+- The new standard, optional boolean parameter [`hide-ui-notice-on-error`](https://zottmann.dev/obsidian-actions-uri/parameters/) can be used to suppress the UI notice on errors like "note not found". Defaults to `false`, so by default the UI notice will be shown as usual. <!-- ZCO-1201 -->
 
 ### Removals
 

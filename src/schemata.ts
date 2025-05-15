@@ -13,6 +13,11 @@ export const incomingBaseParams = z.object({
   // its `x-success` or `x-error` callbacks.
   "debug-mode": zodOptionalBoolean,
 
+  // When enabled, the plugin will not show any error notices in Obsidian. For
+  // example, if a requested note isn't available, the plugin would normally
+  // show a notice in Obsidian. This can be disabled by setting this to `true`.
+  "hide-ui-notice-on-error": zodOptionalBoolean,
+
   "x-error": z.string().url().optional(),
   "x-success": z.string().url().optional(),
   "x-source": z.string().optional(),

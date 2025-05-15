@@ -120,7 +120,7 @@ export default class ActionsURI extends Plugin {
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
       handlerResult = failure(ErrorCode.handlerError, msg);
-      showBrandedNotice(msg);
+      if (!params["hide-ui-notice-on-error"]) showBrandedNotice(msg);
       logErrorToConsole(msg);
     }
 
@@ -176,8 +176,8 @@ export default class ActionsURI extends Plugin {
       .flat()
       .join("\n");
 
-    showBrandedNotice(msg);
     logErrorToConsole(msg);
+    if (!params["hide-ui-notice-on-error"]) showBrandedNotice(msg);
     if (!params["x-error"]) return;
 
     // If there's a "note not found" error, that's the biggest issue, we'll
