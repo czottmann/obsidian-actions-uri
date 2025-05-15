@@ -115,9 +115,11 @@ async function executeDataviewQuery(
   //       "something 3"
   //     ]
   if (type === "list") {
-    res.value.values = res.value.values.map((v: any) => Array.isArray(v) ? v : [v])
+    res.value.values = res.value.values
+      .map((v: any) => Array.isArray(v) ? v : [v]);
     return success({
-      data: dqlValuesMapper(dataview, res.value.values).map((v: any) => v.join(", "))
+      data: dqlValuesMapper(dataview, res.value.values)
+        .map((v: any) => v.join(", ")),
     });
   }
 
