@@ -2,6 +2,10 @@
 
 ## 1.8.0, 2️⃣0️⃣2️⃣5️⃣
 
+### New stuff
+
+- All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) that return note information (like path, UID, body, etc.) now also return a `result-uri-path` and `result-uri-uid` (where available), containing URLs that can be used to link to the note from other places on the same device.
+
 ### Removals
 
 As announced last year (see 1.6.0, 2024-07-23), the periodic note routes are now gone for good. All their functionality is now part of the [`/note`](https://zottmann.dev/obsidian-actions-uri/routes/note/) routes. <!-- ZCO-977 -->
