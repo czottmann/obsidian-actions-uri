@@ -15,12 +15,15 @@ It's a clean, somewhat super-charged addition to Obsidian's [own URI scheme](htt
 
 ## Author
 
-Carlo Zottmann, <carlo@zottmann.co>
+Carlo Zottmann, <carlo@zottmann.dev>
 
 - GitHub: [@czottmann](https://github.com/czottmann)
-- Mastodon: [@czottmann@norden.social](https://norden.social/@czottmann) & [@obsidian@actions.work](https://actions.work/@obsidian)
+- Mastodon:
+  - [@czottmann@norden.social](https://norden.social/@czottmann)
+  - [@actionsdotwork@pkm.social/](https://pkm.social/@actionsdotwork)
+- Bluesky: [@zottmann.dev](https://bsky.app/profile/zottmann.dev)
 - Obsidian: [@czottmann](https://forum.obsidian.md/u/czottmann)
-- Website: [c.zottmann.org](https://c.zottmann.org/)
+- Website: [c.zottmann.dev](https://c.zottmann.dev/)
 
 
 ## Projects using Actions URI
