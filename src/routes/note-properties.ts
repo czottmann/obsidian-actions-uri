@@ -106,7 +106,7 @@ async function handleRemoveKeys(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const { _resolved: { inputPath: path, inputFile }, keys } = params;
 
-  const props = propertiesForFile(inputFile!)!;
+  const props = await propertiesForFile(inputFile!)!;
   (<string[]> keys).forEach((key) => delete props[key]);
 
   return updateNote(path, sanitizedStringifyYaml(props));
