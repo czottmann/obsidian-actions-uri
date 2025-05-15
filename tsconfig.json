@@ -21,6 +21,6 @@
     "target": "ES2022"
   },
   "include": [
-    "**/*.ts"
+    "src/**/*.ts"
   ]
 }
