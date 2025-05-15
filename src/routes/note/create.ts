@@ -148,7 +148,7 @@ export async function _handleCreatePeriodicNote(
 
       default:
         return failure(
-          ErrorCode.NoteAlreadyExists,
+          ErrorCode.noteAlreadyExists,
           STRINGS[`${periodicNoteType}_note`].create_note_already_exists,
         );
     }
@@ -157,7 +157,7 @@ export async function _handleCreatePeriodicNote(
   const newNote = await createPeriodicNote(periodicNoteType);
   if (!newNote) {
     return failure(
-      ErrorCode.UnableToCreateNote,
+      ErrorCode.unableToCreateNote,
       STRINGS.unable_to_write_note,
     );
   }

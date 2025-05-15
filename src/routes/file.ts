@@ -88,7 +88,7 @@ async function handleGetActive(
   const res = this.app.workspace.getActiveFile();
   return res
     ? success({ filepath: res.path })
-    : failure(ErrorCode.NotFound, "No active file");
+    : failure(ErrorCode.notFound, "No active file");
 }
 
 async function handleOpen(

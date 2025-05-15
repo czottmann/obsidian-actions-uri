@@ -126,7 +126,7 @@ export function resolveNoteTargeting<T>(
     const resFileTest = sanitizeFilePathAndGetAbstractFile(inputPath);
     if (resFileTest) {
       inputFile = resFileTest;
-      inputPath = resFileTest.path
+      inputPath = resFileTest.path;
     }
   }
 
@@ -206,5 +206,5 @@ function filepathForUID(uid: string): StringResultObject {
 
   return path
     ? success(path)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    : failure(ErrorCode.notFound, STRINGS.note_not_found);
 }

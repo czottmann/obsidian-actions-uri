@@ -22,7 +22,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   // If the plugin instance is not available, return an error response
   if (!res.isSuccess) {
     return failure(
-      ErrorCode.FeatureUnavailable,
+      ErrorCode.featureUnavailable,
       STRINGS.global_search_feature_not_available,
     );
   }
@@ -54,7 +54,7 @@ export async function doOmnisearch(query: string): Promise<SearchResultObject> {
   const res = getEnabledCommunityPlugin("omnisearch");
   if (!res.isSuccess) {
     return failure(
-      ErrorCode.FeatureUnavailable,
+      ErrorCode.featureUnavailable,
       STRINGS.omnisearch_plugin_not_available,
     );
   }

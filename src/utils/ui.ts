@@ -58,7 +58,7 @@ export async function focusOrOpenNote(
     return success(STRINGS.note_opened);
   }
 
-  return failure(ErrorCode.NotFound, STRINGS.note_not_found);
+  return failure(ErrorCode.notFound, STRINGS.note_not_found);
 }
 
 /**
@@ -85,5 +85,5 @@ async function revealLeafWithFilePath(
     }
   }
 
-  return failure(ErrorCode.NotFound, "File currently not open");
+  return failure(ErrorCode.notFound, "File currently not open");
 }

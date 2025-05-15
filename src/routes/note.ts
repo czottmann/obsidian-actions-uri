@@ -255,7 +255,7 @@ async function handleList(
   // If a periodic note type is specified, we return all notes of that type.
   if (!checkForEnabledPeriodicNoteFeature(periodicNoteType)) {
     return failure(
-      ErrorCode.FeatureUnavailable,
+      ErrorCode.featureUnavailable,
       STRINGS[`${periodicNoteType}_note`].feature_not_available,
     );
   }
@@ -285,12 +285,12 @@ async function handleGetActive(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const res = this.app.workspace.getActiveFile();
   if (res?.extension !== "md") {
-    return failure(ErrorCode.NotFound, "No active note");
+    return failure(ErrorCode.notFound, "No active note");
   }
 
   const res1 = await getNoteDetails(res.path);
   if (!res1.isSuccess) {
-    return failure(ErrorCode.NotFound, "No active note");
+    return failure(ErrorCode.notFound, "No active note");
   }
 
   const mdView = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -315,7 +315,7 @@ async function handleGetNamed(
       .getFirstLinkpathDest(sanitizeFilePath(file), "/");
     return res
       ? await getNoteDetails(res.path)
-      : failure(ErrorCode.NotFound, "No note found with that name");
+      : failure(ErrorCode.notFound, "No note found with that name");
   }
 
   // If we're here, we're sorting by something else. We need to find all notes
@@ -332,7 +332,7 @@ async function handleGetNamed(
   const res = this.app.vault.getMarkdownFiles()
     .sort(sortFns[sortBy])
     .find((tf) => tf.name === file);
-  if (!res) return failure(ErrorCode.NotFound, "No note found with that name");
+  if (!res) return failure(ErrorCode.notFound, "No note found with that name");
 
   return await getNoteDetails(res.path);
 }
@@ -422,7 +422,7 @@ async function handleAppend(
   if (!inputFile) {
     // … check if we're supposed to create it. If not, back off.
     if (!shouldCreateNote) {
-      return failure(ErrorCode.NotFound, STRINGS.note_not_found);
+      return failure(ErrorCode.notFound, STRINGS.note_not_found);
     }
 
     // We're supposed to create the note!
@@ -432,7 +432,7 @@ async function handleAppend(
       const newNote = await createPeriodicNote(periodicNoteType!);
       if (!newNote) {
         return failure(
-          ErrorCode.UnableToCreateNote,
+          ErrorCode.unableToCreateNote,
           STRINGS.unable_to_write_note,
         );
       }
@@ -523,7 +523,7 @@ async function handlePrepend(
   if (!inputFile) {
     // … check if we're supposed to create it. If not, back off.
     if (!shouldCreateNote) {
-      return failure(ErrorCode.NotFound, STRINGS.note_not_found);
+      return failure(ErrorCode.notFound, STRINGS.note_not_found);
     }
 
     // We're supposed to create the note!
@@ -533,7 +533,7 @@ async function handlePrepend(
       const newNote = await createPeriodicNote(periodicNoteType!);
       if (!newNote) {
         return failure(
-          ErrorCode.UnableToCreateNote,
+          ErrorCode.unableToCreateNote,
           STRINGS.unable_to_write_note,
         );
       }
@@ -659,6 +659,6 @@ async function prepareNoteForHeadlineBlockManipulation(
       return success(STRINGS.headline_not_found);
 
     case IfHeadlineMissingParameterValue.Error:
-      return failure(ErrorCode.NotFound, STRINGS.headline_not_found);
+      return failure(ErrorCode.notFound, STRINGS.headline_not_found);
   }
 }

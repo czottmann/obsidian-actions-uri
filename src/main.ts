@@ -119,7 +119,7 @@ export default class ActionsURI extends Plugin {
       handlerResult = await handlerFunc.bind(this)(params);
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
-      handlerResult = failure(ErrorCode.HandlerError, msg);
+      handlerResult = failure(ErrorCode.handlerError, msg);
       showBrandedNotice(msg);
       logErrorToConsole(msg);
     }
@@ -187,7 +187,7 @@ export default class ActionsURI extends Plugin {
     if (error404) {
       sendUrlCallback(
         params["x-error"],
-        failure(ErrorCode.NotFound, `[Not found] ${error404.path.join(", ")}`),
+        failure(ErrorCode.notFound, `[Not found] ${error404.path.join(", ")}`),
         params,
       );
       return;
@@ -204,7 +204,7 @@ export default class ActionsURI extends Plugin {
 
     sendUrlCallback(
       params["x-error"],
-      failure(ErrorCode.HandlerError, msg2),
+      failure(ErrorCode.handlerError, msg2),
       params,
     );
   }

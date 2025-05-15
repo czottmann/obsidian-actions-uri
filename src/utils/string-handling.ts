@@ -24,7 +24,7 @@ export function endStringWithNewline(str: string = ""): string {
  */
 export function parseStringIntoRegex(search: string): RegexResultObject {
   if (!search.startsWith("/")) {
-    return failure(ErrorCode.InvalidInput, STRINGS.search_pattern_invalid);
+    return failure(ErrorCode.invalidInput, STRINGS.search_pattern_invalid);
   }
 
   // Starts to look like a regex, let's try to parse it.
@@ -32,7 +32,7 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   const lastSlashIdx = re.lastIndexOf("/");
 
   if (lastSlashIdx === 0) {
-    return failure(ErrorCode.InvalidInput, STRINGS.search_pattern_empty);
+    return failure(ErrorCode.invalidInput, STRINGS.search_pattern_empty);
   }
 
   let searchPattern: RegExp;
@@ -42,7 +42,7 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
   try {
     searchPattern = new RegExp(re, flags);
   } catch (e) {
-    return failure(ErrorCode.InvalidInput, STRINGS.search_pattern_unparseable);
+    return failure(ErrorCode.invalidInput, STRINGS.search_pattern_unparseable);
   }
 
   return success(searchPattern);

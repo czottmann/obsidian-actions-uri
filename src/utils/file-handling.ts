@@ -82,7 +82,7 @@ export async function createNote(
   const newFile = vault.getFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -120,7 +120,7 @@ export async function createOrOverwriteNote(
   const newFile = vault.getFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -143,7 +143,7 @@ export async function getNoteContent(
   const noteContent = await vault.read(res.result);
   return (typeof noteContent === "string")
     ? success(noteContent)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_read_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_read_note);
 }
 
 /**
@@ -440,7 +440,7 @@ export async function appendNoteBelowHeadline(
 
   return resProcess
     ? success(STRINGS.append_done)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 export async function prependNote(
@@ -516,7 +516,7 @@ export async function prependNoteBelowHeadline(
 
   return resProcess
     ? success(STRINGS.append_done)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -546,7 +546,7 @@ export async function getFile(
 
   return file instanceof TFile
     ? success(file)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    : failure(ErrorCode.notFound, STRINGS.note_not_found);
 }
 
 /**
@@ -565,7 +565,7 @@ export async function getNote(
 
   return file instanceof TFile
     ? success(file)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    : failure(ErrorCode.notFound, STRINGS.note_not_found);
 }
 
 /**
@@ -601,7 +601,7 @@ export async function applyCorePluginTemplate(
     const msg = (<Error> error).message;
     showBrandedNotice(msg);
     logErrorToConsole(msg);
-    return failure(ErrorCode.HandlerError, msg);
+    return failure(ErrorCode.handlerError, msg);
   }
 
   await pause(200);
@@ -626,7 +626,7 @@ export async function trashFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(ErrorCode.NotFound, STRINGS.not_found);
+    return failure(ErrorCode.notFound, STRINGS.not_found);
   }
 
   if (deleteImmediately) {
@@ -656,7 +656,7 @@ export async function renameFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(ErrorCode.NotFound, STRINGS.not_found);
+    return failure(ErrorCode.notFound, STRINGS.not_found);
   }
 
   try {
@@ -664,7 +664,7 @@ export async function renameFilepath(
   } catch (error) {
     const msg = (<Error> error).message;
     return failure(
-      ErrorCode.NotFound,
+      ErrorCode.notFound,
       msg.contains("no such file or directory")
         ? "No such file or folder"
         : msg,

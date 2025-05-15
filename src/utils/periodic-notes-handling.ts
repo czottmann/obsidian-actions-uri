@@ -98,7 +98,7 @@ export function getMostRecentPeriodicNotePath(
   const mostRecentKey = Object.keys(notes).sort().last();
   return mostRecentKey
     ? success(notes[mostRecentKey].path)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    : failure(ErrorCode.notFound, STRINGS.note_not_found);
 }
 
 export function getCurrentPeriodicNote(
@@ -216,7 +216,7 @@ export function getExistingPeriodicNotePathIfPluginIsAvailable(
 ): StringResultObject {
   if (!checkForEnabledPeriodicNoteFeature(periodicNoteType)) {
     return failure(
-      ErrorCode.FeatureUnavailable,
+      ErrorCode.featureUnavailable,
       STRINGS[`${periodicNoteType}_note`].feature_not_available,
     );
   }
@@ -224,5 +224,5 @@ export function getExistingPeriodicNotePathIfPluginIsAvailable(
   const pNote = getCurrentPeriodicNote(periodicNoteType);
   return pNote
     ? success(pNote.path)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    : failure(ErrorCode.notFound, STRINGS.note_not_found);
 }
