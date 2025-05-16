@@ -6,8 +6,7 @@ import { pause, sendUri } from "./helpers";
 const TEST_PORT = 3000;
 
 describe("Info Route", () => {
-  let vaultPath: string;
-  let callbackServer: CallbackServer;
+  let callbackServer = new CallbackServer();
 
   beforeAll(async () => {
     // Build the plugin first
@@ -15,16 +14,14 @@ describe("Info Route", () => {
     // You might need to adjust this based on your actual build process
     // await execCommand('npm run build'); // Need to figure out how to run this before tests
 
-    vaultPath = await setUpVault();
-    callbackServer = new CallbackServer(TEST_PORT);
+    await setUpVault();
     await callbackServer.start();
 
     // Open the vault in Obsidian
     // This is the part that requires manual intervention or a more robust solution
     // For now, we'll just send the URI and hope Obsidian opens it.
     // A real E2E test would need to ensure Obsidian is running and the vault is open.
-    const openVaultUri = `obsidian://open?vault=${TESTING_VAULT}`;
-    await sendUri(openVaultUri);
+    await sendUri(`obsidian://open?vault=${TESTING_VAULT}`);
 
     // Give Obsidian some time to open and load the plugin
     await pause(1000); // Adjust time as needed
@@ -32,7 +29,7 @@ describe("Info Route", () => {
 
   afterAll(async () => {
     await callbackServer.stop();
-    await tearDownVault(vaultPath);
+    await tearDownVault();
   });
 
   test("should return plugin info on success callback", async () => {
@@ -46,10 +43,9 @@ describe("Info Route", () => {
 
     const callbackPromise = callbackServer.waitForCallback();
     await sendUri(uri);
-    const callbackData = await callbackPromise;
+    const res = await callbackPromise;
 
-    // Basic checks for the structure of the info response
-    expect(callbackData).toHaveProperty("result-plugin-version");
-    expect(callbackData).toHaveProperty("result-api-version");
+    expect(res).toHaveProperty("result-plugin-version");
+    expect(res).toHaveProperty("result-api-version");
   }, 10000); // Increase timeout for the test
 });

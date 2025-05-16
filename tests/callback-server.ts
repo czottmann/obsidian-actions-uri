@@ -1,6 +1,8 @@
 import * as http from "http";
 import { URL } from "url";
 
+const TEST_PORT = 3000;
+
 interface CallbackData {
   success?: any;
   error?: any;
@@ -12,9 +14,9 @@ export class CallbackServer {
   private resolve: ((data: CallbackData) => void) | null = null;
   private reject: ((error: Error) => void) | null = null;
 
-  constructor(private port: number) {
+  constructor() {
     this.server = http.createServer(async (req, res) => {
-      const url = new URL(req.url || "/", `http://localhost:${this.port}`);
+      const url = new URL(req.url || "/", `http://localhost:${TEST_PORT}`);
       const params = Object.fromEntries(url.searchParams.entries());
 
       if (url.pathname === "/callback") {
@@ -34,8 +36,8 @@ export class CallbackServer {
 
   start(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.server.listen(this.port, () => {
-        console.log(`Callback server listening on port ${this.port}`);
+      this.server.listen(TEST_PORT, () => {
+        console.log(`Callback server listening on port ${TEST_PORT}`);
         resolve();
       });
       this.server.on("error", reject);
