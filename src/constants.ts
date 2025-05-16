@@ -76,3 +76,15 @@ export const STRINGS = {
 };
 
 export const XCALLBACK_RESULT_PREFIX = "result";
+
+/**
+ * The name of the vault used for testing. The value of the constant is the same
+ * as the "blueprint" test vault stored in the `__tests__/` folder, sans the
+ * extension, i.e. `plugin-test-vault` (value) instead of
+ * `plugin-test-vault.original` (the folder).
+ *
+ * This constant is used in setting up the actual test vault (see the
+ * `setup-vault.ts` script), and for deciding how XCU callbacks are made (see
+ * `src/utils/callbacks.ts`).
+ */
+export const TESTING_VAULT = "plugin-test-vault";

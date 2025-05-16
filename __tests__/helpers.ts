@@ -30,10 +30,12 @@ export function sendUri(uri: string): Promise<void> {
   });
 }
 
-// Example usage
-// if (require.main === module) {
-//   const testUri = 'obsidian://open?vault=my-vault'; // Replace with a test URI
-//   sendUri(testUri).then(() => {
-//     console.log('Test URI sent successfully');
-//   }).catch(console.error);
-// }
+/** A simple wait-for-n-ms function. */
+export async function pause(milliseconds: number): Promise<void> {
+  return new Promise<void>((resolve) => {
+    setTimeout(
+      () => resolve(),
+      milliseconds,
+    );
+  });
+}

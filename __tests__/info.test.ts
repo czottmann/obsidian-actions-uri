@@ -1,7 +1,7 @@
-import { setupVault, teardownVault } from "./setup-vault";
+import { TESTING_VAULT } from "../src/constants";
+import { setUpVault, tearDownVault } from "./setup-vault";
 import { CallbackServer } from "./callback-server";
-import { sendUri } from "./send-uri";
-import * as path from "path";
+import { pause, sendUri } from "./helpers";
 
 const TEST_PORT = 3000;
 
@@ -15,7 +15,7 @@ describe("Info Route", () => {
     // You might need to adjust this based on your actual build process
     // await execCommand('npm run build'); // Need to figure out how to run this before tests
 
-    vaultPath = await setupVault();
+    vaultPath = await setUpVault();
     callbackServer = new CallbackServer(TEST_PORT);
     await callbackServer.start();
 
@@ -23,33 +23,33 @@ describe("Info Route", () => {
     // This is the part that requires manual intervention or a more robust solution
     // For now, we'll just send the URI and hope Obsidian opens it.
     // A real E2E test would need to ensure Obsidian is running and the vault is open.
-    const openVaultUri = `obsidian://open?vault=${path.basename(vaultPath)}`;
+    const openVaultUri = `obsidian://open?vault=${TESTING_VAULT}`;
     await sendUri(openVaultUri);
 
     // Give Obsidian some time to open and load the plugin
-    await new Promise((resolve) => setTimeout(resolve, 5000)); // Adjust time as needed
+    await pause(1000); // Adjust time as needed
   }, 30000); // Increase timeout for setup
 
   afterAll(async () => {
     await callbackServer.stop();
-    await teardownVault(vaultPath);
+    await tearDownVault(vaultPath);
   });
 
   test("should return plugin info on success callback", async () => {
+    // TODO: Abstract the busy work here. Every call goes to "obsidian://actions-uri", and every call
+    // has the same x-success and x-error callback URLs. This is a lot of boilerplate code. Same goes
+    // for sending and waiting for the callback. Ideally, I'd like to have a function that accepts a
+    // route/path (e.g., "/info") and a params object, and then it would handle the rest.
+
     const uri =
-      `obsidian://actions-uri/info?vault=plugin-test-vault&x-success=http://localhost:${TEST_PORT}/callback&x-error=http://localhost:${TEST_PORT}/callback`;
+      `obsidian://actions-uri/info?vault=${TESTING_VAULT}&x-success=http://localhost:${TEST_PORT}/callback&x-error=http://localhost:${TEST_PORT}/callback`;
 
     const callbackPromise = callbackServer.waitForCallback();
     await sendUri(uri);
     const callbackData = await callbackPromise;
 
-    expect(callbackData).toHaveProperty("success");
-    const successData = JSON.parse(callbackData.success);
-
     // Basic checks for the structure of the info response
-    expect(successData).toHaveProperty("plugin_version");
-    expect(successData).toHaveProperty("obsidian_version");
-    expect(successData).toHaveProperty("api_version");
-    expect(successData).toHaveProperty("min_obsidian_version");
+    expect(callbackData).toHaveProperty("result-plugin-version");
+    expect(callbackData).toHaveProperty("result-api-version");
   }, 10000); // Increase timeout for the test
 });
