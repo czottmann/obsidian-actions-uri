@@ -1,11 +1,10 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
-
 import { asyncExec, pause } from "./helpers";
 import { id as PLUGIN_ID } from "../manifest.json";
-import { TESTING_VAULT } from "../src/constants";
-import { CallbackServer } from "./callback-server"; // Import CallbackServer
+import { TESTING_VAULT } from "#src/constants";
+import { CallbackServer } from "./callback-server";
 
 const BLUEPRINT_VAULT_PATH = path.join(__dirname, `${TESTING_VAULT}.original`);
 const TEST_VAULT_DIR = path.join(os.homedir(), "tmp");

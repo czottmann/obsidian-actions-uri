@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import { platform } from "os";
 import { promisify } from "util";
 import { Result } from "./types";
-import { TESTING_VAULT } from "../src/constants";
+import { TESTING_VAULT } from "#src/constants";
 
 export const asyncExec = promisify(exec);
 

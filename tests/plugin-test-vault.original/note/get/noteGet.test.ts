@@ -1,4 +1,4 @@
-import { callObsidian } from "../../../helpers";
+import { callObsidian } from "#tests/helpers";
 
 describe("Note Get Route", () => {
   test("should return note content on success callback", async () => {

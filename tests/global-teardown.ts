@@ -1,8 +1,6 @@
 import * as fs from "fs/promises";
-
 import { asyncExec, pause } from "./helpers";
-import { TESTING_VAULT } from "../src/constants";
-import { CallbackServer } from "./callback-server"; // Import CallbackServer
+import { TESTING_VAULT } from "#src/constants";
 
 /**
  * Tears down (removes) the specified test vault directory.
