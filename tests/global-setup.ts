@@ -2,10 +2,9 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
 
+import { asyncExec, pause } from "./helpers";
 import { id as PLUGIN_ID } from "../manifest.json";
 import { TESTING_VAULT } from "../src/constants";
-
-import { pause, sendUri } from "./helpers";
 
 const BLUEPRINT_VAULT_PATH = path.join(__dirname, `${TESTING_VAULT}.original`);
 const TEST_VAULT_DIR = path.join(os.homedir(), "tmp");
@@ -20,11 +19,11 @@ const TEST_VAULT_PATH = path.join(TEST_VAULT_DIR, TESTING_VAULT);
  * 3. Copies a blueprint vault to the test location.
  * 4. Ensures the plugin is enabled in the vault's `community-plugins.json`.
  * 5. Copies the compiled plugin files into the vault's plugin directory.
- * 6. Closes any open instance of the test vault.
- *
- * @returns {Promise<string>} The absolute path to the created test vault.
+ * 6. Opens the copied vault in Obsidian.
  */
-export async function setUpVault(): Promise<void> {
+export default async function globalSetup() {
+  console.log("\nSetting up test vault...");
+
   // Ensure the parent directory for the test vault exists
   await fs.mkdir(TEST_VAULT_DIR, { recursive: true });
 
@@ -72,42 +71,12 @@ export async function setUpVault(): Promise<void> {
     });
 
   console.log(`Created temporary vault at: ${TEST_VAULT_PATH}`);
+
+  // Open the vault in Obsidian, gives it a moment to load
+  const openVaultUri = `obsidian://open?vault=${TESTING_VAULT}`;
+  await asyncExec(`open "${openVaultUri}"`);
+  await pause(2000);
+
+  // Store the vault path globally for teardown
+  process.env.TEST_VAULT_PATH = TEST_VAULT_PATH;
 }
-
-/**
- * Tears down (removes) the specified test vault directory.
- *
- * @param vaultPath - The absolute path to the vault to remove.
- * @returns {Promise<void>}
- */
-export async function tearDownVault(): Promise<void> {
-  await attemptVaultClosing();
-
-  // We don't remove the parent directory anymore, only the vault itself
-  await fs.rm(TEST_VAULT_PATH, { recursive: true, force: true });
-  console.log(`Removed temporary vault at: ${TEST_VAULT_PATH}`);
-}
-
-/**
- * Attempts to close the test vault by sending an Obsidian URI command.
- *
- * This function is intended for internal use in test scenarios. It's using an
- * Actions URI route which isn't ideal (as Actions URI is what's to be tested)
- * but it'll have to do for now.
- */
-async function attemptVaultClosing() {
-  console.log("Attempting to close the vault...");
-  sendUri(`obsidian://actions-uri/vault/close?vault=${TESTING_VAULT}`);
-
-  // Wait for the vault to close
-  await pause(1000);
-}
-
-// Example usage (for testing the setup script itself)
-// if (require.main === module) {
-//   setupVault().then(async (vaultPath) => {
-//     // Keep the vault for inspection
-//     console.log(`Vault created at ${vaultPath}. Not tearing down.`);
-//     // await teardownVault(vaultPath);
-//   });
-// }

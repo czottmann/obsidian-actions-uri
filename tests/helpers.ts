@@ -1,5 +1,8 @@
 import { exec } from "child_process";
 import { platform } from "os";
+import { promisify } from "util";
+
+export const asyncExec = promisify(exec);
 
 export function sendUri(uri: string): Promise<void> {
   let command: string;
