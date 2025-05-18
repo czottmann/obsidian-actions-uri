@@ -18,5 +18,13 @@ describe("/note/get", () => {
       expect(res.value["result-uri-path"])
         .toContain("file=note%2Fget%2Fnote-1.md");
     }
-  }, 10000); // Increase timeout for the test
+  }, 10000);
+
+  test("should return error on failure callback", async () => {
+    const res = await callObsidian("note/get", { file: "note/get/invalid.md" });
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.error.errorCode).toBe("404");
+    }
+  }, 10000);
 });
