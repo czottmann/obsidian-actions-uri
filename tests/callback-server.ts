@@ -19,14 +19,22 @@ export class CallbackServer {
       const url = new URL(req.url || "/", `http://localhost:${TEST_PORT}`);
       const params = Object.fromEntries(url.searchParams.entries());
 
-      if (url.pathname === "/callback") {
-        this.callbackData = params;
+      if (url.pathname === "/success") {
+        this.callbackData = { success: params };
         if (this.resolve) {
           this.resolve(this.callbackData);
           this.reset();
         }
         res.writeHead(200, { "Content-Type": "text/plain" });
-        res.end("Callback received");
+        res.end("Success callback received");
+      } else if (url.pathname === "/failure") {
+        this.callbackData = { error: params };
+        if (this.resolve) {
+          this.resolve(this.callbackData);
+          this.reset();
+        }
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end("Failure callback received");
       } else {
         res.writeHead(404, { "Content-Type": "text/plain" });
         res.end("Not Found");
@@ -57,22 +65,30 @@ export class CallbackServer {
     });
   }
 
-  waitForCallback(timeout = 10000): Promise<CallbackData> {
+  waitForCallback(timeout = 5000): Promise<CallbackData> {
     return new Promise((resolve, reject) => {
       this.resolve = resolve;
-      // this.reject = reject; // We'll handle timeout separately
+      this.reject = reject;
 
       const timer = setTimeout(() => {
         this.reset();
         reject(new Error("Callback timeout"));
       }, timeout);
 
-      // Override resolve to clear the timer
+      // Override resolve and reject to clear the timer
       const originalResolve = resolve;
+      const originalReject = reject;
+
       this.resolve = (data) => {
         clearTimeout(timer);
         originalResolve(data);
         this.reset(); // Reset after resolving
+      };
+
+      this.reject = (error) => {
+        clearTimeout(timer);
+        originalReject(error);
+        this.reset(); // Reset after rejecting
       };
     });
   }
@@ -80,7 +96,7 @@ export class CallbackServer {
   private reset() {
     this.callbackData = null;
     this.resolve = null;
-    this.reject = null; // Keep reject null as timeout handles rejection
+    this.reject = null;
   }
 }
 
@@ -88,7 +104,7 @@ export class CallbackServer {
 // if (require.main === module) {
 //   const server = new CallbackServer(3000);
 //   server.start().then(() => {
-//     console.log('Server started. Send a request to http://localhost:3000/callback?success=true');
+//     console.log('Server started. Send a request to http://localhost:3000/success or http://localhost:3000/failure');
 //     // server.waitForCallback().then((data) => {
 //     //   console.log('Received callback data:', data);
 //     //   server.stop();

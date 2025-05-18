@@ -2,6 +2,7 @@ import * as fs from "fs/promises";
 
 import { asyncExec, pause } from "./helpers";
 import { TESTING_VAULT } from "../src/constants";
+import { CallbackServer } from "./callback-server"; // Import CallbackServer
 
 /**
  * Tears down (removes) the specified test vault directory.
@@ -12,14 +13,24 @@ export default async function globalTeardown() {
   // Attempt to close the vault before removing
   await attemptVaultClosing();
 
-  const vaultPath = process.env.TEST_VAULT_PATH;
-
-  if (vaultPath) {
+  if (globalThis.__TEST_VAULT_PATH__) {
     // We don't remove the parent directory anymore, only the vault itself
-    await fs.rm(vaultPath, { recursive: true, force: true });
-    console.log(`Removed temporary vault at: ${vaultPath}`);
+    await fs.rm(
+      globalThis.__TEST_VAULT_PATH__,
+      { recursive: true, force: true },
+    );
+    console.log(`Removed temp vault at: ${globalThis.__TEST_VAULT_PATH__}`);
   } else {
-    console.warn("No test vault path found in environment variables.");
+    console.warn("No vault path found in `globalThis.__TEST_VAULT_PATH__`.");
+  }
+
+  // Stop the global callback server
+  if (globalThis.__CALLBACK_SERVER__) {
+    await globalThis.__CALLBACK_SERVER__.stop();
+    // Clean up the global variable
+    delete globalThis.__CALLBACK_SERVER__;
+  } else {
+    console.warn("No global callback server instance found.");
   }
 }
 
@@ -35,7 +46,5 @@ async function attemptVaultClosing() {
   await asyncExec(
     `open "obsidian://actions-uri/vault/close?vault=${TESTING_VAULT}"`,
   );
-
-  // Wait for the vault to close
   await pause(1000);
 }
