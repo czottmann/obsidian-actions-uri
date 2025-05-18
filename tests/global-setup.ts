@@ -36,6 +36,7 @@ export default async function globalSetup() {
   // Ensure the parent directory for the test vault exists
   await fs.mkdir(TEST_VAULT_DIR, { recursive: true });
 
+  console.log("- Creating temp vault…");
   // Remove existing test vault if it exists
   try {
     await fs.rm(TEST_VAULT_PATH, { recursive: true, force: true });
@@ -75,11 +76,11 @@ export default async function globalSetup() {
       try {
         await fs.copyFile(file, path.join(pluginDir, file));
       } catch (e) {
-        console.error(`Failed to copy ${file}:`, e);
+        console.error(`- Failed to copy ${file}:`, e);
       }
     });
 
-  console.log(`Created temporary vault at: ${TEST_VAULT_PATH}`);
+  console.log(`- Created temporary vault at: ${TEST_VAULT_PATH}`);
 
   // Open the vault in Obsidian, gives it a moment to load
   const openVaultUri = `obsidian://open?vault=${TESTING_VAULT}`;
@@ -89,10 +90,11 @@ export default async function globalSetup() {
   // Store the vault path globally for teardown
   globalThis.__TEST_VAULT_PATH__ = TEST_VAULT_PATH;
 
-  // Start the global callback server
-  // Use a fixed port, e.g., 3000, as defined in callback-server.ts
+  console.log(`- Starting the global callback server…`);
   const callbackServer = new CallbackServer();
   await callbackServer.start();
   // Make the server instance globally available for tests
   globalThis.__CALLBACK_SERVER__ = callbackServer;
+
+  console.log("");
 }

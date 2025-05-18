@@ -45,7 +45,7 @@ export class CallbackServer {
   start(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.server.listen(TEST_PORT, () => {
-        console.log(`Callback server listening on port ${TEST_PORT}`);
+        console.log(`- Callback server listening on port ${TEST_PORT}`);
         resolve();
       });
       this.server.on("error", reject);
@@ -58,7 +58,7 @@ export class CallbackServer {
         if (err) {
           reject(err);
         } else {
-          console.log("Callback server stopped");
+          console.log("- Callback server stopped");
           resolve();
         }
       });
@@ -99,15 +99,3 @@ export class CallbackServer {
     this.reject = null;
   }
 }
-
-// Example usage (for testing the server itself)
-// if (require.main === module) {
-//   const server = new CallbackServer(3000);
-//   server.start().then(() => {
-//     console.log('Server started. Send a request to http://localhost:3000/success or http://localhost:3000/failure');
-//     // server.waitForCallback().then((data) => {
-//     //   console.log('Received callback data:', data);
-//     //   server.stop();
-//     // });
-//   }).catch(console.error);
-// }
