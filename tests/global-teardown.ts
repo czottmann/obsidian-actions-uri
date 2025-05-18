@@ -6,7 +6,7 @@ import { TESTING_VAULT } from "#src/constants";
  * Tears down (removes) the specified test vault directory.
  */
 export default async function globalTeardown() {
-  console.log("\nTearing down test vault...");
+  console.log("\nTearing down test vault…");
 
   // Attempt to close the vault before removing
   await attemptVaultClosing();
@@ -40,9 +40,8 @@ export default async function globalTeardown() {
  * but it'll have to do for now.
  */
 async function attemptVaultClosing() {
-  console.log("Attempting to close the vault...");
+  console.log("Attempting to close the vault…");
   await asyncExec(
     `open "obsidian://actions-uri/vault/close?vault=${TESTING_VAULT}"`,
   );
-  await pause(1000);
 }

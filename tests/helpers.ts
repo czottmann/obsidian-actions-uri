@@ -28,7 +28,7 @@ export function sendUri(uri: string): Promise<void> {
       if (error) {
         reject(error);
       } else {
-        console.log(`URI sent: ${uri}`);
+        // console.log(`URI sent: ${uri}`);
         resolve();
       }
     });

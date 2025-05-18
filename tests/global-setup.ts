@@ -6,6 +6,13 @@ import { id as PLUGIN_ID } from "../manifest.json";
 import { TESTING_VAULT } from "#src/constants";
 import { CallbackServer } from "./callback-server";
 
+// Declare global variable
+declare global {
+  var __CALLBACK_SERVER__: CallbackServer | undefined;
+  var __TEST_VAULT_PATH__: string | undefined;
+  var __TEST_VAULT_NAME__: string | undefined;
+}
+
 const BLUEPRINT_VAULT_PATH = path.join(__dirname, `${TESTING_VAULT}.original`);
 const TEST_VAULT_DIR = path.join(os.homedir(), "tmp");
 const TEST_VAULT_PATH = path.join(TEST_VAULT_DIR, TESTING_VAULT);
@@ -23,7 +30,8 @@ const TEST_VAULT_PATH = path.join(TEST_VAULT_DIR, TESTING_VAULT);
  * 7. Starts the global callback server.
  */
 export default async function globalSetup() {
-  console.log("\nSetting up test vault...");
+  console.log("\nSetting up test vault…");
+  globalThis.__TEST_VAULT_NAME__ = TESTING_VAULT;
 
   // Ensure the parent directory for the test vault exists
   await fs.mkdir(TEST_VAULT_DIR, { recursive: true });
@@ -87,10 +95,4 @@ export default async function globalSetup() {
   await callbackServer.start();
   // Make the server instance globally available for tests
   globalThis.__CALLBACK_SERVER__ = callbackServer;
-}
-
-// Declare global variable
-declare global {
-  var __CALLBACK_SERVER__: CallbackServer | undefined;
-  var __TEST_VAULT_PATH__: string | undefined;
 }
