@@ -1,7 +1,7 @@
 import { callObsidian } from "#tests/helpers";
 
 describe("/note/get", () => {
-  test("should return note content on success callback", async () => {
+  it("should return note content on success", async () => {
     // console.log(__dirname);
 
     const res = await callObsidian("note/get", { file: "note/get/note-1.md" });
@@ -20,7 +20,7 @@ describe("/note/get", () => {
     }
   }, 10000);
 
-  test("should return error on failure callback", async () => {
+  it("should return error on failure", async () => {
     const res = await callObsidian("note/get", { file: "note/get/invalid.md" });
     expect(res.ok).toBe(false);
     if (!res.ok) {
