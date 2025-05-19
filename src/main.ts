@@ -43,10 +43,6 @@ export default class ActionsURI extends Plugin {
     this.addSettingTab(new SettingsTab(this.app, this));
   }
 
-  onunload() {
-    // Just act natural.
-  }
-
   async loadSettings() {
     this.settings = { ...this.defaultSettings, ...await this.loadData() };
   }

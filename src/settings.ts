@@ -16,16 +16,14 @@ export class SettingsTab extends PluginSettingTab {
       plugin: { settings, defaultSettings },
     } = this;
     const debounceOnChange = debounce(
-      async (value: string) => {
-        settings.frontmatterKey = value.trim() ||
-          defaultSettings.frontmatterKey;
+      async (val: string) => {
+        settings.frontmatterKey = val.trim() || defaultSettings.frontmatterKey;
         await plugin.saveSettings();
       },
       400,
     );
 
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Actions URI Settings" });
 
     new Setting(containerEl)
       .setName("UID frontmatter key")
