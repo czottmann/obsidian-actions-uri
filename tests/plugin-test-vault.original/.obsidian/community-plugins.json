@@ -1,5 +1,6 @@
 [
   "actions-uri",
   "periodic-notes",
-  "templater-obsidian"
+  "templater-obsidian",
+  "auto-periodic-notes"
 ]
