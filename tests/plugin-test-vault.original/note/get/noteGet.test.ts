@@ -1,19 +1,9 @@
 import * as fs from "fs/promises";
 import * as path from "path";
-import * as moment from "moment";
 import { callObsidian, pause } from "#tests/helpers";
-import { PeriodicNoteSet, RecentPeriodicNoteSet } from "#tests/types.d";
+import { periodicNotes, recentPeriodicNotes } from "#tests/periodic-notes";
 
 describe("/note/get", () => {
-  const now = moment();
-  const periodicNoteVariants: PeriodicNoteSet[] = [
-    { key: "daily", dateFormat: "YYYY-MM-DD" },
-    { key: "weekly", dateFormat: "gggg-[W]ww" },
-    { key: "monthly", dateFormat: "YYYY-MM" },
-    { key: "quarterly", dateFormat: "YYYY-[Q]Q" },
-    { key: "yearly", dateFormat: "YYYY" },
-  ];
-
   it("should return note content on success", async () => {
     // console.log(__dirname);
 
@@ -42,36 +32,25 @@ describe("/note/get", () => {
   }, 10000);
 
   it("should return note content for periodic notes", async () => {
-    for (const p of periodicNoteVariants) {
+    for (const p of periodicNotes) {
       const res = await callObsidian("note/get", { "periodic-note": p.key });
       expect(res.ok).toBe(true);
       if (res.ok) {
-        const dateString = now.format(p.dateFormat);
-        expect(res.value["result-filepath"]).toContain(dateString);
+        expect(res.value["result-filepath"]).toContain(p.dateString);
       }
     }
   });
 
   it("should return note content for recent periodic notes", async () => {
-    const recentPeriods: RecentPeriodicNoteSet[] = [
-      { key: "recent-daily", dateString: "2025-05-18" },
-      { key: "recent-weekly", dateString: "2025-W20" },
-      { key: "recent-monthly", dateString: "2025-04" },
-      { key: "recent-quarterly", dateString: "2025-Q1" },
-      { key: "recent-yearly", dateString: "2024" },
-    ];
-
     expect(globalThis.__TEST_VAULT_PATH__).toBeDefined();
     const vaultPath = globalThis.__TEST_VAULT_PATH__!;
 
     // Gather the list of current periodic notes (these are created during vault
     // launch), so we can move them out of the way in order to test the lookup
     // of recent periodic notes.
-    const renames = periodicNoteVariants.map((p) => {
-      const dateString = now.format(p.dateFormat);
-      const oldName = path.join(vaultPath, `${dateString}.md`);
-      const newName = path.join(vaultPath, `${dateString}.md.bak`);
-      return [oldName, newName];
+    const renames = periodicNotes.map((p) => {
+      const oldName = path.join(vaultPath, `${p.dateString}.md`);
+      return [oldName, oldName + ".bak"];
     });
 
     // Rename the current periodic notes for this test.
@@ -85,7 +64,7 @@ describe("/note/get", () => {
     await pause(1000);
 
     try {
-      for (const p of recentPeriods) {
+      for (const p of recentPeriodicNotes) {
         const res = await callObsidian("note/get", { "periodic-note": p.key });
         expect(res.ok).toBe(true);
         if (res.ok) {

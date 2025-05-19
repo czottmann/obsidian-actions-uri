@@ -16,7 +16,7 @@ export type PeriodicNoteSet = {
   /**
    * The date format used in the periodic note, e.g. "YYYY-MM-DD" or "gggg-[W]ww".
    */
-  dateFormat: string;
+  dateString: string;
 };
 
 export type RecentPeriodicNoteSet = {
