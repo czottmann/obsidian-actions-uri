@@ -1,4 +1,4 @@
-import { ObsidianProtocolData, TAbstractFile } from "obsidian";
+import { ObsidianProtocolData, requestUrl, TAbstractFile } from "obsidian";
 import { excludeKeys } from "filter-obj";
 import { TESTING_VAULT, XCALLBACK_RESULT_PREFIX } from "src/constants";
 import { PLUGIN_INFO } from "src/plugin-info";
@@ -110,7 +110,7 @@ function addObjectToUrlSearchParams(
  */
 function sendCallbackResult(uri: string) {
   if (self().app.vault.getName() === TESTING_VAULT) {
-    fetch(uri, { mode: "no-cors" });
+    requestUrl(uri);
   } else {
     window.open(uri);
   }
