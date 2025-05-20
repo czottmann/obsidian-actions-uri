@@ -10,4 +10,8 @@ module.exports = {
   testMatch: ["**/tests/**/*.test.ts"],
   globalSetup: "./tests/global-setup.ts",
   globalTeardown: "./tests/global-teardown.ts",
+
+  // Disables parallelization of tests to avoid "callback server not initialized" errors
+  maxConcurrency: 1,
+  maxWorkers: 1,
 };
