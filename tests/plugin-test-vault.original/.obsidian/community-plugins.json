@@ -1,6 +1,7 @@
 [
-  "actions-uri",
+  "logstravaganza",
   "periodic-notes",
+  "auto-periodic-notes",
   "templater-obsidian",
-  "auto-periodic-notes"
+  "actions-uri"
 ]

@@ -75,6 +75,16 @@ tests/
 
 The test files are typically named after the route they are testing (e.g., `noteGet.test.ts` for the `/note/get` route).
 
+### Plugins
+
+The vault is preconfigured with the following community plugins:
+
+- Actions URI: The plugin being tested, built and copied into the test vault during setup.
+- [Dataview](https://github.com/blacksmithgu/obsidian-dataview): A data index and query language over Markdown files.
+- [Logstravaganza](https://github.com/czottmann/obsidian-logstravaganza): Captures developer tool console logs into a `.ndjson` file in the vault's root directory. This is useful for debugging and understanding the flow of the plugin during tests.
+- [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes): For managing periodic notes.
+- [Templater](https://github.com/SilentVoid13/Templater): For creating and managing templates.
+
 ## Key Components
 
 - **`tests/plugin-test-vault.original/`**: The blueprint of the Obsidian vault used for testing. Copied to a temporary location before each test run.

@@ -15,6 +15,10 @@ As announced last year (see 1.6.0, 2024-07-23), the periodic note routes are now
 
 - `x-success` results will no longer wrap undefined values as strings, so let's bid farewell to `result-some-value=undefined`.
 
+### Development
+
+Adds a E2E test suite, see `tests/README.md` for details. This is a work in progress, and will be expanded over time.
+
 
 
 
