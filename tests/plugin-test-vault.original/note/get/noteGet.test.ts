@@ -33,7 +33,10 @@ describe("/note/get", () => {
 
   it("should return note content for periodic notes", async () => {
     for (const p of periodicNotes) {
-      const res = await callObsidian("note/get", { "periodic-note": p.key });
+      const res = await callObsidian(
+        "note/get",
+        { "periodic-note": p.key, silent: true },
+      );
       expect(res.ok).toBe(true);
       if (res.ok) {
         expect(res.value["result-filepath"]).toContain(p.dateString);
@@ -65,7 +68,10 @@ describe("/note/get", () => {
 
     try {
       for (const p of recentPeriodicNotes) {
-        const res = await callObsidian("note/get", { "periodic-note": p.key });
+        const res = await callObsidian(
+          "note/get",
+          { "periodic-note": p.key, silent: true },
+        );
         expect(res.ok).toBe(true);
         if (res.ok) {
           expect(res.value["result-filepath"]).toContain(p.dateString);
