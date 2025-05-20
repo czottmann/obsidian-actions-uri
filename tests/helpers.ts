@@ -1,4 +1,5 @@
 import { exec } from "child_process";
+import { randomUUID } from "crypto";
 import { platform } from "os";
 import { promisify } from "util";
 import { Result } from "./types";
@@ -10,28 +11,31 @@ export function sendUri(uri: string): Promise<void> {
   let command: string;
   const osType = platform();
 
-  if (osType === "darwin") {
+  switch (osType) {
     // macOS
-    command = `open "${uri}"`;
-  } else if (osType === "win32") {
+    case "darwin":
+      command = `open "${uri}"`;
+      break;
+
     // Windows
-    command = `start "" "${uri}"`;
-  } else if (osType === "linux") {
+    case "win32":
+      command = `start "" "${uri}"`;
+      break;
+
     // Linux
-    command = `xdg-open "${uri}"`;
-  } else {
-    return Promise.reject(new Error(`Unsupported OS: ${osType}`));
+    case "linux":
+      command = `xdg-open "${uri}"`;
+      break;
+
+    default:
+      return Promise.reject(new Error(`Unsupported OS: ${osType}`));
   }
 
   return new Promise((resolve, reject) => {
-    exec(command, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        // console.log(`URI sent: ${uri}`);
-        resolve();
-      }
-    });
+    exec(
+      command,
+      (error) => error ? reject(error) : resolve(),
+    );
   });
 }
 
@@ -71,20 +75,55 @@ export async function callObsidian<T = any, E = any>(
   path: string,
   payload: Record<string, any> = {},
 ): Promise<Result<T, E>> {
-  const callbackServer = globalThis.__CALLBACK_SERVER__;
-  if (!callbackServer) {
-    throw new Error(
-      "Callback server not initialized. Ensure global setup ran.",
-    );
-  }
+  const cbServer = __CALLBACK_SERVER__!;
+  const uuid = randomUUID();
+  const uri = constructObsidianURI(path, payload, uuid);
+  const cbPromise = cbServer.waitForCallback();
+  await sendUri(uri);
+  const cbData = await cbPromise;
 
-  const baseUrl = `obsidian://actions-uri/${path}`;
-  const url = new URL(baseUrl);
+  if (cbData.success) {
+    try {
+      // Attempt to parse success data if it's a JSON string
+      const parsedValue = JSON.parse(cbData.success);
+      return { ok: true, value: parsedValue as T };
+    } catch (e) {
+      // If parsing fails, return the raw string
+      return { ok: true, value: cbData.success as T };
+    }
+  } else if (cbData.error) {
+    // Assuming error data is always an object with errorCode and errorMessage
+    return { ok: false, error: cbData.error as E };
+  } else {
+    // Should not happen if waitForCallback works correctly
+    return {
+      ok: false,
+      error: new Error("Unknown callback data received") as E,
+    };
+  }
+}
+
+/**
+ * Constructs an Obsidian URI with the specified route path and payload parameters.
+ * Automatically includes the required 'vault', 'x-success', and 'x-error' parameters.
+ *
+ * @param path - The route path of the Actions URI endpoint to call (e.g., "note/get", "file/create").
+ * @param payload - An object containing key-value pairs for the endpoint's URL parameters.
+ * @param uuid - A UUID string to identify the request internally.
+ * @returns A string representing the constructed Obsidian URI.
+ */
+function constructObsidianURI(
+  path: string,
+  payload: Record<string, any>,
+  uuid: string,
+): string {
+  const cbServer = __CALLBACK_SERVER__!;
+  const url = new URL(`obsidian://actions-uri/${path}`);
 
   // Set required parameters
   url.searchParams.set("vault", TESTING_VAULT);
-  url.searchParams.set("x-success", "http://localhost:3000/success");
-  url.searchParams.set("x-error", "http://localhost:3000/failure");
+  url.searchParams.set("x-success", `${cbServer.baseURL}/success/${uuid}`);
+  url.searchParams.set("x-error", `${cbServer.baseURL}/failure/${uuid}`);
 
   // Add payload parameters
   for (const key in payload) {
@@ -93,27 +132,5 @@ export async function callObsidian<T = any, E = any>(
     }
   }
 
-  const callbackPromise = callbackServer.waitForCallback();
-  await sendUri(url.toString());
-  const callbackData = await callbackPromise;
-
-  if (callbackData.success) {
-    try {
-      // Attempt to parse success data if it's a JSON string
-      const parsedValue = JSON.parse(callbackData.success);
-      return { ok: true, value: parsedValue as T };
-    } catch (e) {
-      // If parsing fails, return the raw string
-      return { ok: true, value: callbackData.success as T };
-    }
-  } else if (callbackData.error) {
-    // Assuming error data is always an object with errorCode and errorMessage
-    return { ok: false, error: callbackData.error as E };
-  } else {
-    // Should not happen if waitForCallback works correctly
-    return {
-      ok: false,
-      error: new Error("Unknown callback data received") as E,
-    };
-  }
+  return url.toString();
 }

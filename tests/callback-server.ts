@@ -1,12 +1,8 @@
 import * as http from "http";
 import { URL } from "url";
+import { CallbackData } from "./types";
 
 const TEST_PORT = 3000;
-
-interface CallbackData {
-  success?: any;
-  error?: any;
-}
 
 export class CallbackServer {
   private server: http.Server;
@@ -14,12 +10,14 @@ export class CallbackServer {
   private resolve: ((data: CallbackData) => void) | null = null;
   private reject: ((error: Error) => void) | null = null;
 
+  public baseURL: string = `http://localhost:${TEST_PORT}`;
+
   constructor() {
     this.server = http.createServer(async (req, res) => {
-      const url = new URL(req.url || "/", `http://localhost:${TEST_PORT}`);
+      const url = new URL(req.url || "/", this.baseURL);
       const params = Object.fromEntries(url.searchParams.entries());
 
-      if (url.pathname === "/success") {
+      if (url.pathname.startsWith("/success")) {
         this.callbackData = { success: params };
         if (this.resolve) {
           this.resolve(this.callbackData);
@@ -27,7 +25,7 @@ export class CallbackServer {
         }
         res.writeHead(200, { "Content-Type": "text/plain" });
         res.end("Success callback received");
-      } else if (url.pathname === "/failure") {
+      } else if (url.pathname.startsWith("/failure")) {
         this.callbackData = { error: params };
         if (this.resolve) {
           this.resolve(this.callbackData);

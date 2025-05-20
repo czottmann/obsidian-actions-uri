@@ -1,21 +1,10 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
-import { asyncExec, pause } from "./helpers";
-import { id as PLUGIN_ID } from "../manifest.json";
-import { TESTING_VAULT } from "#src/constants";
 import { CallbackServer } from "./callback-server";
-
-// Declare global variable
-declare global {
-  var __CALLBACK_SERVER__: CallbackServer | undefined;
-  var __TEST_VAULT_PATH__: string | undefined;
-  var __TEST_VAULT_NAME__: string | undefined;
-}
-
-const BLUEPRINT_VAULT_PATH = path.join(__dirname, `${TESTING_VAULT}.original`);
-const TEST_VAULT_DIR = path.join(os.homedir(), "tmp");
-const TEST_VAULT_PATH = path.join(TEST_VAULT_DIR, TESTING_VAULT);
+import { asyncExec, pause } from "./helpers";
+import { id as pluginID } from "../manifest.json";
+import { TESTING_VAULT as testVaultName } from "#src/constants";
 
 /**
  * Sets up a temporary Obsidian vault for testing purposes.
@@ -31,26 +20,30 @@ const TEST_VAULT_PATH = path.join(TEST_VAULT_DIR, TESTING_VAULT);
  */
 export default async function globalSetup() {
   console.log("\nSetting up test vault…");
-  globalThis.__TEST_VAULT_NAME__ = TESTING_VAULT;
+  global.__TEST_VAULT_NAME__ = testVaultName;
+
+  const blueprintVaultPath = path.join(__dirname, `${testVaultName}.original`);
+  const testVaultDir = path.join(os.homedir(), "tmp");
+  const testVaultPath = path.join(testVaultDir, testVaultName);
 
   // Ensure the parent directory for the test vault exists
-  await fs.mkdir(TEST_VAULT_DIR, { recursive: true });
+  await fs.mkdir(testVaultDir, { recursive: true });
 
   console.log("- Creating temp vault…");
   // Remove existing test vault if it exists
   try {
-    await fs.rm(TEST_VAULT_PATH, { recursive: true, force: true });
+    await fs.rm(testVaultPath, { recursive: true, force: true });
   } catch (e) {
     // Ignore if it doesn't exist
   }
 
   // Copy the blueprint vault
-  await fs.cp(BLUEPRINT_VAULT_PATH, TEST_VAULT_PATH, { recursive: true });
+  await fs.cp(blueprintVaultPath, testVaultPath, { recursive: true });
 
   // Ensure the plugin is in the community-plugins.json and compiled files are copied
-  const obsidianDir = path.join(TEST_VAULT_PATH, ".obsidian");
+  const obsidianDir = path.join(testVaultPath, ".obsidian");
   const pluginsDir = path.join(obsidianDir, "plugins");
-  const pluginDir = path.join(pluginsDir, PLUGIN_ID);
+  const pluginDir = path.join(pluginsDir, pluginID);
 
   await fs.mkdir(pluginDir, { recursive: true });
 
@@ -64,8 +57,8 @@ export default async function globalSetup() {
     // File might not exist, start with empty array
   }
 
-  if (!communityPlugins.includes(PLUGIN_ID)) {
-    communityPlugins.push(PLUGIN_ID);
+  if (!communityPlugins.includes(pluginID)) {
+    communityPlugins.push(pluginID);
     await fs.writeFile(communityPluginsPath, JSON.stringify(communityPlugins));
   }
 
@@ -80,21 +73,22 @@ export default async function globalSetup() {
       }
     });
 
-  console.log(`- Created temporary vault at: ${TEST_VAULT_PATH}`);
+  console.log(`- Created temporary vault at ${testVaultPath}`);
 
   // Open the vault in Obsidian, gives it a moment to load
-  const openVaultUri = `obsidian://open?vault=${TESTING_VAULT}`;
+  const openVaultUri = `obsidian://open?vault=${testVaultName}`;
   await asyncExec(`open "${openVaultUri}"`);
   await pause(2000);
 
   // Store the vault path globally for teardown
-  globalThis.__TEST_VAULT_PATH__ = TEST_VAULT_PATH;
+  global.__TEST_VAULT_PATH__ = testVaultPath;
 
   console.log(`- Starting the global callback server…`);
   const callbackServer = new CallbackServer();
   await callbackServer.start();
+
   // Make the server instance globally available for tests
-  globalThis.__CALLBACK_SERVER__ = callbackServer;
+  global.__CALLBACK_SERVER__ = callbackServer;
 
   console.log("");
 }

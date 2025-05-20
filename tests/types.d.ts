@@ -1,3 +1,17 @@
+import { CallbackServer } from "./callback-server";
+
+// Declare global variable
+declare global {
+  var __CALLBACK_SERVER__: CallbackServer | undefined;
+  var __TEST_VAULT_PATH__: string | undefined;
+  var __TEST_VAULT_NAME__: string | undefined;
+}
+
+export type CallbackData = {
+  success?: any;
+  error?: any;
+};
+
 export type Result<T, E> =
   | { ok: true; value: T }
   | { ok: false; error: E };
