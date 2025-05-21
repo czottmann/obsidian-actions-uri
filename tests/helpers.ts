@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import { randomUUID } from "crypto";
 import { platform } from "os";
 import { promisify } from "util";
-import { Result } from "./types";
+import { LogEntry, Result } from "./types";
 import { TESTING_VAULT } from "#src/constants";
 
 export const asyncExec = promisify(exec);
@@ -75,30 +75,37 @@ export async function callObsidian<T = any, E = any>(
   path: string,
   payload: Record<string, any> = {},
 ): Promise<Result<T, E>> {
-  const cbServer = __CALLBACK_SERVER__!;
+  const cbServer = global.callbackServer!;
   const uuid = randomUUID();
   const uri = constructObsidianURI(path, payload, uuid);
   const cbPromise = cbServer.waitForCallback();
   await sendUri(uri);
   const cbData = await cbPromise;
+  await pause(100);
+
+  // Get and remove new vault console output from the global array
+  const logEntries: LogEntry[] = global.testVaultLogRows
+    .map((l) => JSON.parse(l));
+  global.testVaultLogRows = [];
 
   if (cbData.success) {
     try {
       // Attempt to parse success data if it's a JSON string
       const parsedValue = JSON.parse(cbData.success);
-      return { ok: true, value: parsedValue as T };
+      return { ok: true, value: parsedValue as T, log: logEntries };
     } catch (e) {
       // If parsing fails, return the raw string
-      return { ok: true, value: cbData.success as T };
+      return { ok: true, value: cbData.success as T, log: logEntries };
     }
   } else if (cbData.error) {
     // Assuming error data is always an object with errorCode and errorMessage
-    return { ok: false, error: cbData.error as E };
+    return { ok: false, error: cbData.error as E, log: logEntries };
   } else {
     // Should not happen if waitForCallback works correctly
     return {
       ok: false,
       error: new Error("Unknown callback data received") as E,
+      log: logEntries,
     };
   }
 }
@@ -117,7 +124,7 @@ function constructObsidianURI(
   payload: Record<string, any>,
   uuid: string,
 ): string {
-  const cbServer = __CALLBACK_SERVER__!;
+  const cbServer = global.callbackServer!;
   const url = new URL(`obsidian://actions-uri/${path}`);
 
   // Set required parameters

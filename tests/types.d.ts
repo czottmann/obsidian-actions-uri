@@ -1,10 +1,14 @@
 import { CallbackServer } from "./callback-server";
+import { FSWatcher } from "chokidar";
 
 // Declare global variable
 declare global {
-  var __CALLBACK_SERVER__: CallbackServer | undefined;
-  var __TEST_VAULT_PATH__: string | undefined;
-  var __TEST_VAULT_NAME__: string | undefined;
+  var callbackServer: CallbackServer;
+  var testVaultLogPath: string;
+  var testVaultLogRows: string[];
+  var testVaultLogWatcher: FSWatcher;
+  var testVaultName: string;
+  var testVaultPath: string;
 }
 
 export type CallbackData = {
@@ -12,9 +16,11 @@ export type CallbackData = {
   error?: any;
 };
 
+export type LogEntry = Record<string, any>;
+
 export type Result<T, E> =
-  | { ok: true; value: T }
-  | { ok: false; error: E };
+  | { ok: true; value: T; log?: LogEntry[] }
+  | { ok: false; error: E; log?: LogEntry[] };
 
 export type PeriodicNoteSet = {
   /**

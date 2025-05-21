@@ -1,6 +1,7 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
+import chokidar from "chokidar";
 import { CallbackServer } from "./callback-server";
 import { asyncExec, pause } from "./helpers";
 import { id as pluginID } from "../manifest.json";
@@ -20,11 +21,14 @@ import { TESTING_VAULT as testVaultName } from "#src/constants";
  */
 export default async function globalSetup() {
   console.log("\nSetting up test vault…");
-  global.__TEST_VAULT_NAME__ = testVaultName;
+  global.testVaultName = testVaultName;
 
   const blueprintVaultPath = path.join(__dirname, `${testVaultName}.original`);
   const testVaultDir = path.join(os.homedir(), "tmp");
   const testVaultPath = path.join(testVaultDir, testVaultName);
+
+  // Store the vault path globally for teardown
+  global.testVaultPath = testVaultPath;
 
   // Ensure the parent directory for the test vault exists
   await fs.mkdir(testVaultDir, { recursive: true });
@@ -75,20 +79,61 @@ export default async function globalSetup() {
 
   console.log(`- Created temporary vault at ${testVaultPath}`);
 
-  // Open the vault in Obsidian, gives it a moment to load
+  // Open the vault in Obsidian and give it a moment to load
   const openVaultUri = `obsidian://open?vault=${testVaultName}`;
   await asyncExec(`open "${openVaultUri}"`);
   await pause(2000);
-
-  // Store the vault path globally for teardown
-  global.__TEST_VAULT_PATH__ = testVaultPath;
 
   console.log(`- Starting the global callback server…`);
   const callbackServer = new CallbackServer();
   await callbackServer.start();
 
+  console.log("- Finding NDJSON console log file and setting up watcher…");
+  const vaultFiles = await fs.readdir(testVaultPath);
+  const consoleLogFile = vaultFiles.find((file) => file.endsWith(".ndjson"));
+
+  if (consoleLogFile) {
+    const consoleLogFilePath = path.join(testVaultPath, consoleLogFile);
+    global.testVaultLogPath = consoleLogFilePath;
+    console.log(`- Found ${consoleLogFile}`);
+
+    global.testVaultLogRows = [];
+    global.testVaultLogWatcher = chokidar.watch(consoleLogFilePath, {
+      persistent: true,
+      usePolling: true, // Use polling as the file might be written to by another process
+      interval: 50,
+    });
+
+    // To keep track of the last read position
+    let lastSize = (await fs.stat(consoleLogFilePath)).size;
+
+    global.testVaultLogWatcher.on("change", async () => {
+      try {
+        const stats = await fs.stat(consoleLogFilePath);
+        const currentSize = stats.size;
+
+        if (currentSize > lastSize) {
+          const fileHandle = await fs.open(consoleLogFilePath, "r");
+          const buffer = Buffer.alloc(currentSize - lastSize);
+          await fileHandle.read(buffer, 0, currentSize - lastSize, lastSize);
+          await fileHandle.close();
+
+          const newContent = buffer.toString();
+          const lines = newContent.split("\n").filter((line) => line.length);
+          global.testVaultLogRows.push(...lines);
+          lastSize = currentSize;
+        }
+      } catch (e) {
+        console.error("Error reading new lines from console log file:", e);
+      }
+    });
+  } else {
+    console.warn("- No console log file found in the test vault.");
+  }
+  global.testVaultLogRows = []; // Clear the log lines array
+
   // Make the server instance globally available for tests
-  global.__CALLBACK_SERVER__ = callbackServer;
+  global.callbackServer = callbackServer;
 
   console.log("");
 }

@@ -45,8 +45,8 @@ describe("/note/get", () => {
   });
 
   it("should return note content for recent periodic notes", async () => {
-    expect(__TEST_VAULT_PATH__).toBeDefined();
-    const vaultPath = __TEST_VAULT_PATH__!;
+    expect(global.testVaultPath).toBeDefined();
+    const vaultPath = global.testVaultPath!;
 
     // Gather the list of current periodic notes (these are created during vault
     // launch), so we can move them out of the way in order to test the lookup
