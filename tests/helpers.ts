@@ -65,26 +65,36 @@ export async function pause(milliseconds: number): Promise<void> {
  *
  * @param path - The route path of the Actions URI endpoint to call (e.g., "note/get", "file/create").
  * @param payload - An optional object containing key-value pairs for the endpoint's URL parameters.
+ * @param timeout - The maximum time to wait for a callback from the server (default: 3000 ms).
  * @returns A Promise that resolves with a `Result` object.
  *          - If the '/success' callback is received, `result.ok` is true and `result.value` contains the received data.
  *          - If the '/failure' callback is received, `result.ok` is false and `result.error` contains the received error data.
- *          - The function throws an error if the callback server is not initialized or a timeout occurs.
+ *          - If a timeout or unknown error occurs, `result.ok` is false and `result.error` contains the error.
  */
 export async function callObsidian<T = any, E = any>(
   path: string,
   payload: Record<string, any> = {},
+  timeout: number = 3000,
 ): Promise<Result<T, E>> {
   const cbServer = global.httpServer!;
-  const uuid = randomUUID();
-  const uri = constructObsidianURI(path, payload, uuid);
-  const cbPromise = cbServer.waitForCallback();
-  await sendUri(uri);
-  const callbackRes = await cbPromise;
-  await pause(100);
 
-  // Get and remove new vault console output from the global array
-  const logEntries = global.testVault.logRows.map((l) => JSON.parse(l));
-  global.testVault.logRows = [];
+  const uri = constructObsidianURI(path, payload);
+  const cbPromise = cbServer.waitForCallback(timeout);
+  await sendUri(uri);
+  let callbackRes;
+
+  try {
+    callbackRes = await cbPromise;
+  } catch (error) {
+    // Handle timeout or other errors from `waitForCallback()`
+    return {
+      ok: false,
+      error: error as E,
+      log: await collectRecentLogEntries(),
+    };
+  }
+
+  const logEntries = await collectRecentLogEntries();
 
   if (callbackRes.success) {
     try {
@@ -98,14 +108,27 @@ export async function callObsidian<T = any, E = any>(
   } else if (callbackRes.error) {
     // Assuming error data is always an object with errorCode and errorMessage
     return { ok: false, error: callbackRes.error as E, log: logEntries };
-  } else {
-    // Should not happen if waitForCallback works correctly
-    return {
-      ok: false,
-      error: new Error("Unknown callback data received") as E,
-      log: logEntries,
-    };
   }
+
+  // Should not happen if `waitForCallback()` works correctly
+  return {
+    ok: false,
+    error: new Error("Unknown callback data received") as E,
+    log: logEntries,
+  };
+}
+
+/**
+ * Collects recent log entries from the test vault and clears the log rows.
+ * This function is used to gather log entries after a callback is received.
+ *
+ * @returns A Promise that resolves with an array of log entries.
+ */
+async function collectRecentLogEntries(): Promise<LogEntry[]> {
+  await pause(100);
+  const logEntries = global.testVault.logRows.map((l) => JSON.parse(l));
+  global.testVault.logRows = [];
+  return logEntries;
 }
 
 /**
@@ -114,14 +137,14 @@ export async function callObsidian<T = any, E = any>(
  *
  * @param path - The route path of the Actions URI endpoint to call (e.g., "note/get", "file/create").
  * @param payload - An object containing key-value pairs for the endpoint's URL parameters.
- * @param uuid - A UUID string to identify the request internally.
  * @returns A string representing the constructed Obsidian URI.
  */
 function constructObsidianURI(
   path: string,
   payload: Record<string, any>,
-  uuid: string,
 ): string {
+  // Generate a unique identifier for the callback so it's easier to track
+  const uuid = randomUUID();
   const cbServer = global.httpServer;
   const url = new URL(`obsidian://actions-uri/${path}`);
 
