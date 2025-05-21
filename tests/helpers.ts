@@ -3,7 +3,6 @@ import { randomUUID } from "crypto";
 import { platform } from "os";
 import { promisify } from "util";
 import { LogEntry, Result } from "./types";
-import { TESTING_VAULT } from "#src/constants";
 
 export const asyncExec = promisify(exec);
 
@@ -75,7 +74,7 @@ export async function callObsidian<T = any, E = any>(
   path: string,
   payload: Record<string, any> = {},
 ): Promise<Result<T, E>> {
-  const cbServer = global.callbackServer!;
+  const cbServer = global.httpServer!;
   const uuid = randomUUID();
   const uri = constructObsidianURI(path, payload, uuid);
   const cbPromise = cbServer.waitForCallback();
@@ -84,9 +83,9 @@ export async function callObsidian<T = any, E = any>(
   await pause(100);
 
   // Get and remove new vault console output from the global array
-  const logEntries: LogEntry[] = global.testVaultLogRows
+  const logEntries: LogEntry[] = global.testVault.logRows
     .map((l) => JSON.parse(l));
-  global.testVaultLogRows = [];
+  global.testVault.logRows = [];
 
   if (cbData.success) {
     try {
@@ -124,11 +123,11 @@ function constructObsidianURI(
   payload: Record<string, any>,
   uuid: string,
 ): string {
-  const cbServer = global.callbackServer!;
+  const cbServer = global.httpServer;
   const url = new URL(`obsidian://actions-uri/${path}`);
 
   // Set required parameters
-  url.searchParams.set("vault", TESTING_VAULT);
+  url.searchParams.set("vault", global.testVault.name);
   url.searchParams.set("x-success", `${cbServer.baseURL}/success/${uuid}`);
   url.searchParams.set("x-error", `${cbServer.baseURL}/failure/${uuid}`);
 

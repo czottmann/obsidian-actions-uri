@@ -7,33 +7,31 @@ import { asyncExec, pause } from "./helpers";
 export default async function globalTeardown() {
   console.log("\nTearing down test vault…");
 
-  console.log("- Signalling Obsidian to close the vault…");
   await asyncExec(
-    `open "obsidian://actions-uri/vault/close?vault=${global.testVaultName}"`,
+    `open "obsidian://actions-uri/vault/close?vault=${global.testVault.name}"`,
   );
+  console.log("- Signalled Obsidian to close the vault…");
   // Wait for a moment to ensure the vault is closed, including all open files
   await pause(500);
 
   // Close the console log watcher
-  if (global.testVaultLogWatcher) {
-    await global.testVaultLogWatcher.close();
-    console.log("- Closed the console log watcher.");
+  if (global.testVault.logWatcher) {
+    await global.testVault.logWatcher.close();
+    console.log("- Quit the console log watcher");
   }
 
-  console.log(`- Removing temp vault at ${global.testVaultPath}…`);
-  if (global.testVaultPath) {
+  if (global.testVault.path) {
     // We don't remove the parent directory anymore, only the vault itself
-    await fs.rm(global.testVaultPath, { recursive: true, force: true });
-    console.log("- Removed temp vault");
+    await fs.rm(global.testVault.path, { recursive: true, force: true });
+    console.log(`- Removed temp vault at ${global.testVault.path}`);
   } else {
-    console.warn("- No vault path found in `global.testVaultPath`!");
+    console.warn("- No vault path found in `global.testVault.path`!");
   }
 
-  console.log("- Stopping HTTP callback server…");
-  if (global.callbackServer) {
-    await global.callbackServer.stop();
-    console.log("- Stopped server");
+  if (global.httpServer) {
+    await global.httpServer.stop();
+    console.log("- Stopped HTTP callback server");
   } else {
-    console.warn("- No global callback server instance found!");
+    console.warn("- No HTTP server instance found!");
   }
 }

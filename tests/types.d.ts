@@ -1,14 +1,18 @@
 import { CallbackServer } from "./callback-server";
 import { FSWatcher } from "chokidar";
 
+type TestVaultConfig = {
+  logPath: string;
+  logRows: string[];
+  logWatcher: FSWatcher;
+  name: string;
+  path: string;
+};
+
 // Declare global variable
 declare global {
-  var callbackServer: CallbackServer;
-  var testVaultLogPath: string;
-  var testVaultLogRows: string[];
-  var testVaultLogWatcher: FSWatcher;
-  var testVaultName: string;
-  var testVaultPath: string;
+  var httpServer: CallbackServer;
+  var testVault: TestVaultConfig;
 }
 
 export type CallbackData = {

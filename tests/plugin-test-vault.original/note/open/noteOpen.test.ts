@@ -28,8 +28,8 @@ describe("note/open", () => {
   });
 
   it("should open recent periodic notes", async () => {
-    expect(global.testVaultPath).toBeDefined();
-    const vaultPath = global.testVaultPath!;
+    expect(global.testVault.path).toBeDefined();
+    const vaultPath = global.testVault.path!;
 
     // Gather the list of current periodic notes (these are created during vault
     // launch), so we can move them out of the way in order to test the lookup
