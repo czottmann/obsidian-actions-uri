@@ -79,26 +79,25 @@ export async function callObsidian<T = any, E = any>(
   const uri = constructObsidianURI(path, payload, uuid);
   const cbPromise = cbServer.waitForCallback();
   await sendUri(uri);
-  const cbData = await cbPromise;
+  const callbackRes = await cbPromise;
   await pause(100);
 
   // Get and remove new vault console output from the global array
-  const logEntries: LogEntry[] = global.testVault.logRows
-    .map((l) => JSON.parse(l));
+  const logEntries = global.testVault.logRows.map((l) => JSON.parse(l));
   global.testVault.logRows = [];
 
-  if (cbData.success) {
+  if (callbackRes.success) {
     try {
       // Attempt to parse success data if it's a JSON string
-      const parsedValue = JSON.parse(cbData.success);
+      const parsedValue = JSON.parse(callbackRes.success);
       return { ok: true, value: parsedValue as T, log: logEntries };
     } catch (e) {
       // If parsing fails, return the raw string
-      return { ok: true, value: cbData.success as T, log: logEntries };
+      return { ok: true, value: callbackRes.success as T, log: logEntries };
     }
-  } else if (cbData.error) {
+  } else if (callbackRes.error) {
     // Assuming error data is always an object with errorCode and errorMessage
-    return { ok: false, error: cbData.error as E, log: logEntries };
+    return { ok: false, error: callbackRes.error as E, log: logEntries };
   } else {
     // Should not happen if waitForCallback works correctly
     return {
@@ -128,8 +127,26 @@ function constructObsidianURI(
 
   // Set required parameters
   url.searchParams.set("vault", global.testVault.name);
-  url.searchParams.set("x-success", `${cbServer.baseURL}/success/${uuid}`);
-  url.searchParams.set("x-error", `${cbServer.baseURL}/failure/${uuid}`);
+
+  // Allow for custom x-success parameter, even if rarely used
+  if (
+    Object.hasOwn(payload, "x-success") &&
+    typeof payload["x-success"] !== "undefined"
+  ) {
+    url.searchParams.set("x-success", payload["x-success"]);
+  } else {
+    url.searchParams.set("x-success", `${cbServer.baseURL}/success/${uuid}`);
+  }
+
+  // Allow for custom x-error parameter, even if rarely used
+  if (
+    Object.hasOwn(payload, "x-error") &&
+    typeof payload["x-error"] !== "undefined"
+  ) {
+    url.searchParams.set("x-error", payload["x-error"]);
+  } else {
+    url.searchParams.set("x-error", `${cbServer.baseURL}/failure/${uuid}`);
+  }
 
   // Add payload parameters
   for (const key in payload) {
