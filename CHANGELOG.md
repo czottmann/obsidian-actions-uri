@@ -1,6 +1,6 @@
 # Release history
 
-## 1.8.0, 2️⃣0️⃣2️⃣5️⃣
+## 1.8.0, 2025-05-22
 
 ### New stuff
 
@@ -14,6 +14,10 @@ As announced last year (see 1.6.0, 2024-07-23), the periodic note routes are now
 ### No longer broken
 
 - `x-success` results will no longer wrap undefined values as strings, so let's bid farewell to `result-some-value=undefined`.
+
+### Changes
+
+- Minor cleanups of the settings tab.
 
 ### Development
 
