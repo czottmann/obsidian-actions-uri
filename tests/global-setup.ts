@@ -5,7 +5,18 @@ import chokidar from "chokidar";
 import { CallbackServer } from "./callback-server";
 import { asyncExec, pause } from "./helpers";
 import { id as pluginID } from "../manifest.json";
-import { TESTING_VAULT as testVaultName } from "#src/constants";
+
+/**
+ * The name of the vault used for testing. The value of the constant is the same
+ * as the "blueprint" test vault stored in the `__tests__/` folder, sans the
+ * extension, i.e. `plugin-test-vault` (value) instead of
+ * `plugin-test-vault.original` (the folder).
+ *
+ * This constant is used in setting up the actual test vault (see the
+ * `setup-vault.ts` script), and for deciding how XCU callbacks are made (see
+ * `src/utils/callbacks.ts`).
+ */
+const testVaultName = "plugin-test-vault";
 
 /**
  * Sets up a temporary Obsidian vault for testing purposes.
