@@ -1,6 +1,6 @@
 import { ObsidianProtocolData, requestUrl, TAbstractFile } from "obsidian";
 import { excludeKeys } from "filter-obj";
-import { TESTING_VAULT, XCALLBACK_RESULT_PREFIX } from "src/constants";
+import { XCALLBACK_RESULT_PREFIX } from "src/constants";
 import { PLUGIN_INFO } from "src/plugin-info";
 import { AnyParams } from "src/routes";
 import {
@@ -10,7 +10,6 @@ import {
   StringResultObject,
 } from "src/types";
 import { success } from "src/utils/results-handling";
-import { self } from "src/utils/self";
 import { toKebabCase } from "src/utils/string-handling";
 
 /**
@@ -96,10 +95,8 @@ function addObjectToUrlSearchParams(
 /**
  * Sends a XCU callback, i.e. makes a request to the given URI.
  *
- * If the receiving vault is named like the value of the constant
- * `VAULT_NAME_USED_FOR_TESTING`, it is assumed the callback is slated for the
- * HTTP server of the testing setup, and a `fetch()` request with `no-cors` mode
- * is made.
+ * If the URL is a HTTP/HTTPS one, it is assumed the callback is slated for the
+ * HTTP server of the testing setup, and Obsidian's own `requestUrl()` is used.
  *
  * In production mode (outside testing) the URI is passed to the OS using
  * `window.open()`, which passes them to the registered apps. (In testing, we
@@ -109,7 +106,7 @@ function addObjectToUrlSearchParams(
  * @param uri - The URI to call
  */
 function sendCallbackResult(uri: string) {
-  if (self().app.vault.getName() === TESTING_VAULT) {
+  if (/^https?:\/\//.test(uri)) {
     requestUrl(uri);
   } else {
     window.open(uri);
