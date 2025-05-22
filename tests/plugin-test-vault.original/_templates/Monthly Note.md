@@ -1,0 +1,1 @@
+## Monthly Note: {{title}}

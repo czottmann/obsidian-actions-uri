@@ -94,14 +94,16 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter             | Description                                                                                                                    
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                         
-| `result-content`      | The entire content of the note file.                                                                                           
-| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                       
-| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).
-| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                                        
+| Parameter             | Description                                                                                                                                            
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                                                 
+| `result-content`      | The entire content of the note file.                                                                                                                   
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                                        
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                                               
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).                        
+| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                                                                
+| `result-uri-path`     | <span class="tag tag-version">v1.8+</span> The note's URI, by path. Can be used to link to the note from other places on the same device.              
+| `result-uri-uid`      | <span class="tag tag-version">v1.8+</span> The note's URI, by UID (if available). Can be used to link to the note from other places on the same device.
 
 On failure:
 
@@ -135,14 +137,16 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter             | Description                                                                                                                    
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                         
-| `result-content`      | The entire content of the note file.                                                                                           
-| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                       
-| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).
-| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                                        
+| Parameter             | Description                                                                                                                                            
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                                                 
+| `result-content`      | The entire content of the note file.                                                                                                                   
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                                        
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                                               
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).                        
+| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                                                                
+| `result-uri-path`     | <span class="tag tag-version">v1.8+</span> The note's URI, by path. Can be used to link to the note from other places on the same device.              
+| `result-uri-uid`      | <span class="tag tag-version">v1.8+</span> The note's URI, by UID (if available). Can be used to link to the note from other places on the same device.
 
 On failure:
 
@@ -172,15 +176,17 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter             | Description                                                                                                      
-| --------------------- | -----------------------------------------------------------------------------------------------------------------
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                           
-| `result-content`      | The entire content of the note file.                                                                             
-| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                  
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                         
-| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).                             
-| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                          
-| `result-selection`    | <span class="tag tag-version">v1.6+</span> The current text selection, if available. (Plain text, no formatting.)
+| Parameter             | Description                                                                                                                                            
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                                                 
+| `result-content`      | The entire content of the note file.                                                                                                                   
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                                        
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                                               
+| `result-properties`   | The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).                                                                   
+| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                                                                
+| `result-selection`    | <span class="tag tag-version">v1.6+</span> The current text selection, if available. (Plain text, no formatting.)                                      
+| `result-uri-path`     | <span class="tag tag-version">v1.8+</span> The note's URI, by path. Can be used to link to the note from other places on the same device.              
+| `result-uri-uid`      | <span class="tag tag-version">v1.8+</span> The note's URI, by UID (if available). Can be used to link to the note from other places on the same device.
 
 On failure:
 
@@ -282,14 +288,16 @@ These parameters will be added to the callbacks used for [getting data back from
 
 On success:
 
-| Parameter             | Description                                                                                                                    
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------
-| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                         
-| `result-content`      | The entire content of the note file.                                                                                           
-| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                
-| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                       
-| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).
-| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                                        
+| Parameter             | Description                                                                                                                                            
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------
+| `result-body`         | The note body, i.e. the note file content minus possible front matter.                                                                                 
+| `result-content`      | The entire content of the note file.                                                                                                                   
+| `result-filepath`     | The file path of the note, relative from the vault root folder.                                                                                        
+| `result-front-matter` | The note's front matter, i.e. the note file content minus the note body.                                                                               
+| `result-properties`   | <span class="tag tag-version">v1.4+</span> The note's [properties](https://help.obsidian.md/Editing+and+formatting/Properties).                        
+| `result-uid`          | <span class="tag tag-version">v1.6+</span> The note's UID, if available                                                                                
+| `result-uri-path`     | <span class="tag tag-version">v1.8+</span> The note's URI, by path. Can be used to link to the note from other places on the same device.              
+| `result-uri-uid`      | <span class="tag tag-version">v1.8+</span> The note's URI, by UID (if available). Can be used to link to the note from other places on the same device.
 
 On failure:
 

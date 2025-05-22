@@ -4,12 +4,13 @@ nav_order: 3
 
 # Parameters required & accepted by all endpoints
 
-| Parameter    | Value type | Optional? | Description                                                                                                                                     |
-| ------------ | ---------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `vault`      | string     |           | The name of the target vault.                                                                                                                   |
-| `x-success`  | string     |  mostly   | Base URL for on-success callbacks, see [Getting data back from Actions URI](callbacks.md).                                                      |
-| `x-error`    | string     |  mostly   | Base URL for on-error callbacks, see [Getting data back from Actions URI](callbacks.md).                                                        |
-| `debug-mode` | boolean    | optional  | When enabled, Actions URI will include all parameters of the original request in the return calls, prefixed with `input-`. Defaults to `false`. |
+| Parameter                 | Value type | Optional? | Description                                                                                                                                    
+| ------------------------- | ---------- | :-------: | -----------------------------------------------------------------------------------------------------------------------------------------------
+| `vault`                   | string     |           | The name of the target vault.                                                                                                                  
+| `x-success`               | string     |  mostly   | Base URL for on-success callbacks, see [Getting data back from Actions URI](callbacks.md).                                                     
+| `x-error`                 | string     |  mostly   | Base URL for on-error callbacks, see [Getting data back from Actions URI](callbacks.md).                                                       
+| `debug-mode`              | boolean    |    yes    | When enabled, Actions URI will include all parameters of the original request in the return calls, prefixed with `input-`. Defaults to `false`.
+| `hide-ui-notice-on-error` | boolean    |    yes    | <span class="tag tag-version">v1.8+</span> When enabled, the UI notice will not be shown on "note not found" errors etc. Defaults to `false`.  
 
 ## Notes about parameters
 

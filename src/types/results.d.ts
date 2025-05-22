@@ -37,6 +37,8 @@ export type NoteDetailsResultObject =
     body: string;
     frontMatter: string;
     properties: NoteProperties;
+    uriPath: string;
+    uriUID?: string;
     uid?: string | string[];
   }>
   | ErrorObject;

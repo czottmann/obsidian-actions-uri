@@ -1,0 +1,34 @@
+{
+  "alwaysOpen": false,
+  "daily": {
+    "available": true,
+    "enabled": true,
+    "closeExisting": false,
+    "openAndPin": false,
+    "excludeWeekends": false
+  },
+  "weekly": {
+    "available": true,
+    "enabled": true,
+    "closeExisting": false,
+    "openAndPin": false
+  },
+  "monthly": {
+    "available": true,
+    "enabled": true,
+    "closeExisting": false,
+    "openAndPin": false
+  },
+  "quarterly": {
+    "available": true,
+    "enabled": true,
+    "closeExisting": false,
+    "openAndPin": false
+  },
+  "yearly": {
+    "available": true,
+    "enabled": true,
+    "closeExisting": false,
+    "openAndPin": false
+  }
+}

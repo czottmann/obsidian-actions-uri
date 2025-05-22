@@ -1,0 +1,1 @@
+## Weekly Note: {{title}}

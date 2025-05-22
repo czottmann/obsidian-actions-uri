@@ -1,0 +1,77 @@
+{
+  "main": {
+    "id": "90ac7104a2c14afa",
+    "type": "split",
+    "children": [
+      {
+        "id": "26e8f8e844ba644b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a9a8380bedb17107",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Welcome.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Welcome"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "916340f1f9ab9dc8",
+    "type": "split",
+    "children": [
+      {
+        "id": "925ec3c27c6026ca",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "657f9126fd67266c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "File explorer"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "8278f287aacfb41b",
+    "type": "split",
+    "children": [],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "templater-obsidian:Templater": false,
+      "daily-notes:Open today's note": false,
+      "templates:Insert template": false,
+      "periodic-notes:Open today": false
+    }
+  },
+  "active": "a9a8380bedb17107",
+  "lastOpenFiles": [
+    "Welcome.md"
+  ]
+}

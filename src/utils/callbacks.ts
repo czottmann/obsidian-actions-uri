@@ -1,16 +1,17 @@
+import { ObsidianProtocolData, requestUrl, TAbstractFile } from "obsidian";
 import { excludeKeys } from "filter-obj";
-import { ObsidianProtocolData, TAbstractFile } from "obsidian";
-import { XCALLBACK_RESULT_PREFIX } from "src/constants";
+import { TESTING_VAULT, XCALLBACK_RESULT_PREFIX } from "src/constants";
 import { PLUGIN_INFO } from "src/plugin-info";
-import { success } from "src/utils/results-handling";
 import { AnyParams } from "src/routes";
-import { toKebabCase } from "src/utils/string-handling";
 import {
   AnyHandlerResult,
   AnyHandlerSuccess,
   HandlerFailure,
   StringResultObject,
 } from "src/types";
+import { success } from "src/utils/results-handling";
+import { self } from "src/utils/self";
+import { toKebabCase } from "src/utils/string-handling";
 
 /**
  * @param baseURL - The base `x-callback-url` of the receiver, e.g.
@@ -38,7 +39,7 @@ export function sendUrlCallback(
     url.searchParams.set("errorMessage", errorMessage);
   }
 
-  if (params["x-source"]?.toLowerCase() === "actions for obsidian") {
+  if (params["x-source"] && /actions for obsidian/i.test(params["x-source"])) {
     url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
   }
 
@@ -53,7 +54,8 @@ export function sendUrlCallback(
   addObjectToUrlSearchParams(returnParams, url, "input");
 
   const callbackURL = url.toString().replace(/\+/g, "%20");
-  window.open(callbackURL);
+  sendCallbackResult(callbackURL);
+
   return success(callbackURL);
 }
 
@@ -76,18 +78,40 @@ function addObjectToUrlSearchParams(
   for (const key of sortedKeys) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
 
-    let val: string;
+    let val: string | undefined;
     if (typeof obj[key] === "string") {
       val = <string> obj[key];
     } else if (obj[key] instanceof TAbstractFile) {
       val = (<TAbstractFile> obj[key]).path;
-    } else {
+    } else if (typeof obj[key] !== "undefined") {
       val = JSON.stringify(obj[key]);
     }
 
-    url.searchParams.set(
-      toKebabCase(`${prefix}-${key}`),
-      val,
-    );
+    if (val === undefined) continue;
+
+    url.searchParams.set(toKebabCase(`${prefix}-${key}`), val);
+  }
+}
+
+/**
+ * Sends a XCU callback, i.e. makes a request to the given URI.
+ *
+ * If the receiving vault is named like the value of the constant
+ * `VAULT_NAME_USED_FOR_TESTING`, it is assumed the callback is slated for the
+ * HTTP server of the testing setup, and a `fetch()` request with `no-cors` mode
+ * is made.
+ *
+ * In production mode (outside testing) the URI is passed to the OS using
+ * `window.open()`, which passes them to the registered apps. (In testing, we
+ * use a HTTP server, and `window.open()` would have the OS pass the URI to the
+ * default browser, which is not what we want.)
+ *
+ * @param uri - The URI to call
+ */
+function sendCallbackResult(uri: string) {
+  if (self().app.vault.getName() === TESTING_VAULT) {
+    requestUrl(uri);
+  } else {
+    window.open(uri);
   }
 }

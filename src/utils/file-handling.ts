@@ -62,7 +62,7 @@ export async function createNote(
     // starting to increment from there, eg. `test.md` → `test 1.md`,
     // `test 17.md` → `test 18.md`, etc.
     const currentNumSuffix: string | undefined =
-      (<RegExpMatchArray>filepath.match(/( (\d+))?\.md$/))[2];
+      (<RegExpMatchArray> filepath.match(/( (\d+))?\.md$/))[2];
     let numSuffix = currentNumSuffix ? +currentNumSuffix : 0;
 
     do {
@@ -82,7 +82,7 @@ export async function createNote(
   const newFile = vault.getFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -111,7 +111,7 @@ export async function createOrOverwriteNote(
   if (file instanceof TFile) {
     await pause(500);
     await vault.modify(file, content);
-    return success(<TFile>vault.getFileByPath(filepath));
+    return success(<TFile> vault.getFileByPath(filepath));
   }
 
   // Create the new note
@@ -120,7 +120,7 @@ export async function createOrOverwriteNote(
   const newFile = vault.getFileByPath(filepath);
   return (newFile instanceof TFile)
     ? success(newFile)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -143,7 +143,7 @@ export async function getNoteContent(
   const noteContent = await vault.read(res.result);
   return (typeof noteContent === "string")
     ? success(noteContent)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_read_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_read_note);
 }
 
 /**
@@ -170,14 +170,19 @@ export async function getNoteDetails(
   const file = res.result;
   const content = res2.result;
   const { body, frontMatter } = extractNoteContentParts(content);
-  const properties = propertiesForFile(file);
+  const properties = await propertiesForFile(file);
+  const vaultName = self().app.vault.getName();
+  const uid = getFirstUID(properties);
+
   return success({
     filepath,
     content,
+    uriPath: getUriPath(filepath, vaultName),
+    uriUID: getUriUID(uid, vaultName),
     body,
-    frontMatter: frontMatter,
+    frontMatter,
     properties,
-    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
+    uid,
   });
 }
 
@@ -260,6 +265,7 @@ export async function updateNote(
     return res2;
   }
 
+  const vaultName = self().app.vault.getName();
   const file = res.result;
   const noteDetails = res2.result;
   const body = (typeof newBody === "string") ? newBody : noteDetails.body;
@@ -274,18 +280,48 @@ export async function updateNote(
 
   await self().app.vault.modify(file, newNoteContent);
 
-  // Without this delay, `propertiesForFile()` will return outdated properties.
-  await pause(200);
-  const properties = propertiesForFile(file);
+  const properties = await propertiesForFile(file);
+  const uid = getFirstUID(properties);
 
   return success({
     filepath,
     content: newNoteContent,
+    uriPath: getUriPath(vaultName, filepath),
+    uriUID: getUriUID(uid, vaultName),
     body,
     frontMatter,
     properties,
-    uid: properties[self().settings.frontmatterKey] as string | string[] || "",
+    uid,
   });
+}
+
+function getUriPath(filepath: string, vaultName: string): string {
+  return `obsidian://actions-uri/note/open` +
+    "?vault=" + encodeURIComponent(vaultName) +
+    "&file=" + encodeURIComponent(filepath);
+}
+
+function getUriUID(
+  uid: string | undefined,
+  vaultName: string,
+): string | undefined {
+  if (!uid) return undefined;
+
+  return `obsidian://actions-uri/note/open` +
+    "?vault=" + encodeURIComponent(vaultName) +
+    "&uid=" + encodeURIComponent(uid);
+}
+
+/**
+ *  Returns the first UID from the frontmatter properties of a note.
+ */
+function getFirstUID(properties: NoteProperties): string | undefined {
+  const uid = properties[self().settings.frontmatterKey] as
+    | string
+    | string[]
+    | undefined;
+
+  return Array.isArray(uid) ? uid[0] : uid;
 }
 
 /**
@@ -393,9 +429,9 @@ export async function appendNoteBelowHeadline(
           // the original number of consecutive newlines
           return endStringWithNewline(
             section.trim() +
-            "\n" +
-            textToAppend +
-            section.match(/\n+$/)?.[0] || "",
+                "\n" +
+                textToAppend +
+                section.match(/\n+$/)?.[0] || "",
           );
         })
         .join("");
@@ -404,7 +440,7 @@ export async function appendNoteBelowHeadline(
 
   return resProcess
     ? success(STRINGS.append_done)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 export async function prependNote(
@@ -480,7 +516,7 @@ export async function prependNoteBelowHeadline(
 
   return resProcess
     ? success(STRINGS.append_done)
-    : failure(ErrorCode.UnableToWrite, STRINGS.unable_to_write_note);
+    : failure(ErrorCode.unableToWrite, STRINGS.unable_to_write_note);
 }
 
 /**
@@ -490,7 +526,7 @@ export async function prependNoteBelowHeadline(
  */
 export function getFileMap(): TFile[] {
   const vault = self().app.vault;
-  const { fileMap } = <RealLifeVault>vault;
+  const { fileMap } = <RealLifeVault> vault;
   return Object.values(fileMap);
 }
 
@@ -510,7 +546,7 @@ export async function getFile(
 
   return file instanceof TFile
     ? success(file)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    : failure(ErrorCode.notFound, STRINGS.note_not_found);
 }
 
 /**
@@ -529,7 +565,7 @@ export async function getNote(
 
   return file instanceof TFile
     ? success(file)
-    : failure(ErrorCode.NotFound, STRINGS.note_not_found);
+    : failure(ErrorCode.notFound, STRINGS.note_not_found);
 }
 
 /**
@@ -562,10 +598,10 @@ export async function applyCorePluginTemplate(
       );
     }
   } catch (error) {
-    const msg = (<Error>error).message;
+    const msg = (<Error> error).message;
     showBrandedNotice(msg);
     logErrorToConsole(msg);
-    return failure(ErrorCode.HandlerError, msg);
+    return failure(ErrorCode.handlerError, msg);
   }
 
   await pause(200);
@@ -590,14 +626,14 @@ export async function trashFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(ErrorCode.NotFound, STRINGS.not_found);
+    return failure(ErrorCode.notFound, STRINGS.not_found);
   }
 
   if (deleteImmediately) {
     await vault.delete(fileOrFolder, true);
   } else {
     const isSystemTrashPreferred =
-      (<any>vault).config?.trashOption === "system";
+      (<any> vault).config?.trashOption === "system";
     await vault.trash(fileOrFolder, isSystemTrashPreferred);
   }
 
@@ -620,15 +656,15 @@ export async function renameFilepath(
   const fileOrFolder = vault.getAbstractFileByPath(filepath);
 
   if (!fileOrFolder) {
-    return failure(ErrorCode.NotFound, STRINGS.not_found);
+    return failure(ErrorCode.notFound, STRINGS.not_found);
   }
 
   try {
     await vault.rename(fileOrFolder, newFilepath);
   } catch (error) {
-    const msg = (<Error>error).message;
+    const msg = (<Error> error).message;
     return failure(
-      ErrorCode.NotFound,
+      ErrorCode.notFound,
       msg.contains("no such file or directory")
         ? "No such file or folder"
         : msg,
@@ -660,7 +696,12 @@ export async function createFolderIfNecessary(folder: string) {
  * @returns An object containing the frontmatter properties of the file, or an
  *          empty object if none exist.
  */
-export function propertiesForFile(file: TAbstractFile): NoteProperties {
+export async function propertiesForFile(
+  file: TAbstractFile,
+): Promise<NoteProperties> {
+  // Without this delay, more often than not, `propertiesForFile()` will return
+  // outdated properties.
+  await pause(200);
   return self().app.metadataCache.getFileCache(file)?.frontmatter || {};
 }
 

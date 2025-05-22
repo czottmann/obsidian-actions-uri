@@ -73,7 +73,7 @@ async function executeDataviewQuery(
 
   if (!isDataviewEnabled(this.app) || !dataview) {
     return failure(
-      ErrorCode.FeatureUnavailable,
+      ErrorCode.featureUnavailable,
       STRINGS.dataview_plugin_not_available,
     );
   }
@@ -81,14 +81,14 @@ async function executeDataviewQuery(
   const dql = params.dql.trim() + "\n";
   if (!dql.toLowerCase().startsWith(type)) {
     return failure(
-      ErrorCode.InvalidInput,
+      ErrorCode.invalidInput,
       STRINGS[`dataview_dql_must_start_with_${type}`],
     );
   }
 
   const res = await dataview.query(dql);
   if (!res.successful) {
-    return failure(ErrorCode.UnknownError, res.error);
+    return failure(ErrorCode.unknownError, res.error);
   }
 
   // For some TABLE queries, DV will return a three-dimensional array instead of
@@ -115,13 +115,15 @@ async function executeDataviewQuery(
   //       "something 3"
   //     ]
   if (type === "list") {
-    res.value.values = res.value.values.map((v: any) => Array.isArray(v) ? v : [v])
+    res.value.values = res.value.values
+      .map((v: any) => Array.isArray(v) ? v : [v]);
     return success({
-      data: dqlValuesMapper(dataview, res.value.values).map((v: any) => v.join(", "))
+      data: dqlValuesMapper(dataview, res.value.values)
+        .map((v: any) => v.join(", ")),
     });
   }
 
-  return failure(ErrorCode.InvalidInput, "Neither LIST nor TABLE query");
+  return failure(ErrorCode.invalidInput, "Neither LIST nor TABLE query");
 }
 
 function getArrayDimensions(input: any[]) {

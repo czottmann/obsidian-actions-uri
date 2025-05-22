@@ -29,13 +29,13 @@ export function failure(
 }
 
 export enum ErrorCode {
-  NotFound = 404,
-  PluginUnavailable = 424,
-  FeatureUnavailable = 424,
-  UnableToCreateNote = 400,
-  UnableToWrite = 400,
-  InvalidInput = 406,
-  NoteAlreadyExists = 409,
-  HandlerError = 500,
-  UnknownError = 500,
+  notFound = 404,
+  pluginUnavailable = 424,
+  featureUnavailable = 424,
+  unableToCreateNote = 400,
+  unableToWrite = 400,
+  invalidInput = 406,
+  noteAlreadyExists = 409,
+  handlerError = 500,
+  unknownError = 500,
 }

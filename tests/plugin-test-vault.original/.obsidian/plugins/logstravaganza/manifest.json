@@ -1,0 +1,10 @@
+{
+  "id": "logstravaganza",
+  "name": "Logstravaganza",
+  "version": "2.2.0",
+  "minAppVersion": "1.8.0",
+  "description": "A simple proxy for `console.*()` calls which copies log messages and uncaught exceptions to a file.",
+  "author": "Carlo Zottmann",
+  "authorUrl": "https://zottmann.dev",
+  "isDesktopOnly": false
+}

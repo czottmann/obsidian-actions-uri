@@ -38,7 +38,7 @@ export function getEnabledCommunityPlugin(
   return isCommunityPluginEnabled(pluginID)
     ? success(self().app.plugins.getPlugin(pluginID))
     : failure(
-      ErrorCode.FeatureUnavailable,
+      ErrorCode.featureUnavailable,
       `Community plugin ${pluginID} is not enabled.`,
     );
 }
@@ -65,7 +65,7 @@ export function getEnabledCorePlugin(pluginID: string): PluginResultObject {
   const plugin = self().app.internalPlugins?.getEnabledPluginById(pluginID);
 
   return plugin ? success(plugin) : failure(
-    ErrorCode.FeatureUnavailable,
+    ErrorCode.featureUnavailable,
     `Core plugin ${pluginID} is not enabled.`,
   );
 }

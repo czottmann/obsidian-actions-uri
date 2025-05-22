@@ -43,10 +43,6 @@ export default class ActionsURI extends Plugin {
     this.addSettingTab(new SettingsTab(this.app, this));
   }
 
-  onunload() {
-    // Just act natural.
-  }
-
   async loadSettings() {
     this.settings = { ...this.defaultSettings, ...await this.loadData() };
   }
@@ -119,8 +115,8 @@ export default class ActionsURI extends Plugin {
       handlerResult = await handlerFunc.bind(this)(params);
     } catch (error) {
       const msg = `Handler error: ${(<Error> error).message}`;
-      handlerResult = failure(ErrorCode.HandlerError, msg);
-      showBrandedNotice(msg);
+      handlerResult = failure(ErrorCode.handlerError, msg);
+      if (!params["hide-ui-notice-on-error"]) showBrandedNotice(msg);
       logErrorToConsole(msg);
     }
 
@@ -176,8 +172,8 @@ export default class ActionsURI extends Plugin {
       .flat()
       .join("\n");
 
-    showBrandedNotice(msg);
     logErrorToConsole(msg);
+    if (!params["hide-ui-notice-on-error"]) showBrandedNotice(msg);
     if (!params["x-error"]) return;
 
     // If there's a "note not found" error, that's the biggest issue, we'll
@@ -187,7 +183,7 @@ export default class ActionsURI extends Plugin {
     if (error404) {
       sendUrlCallback(
         params["x-error"],
-        failure(ErrorCode.NotFound, `[Not found] ${error404.path.join(", ")}`),
+        failure(ErrorCode.notFound, `[Not found] ${error404.path.join(", ")}`),
         params,
       );
       return;
@@ -204,7 +200,7 @@ export default class ActionsURI extends Plugin {
 
     sendUrlCallback(
       params["x-error"],
-      failure(ErrorCode.HandlerError, msg2),
+      failure(ErrorCode.handlerError, msg2),
       params,
     );
   }

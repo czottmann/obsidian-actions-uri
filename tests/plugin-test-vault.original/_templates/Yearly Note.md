@@ -1,0 +1,1 @@
+## Yearly Note: {{title}}

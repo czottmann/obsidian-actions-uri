@@ -63,7 +63,7 @@ async function handleClose(
 ): Promise<HandlerVaultSuccess | HandlerFailure> {
   if (Platform.isMobileApp) {
     return failure(
-      ErrorCode.FeatureUnavailable,
+      ErrorCode.featureUnavailable,
       STRINGS.not_available_on_mobile,
     );
   }
@@ -82,7 +82,7 @@ async function handleInfo(
   const basePath = (<RealLifeDataAdapter> vault.adapter).basePath;
 
   if (!config || !basePath) {
-    return failure(ErrorCode.NotFound, STRINGS.vault_internals_not_found);
+    return failure(ErrorCode.notFound, STRINGS.vault_internals_not_found);
   }
 
   return success({

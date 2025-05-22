@@ -1,0 +1,7 @@
+{
+  "fileNameContainsDate": false,
+  "formatterID": "ndjson",
+  "outputFolder": "/",
+  "logLevel": "debug",
+  "debounceWrites": false
+}

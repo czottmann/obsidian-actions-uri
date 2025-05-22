@@ -1,5 +1,31 @@
 # Release history
 
+## 1.8.0, 2025-05-22
+
+### New stuff
+
+- All [`/note` routes](https://zottmann.dev/obsidian-actions-uri/routes/note/) that return note information (like path, UID, body, etc.) now also return a `result-uri-path` and `result-uri-uid` (where available), containing URLs that can be used to link to the note from other places on the same device.
+- The new standard, optional boolean parameter [`hide-ui-notice-on-error`](https://zottmann.dev/obsidian-actions-uri/parameters/) can be used to suppress the UI notice on errors like "note not found". Defaults to `false`, so by default the UI notice will be shown as usual. <!-- ZCO-1201 -->
+
+### Removals
+
+As announced last year (see 1.6.0, 2024-07-23), the periodic note routes are now gone for good. All their functionality is now part of the [`/note`](https://zottmann.dev/obsidian-actions-uri/routes/note/) routes. <!-- ZCO-977 -->
+
+### No longer broken
+
+- `x-success` results will no longer wrap undefined values as strings, so let's bid farewell to `result-some-value=undefined`.
+
+### Changes
+
+- Minor cleanups of the settings tab.
+
+### Development
+
+Adds a E2E test suite, see `tests/README.md` for details. This is a work in progress, and will be expanded over time.
+
+
+
+
 ## 1.7.3, 2025-04-30
 
 ### No longer broken
