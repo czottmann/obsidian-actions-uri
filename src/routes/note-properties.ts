@@ -1,5 +1,6 @@
 import { stringifyYaml } from "obsidian";
 import { z } from "zod";
+import { STRINGS } from "src/constants";
 import { RoutePath } from "src/routes";
 import { incomingBaseParams, noteTargetingParams } from "src/schemata";
 import {
@@ -8,10 +9,16 @@ import {
   HandlerPropertiesSuccess,
   Prettify,
 } from "src/types";
-import { propertiesForFile, updateNote } from "src/utils/file-handling";
+import {
+  getNote,
+  getNoteDetails,
+  propertiesForFile,
+  updateNote,
+} from "src/utils/file-handling";
 import { resolveNoteTargetingStrict } from "src/utils/parameters";
 import { helloRoute } from "src/utils/routing";
-import { success } from "src/utils/results-handling";
+import { ErrorCode, failure, success } from "src/utils/results-handling";
+import { self } from "src/utils/self";
 import {
   zodJsonPropertiesObject,
   zodJsonStringArray,
@@ -87,11 +94,29 @@ async function handleSet(
   params: SetParams,
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const { _resolved: { inputFile }, mode, properties } = params;
-  const props = mode === "update"
-    ? { ...await propertiesForFile(inputFile!), ...properties }
-    : properties;
+  const { path } = inputFile!;
 
-  return updateNote(inputFile!.path, sanitizedStringifyYaml(props));
+  if (mode === "update") {
+    const resNote = await getNote(path);
+    if (!resNote.isSuccess) {
+      return resNote;
+    }
+
+    try {
+      self().app.fileManager.processFrontMatter(
+        resNote.result,
+        (frontmatter) => Object.assign(frontmatter, properties),
+      );
+      return getNoteDetails(path);
+    } catch (err) {
+      return failure(
+        ErrorCode.unableToWrite,
+        STRINGS.properties.unable_to_update,
+      );
+    }
+  } else {
+    return updateNote(path, sanitizedStringifyYaml(properties));
+  }
 }
 
 async function handleClear(

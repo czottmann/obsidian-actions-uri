@@ -34,6 +34,7 @@ export const STRINGS = {
   omnisearch_plugin_not_available: "Omnisearch plugin is not active",
   prepend_done: "Note was prepended",
   properties: {
+    unable_to_update: "Unable to update properties",
     key_not_found: "Key not found",
   },
   quarterly_note: {
