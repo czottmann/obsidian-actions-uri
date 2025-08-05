@@ -1,5 +1,13 @@
 # Release history
 
+## 1.8.2, 2025-08-05
+
+### No longer broken
+
+- Under some circumstances, _updating_ file properties would fail, and the updated keys would become the only remaining frontmatter. This should be fixed now. Thanks to Marco for the heads-up. <!-- ZCO-1348 -->
+
+
+
 ## 1.8.1, 2025-05-22
 
 ### New stuff
