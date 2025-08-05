@@ -1,6 +1,6 @@
 # Release history
 
-## 1.8.2, 2025-08-05
+## 1.8.3, 2025-08-05
 
 ### No longer broken
 
