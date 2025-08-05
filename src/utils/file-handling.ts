@@ -660,7 +660,7 @@ export async function renameFilepath(
   }
 
   try {
-    await vault.rename(fileOrFolder, newFilepath);
+    await self().app.fileManager.renameFile(fileOrFolder, newFilepath);
   } catch (error) {
     const msg = (<Error> error).message;
     return failure(

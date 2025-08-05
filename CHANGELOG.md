@@ -4,8 +4,11 @@
 
 ### No longer broken
 
-- Under some circumstances, _updating_ file properties would fail, and the updated keys would become the only remaining frontmatter. This should be fixed now. Thanks to Marco for the heads-up. <!-- ZCO-1348 -->
+- [`/note-properties/set`](https://zottmann.dev/obsidian-actions-uri/routes/note-properties/#note-propertiesset): Sometimes, randomly, _updating_ file properties would fail, and the updated keys would become the only remaining frontmatter. This should be fixed now. Thanks to Marco for the heads-up. <!-- ZCO-1348 -->
 
+### Changes
+
+- `/*/rename`: Renaming now uses Obsidian's [`renameFile()`](https://docs.obsidian.md/Reference/TypeScript+API/FileManager/renameFile) function now, which updates all links to the renamed file depending on the user's preferences. Before, Actions URI would _just_ rename the note/ file/ folder, and be done with it.
 
 
 ## 1.8.1, 2025-05-22
