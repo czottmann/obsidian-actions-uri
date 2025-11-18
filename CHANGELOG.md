@@ -1,5 +1,10 @@
 # Release history
 
+## 1.8.4, 2025-11-18
+
+Chore release, updating dependencies.
+
+
 ## 1.8.3, 2025-08-05
 
 ### No longer broken
