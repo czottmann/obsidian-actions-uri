@@ -2,18 +2,33 @@ import {
   DataviewApi,
   getAPI,
   isPluginEnabled as isDataviewEnabled,
+  Literal,
 } from "obsidian-dataview";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
 import { RoutePath } from "src/routes";
 import { incomingBaseParams } from "src/schemata";
 import {
+  DataviewQueryData,
   HandlerDataviewSuccess,
   HandlerFailure,
   RealLifePlugin,
 } from "src/types";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 import { helloRoute } from "src/utils/routing";
+
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,
+   @typescript-eslint/no-unsafe-member-access,
+   @typescript-eslint/no-unsafe-call,
+   @typescript-eslint/no-unsafe-return,
+   @typescript-eslint/no-unsafe-argument --
+   obsidian-dataview's published .d.ts files use non-relative internal module
+   specifiers (e.g. "data-model/value", "api/result") that don't resolve under
+   this project's tsconfig, so the type-checker degrades DataviewApi/Literal and
+   the query-result types to unresolved/`any`. skipLibCheck hides this from the
+   build. The values we touch are typed as far as the upstream types allow
+   (Literal, DataviewQueryData); the residual no-unsafe findings are unavoidable
+   until the dataview types resolve cleanly. */
 
 // SCHEMATA ----------------------------------------
 
@@ -58,7 +73,7 @@ async function handleListQuery(
 
 // HELPERS ----------------------------------------
 
-function dqlValuesMapper(dataview: DataviewApi, v: any): any {
+function dqlValuesMapper(dataview: DataviewApi, v: Literal): DataviewQueryData {
   return Array.isArray(v)
     ? v.map((v1) => dqlValuesMapper(dataview, v1))
     : dataview.value.toString(v);
@@ -91,13 +106,16 @@ async function executeDataviewQuery(
     return failure(ErrorCode.unknownError, res.error);
   }
 
+  const queryResult = res.value;
+
   // For some TABLE queries, DV will return a three-dimensional array instead of
   // a two-dimensional one. Not sure what's the cause but I'll need to account
   // for this. (https://github.com/czottmann/obsidian-actions-uri/issues/79)
-  if (type === "table") {
-    return (getArrayDimensions(res.value.values) > 2)
-      ? success({ data: dqlValuesMapper(dataview, res.value.values[0]) })
-      : success({ data: dqlValuesMapper(dataview, res.value.values) });
+  if (queryResult.type === "table") {
+    const values = queryResult.values;
+    return (getArrayDimensions(values) > 2)
+      ? success({ data: dqlValuesMapper(dataview, values[0]) })
+      : success({ data: dqlValuesMapper(dataview, values) });
   }
 
   // For LIST queries, DV will return a two-dimensional array instead of a one-
@@ -114,19 +132,21 @@ async function executeDataviewQuery(
   //       ["something 1", "something 2"],
   //       "something 3"
   //     ]
-  if (type === "list") {
-    res.value.values = res.value.values
-      .map((v: any) => Array.isArray(v) ? v : [v]);
+  if (queryResult.type === "list") {
+    const normalized = queryResult.values
+      .map((v: Literal) => Array.isArray(v) ? v : [v]);
+    // Mapping an array through dqlValuesMapper yields an array (one entry per
+    // row); join each row into a string.
+    const mapped = dqlValuesMapper(dataview, normalized) as DataviewQueryData[];
     return success({
-      data: dqlValuesMapper(dataview, res.value.values)
-        .map((v: any) => v.join(", ")),
+      data: mapped.map((v) => Array.isArray(v) ? v.join(", ") : v),
     });
   }
 
   return failure(ErrorCode.invalidInput, "Neither LIST nor TABLE query");
 }
 
-function getArrayDimensions(input: any[]) {
+function getArrayDimensions(input: unknown[]) {
   if (!Array.isArray(input)) {
     return 0;
   }

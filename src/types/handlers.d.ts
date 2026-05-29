@@ -61,11 +61,18 @@ export type HandlerFilePathSuccess = Readonly<
   }
 >;
 
+/**
+ * A Dataview query result, stringified by `dqlValuesMapper`: scalar values
+ * become strings, arrays are preserved (tables are nested). Serialized to a
+ * string in the outgoing callback.
+ */
+export type DataviewQueryData = string | DataviewQueryData[];
+
 export type HandlerDataviewSuccess = Readonly<
   & HandlerSuccess
   & {
     result: {
-      data: string;
+      data: DataviewQueryData;
     };
   }
 >;
