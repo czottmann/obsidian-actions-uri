@@ -1,111 +1,125 @@
-#!/opt/homebrew/bin/fish --login
+#!/usr/bin/env fish
 
-function allow_or_exit
-    read -P "$argv[1] Continue? [y/n] " -l response
-    switch $response
-        case y Y
-            echo
-            # We're good to go
-        case '*'
-            echo "Aborting!"
-            exit 0
+argparse "version=" "obsidian-version=" help -- $argv
+or return
+
+function usage
+    echo '
+tag-release.fish
+
+Bumps the plugin version across all release files, commits the change, tags it,
+and pushes the commit and tag to the remote. Pushing the tag triggers the GitHub
+Actions release workflow, which builds the plugin and creates a draft release.
+
+Run this on `main` — releases are cut straight from `main`.
+
+USAGE:
+  bin/tag-release.fish --version <x.y.z> --obsidian-version <x.y.z>
+
+OPTIONS:
+  --version           The new plugin version, e.g. 1.9.0. REQUIRED.
+  --obsidian-version  The minimum Obsidian version for this release. REQUIRED.
+  --help              Show this usage description.
+
+REQUIRES:
+  - fish
+  - gum
+  - jq
+
+OUTPUTS:
+  - A "[REL] Release <version>" commit on the current branch
+  - A "<version>" git tag
+  - Both pushed to the remote
+'
+end
+
+if set -q _flag_help
+    usage
+    exit 0
+end
+
+# --- Preconditions ---
+for cmd in git gum jq
+    if not command -q $cmd
+        fatal "$cmd is required but not installed"
     end
 end
 
-argparse \
-    "platform=" "patch-version=" "obsidian-version=" help \
-    -- $argv
-or return
-
-if test -n "$_flag_help"
-    echo "
-Only works in `release/` branches, e.g. `release/1.0.x` or `release/2.1.x`.
-
-Commits the current changes and tags the commit, effectively marking the commit
-as the release commit for the version contained in the branch name.
-
-EXAMPLE:
-- If the branch name is `release/1.2.x`, and the patch version is '3', then the
-  tag `1.2.3` will be created.
-
-FLAGS:
-  --patch-version       Will be added to the branch release number. REQUIRED.
-  --obsidian-version    The minimum obsidian version for this release. REQUIRED.
-  --help                This usage description.
-"
-    exit 1
+if not set -q _flag_version
+    fatal "--version must be set, see --help"
 end
 
-if test -z "$_flag_patch_version"
-    echo "ERROR: --patch-version must be set, exiting"
-    exit 1
+if not set -q _flag_obsidian_version
+    fatal "--obsidian-version must be set, see --help"
 end
 
-if test -z "$_flag_obsidian_version"
-    echo "ERROR: --obsidian-version must be set, exiting"
-    exit 1
+if not string match -rq '^\d+\.\d+\.\d+$' -- "$_flag_version"
+    fatal "--version must look like x.y.z, got '$_flag_version'"
 end
 
-set git_branch (git branch --show-current)
-set release_tag (
-        echo $git_branch | cut -d "/" -f 2 | string replace ".x" ".$_flag_patch_version"
-    )
+set -l release_tag "$_flag_version"
+set -l obsidian_version "$_flag_obsidian_version"
 
-allow_or_exit "New tag will be named '$release_tag', minimum Obsidian version is $_flag_obsidian_version."
+if not gum confirm "New tag '$release_tag', minimum Obsidian version $obsidian_version. Continue?"
+    info Aborted
+    exit 0
+end
 
-echo "Updating package.json"
-set TEMP_FILE (mktemp)
-jq ".version |= \"$release_tag\"" package.json >"$TEMP_FILE"; or exit 1
-mv "$TEMP_FILE" package.json
+info "Updating package.json"
+set -l tmp (mktemp)
+jq ".version |= \"$release_tag\"" package.json >"$tmp"
+or fatal "Failed to update package.json"
+mv "$tmp" package.json
 
-echo "Updating manifest.json"
-set TEMP_FILE (mktemp)
-jq ".version |= \"$release_tag\" | .minAppVersion |= \"$_flag_obsidian_version\"" \
-    manifest.json >"$TEMP_FILE"; or exit 1
-mv "$TEMP_FILE" manifest.json
+info "Updating manifest.json"
+set -l tmp (mktemp)
+jq ".version |= \"$release_tag\" | .minAppVersion |= \"$obsidian_version\"" \
+    manifest.json >"$tmp"
+or fatal "Failed to update manifest.json"
+mv "$tmp" manifest.json
 
-echo "Updating versions.json"
-set TEMP_FILE (mktemp)
-jq ". += {\"$release_tag\": \"$_flag_obsidian_version\"}" \
-    versions.json >"$TEMP_FILE"; or exit 1
-mv "$TEMP_FILE" versions.json
+info "Updating versions.json"
+set -l tmp (mktemp)
+jq ". += {\"$release_tag\": \"$obsidian_version\"}" versions.json >"$tmp"
+or fatal "Failed to update versions.json"
+mv "$tmp" versions.json
 
-echo "Updating src/plugin-info.json & src/plugin-info.ts"
-set TEMP_FILE (mktemp)
-set DATE_NOW (date +%FT%T%z)
-jq ".pluginVersion |= \"$release_tag\" | .pluginReleasedAt |= \"$DATE_NOW\"" \
-    src/plugin-info.json >"$TEMP_FILE"; or exit 1
-mv "$TEMP_FILE" src/plugin-info.json
+info "Updating src/plugin-info.json & src/plugin-info.ts"
+set -l tmp (mktemp)
+set -l date_now (date +%FT%T%z)
+jq ".pluginVersion |= \"$release_tag\" | .pluginReleasedAt |= \"$date_now\"" \
+    src/plugin-info.json >"$tmp"
+or fatal "Failed to update src/plugin-info.json"
+mv "$tmp" src/plugin-info.json
 echo -n "/* File will be overwritten by bin/tag-release.fish! */
 export const PLUGIN_INFO = " >src/plugin-info.ts
 cat src/plugin-info.json >>src/plugin-info.ts
 
-echo "Committing the following files with a message of '[REL] Release $release_tag':"
 echo
-git status --porcelain | sed -E "s/^/  /"
+info "Committing the following files with message '[REL] Release $release_tag':"
+git status --porcelain | while read -l line
+    echo "  $line"
+end
 echo
 
-allow_or_exit
+if not gum confirm "Commit and tag?"
+    info "Aborted — working tree left with version bump applied"
+    exit 0
+end
 
 git commit -m "[REL] Release $release_tag" -a
-git tag $release_tag
-echo "Done!"
-echo
+or fatal "Commit failed"
+git tag "$release_tag"
+or fatal "Tagging failed"
+success "Committed and tagged $release_tag"
 
-allow_or_exit "Now pushing the commit and tag to the remote …"
+if not gum confirm "Push the commit and tag to the remote?"
+    info "Commit and tag created locally but not pushed"
+    exit 0
+end
 
-git push --tags
-echo "Done!"
-echo
-
-allow_or_exit "Now merging branch '$git_branch' into 'main' …"
-
-git checkout main
-git pull --tags
-git merge -m "[MRG] Merges release '$release_tag'" --no-edit --no-ff $git_branch
-
-allow_or_exit "Push main to remote?"
 git push
-
-echo "Done!"
-echo
+or fatal "Failed to push commit"
+git push --tags
+or fatal "Failed to push tags"
+success "Pushed. The release workflow will build and create a draft release."
