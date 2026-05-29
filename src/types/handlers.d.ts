@@ -8,6 +8,7 @@
  * @returns A handler result object
  */
 export type HandlerFunction = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- universal dispatch signature; each concrete handler declares its own validated param type and is assigned here bivariantly
   incomingParams: any,
 ) => Promise<AnyHandlerResult>;
 
@@ -120,7 +121,7 @@ export type HandlerInfoSuccess = Readonly<
 
 export type HandlerVaultSuccess = Readonly<
   & HandlerSuccess
-  & { result: object }
+  & { result: Record<string, unknown> }
 >;
 
 export type HandlerVaultInfoSuccess = Readonly<
@@ -145,7 +146,7 @@ export type HandlerCommandsSuccess = Readonly<
 
 export type HandlerCommandsExecutionSuccess = Readonly<
   & HandlerSuccess
-  & { result: object }
+  & { result: Record<string, unknown> }
 >;
 
 export type HandlerPropertiesSuccess = Readonly<

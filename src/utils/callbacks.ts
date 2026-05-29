@@ -42,8 +42,8 @@ export function sendUrlCallback(
     url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
   }
 
-  const returnParams: Record<string, string> = params["debug-mode"]
-    ? excludeKeys(<any> params, [
+  const returnParams: Record<string, unknown> = params["debug-mode"]
+    ? excludeKeys(params as Record<string, unknown>, [
       "debug-mode",
       "x-success",
       "x-error",
@@ -69,7 +69,7 @@ export function sendUrlCallback(
  * defaults to `XCALLBACK_RESULT_PREFIX`
  */
 function addObjectToUrlSearchParams(
-  obj: Record<string, any>,
+  obj: Record<string, unknown>,
   url: URL,
   prefix: string = XCALLBACK_RESULT_PREFIX,
 ) {

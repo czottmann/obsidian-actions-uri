@@ -1,4 +1,4 @@
-import { TAbstractFile } from "obsidian";
+import { TAbstractFile, TFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
 import { incomingBaseParams } from "src/schemata";
@@ -37,6 +37,19 @@ import { focusOrOpenNote } from "src/utils/ui";
 import { zodOptionalBoolean } from "src/utils/zod";
 
 // TYPES ----------------------------------------
+
+// Minimal local types for the template plugin instances (the plugin-result
+// wrapper carries `unknown`).
+interface TemplaterPluginApi {
+  templater: {
+    write_template_to_file(templateFile: TAbstractFile, file: TFile): Promise<void>;
+  };
+  settings?: { templates_folder?: string };
+}
+
+interface TemplatesPluginApi {
+  options?: { folder?: string };
+}
 
 export enum CreateApplyParameterValue {
   Content = "content",
@@ -259,7 +272,7 @@ export async function _handleCreateNoteFromTemplate(
     case CreateApplyParameterValue.Templater: {
       const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
       if (!resPlugin1.isSuccess) return resPlugin1;
-      await resPlugin1.result.templater
+      await (resPlugin1.result as TemplaterPluginApi).templater
         .write_template_to_file(templateFile!, newNote);
       break;
     }
@@ -320,7 +333,8 @@ export function resolveTemplatePathStrict<T>(
         });
         return z.NEVER;
       }
-      folder = resTemplater.result.settings?.templates_folder || "";
+      folder = (resTemplater.result as TemplaterPluginApi).settings
+        ?.templates_folder || "";
       break;
     }
 
@@ -333,7 +347,7 @@ export function resolveTemplatePathStrict<T>(
         });
         return z.NEVER;
       }
-      folder = resTemplates.result.options?.folder || "";
+      folder = (resTemplates.result as TemplatesPluginApi).options?.folder || "";
       break;
     }
 

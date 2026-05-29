@@ -63,5 +63,5 @@ export interface RealLifeMetadataCache extends MetadataCache {
    */
   getFileCache(file: TFile | TAbstractFile): CachedMetadata | null;
   fileCache: Record<string, { mtime: number; size: number; hash: string }>;
-  metadataCache: Record<string, { frontmatter: Record<string, any> }>;
+  metadataCache: Record<string, { frontmatter: Record<string, unknown> }>;
 }

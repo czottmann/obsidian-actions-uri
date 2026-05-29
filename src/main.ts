@@ -42,7 +42,10 @@ export default class ActionsURI extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = { ...this.defaultSettings, ...await this.loadData() };
+    this.settings = {
+      ...this.defaultSettings,
+      ...await this.loadData() as Partial<PluginSettings>,
+    };
   }
 
   async saveSettings() {
@@ -78,7 +81,7 @@ export default class ActionsURI extends Plugin {
             if (res.success) {
               await this.handleIncomingCall(
                 handler,
-                res.data,
+                res.data as AnyParams,
               );
             } else {
               this.handleParseError(res.error, incomingParams);
@@ -137,14 +140,14 @@ export default class ActionsURI extends Plugin {
    * they were in the original incoming call anyways.
    */
   private prepParamsForConsole(params: AnyParams): AnyParams {
-    const newParams: any = { ...params };
+    const newParams: Record<string, unknown> = { ...params };
 
     Object.keys(params).forEach((key) => {
-      const value = (<any> params)[key];
+      const value: unknown = (params as Record<string, unknown>)[key];
       newParams[key] = value instanceof TAbstractFile ? value.path : value;
     });
 
-    return <AnyParams> newParams;
+    return newParams as unknown as AnyParams;
   }
 
   /**
@@ -257,7 +260,7 @@ export default class ActionsURI extends Plugin {
       return success("No file to open, the handler failed");
     }
 
-    if ((<any> params).silent) {
+    if ((params as { silent?: boolean }).silent) {
       return success("No file to open, the `silent` parameter was set");
     }
 

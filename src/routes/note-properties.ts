@@ -105,7 +105,8 @@ async function handleSet(
     try {
       await self().app.fileManager.processFrontMatter(
         resNote.result,
-        (frontmatter) => Object.assign(frontmatter, properties),
+        (frontmatter: Record<string, unknown>) =>
+          Object.assign(frontmatter, properties),
       );
       return await getNoteDetails(path);
     } catch {
@@ -132,11 +133,11 @@ async function handleRemoveKeys(
   const { _resolved: { inputPath: path, inputFile }, keys } = params;
 
   const props = await propertiesForFile(inputFile!);
-  (<string[]> keys).forEach((key) => delete props[key]);
+  keys.forEach((key) => delete props[key]);
 
   return updateNote(path, sanitizedStringifyYaml(props));
 }
 
-function sanitizedStringifyYaml(props: any): string {
+function sanitizedStringifyYaml(props: Record<string, unknown>): string {
   return Object.keys(props).length > 0 ? stringifyYaml(props).trim() : "";
 }

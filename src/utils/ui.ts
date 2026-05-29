@@ -21,7 +21,7 @@ export function showBrandedNotice(msg: string) {
  *
  * @param data - Anything that can be logged, really
  */
-export function logToConsole(...data: any[]) {
+export function logToConsole(...data: unknown[]) {
   // eslint-disable-next-line obsidianmd/rule-custom-message -- intentional branded debug logger, gated behind debug-mode by callers
   console.log("[Actions URI]", ...data);
 }
@@ -32,7 +32,7 @@ export function logToConsole(...data: any[]) {
  *
  * @param data - Anything that can be logged, really
  */
-export function logErrorToConsole(...data: any[]) {
+export function logErrorToConsole(...data: unknown[]) {
   console.error("[Actions URI]", ...data);
 }
 

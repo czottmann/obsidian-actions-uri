@@ -63,7 +63,7 @@ export enum PeriodicNoteTypeWithRecents {
 export function getCurrentPeriodicNotePath(
   periodicNoteType: PeriodicNoteType,
 ): string {
-  let getSettingsFn: Function;
+  let getSettingsFn: () => { format?: string; folder?: string };
   switch (periodicNoteType) {
     case PeriodicNoteType.DailyNote:
       getSettingsFn = getDailyNoteSettings;

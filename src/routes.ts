@@ -89,11 +89,7 @@ export type RoutePath = {
 
 export type RouteSubpath = {
   path: string;
-  schema:
-  | z.AnyZodObject
-  | z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
-  | z.ZodEffects<any, any, any>
-  | z.ZodUnion<any>;
+  schema: z.ZodTypeAny;
   handler: HandlerFunction;
 };
 

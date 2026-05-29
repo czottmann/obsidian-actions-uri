@@ -582,7 +582,9 @@ export async function applyCorePluginTemplate(
 ): Promise<BooleanResultObject> {
   const pluginRes = getEnabledCorePlugin("templates");
   if (!pluginRes.isSuccess) return pluginRes;
-  const pluginInstance = pluginRes.result;
+  const pluginInstance = pluginRes.result as {
+    insertTemplate(templateFile: TAbstractFile): Promise<void>;
+  };
 
   // The core plugin will only apply a template to the open, focussed, and
   // editable note ¯\_(ツ)_/¯
