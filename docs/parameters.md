@@ -6,13 +6,14 @@ nav_order: 3
 
 | Parameter                 | Value type | Optional? | Description                                                                                                                                    
 | ------------------------- | ---------- | :-------: | -----------------------------------------------------------------------------------------------------------------------------------------------
-| `vault`                   | string     |           | The name of the target vault.                                                                                                                  
 | `x-success`               | string     |  mostly   | Base URL for on-success callbacks, see [Getting data back from Actions URI](callbacks.md).                                                     
 | `x-error`                 | string     |  mostly   | Base URL for on-error callbacks, see [Getting data back from Actions URI](callbacks.md).                                                       
 | `debug-mode`              | boolean    |    yes    | When enabled, Actions URI will include all parameters of the original request in the return calls, prefixed with `input-`. Defaults to `false`.
 | `hide-ui-notice-on-error` | boolean    |    yes    | <span class="tag tag-version">v1.8+</span> When enabled, the UI notice will not be shown on "note not found" errors etc. Defaults to `false`.  
 
 ## Notes about parameters
+
+<span class="tag tag-version">v1.9+</span> The `vault` parameter was removed in v1.9.0 for compatibility with Obsidian 1.13, which no longer passes `vault` in `obsidian://` URIs. It is no longer required; if still supplied, it is silently ignored.
 
 <dl>
   <dt>"mostly"</dt>

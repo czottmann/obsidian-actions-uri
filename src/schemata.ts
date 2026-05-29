@@ -7,7 +7,6 @@ import {
 
 export const incomingBaseParams = z.object({
   action: z.string(),
-  vault: z.string().min(1, { message: "can't be empty" }),
 
   // When enabled, the plugin will return all input call parameters as part of
   // its `x-success` or `x-error` callbacks.

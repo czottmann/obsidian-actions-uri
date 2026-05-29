@@ -8,13 +8,12 @@ All routes support return calls back to the sender. This is done by passing call
 
 ```
 obsidian://actions-uri/note/get
-  ?vault=My%20Vault
-  &file=My%20super%20note
+  ?file=My%20super%20note
   &x-success=my-app%3A%2F%2Fsuccess%3Frequest-id%3D123456789
   &x-error=my-app%3A%2F%2Ferror
 ```
 
-This example call, formatted for better readability, contains four parameters: `vault`, `file`, `x-success` and `x-error`.  The latter two are used to provide callbacks to the sender.
+This example call, formatted for better readability, contains three parameters: `file`, `x-success` and `x-error`.  The latter two are used to provide callbacks to the sender.
 
 - `x-success` contains a base URL for returning success information — in the above example, that's `my-app://success?request-id=123456789`
 - `x-error` contains a base URL for returning failure information — in the above example, that's `my-app://error`
@@ -64,7 +63,6 @@ my-app://success
   &input-action=actions-uri%2Fnote%2Fget
   &input-file=My+super+note.md
   &input-silent=false
-  &input-vault=Testbed
 ```
 
 It's called "debug mode" because it's helpful when developing an external *whatever* communicating with Obsidian via Actions URI.  In production you'll probably want to pair the callbacks to your original requests, that's where the `request-id` parameter (or something similar) in the `x-success` URL comes into play.  I'm not aware of any drawbacks keeping debug mode on in live code, however.  You do you! 🖖🏼

@@ -52,7 +52,7 @@ export async function pause(milliseconds: number): Promise<void> {
  * Calls an Obsidian Actions URI endpoint and waits for a callback from the test callback server.
  *
  * This function constructs an Obsidian URI with the specified route path and payload parameters.
- * It automatically includes the required 'vault', 'x-success', and 'x-error' parameters,
+ * It automatically includes the 'x-success' and 'x-error' parameters,
  * setting 'x-success' to the '/success' endpoint and 'x-error' to the '/failure' endpoint
  * of the local test callback server (http://localhost:3000).
  *
@@ -133,7 +133,7 @@ async function collectRecentLogEntries(): Promise<LogEntry[]> {
 
 /**
  * Constructs an Obsidian URI with the specified route path and payload parameters.
- * Automatically includes the required 'vault', 'x-success', and 'x-error' parameters.
+ * Automatically includes the 'x-success' and 'x-error' parameters.
  *
  * @param path - The route path of the Actions URI endpoint to call (e.g., "note/get", "file/create").
  * @param payload - An object containing key-value pairs for the endpoint's URL parameters.
@@ -147,9 +147,6 @@ function constructObsidianURI(
   const uuid = randomUUID();
   const cbServer = global.httpServer;
   const url = new URL(`obsidian://actions-uri/${path}`);
-
-  // Set required parameters
-  url.searchParams.set("vault", global.testVault.name);
 
   // Allow for custom x-success parameter, even if rarely used
   if (
