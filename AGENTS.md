@@ -10,10 +10,20 @@ This **overrides** any global rule pointing to Beans or Linear. Do not create or
 
 ## Common Development Commands
 
+### Package Manager
+This project uses **pnpm**, pinned via the `packageManager` field in `package.json`. Enable it through [corepack](https://nodejs.org/api/corepack.html) so the pinned version is used automatically, then install with a frozen lockfile:
+
+```sh
+corepack enable
+pnpm install --frozen-lockfile
+```
+
+pnpm only runs install/build scripts for dependencies listed in `pnpm.onlyBuiltDependencies` (`package.json`). The git-hosted forks `obsidian-daily-notes-interface` and `@codemirror/language` are allowlisted there because they build from source on install.
+
 ### Building and Development
-- **Development**: `pnpm dev` or `npm run dev` - Compiles with esbuild and watches for changes
-- **Production build**: `pnpm build` or `npm run build` - TypeScript type checking + production build
-- **Testing**: `pnpm test` or `npm test` - Runs Jest tests (requires build first)
+- **Development**: `pnpm dev` - Compiles with esbuild and watches for changes
+- **Production build**: `pnpm build` - TypeScript type checking + production build
+- **Testing**: `pnpm test` - Runs Jest tests (requires build first)
 
 ### Single Test Execution
 Use Jest's pattern matching: `npx jest noteCreate.test.ts` or `npx jest --testNamePattern="specific test name"`

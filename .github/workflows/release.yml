@@ -17,11 +17,16 @@ jobs:
         with:
           node-version: "23.x" # You might need to adjust this value to your own version
 
+      # Enable corepack so the pnpm version pinned in package.json's
+      # "packageManager" field is used.
+      - name: Enable corepack
+        run: corepack enable
+
       # Build the plugin
       - name: Build
         run: |
-          yarn
-          yarn run build
+          pnpm install --frozen-lockfile
+          pnpm run build
 
       # Get the version number and put it in a variable
       - name: Get version info
