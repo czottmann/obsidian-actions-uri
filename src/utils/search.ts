@@ -9,6 +9,16 @@ import { OmnisearchAPI, SearchResultObject } from "src/types";
 import { self } from "src/utils/self";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 
+// Minimal local types for the plugin surfaces we touch (the plugin-result
+// wrapper carries `any`).
+interface GlobalSearchPlugin {
+  openGlobalSearch(query: string): void;
+}
+
+interface SearchViewWithDom {
+  dom: { resultDomLookup: Map<TFile, unknown> };
+}
+
 /**
  * Executes a global search for the specified query and returns the search
  * results (= file paths) as a `SearchResultObject`.
@@ -28,15 +38,15 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   }
 
   // Open the global search panel and wait for it to load
-  const pluginInstance = res.result;
+  const pluginInstance = res.result as GlobalSearchPlugin;
   pluginInstance.openGlobalSearch(query);
   const searchLeaf = self().app.workspace.getLeavesOfType("search")[0];
   const searchView = await searchLeaf.open(searchLeaf.view);
   await pause(2000);
 
   // Extract the search result hits
-  const rawSearchResult: Map<TFile, any> =
-    (<any> searchView).dom.resultDomLookup;
+  const rawSearchResult: Map<TFile, unknown> =
+    (searchView as unknown as SearchViewWithDom).dom.resultDomLookup;
   const hits = Array.from(rawSearchResult.keys()).map((tfile) => tfile.path);
 
   // Return the search result as a `SearchResultObject`
@@ -60,7 +70,7 @@ export async function doOmnisearch(query: string): Promise<SearchResultObject> {
   }
 
   // Execute the Omnisearch query
-  const plugin = <OmnisearchAPI> res.result.api;
+  const plugin = (res.result as { api: OmnisearchAPI }).api;
   const results = await plugin.search(query);
   const hits = results.map((result) => result.path);
 
