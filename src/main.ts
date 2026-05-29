@@ -4,14 +4,12 @@ import {
   Plugin,
   TAbstractFile,
 } from "obsidian";
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import { STRINGS, URI_NAMESPACE } from "src/constants";
 import { AnyParams, RoutePath, routes } from "src/routes";
 import { SettingsTab } from "src/settings";
 import {
   AnyHandlerResult,
-  AnyHandlerSuccess,
-  HandlerFailure,
   HandlerFileSuccess,
   HandlerFunction,
   PluginSettings,
@@ -80,7 +78,7 @@ export default class ActionsURI extends Plugin {
             if (res.success) {
               await this.handleIncomingCall(
                 handler,
-                res.data as z.infer<typeof schema>,
+                res.data,
               );
             } else {
               this.handleParseError(res.error, incomingParams);
@@ -122,7 +120,7 @@ export default class ActionsURI extends Plugin {
       logErrorToConsole(msg);
     }
 
-    const res = <ProcessingResult> {
+    const res: ProcessingResult = {
       params: this.prepParamsForConsole(params),
       handlerResult,
       sendCallbackResult: this.sendUrlCallbackIfNeeded(handlerResult, params),
@@ -230,14 +228,14 @@ export default class ActionsURI extends Plugin {
       return params["x-success"]
         ? sendUrlCallback(
           params["x-success"],
-          <AnyHandlerSuccess> handlerRes,
+          handlerRes,
           params,
         )
         : success("No `x-error` callback URL provided");
     }
 
     return params["x-error"]
-      ? sendUrlCallback(params["x-error"], <HandlerFailure> handlerRes, params)
+      ? sendUrlCallback(params["x-error"], handlerRes, params)
       : success("No `x-error` callback URL provided");
   }
 

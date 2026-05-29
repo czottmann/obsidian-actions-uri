@@ -48,7 +48,6 @@ import {
   AnyLocalParams as AnyTagsParams,
   routePath as tagsRoutes,
 } from "src/routes/tags";
-import { IncomingBaseParams } from "src/schemata";
 import { HandlerFunction } from "src/types";
 
 export const routes: RoutePath = {
@@ -110,8 +109,7 @@ export type AnyParams =
   | AnySearchParams
   | AnySettingsParams
   | AnyTagsParams
-  | AnyVaultParams
-  | IncomingBaseParams;
+  | AnyVaultParams;
 
 export enum NoteTargetingParameterKey {
   File = "file",

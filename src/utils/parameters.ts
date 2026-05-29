@@ -92,7 +92,7 @@ export function resolveNoteTargeting<T>(
   else if (input[NoteTargetingParameterKey.PeriodicNote]) {
     const val = input[
       NoteTargetingParameterKey.PeriodicNote
-    ]! as unknown as PeriodicNoteTypeWithRecents;
+    ] as unknown as PeriodicNoteTypeWithRecents;
     inputKey = NoteTargetingParameterKey.PeriodicNote;
 
     const periodicNoteType = val.replace(/^recent-/, "") as PeriodicNoteType;

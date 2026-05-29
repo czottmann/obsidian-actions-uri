@@ -203,7 +203,7 @@ export async function _handleCreateNoteFromContent(
     resCreate = await createNote(inputPath, "");
   }
 
-  if (!resCreate?.isSuccess) return resCreate!;
+  if (!resCreate?.isSuccess) return resCreate;
   const newNote = resCreate.result;
 
   await this.app.vault.modify(newNote, content || "");
@@ -249,7 +249,7 @@ export async function _handleCreateNoteFromTemplate(
     resCreate = await createNote(inputPath, "");
   }
 
-  if (!resCreate?.isSuccess) return resCreate!;
+  if (!resCreate?.isSuccess) return resCreate;
   const newNote = resCreate.result;
 
   // We need to check if the relevant plugin is available, and if not, we return

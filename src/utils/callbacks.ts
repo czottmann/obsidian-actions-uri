@@ -79,9 +79,9 @@ function addObjectToUrlSearchParams(
 
     let val: string | undefined;
     if (typeof obj[key] === "string") {
-      val = <string> obj[key];
+      val = obj[key];
     } else if (obj[key] instanceof TAbstractFile) {
-      val = (<TAbstractFile> obj[key]).path;
+      val = obj[key].path;
     } else if (typeof obj[key] !== "undefined") {
       val = JSON.stringify(obj[key]);
     }
@@ -107,7 +107,8 @@ function addObjectToUrlSearchParams(
  */
 function sendCallbackResult(uri: string) {
   if (/^https?:\/\//.test(uri)) {
-    requestUrl(uri);
+    // Fire-and-forget: the outgoing callback is best-effort.
+    void requestUrl(uri);
   } else {
     window.open(uri);
   }
