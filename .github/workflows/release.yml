@@ -53,5 +53,5 @@ jobs:
             manifest.json
           name: ${{ steps.version.outputs.name }}
           prerelease: false
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
