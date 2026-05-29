@@ -42,7 +42,7 @@ That's it.
 
 ## Development
 
-Clone the repository, run `pnpm install` OR `npm install` to install the dependencies.  Afterwards, run `pnpm dev` OR `npm run dev` to compile and have it watch for file changes.
+This project uses **pnpm** (pinned via `packageManager` in `package.json`). Enable it with `corepack enable`, then clone the repository and run `pnpm install --frozen-lockfile` to install the dependencies.  Afterwards, run `pnpm dev` to compile and have it watch for file changes.
 
 
 ## Author
