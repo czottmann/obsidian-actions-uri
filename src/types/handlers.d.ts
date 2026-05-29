@@ -113,7 +113,7 @@ export type HandlerInfoSuccess = Readonly<
 
 export type HandlerVaultSuccess = Readonly<
   & HandlerSuccess
-  & { result: {} }
+  & { result: object }
 >;
 
 export type HandlerVaultInfoSuccess = Readonly<
@@ -138,7 +138,7 @@ export type HandlerCommandsSuccess = Readonly<
 
 export type HandlerCommandsExecutionSuccess = Readonly<
   & HandlerSuccess
-  & { result: {} }
+  & { result: object }
 >;
 
 export type HandlerPropertiesSuccess = Readonly<

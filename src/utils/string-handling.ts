@@ -41,7 +41,7 @@ export function parseStringIntoRegex(search: string): RegexResultObject {
 
   try {
     searchPattern = new RegExp(re, flags);
-  } catch (e) {
+  } catch {
     return failure(ErrorCode.invalidInput, STRINGS.search_pattern_unparseable);
   }
 

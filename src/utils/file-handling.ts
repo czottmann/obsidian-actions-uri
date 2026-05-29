@@ -207,7 +207,7 @@ export function sanitizeFilePath(
     .split("/")
     .map((seg) => seg.trim())
     .join("/")
-    .replace(/^[\/\.]+/g, "");
+    .replace(/^[/.]+/g, "");
 
   return (isNote && !/\.(md|canvas)/i.test(extname(filename)))
     ? `${filename}.md`

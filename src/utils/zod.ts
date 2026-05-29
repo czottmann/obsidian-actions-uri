@@ -40,7 +40,7 @@ export const zodJsonStringArray = z.string()
       const value = JSON.parse(str);
       return Array.isArray(value) &&
         value.every((item) => typeof item === "string");
-    } catch (error) {
+    } catch {
       return false;
     }
   }, {
@@ -77,7 +77,7 @@ export const zodJsonPropertiesObject = z.string()
         });
 
       return isValid;
-    } catch (error) {
+    } catch {
       return false;
     }
   }, {

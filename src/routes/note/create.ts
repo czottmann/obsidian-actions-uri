@@ -256,18 +256,20 @@ export async function _handleCreateNoteFromTemplate(
   // from here. Testing for existence of template file is done by a zod transform,
   // so we can be sure the file exists.
   switch (apply) {
-    case CreateApplyParameterValue.Templater:
+    case CreateApplyParameterValue.Templater: {
       const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
       if (!resPlugin1.isSuccess) return resPlugin1;
       await resPlugin1.result.templater
         .write_template_to_file(templateFile!, newNote);
       break;
+    }
 
-    case CreateApplyParameterValue.Templates:
+    case CreateApplyParameterValue.Templates: {
       const resPlugin2 = getEnabledCorePlugin("templates");
       if (!resPlugin2.isSuccess) return resPlugin2;
       await applyCorePluginTemplate(templateFile!, newNote);
       break;
+    }
   }
 
   if (shouldFocusNote) await focusOrOpenNote(newNote.path);
@@ -309,7 +311,7 @@ export function resolveTemplatePathStrict<T>(
   let folder = "";
 
   switch (apply) {
-    case CreateApplyParameterValue.Templater:
+    case CreateApplyParameterValue.Templater: {
       const resTemplater = getEnabledCommunityPlugin("templater-obsidian");
       if (!resTemplater.isSuccess) {
         ctx.addIssue({
@@ -320,8 +322,9 @@ export function resolveTemplatePathStrict<T>(
       }
       folder = resTemplater.result.settings?.templates_folder || "";
       break;
+    }
 
-    case CreateApplyParameterValue.Templates:
+    case CreateApplyParameterValue.Templates: {
       const resTemplates = getEnabledCorePlugin("templates");
       if (!resTemplates.isSuccess) {
         ctx.addIssue({
@@ -332,6 +335,7 @@ export function resolveTemplatePathStrict<T>(
       }
       folder = resTemplates.result.options?.folder || "";
       break;
+    }
 
     default:
       ctx.addIssue({

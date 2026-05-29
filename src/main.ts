@@ -77,12 +77,14 @@ export default class ActionsURI extends Plugin {
           fullPath,
           async (incomingParams) => {
             const res = await schema.safeParseAsync(incomingParams);
-            res.success
-              ? await this.handleIncomingCall(
+            if (res.success) {
+              await this.handleIncomingCall(
                 handler,
                 res.data as z.infer<typeof schema>,
-              )
-              : this.handleParseError(res.error, incomingParams);
+              );
+            } else {
+              this.handleParseError(res.error, incomingParams);
+            }
           },
         );
 

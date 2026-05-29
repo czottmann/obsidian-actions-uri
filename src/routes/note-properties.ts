@@ -108,7 +108,7 @@ async function handleSet(
         (frontmatter) => Object.assign(frontmatter, properties),
       );
       return getNoteDetails(path);
-    } catch (err) {
+    } catch {
       return failure(
         ErrorCode.unableToWrite,
         STRINGS.properties.unable_to_update,

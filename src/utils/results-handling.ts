@@ -28,6 +28,8 @@ export function failure(
   return { isSuccess: false, errorCode, errorMessage };
 }
 
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values -- distinct error
+   conditions intentionally map to the same status code (424, 400, 500). */
 export enum ErrorCode {
   notFound = 404,
   pluginUnavailable = 424,
@@ -39,3 +41,4 @@ export enum ErrorCode {
   handlerError = 500,
   unknownError = 500,
 }
+/* eslint-enable @typescript-eslint/no-duplicate-enum-values */
