@@ -5,16 +5,15 @@ import {
 } from "src/utils/plugins";
 import { pause } from "src/utils/time";
 import { STRINGS } from "src/constants";
-import { OmnisearchAPI, SearchResultObject } from "src/types";
+import {
+  GlobalSearchPlugin,
+  OmnisearchPlugin,
+  SearchResultObject,
+} from "src/types";
 import { self } from "src/utils/self";
 import { ErrorCode, failure, success } from "src/utils/results-handling";
 
-// Minimal local types for the plugin surfaces we touch (the plugin-result
-// wrapper carries `any`).
-interface GlobalSearchPlugin {
-  openGlobalSearch(query: string): void;
-}
-
+// The search view's internal DOM lookup is an undocumented Obsidian internal.
 interface SearchViewWithDom {
   dom: { resultDomLookup: Map<TFile, unknown> };
 }
@@ -27,7 +26,7 @@ interface SearchViewWithDom {
  */
 export async function doSearch(query: string): Promise<SearchResultObject> {
   // Get the global search plugin instance
-  const res = getEnabledCorePlugin("global-search");
+  const res = getEnabledCorePlugin<GlobalSearchPlugin>("global-search");
 
   // If the plugin instance is not available, return an error response
   if (!res.isSuccess) {
@@ -38,8 +37,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
   }
 
   // Open the global search panel and wait for it to load
-  const pluginInstance = res.result as GlobalSearchPlugin;
-  pluginInstance.openGlobalSearch(query);
+  res.result.openGlobalSearch(query);
   const searchLeaf = self().app.workspace.getLeavesOfType("search")[0];
   const searchView = await searchLeaf.open(searchLeaf.view);
   await pause(2000);
@@ -61,7 +59,7 @@ export async function doSearch(query: string): Promise<SearchResultObject> {
  */
 export async function doOmnisearch(query: string): Promise<SearchResultObject> {
   // Get the Omnisearch plugin instance or back off
-  const res = getEnabledCommunityPlugin("omnisearch");
+  const res = getEnabledCommunityPlugin<OmnisearchPlugin>("omnisearch");
   if (!res.isSuccess) {
     return failure(
       ErrorCode.featureUnavailable,
@@ -70,7 +68,7 @@ export async function doOmnisearch(query: string): Promise<SearchResultObject> {
   }
 
   // Execute the Omnisearch query
-  const plugin = (res.result as { api: OmnisearchAPI }).api;
+  const plugin = res.result.api;
   const results = await plugin.search(query);
   const hits = results.map((result) => result.path);
 

@@ -1,4 +1,4 @@
-import { TAbstractFile, TFile } from "obsidian";
+import { TAbstractFile } from "obsidian";
 import { z } from "zod";
 import { STRINGS } from "src/constants";
 import { incomingBaseParams } from "src/schemata";
@@ -7,6 +7,8 @@ import {
   HandlerFileSuccess,
   Prettify,
   RealLifePlugin,
+  TemplaterPlugin,
+  TemplatesPlugin,
   TFileResultObject,
 } from "src/types";
 import {
@@ -37,19 +39,6 @@ import { focusOrOpenNote } from "src/utils/ui";
 import { zodOptionalBoolean } from "src/utils/zod";
 
 // TYPES ----------------------------------------
-
-// Minimal local types for the template plugin instances (the plugin-result
-// wrapper carries `unknown`).
-interface TemplaterPluginApi {
-  templater: {
-    write_template_to_file(templateFile: TAbstractFile, file: TFile): Promise<void>;
-  };
-  settings?: { templates_folder?: string };
-}
-
-interface TemplatesPluginApi {
-  options?: { folder?: string };
-}
 
 export enum CreateApplyParameterValue {
   Content = "content",
@@ -270,9 +259,11 @@ export async function _handleCreateNoteFromTemplate(
   // so we can be sure the file exists.
   switch (apply) {
     case CreateApplyParameterValue.Templater: {
-      const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
+      const resPlugin1 = getEnabledCommunityPlugin<TemplaterPlugin>(
+        "templater-obsidian",
+      );
       if (!resPlugin1.isSuccess) return resPlugin1;
-      await (resPlugin1.result as TemplaterPluginApi).templater
+      await resPlugin1.result.templater
         .write_template_to_file(templateFile!, newNote);
       break;
     }
@@ -325,7 +316,9 @@ export function resolveTemplatePathStrict<T>(
 
   switch (apply) {
     case CreateApplyParameterValue.Templater: {
-      const resTemplater = getEnabledCommunityPlugin("templater-obsidian");
+      const resTemplater = getEnabledCommunityPlugin<TemplaterPlugin>(
+        "templater-obsidian",
+      );
       if (!resTemplater.isSuccess) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -333,13 +326,12 @@ export function resolveTemplatePathStrict<T>(
         });
         return z.NEVER;
       }
-      folder = (resTemplater.result as TemplaterPluginApi).settings
-        ?.templates_folder || "";
+      folder = resTemplater.result.settings?.templates_folder || "";
       break;
     }
 
     case CreateApplyParameterValue.Templates: {
-      const resTemplates = getEnabledCorePlugin("templates");
+      const resTemplates = getEnabledCorePlugin<TemplatesPlugin>("templates");
       if (!resTemplates.isSuccess) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -347,7 +339,7 @@ export function resolveTemplatePathStrict<T>(
         });
         return z.NEVER;
       }
-      folder = (resTemplates.result as TemplatesPluginApi).options?.folder || "";
+      folder = resTemplates.result.options?.folder || "";
       break;
     }
 

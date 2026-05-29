@@ -19,6 +19,7 @@ import {
   NoteProperties,
   RealLifeVault,
   StringResultObject,
+  TemplatesPlugin,
   TFileResultObject,
 } from "src/types";
 import {
@@ -580,11 +581,9 @@ export async function applyCorePluginTemplate(
   templateFile: TAbstractFile,
   note: TFile,
 ): Promise<BooleanResultObject> {
-  const pluginRes = getEnabledCorePlugin("templates");
+  const pluginRes = getEnabledCorePlugin<TemplatesPlugin>("templates");
   if (!pluginRes.isSuccess) return pluginRes;
-  const pluginInstance = pluginRes.result as {
-    insertTemplate(templateFile: TAbstractFile): Promise<void>;
-  };
+  const pluginInstance = pluginRes.result;
 
   // The core plugin will only apply a template to the open, focussed, and
   // editable note ¯\_(ツ)_/¯

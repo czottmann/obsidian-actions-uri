@@ -20,7 +20,7 @@ export type SearchResultObject =
   | ResultObject<{ hits: string[] }>
   | ErrorObject;
 export type StringResultObject = ResultObject<string> | ErrorObject;
-export type PluginResultObject = ResultObject<unknown> | ErrorObject;
+export type PluginResultObject<T = unknown> = ResultObject<T> | ErrorObject;
 export type BooleanResultObject = ResultObject<boolean> | ErrorObject;
 
 export type ProcessingResult = {

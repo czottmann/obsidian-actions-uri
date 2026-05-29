@@ -9,6 +9,7 @@ import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
 } from "src/utils/plugins";
+import { TemplaterPlugin, TemplatesPlugin } from "src/types";
 
 type JsonPropertiesObject = Record<
   string,
@@ -206,11 +207,9 @@ function lookupAbstractFileForTemplaterPath(path: unknown): TAbstractFile | null
   const abstractFile = sanitizeFilePathAndGetAbstractFile(path, true);
   if (abstractFile) return abstractFile;
 
-  const res = getEnabledCommunityPlugin("templater-obsidian");
+  const res = getEnabledCommunityPlugin<TemplaterPlugin>("templater-obsidian");
   if (res.isSuccess) {
-    const folder =
-      (res.result as { settings?: { templates_folder?: string } })
-        .settings?.templates_folder;
+    const folder = res.result.settings?.templates_folder;
     return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, true) ||
       sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, true);
   }
@@ -236,10 +235,9 @@ function lookupAbstractFileForTemplatesPath(path: unknown): TAbstractFile | null
   const abstractFile = sanitizeFilePathAndGetAbstractFile(path, true);
   if (abstractFile) return abstractFile;
 
-  const res = getEnabledCorePlugin("templates");
+  const res = getEnabledCorePlugin<TemplatesPlugin>("templates");
   if (res.isSuccess) {
-    const folder =
-      (res.result as { options?: { folder?: string } }).options?.folder;
+    const folder = res.result.options?.folder;
     return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, true) ||
       sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, true);
   }
