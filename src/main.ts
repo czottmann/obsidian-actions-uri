@@ -139,7 +139,7 @@ export default class ActionsURI extends Plugin {
    * we'll to convert all `TAbstractFile` instances to path strings which is what
    * they were in the original incoming call anyways.
    */
-  private prepParamsForConsole(params: AnyParams): AnyParams {
+  private prepParamsForConsole(params: AnyParams): Record<string, unknown> {
     const newParams: Record<string, unknown> = { ...params };
 
     Object.keys(params).forEach((key) => {
@@ -147,7 +147,7 @@ export default class ActionsURI extends Plugin {
       newParams[key] = value instanceof TAbstractFile ? value.path : value;
     });
 
-    return newParams as unknown as AnyParams;
+    return newParams;
   }
 
   /**

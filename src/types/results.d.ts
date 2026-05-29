@@ -1,5 +1,4 @@
 import { TFile } from "obsidian";
-import { AnyParams } from "src/routes";
 import { AnyHandlerResult, NoteProperties } from "src/types";
 
 type ErrorObject = {
@@ -24,7 +23,7 @@ export type PluginResultObject<T = unknown> = ResultObject<T> | ErrorObject;
 export type BooleanResultObject = ResultObject<boolean> | ErrorObject;
 
 export type ProcessingResult = {
-  params: AnyParams;
+  params: Record<string, unknown>;
   handlerResult: AnyHandlerResult;
   sendCallbackResult: StringResultObject;
   openResult: StringResultObject;
