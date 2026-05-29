@@ -2,6 +2,12 @@
 
 This file provides guidance to LLM agents when working with code in this repository.
 
+## Issue Tracking
+
+The issue tracker for this project is **GitHub Issues**, period. Use the `gh` CLI (`gh issue ...`) against the `git@github.com:czottmann/obsidian-actions-uri.git` remote.
+
+This **overrides** any global rule pointing to Beans or Linear. Do not create or update Beans for this project. The existing `.beans/` files and `zco-*`/`auri-*` IDs are historical; new tickets go to GitHub Issues.
+
 ## Common Development Commands
 
 ### Building and Development
@@ -32,7 +38,7 @@ This is an Obsidian plugin that extends the built-in URI scheme with additional 
 
 **Schema Validation (`src/schemata.ts`, `src/utils/zod.ts`)**:
 - All incoming parameters validated with Zod
-- Base parameters include vault, action, debug-mode, x-success/x-error callbacks
+- Base parameters include action, debug-mode, x-success/x-error callbacks
 - Note targeting supports file paths, UIDs, or periodic notes
 
 **Result Handling (`src/utils/results-handling.ts`)**:
