@@ -10,6 +10,11 @@ import {
   getEnabledCorePlugin,
 } from "src/utils/plugins";
 
+type JsonPropertiesObject = Record<
+  string,
+  string | string[] | number | boolean | null
+>;
+
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
 // should all be treated as `false`. My reign shall be merciful.
 export const zodOptionalBoolean = z.preprocess(
@@ -37,7 +42,7 @@ export const zodSanitizedFolderPath = z.string()
 export const zodJsonStringArray = z.string()
   .refine((str) => {
     try {
-      const value = JSON.parse(str);
+      const value: unknown = JSON.parse(str);
       return Array.isArray(value) &&
         value.every((item) => typeof item === "string");
     } catch {
@@ -46,7 +51,7 @@ export const zodJsonStringArray = z.string()
   }, {
     message: "Input must be a JSON-encoded string array.",
   })
-  .transform((str) => JSON.parse(str));
+  .transform((str): string[] => JSON.parse(str) as string[]);
 
 /**
  * A schema which expects a string containing a JSON-encoded object containing
@@ -56,13 +61,13 @@ export const zodJsonStringArray = z.string()
 export const zodJsonPropertiesObject = z.string()
   .refine((str) => {
     try {
-      const value = JSON.parse(str);
+      const value: unknown = JSON.parse(str);
 
-      if (typeof value !== "object") {
+      if (typeof value !== "object" || value === null) {
         return false;
       }
 
-      const isValid = Object.values(value)
+      const isValid = Object.values(value as Record<string, unknown>)
         .every((item) => {
           const type = typeof item;
           if (["string", "number", "boolean"].includes(type) || item === null) {
@@ -84,7 +89,7 @@ export const zodJsonPropertiesObject = z.string()
     message:
       "Input must be a JSON-encoded object containing only values of type string, string array, number, boolean or null.",
   })
-  .transform((str) => JSON.parse(str));
+  .transform((str): JsonPropertiesObject => JSON.parse(str) as JsonPropertiesObject);
 
 /**
  * A schema which expects a comma-separated list of strings, and which will
@@ -140,7 +145,7 @@ export const zodExistingFolderPath = z.preprocess(
  *
  * @param defaultValue The default value to return if the parameter is undefined
  */
-export const zodUndefinedChangedToDefaultValue = (defaultValue: any) =>
+export const zodUndefinedChangedToDefaultValue = <T>(defaultValue: T) =>
   z.undefined()
     .refine((val) => val === undefined)
     .transform(() => defaultValue);
@@ -164,7 +169,7 @@ export const zodEmptyStringChangedToDefaultString = (defaultString: string) =>
  *
  * @param path Any incoming zod parameter
  */
-function lookupAbstractFileForFilePath(path: any): TAbstractFile | null {
+function lookupAbstractFileForFilePath(path: unknown): TAbstractFile | null {
   return (typeof path === "string" && path.length > 0)
     ? sanitizeFilePathAndGetAbstractFile(path, false)
     : null;
@@ -177,7 +182,7 @@ function lookupAbstractFileForFilePath(path: any): TAbstractFile | null {
  *
  * @param path Any incoming zod parameter
  */
-function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
+function lookupAbstractFolderForPath(path: unknown): TAbstractFile | null {
   return (typeof path === "string" && path.length > 0)
     ? self().app.vault.getFolderByPath(path)
     : null;
@@ -193,7 +198,7 @@ function lookupAbstractFolderForPath(path: any): TAbstractFile | null {
  * @param path Any incoming zod parameter
  * @returns
  */
-function lookupAbstractFileForTemplaterPath(path: any): TAbstractFile | null {
+function lookupAbstractFileForTemplaterPath(path: unknown): TAbstractFile | null {
   if (typeof path !== "string" || !path) {
     return null;
   }
@@ -203,7 +208,9 @@ function lookupAbstractFileForTemplaterPath(path: any): TAbstractFile | null {
 
   const res = getEnabledCommunityPlugin("templater-obsidian");
   if (res.isSuccess) {
-    const folder = res.result.settings?.templates_folder;
+    const folder =
+      (res.result as { settings?: { templates_folder?: string } })
+        .settings?.templates_folder;
     return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, true) ||
       sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, true);
   }
@@ -221,7 +228,7 @@ function lookupAbstractFileForTemplaterPath(path: any): TAbstractFile | null {
  * @param path Any incoming zod parameter
  * @returns
  */
-function lookupAbstractFileForTemplatesPath(path: any): TAbstractFile | null {
+function lookupAbstractFileForTemplatesPath(path: unknown): TAbstractFile | null {
   if (typeof path !== "string" || !path) {
     return null;
   }
@@ -231,7 +238,8 @@ function lookupAbstractFileForTemplatesPath(path: any): TAbstractFile | null {
 
   const res = getEnabledCorePlugin("templates");
   if (res.isSuccess) {
-    const folder = res.result.options?.folder;
+    const folder =
+      (res.result as { options?: { folder?: string } }).options?.folder;
     return sanitizeFilePathAndGetAbstractFile(`${folder}/${path}`, true) ||
       sanitizeFilePathAndGetAbstractFile(`${folder}/${path}.md`, true);
   }
