@@ -45,6 +45,21 @@ That's it.
 This project uses **pnpm** (pinned via `packageManager` in `package.json`). Enable it with `corepack enable`, then clone the repository and run `pnpm install --frozen-lockfile` to install the dependencies.  Afterwards, run `pnpm dev` to compile and have it watch for file changes.
 
 
+## Releasing
+
+Releases are cut straight from `main`. The whole flow is driven by `bin/tag-release.fish`, which requires `fish`, `gum`, and `jq`.
+
+From a clean `main` with the changes to ship already committed:
+
+```sh
+bin/tag-release.fish --version 1.9.0 --obsidian-version 1.8.0
+```
+
+`--version` is the new plugin version; `--obsidian-version` is the minimum Obsidian version recorded in `manifest.json` and `versions.json`. The script bumps the version across `package.json`, `manifest.json`, `versions.json`, `src/plugin-info.json`, and `src/plugin-info.ts`, then (after `gum` confirmation prompts) commits as `[REL] Release <version>`, tags the commit `<version>`, and pushes the commit and tag.
+
+Pushing the tag triggers the **Release Obsidian Plugin** GitHub Actions workflow (`.github/workflows/release.yml`), which builds the plugin and creates a **draft** GitHub release with `main.js`, `manifest.json`, and a zipped bundle attached. Edit the draft to add release notes and publish it manually.
+
+
 ## Author
 
 Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
