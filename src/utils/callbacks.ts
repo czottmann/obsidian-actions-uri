@@ -42,8 +42,8 @@ export function sendUrlCallback(
     url.searchParams.set("pv", PLUGIN_INFO.pluginVersion);
   }
 
-  const returnParams: Record<string, string> = params["debug-mode"]
-    ? excludeKeys(<any> params, [
+  const returnParams: Record<string, unknown> = params["debug-mode"]
+    ? excludeKeys(params as Record<string, unknown>, [
       "debug-mode",
       "x-success",
       "x-error",
@@ -69,7 +69,7 @@ export function sendUrlCallback(
  * defaults to `XCALLBACK_RESULT_PREFIX`
  */
 function addObjectToUrlSearchParams(
-  obj: Record<string, any>,
+  obj: Record<string, unknown>,
   url: URL,
   prefix: string = XCALLBACK_RESULT_PREFIX,
 ) {
@@ -79,9 +79,9 @@ function addObjectToUrlSearchParams(
 
     let val: string | undefined;
     if (typeof obj[key] === "string") {
-      val = <string> obj[key];
+      val = obj[key];
     } else if (obj[key] instanceof TAbstractFile) {
-      val = (<TAbstractFile> obj[key]).path;
+      val = obj[key].path;
     } else if (typeof obj[key] !== "undefined") {
       val = JSON.stringify(obj[key]);
     }
@@ -107,7 +107,8 @@ function addObjectToUrlSearchParams(
  */
 function sendCallbackResult(uri: string) {
   if (/^https?:\/\//.test(uri)) {
-    requestUrl(uri);
+    // Fire-and-forget: the outgoing callback is best-effort.
+    void requestUrl(uri);
   } else {
     window.open(uri);
   }

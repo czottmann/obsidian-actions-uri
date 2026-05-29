@@ -19,6 +19,7 @@ import {
   NoteProperties,
   RealLifeVault,
   StringResultObject,
+  TemplatesPlugin,
   TFileResultObject,
 } from "src/types";
 import {
@@ -111,7 +112,7 @@ export async function createOrOverwriteNote(
   if (file instanceof TFile) {
     await pause(500);
     await vault.modify(file, content);
-    return success(<TFile> vault.getFileByPath(filepath));
+    return success(file);
   }
 
   // Create the new note
@@ -207,7 +208,7 @@ export function sanitizeFilePath(
     .split("/")
     .map((seg) => seg.trim())
     .join("/")
-    .replace(/^[\/\.]+/g, "");
+    .replace(/^[/.]+/g, "");
 
   return (isNote && !/\.(md|canvas)/i.test(extname(filename)))
     ? `${filename}.md`
@@ -580,7 +581,7 @@ export async function applyCorePluginTemplate(
   templateFile: TAbstractFile,
   note: TFile,
 ): Promise<BooleanResultObject> {
-  const pluginRes = getEnabledCorePlugin("templates");
+  const pluginRes = getEnabledCorePlugin<TemplatesPlugin>("templates");
   if (!pluginRes.isSuccess) return pluginRes;
   const pluginInstance = pluginRes.result;
 
@@ -630,10 +631,16 @@ export async function trashFilepath(
   }
 
   if (deleteImmediately) {
+    // eslint-disable-next-line obsidianmd/prefer-file-manager-trash-file -- caller explicitly requested permanent deletion, which trashFile() can't do
     await vault.delete(fileOrFolder, true);
   } else {
+    // The /trash endpoints are documented to ALWAYS move to trash (vault-local
+    // or system). fileManager.trashFile() would permanently delete when the
+    // user's "Deleted Files" setting is "Permanently delete" — violating that
+    // contract — so we drive vault.trash() directly instead.
     const isSystemTrashPreferred =
-      (<any> vault).config?.trashOption === "system";
+      (<RealLifeVault> vault).config?.trashOption === "system";
+    // eslint-disable-next-line obsidianmd/prefer-file-manager-trash-file -- see above: must guarantee a recoverable trash, never a permanent delete
     await vault.trash(fileOrFolder, isSystemTrashPreferred);
   }
 

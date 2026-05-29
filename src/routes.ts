@@ -48,7 +48,6 @@ import {
   AnyLocalParams as AnyTagsParams,
   routePath as tagsRoutes,
 } from "src/routes/tags";
-import { IncomingBaseParams } from "src/schemata";
 import { HandlerFunction } from "src/types";
 
 export const routes: RoutePath = {
@@ -90,11 +89,7 @@ export type RoutePath = {
 
 export type RouteSubpath = {
   path: string;
-  schema:
-  | z.AnyZodObject
-  | z.ZodDiscriminatedUnion<string, z.AnyZodObject[]>
-  | z.ZodEffects<any, any, any>
-  | z.ZodUnion<any>;
+  schema: z.ZodTypeAny;
   handler: HandlerFunction;
 };
 
@@ -110,8 +105,7 @@ export type AnyParams =
   | AnySearchParams
   | AnySettingsParams
   | AnyTagsParams
-  | AnyVaultParams
-  | IncomingBaseParams;
+  | AnyVaultParams;
 
 export enum NoteTargetingParameterKey {
   File = "file",

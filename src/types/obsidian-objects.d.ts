@@ -4,6 +4,7 @@ import {
   Command,
   DataAdapter,
   MetadataCache,
+  Plugin,
   PluginManifest,
   TAbstractFile,
   TFile,
@@ -23,9 +24,14 @@ export interface RealLifeApp extends App {
     executeCommandById(id: string): boolean;
     listCommands(): Command[];
   };
-  internalPlugins: any;
+  internalPlugins: {
+    getEnabledPluginById(id: string): Plugin | null;
+  };
   metadataCache: RealLifeMetadataCache;
-  plugins: any;
+  plugins: {
+    enabledPlugins: Set<string>;
+    getPlugin(id: string): Plugin | null;
+  };
   setting: {
     open: () => void;
     openTabById: (pluginName: string) => void;
@@ -38,6 +44,9 @@ export interface RealLifeVault extends Vault {
     attachmentFolderPath: string;
     newFileLocation: "root" | "current" | "folder";
     newFileFolderPath: string;
+    // Undocumented Obsidian internal (the "Files & Links → Deleted files"
+    // setting). Not in obsidian.d.ts; only "system" is relied upon here.
+    trashOption?: string;
   };
 }
 
@@ -57,5 +66,5 @@ export interface RealLifeMetadataCache extends MetadataCache {
    */
   getFileCache(file: TFile | TAbstractFile): CachedMetadata | null;
   fileCache: Record<string, { mtime: number; size: number; hash: string }>;
-  metadataCache: Record<string, { frontmatter: Record<string, any> }>;
+  metadataCache: Record<string, { frontmatter: Record<string, unknown> }>;
 }

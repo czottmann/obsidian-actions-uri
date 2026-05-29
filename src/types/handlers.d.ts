@@ -8,6 +8,7 @@
  * @returns A handler result object
  */
 export type HandlerFunction = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- universal dispatch signature; each concrete handler declares its own validated param type and is assigned here bivariantly
   incomingParams: any,
 ) => Promise<AnyHandlerResult>;
 
@@ -61,11 +62,18 @@ export type HandlerFilePathSuccess = Readonly<
   }
 >;
 
+/**
+ * A Dataview query result, stringified by `dqlValuesMapper`: scalar values
+ * become strings, arrays are preserved (tables are nested). Serialized to a
+ * string in the outgoing callback.
+ */
+export type DataviewQueryData = string | DataviewQueryData[];
+
 export type HandlerDataviewSuccess = Readonly<
   & HandlerSuccess
   & {
     result: {
-      data: string;
+      data: DataviewQueryData;
     };
   }
 >;
@@ -113,7 +121,7 @@ export type HandlerInfoSuccess = Readonly<
 
 export type HandlerVaultSuccess = Readonly<
   & HandlerSuccess
-  & { result: {} }
+  & { result: Record<string, unknown> }
 >;
 
 export type HandlerVaultInfoSuccess = Readonly<
@@ -138,7 +146,7 @@ export type HandlerCommandsSuccess = Readonly<
 
 export type HandlerCommandsExecutionSuccess = Readonly<
   & HandlerSuccess
-  & { result: {} }
+  & { result: Record<string, unknown> }
 >;
 
 export type HandlerPropertiesSuccess = Readonly<

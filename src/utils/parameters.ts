@@ -18,7 +18,7 @@ import { StringResultObject } from "src/types.d";
 // TYPES ----------------------------------------
 
 type ResolvedData = {
-  _resolved: Record<string, any>;
+  _resolved: Record<string, unknown>;
 };
 
 export type ResolvedNoteTargetingValues = Readonly<{
@@ -92,7 +92,7 @@ export function resolveNoteTargeting<T>(
   else if (input[NoteTargetingParameterKey.PeriodicNote]) {
     const val = input[
       NoteTargetingParameterKey.PeriodicNote
-    ]! as unknown as PeriodicNoteTypeWithRecents;
+    ] as unknown as PeriodicNoteTypeWithRecents;
     inputKey = NoteTargetingParameterKey.PeriodicNote;
 
     const periodicNoteType = val.replace(/^recent-/, "") as PeriodicNoteType;
@@ -196,11 +196,11 @@ function filepathForUID(uid: string): StringResultObject {
   const path = self().app.vault
     .getMarkdownFiles()
     .find((note) => {
-      let uidValues = parseFrontMatterEntry(
+      const uidValues: unknown = parseFrontMatterEntry(
         self().app.metadataCache.getFileCache(note)?.frontmatter,
         self().settings.frontmatterKey,
       );
-      return [uidValues].flat().map((u) => `${u}`).includes(uid);
+      return [uidValues].flat().map((u) => String(u)).includes(uid);
     })
     ?.path;
 

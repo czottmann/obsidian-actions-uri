@@ -26,7 +26,9 @@ export class SettingsTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
+      // eslint-disable-next-line obsidianmd/ui/sentence-case -- "UID" is an initialism; "Uid" would be wrong
       .setName("UID frontmatter key")
+      // eslint-disable-next-line obsidianmd/ui/sentence-case -- preserves the "Actions URI" product name and the "UID" initialism
       .setDesc(`
         Actions URI is able to find notes by their UID.
         This unique identifier is stored in the note's frontmatter.
@@ -42,7 +44,7 @@ export class SettingsTab extends PluginSettingTab {
     // Sponsoring
     const afoURL =
       "https://actions.work/actions-for-obsidian?ref=plugin-actions-uri";
-    containerEl.createEl("div", {
+    const banner = containerEl.createEl("div", {
       attr: {
         style: `
           border-radius: 0.5rem;
@@ -57,22 +59,26 @@ export class SettingsTab extends PluginSettingTab {
           padding: 1rem;
         `,
       },
-    })
-      .innerHTML = `
-        <a href="${afoURL}">
-          <img
-            src="https://actions.work/img/afo-icon.png"
-            style="margin: -0.4rem -0.5rem -0.5rem 0; width: 5rem;"
-            alt="Actions for Obsidian icon, a cog wheel on a glossy black background">
-        </a>
-        <span>
-          Actions URI is brought to you by
-          <a href="${afoURL}"><strong>Actions for Obsidian</strong></a>,
-          a macOS/iOS app made by the same developer as this plugin. AFO is the
-          missing link between Obsidian and macOS&nbsp;/&nbsp;iOS: 50+ Shortcuts
-          actions to bring your notes and your automations together.
-          <a href="${afoURL}">Take a look!</a>
-        </span>
-      `;
+    });
+
+    banner.createEl("a", { href: afoURL }).createEl("img", {
+      attr: {
+        src: "https://actions.work/img/afo-icon.png",
+        style: "margin: -0.4rem -0.5rem -0.5rem 0; width: 5rem;",
+        alt:
+          "Actions for Obsidian icon, a cog wheel on a glossy black background",
+      },
+    });
+
+    const blurb = banner.createEl("span");
+    blurb.appendText("Actions URI is brought to you by ");
+    blurb.createEl("a", { href: afoURL })
+      .createEl("strong", { text: "Actions for Obsidian" });
+    blurb.appendText(
+      ", a macOS/iOS app made by the same developer as this plugin. AFO is " +
+        "the missing link between Obsidian and macOS / iOS: 50+ " +
+        "Shortcuts actions to bring your notes and your automations together. ",
+    );
+    blurb.createEl("a", { href: afoURL, text: "Take a look!" });
   }
 }

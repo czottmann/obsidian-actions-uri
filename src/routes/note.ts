@@ -295,7 +295,8 @@ async function handleGetActive(
 
   const mdView = this.app.workspace.getActiveViewOfType(MarkdownView);
   const selection = mdView
-    ? (mdView.currentMode as any).getSelection()
+    ? (mdView.currentMode as unknown as { getSelection(): string })
+      .getSelection()
     : undefined;
 
   return selection ? success({ ...res1.result, selection }) : res1;
@@ -447,7 +448,8 @@ async function handleAppend(
       if (inputKey === NoteTargetingParameterKey.UID) {
         await this.app.fileManager.processFrontMatter(
           resCreate.result,
-          (fm) => fm[this.settings.frontmatterKey] = uid!,
+          (fm: Record<string, unknown>) =>
+            fm[this.settings.frontmatterKey] = uid!,
         );
       }
     }
@@ -548,7 +550,8 @@ async function handlePrepend(
       if (inputKey === NoteTargetingParameterKey.UID) {
         await this.app.fileManager.processFrontMatter(
           resCreate.result,
-          (fm) => fm[this.settings.frontmatterKey] = uid!,
+          (fm: Record<string, unknown>) =>
+            fm[this.settings.frontmatterKey] = uid!,
         );
       }
     }

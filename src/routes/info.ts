@@ -29,6 +29,7 @@ export const routePath: RoutePath = {
 async function handleInfo(
   params: DefaultParams,
 ): Promise<HandlerInfoSuccess> {
+  // eslint-disable-next-line obsidianmd/platform -- not OS detection (that uses Platform below); this extracts a descriptive UA string for the `os` response field
   const uaMatch = navigator.userAgent.match(/\((.+?)\)/);
   const os: string = uaMatch ? uaMatch[1] : "unknown";
   const { isAndroidApp, isDesktopApp, isIosApp, isMacOS } = Platform;

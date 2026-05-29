@@ -32,11 +32,11 @@ export function isCommunityPluginEnabled(pluginID: string): boolean {
  *
  * @returns {PluginResultObject} A result object containing the plugin if available.
  */
-export function getEnabledCommunityPlugin(
+export function getEnabledCommunityPlugin<T = unknown>(
   pluginID: string,
-): PluginResultObject {
+): PluginResultObject<T> {
   return isCommunityPluginEnabled(pluginID)
-    ? success(self().app.plugins.getPlugin(pluginID))
+    ? success(self().app.plugins.getPlugin(pluginID) as unknown as T)
     : failure(
       ErrorCode.featureUnavailable,
       `Community plugin ${pluginID} is not enabled.`,
@@ -61,10 +61,12 @@ export function isCorePluginEnabled(pluginID: string): boolean {
  *
  * @returns {PluginResultObject} A result object containing the plugin if available.
  */
-export function getEnabledCorePlugin(pluginID: string): PluginResultObject {
+export function getEnabledCorePlugin<T = unknown>(
+  pluginID: string,
+): PluginResultObject<T> {
   const plugin = self().app.internalPlugins?.getEnabledPluginById(pluginID);
 
-  return plugin ? success(plugin) : failure(
+  return plugin ? success(plugin as unknown as T) : failure(
     ErrorCode.featureUnavailable,
     `Core plugin ${pluginID} is not enabled.`,
   );

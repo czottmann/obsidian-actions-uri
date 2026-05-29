@@ -103,12 +103,13 @@ async function handleSet(
     }
 
     try {
-      self().app.fileManager.processFrontMatter(
+      await self().app.fileManager.processFrontMatter(
         resNote.result,
-        (frontmatter) => Object.assign(frontmatter, properties),
+        (frontmatter: Record<string, unknown>) =>
+          Object.assign(frontmatter, properties),
       );
-      return getNoteDetails(path);
-    } catch (err) {
+      return await getNoteDetails(path);
+    } catch {
       return failure(
         ErrorCode.unableToWrite,
         STRINGS.properties.unable_to_update,
@@ -131,12 +132,12 @@ async function handleRemoveKeys(
 ): Promise<HandlerFileSuccess | HandlerFailure> {
   const { _resolved: { inputPath: path, inputFile }, keys } = params;
 
-  const props = await propertiesForFile(inputFile!)!;
-  (<string[]> keys).forEach((key) => delete props[key]);
+  const props = await propertiesForFile(inputFile!);
+  keys.forEach((key) => delete props[key]);
 
   return updateNote(path, sanitizedStringifyYaml(props));
 }
 
-function sanitizedStringifyYaml(props: any): string {
+function sanitizedStringifyYaml(props: Record<string, unknown>): string {
   return Object.keys(props).length > 0 ? stringifyYaml(props).trim() : "";
 }

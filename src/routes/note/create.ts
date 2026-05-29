@@ -7,6 +7,8 @@ import {
   HandlerFileSuccess,
   Prettify,
   RealLifePlugin,
+  TemplaterPlugin,
+  TemplatesPlugin,
   TFileResultObject,
 } from "src/types";
 import {
@@ -203,7 +205,7 @@ export async function _handleCreateNoteFromContent(
     resCreate = await createNote(inputPath, "");
   }
 
-  if (!resCreate?.isSuccess) return resCreate!;
+  if (!resCreate?.isSuccess) return resCreate;
   const newNote = resCreate.result;
 
   await this.app.vault.modify(newNote, content || "");
@@ -249,25 +251,29 @@ export async function _handleCreateNoteFromTemplate(
     resCreate = await createNote(inputPath, "");
   }
 
-  if (!resCreate?.isSuccess) return resCreate!;
+  if (!resCreate?.isSuccess) return resCreate;
   const newNote = resCreate.result;
 
   // We need to check if the relevant plugin is available, and if not, we return
   // from here. Testing for existence of template file is done by a zod transform,
   // so we can be sure the file exists.
   switch (apply) {
-    case CreateApplyParameterValue.Templater:
-      const resPlugin1 = getEnabledCommunityPlugin("templater-obsidian");
+    case CreateApplyParameterValue.Templater: {
+      const resPlugin1 = getEnabledCommunityPlugin<TemplaterPlugin>(
+        "templater-obsidian",
+      );
       if (!resPlugin1.isSuccess) return resPlugin1;
       await resPlugin1.result.templater
         .write_template_to_file(templateFile!, newNote);
       break;
+    }
 
-    case CreateApplyParameterValue.Templates:
+    case CreateApplyParameterValue.Templates: {
       const resPlugin2 = getEnabledCorePlugin("templates");
       if (!resPlugin2.isSuccess) return resPlugin2;
       await applyCorePluginTemplate(templateFile!, newNote);
       break;
+    }
   }
 
   if (shouldFocusNote) await focusOrOpenNote(newNote.path);
@@ -309,8 +315,10 @@ export function resolveTemplatePathStrict<T>(
   let folder = "";
 
   switch (apply) {
-    case CreateApplyParameterValue.Templater:
-      const resTemplater = getEnabledCommunityPlugin("templater-obsidian");
+    case CreateApplyParameterValue.Templater: {
+      const resTemplater = getEnabledCommunityPlugin<TemplaterPlugin>(
+        "templater-obsidian",
+      );
       if (!resTemplater.isSuccess) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -320,9 +328,10 @@ export function resolveTemplatePathStrict<T>(
       }
       folder = resTemplater.result.settings?.templates_folder || "";
       break;
+    }
 
-    case CreateApplyParameterValue.Templates:
-      const resTemplates = getEnabledCorePlugin("templates");
+    case CreateApplyParameterValue.Templates: {
+      const resTemplates = getEnabledCorePlugin<TemplatesPlugin>("templates");
       if (!resTemplates.isSuccess) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -332,6 +341,7 @@ export function resolveTemplatePathStrict<T>(
       }
       folder = resTemplates.result.options?.folder || "";
       break;
+    }
 
     default:
       ctx.addIssue({

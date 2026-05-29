@@ -4,14 +4,12 @@ import {
   Plugin,
   TAbstractFile,
 } from "obsidian";
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import { STRINGS, URI_NAMESPACE } from "src/constants";
 import { AnyParams, RoutePath, routes } from "src/routes";
 import { SettingsTab } from "src/settings";
 import {
   AnyHandlerResult,
-  AnyHandlerSuccess,
-  HandlerFailure,
   HandlerFileSuccess,
   HandlerFunction,
   PluginSettings,
@@ -44,7 +42,10 @@ export default class ActionsURI extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = { ...this.defaultSettings, ...await this.loadData() };
+    this.settings = {
+      ...this.defaultSettings,
+      ...await this.loadData() as Partial<PluginSettings>,
+    };
   }
 
   async saveSettings() {
@@ -77,12 +78,14 @@ export default class ActionsURI extends Plugin {
           fullPath,
           async (incomingParams) => {
             const res = await schema.safeParseAsync(incomingParams);
-            res.success
-              ? await this.handleIncomingCall(
+            if (res.success) {
+              await this.handleIncomingCall(
                 handler,
-                res.data as z.infer<typeof schema>,
-              )
-              : this.handleParseError(res.error, incomingParams);
+                res.data as AnyParams,
+              );
+            } else {
+              this.handleParseError(res.error, incomingParams);
+            }
           },
         );
 
@@ -120,7 +123,7 @@ export default class ActionsURI extends Plugin {
       logErrorToConsole(msg);
     }
 
-    const res = <ProcessingResult> {
+    const res: ProcessingResult = {
       params: this.prepParamsForConsole(params),
       handlerResult,
       sendCallbackResult: this.sendUrlCallbackIfNeeded(handlerResult, params),
@@ -136,15 +139,15 @@ export default class ActionsURI extends Plugin {
    * we'll to convert all `TAbstractFile` instances to path strings which is what
    * they were in the original incoming call anyways.
    */
-  private prepParamsForConsole(params: AnyParams): AnyParams {
-    const newParams: any = { ...params };
+  private prepParamsForConsole(params: AnyParams): Record<string, unknown> {
+    const newParams: Record<string, unknown> = { ...params };
 
     Object.keys(params).forEach((key) => {
-      const value = (<any> params)[key];
+      const value: unknown = (params as Record<string, unknown>)[key];
       newParams[key] = value instanceof TAbstractFile ? value.path : value;
     });
 
-    return <AnyParams> newParams;
+    return newParams;
   }
 
   /**
@@ -228,14 +231,14 @@ export default class ActionsURI extends Plugin {
       return params["x-success"]
         ? sendUrlCallback(
           params["x-success"],
-          <AnyHandlerSuccess> handlerRes,
+          handlerRes,
           params,
         )
         : success("No `x-error` callback URL provided");
     }
 
     return params["x-error"]
-      ? sendUrlCallback(params["x-error"], <HandlerFailure> handlerRes, params)
+      ? sendUrlCallback(params["x-error"], handlerRes, params)
       : success("No `x-error` callback URL provided");
   }
 
@@ -257,7 +260,7 @@ export default class ActionsURI extends Plugin {
       return success("No file to open, the handler failed");
     }
 
-    if ((<any> params).silent) {
+    if ((params as { silent?: boolean }).silent) {
       return success("No file to open, the `silent` parameter was set");
     }
 
