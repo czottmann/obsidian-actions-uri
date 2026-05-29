@@ -1,6 +1,7 @@
 {
   "name": "obsidian-actions-uri",
   "version": "1.8.4",
+  "packageManager": "pnpm@10.34.1",
   "description": "This plugin for Obsidian (https://obsidian.md) adds additional `x-callback-url` endpoints to the app for common actions — it's a clean, super-charged addition to Obsidian URI.",
   "main": "main.js",
   "scripts": {
@@ -36,5 +37,11 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "obsidian-daily-notes-interface",
+      "@codemirror/language"
+    ]
   }
 }
