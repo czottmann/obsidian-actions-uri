@@ -9,12 +9,7 @@ import {
   getEnabledCommunityPlugin,
   getEnabledCorePlugin,
 } from "src/utils/plugins";
-import { TemplaterPlugin, TemplatesPlugin } from "src/types";
-
-type JsonPropertiesObject = Record<
-  string,
-  string | string[] | number | boolean | null
->;
+import { NoteProperties, TemplaterPlugin, TemplatesPlugin } from "src/types";
 
 // The absence of a parameter `blah`, a `blah=false` and a value-less `blah=`
 // should all be treated as `false`. My reign shall be merciful.
@@ -90,7 +85,7 @@ export const zodJsonPropertiesObject = z.string()
     message:
       "Input must be a JSON-encoded object containing only values of type string, string array, number, boolean or null.",
   })
-  .transform((str): JsonPropertiesObject => JSON.parse(str) as JsonPropertiesObject);
+  .transform((str): NoteProperties => JSON.parse(str) as NoteProperties);
 
 /**
  * A schema which expects a comma-separated list of strings, and which will
