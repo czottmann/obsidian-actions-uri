@@ -44,6 +44,9 @@ export interface RealLifeVault extends Vault {
     attachmentFolderPath: string;
     newFileLocation: "root" | "current" | "folder";
     newFileFolderPath: string;
+    // Undocumented Obsidian internal (the "Files & Links → Deleted files"
+    // setting). Not in obsidian.d.ts; only "system" is relied upon here.
+    trashOption?: string;
   };
 }
 

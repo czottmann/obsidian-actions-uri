@@ -635,7 +635,14 @@ export async function trashFilepath(
     // eslint-disable-next-line obsidianmd/prefer-file-manager-trash-file -- caller explicitly requested permanent deletion, which trashFile() can't do
     await vault.delete(fileOrFolder, true);
   } else {
-    await self().app.fileManager.trashFile(fileOrFolder);
+    // The /trash endpoints are documented to ALWAYS move to trash (vault-local
+    // or system). fileManager.trashFile() would permanently delete when the
+    // user's "Deleted Files" setting is "Permanently delete" — violating that
+    // contract — so we drive vault.trash() directly instead.
+    const isSystemTrashPreferred =
+      (<RealLifeVault> vault).config?.trashOption === "system";
+    // eslint-disable-next-line obsidianmd/prefer-file-manager-trash-file -- see above: must guarantee a recoverable trash, never a permanent delete
+    await vault.trash(fileOrFolder, isSystemTrashPreferred);
   }
 
   return success(STRINGS.trash_done);
