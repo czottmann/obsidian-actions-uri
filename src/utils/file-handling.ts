@@ -111,7 +111,7 @@ export async function createOrOverwriteNote(
   if (file instanceof TFile) {
     await pause(500);
     await vault.modify(file, content);
-    return success(<TFile> vault.getFileByPath(filepath));
+    return success(file);
   }
 
   // Create the new note
@@ -630,11 +630,10 @@ export async function trashFilepath(
   }
 
   if (deleteImmediately) {
+    // eslint-disable-next-line obsidianmd/prefer-file-manager-trash-file -- caller explicitly requested permanent deletion, which trashFile() can't do
     await vault.delete(fileOrFolder, true);
   } else {
-    const isSystemTrashPreferred =
-      (<any> vault).config?.trashOption === "system";
-    await vault.trash(fileOrFolder, isSystemTrashPreferred);
+    await self().app.fileManager.trashFile(fileOrFolder);
   }
 
   return success(STRINGS.trash_done);

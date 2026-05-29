@@ -26,7 +26,9 @@ export class SettingsTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
+      // eslint-disable-next-line obsidianmd/ui/sentence-case -- "UID" is an initialism; "Uid" would be wrong
       .setName("UID frontmatter key")
+      // eslint-disable-next-line obsidianmd/ui/sentence-case -- preserves the "Actions URI" product name and the "UID" initialism
       .setDesc(`
         Actions URI is able to find notes by their UID.
         This unique identifier is stored in the note's frontmatter.
