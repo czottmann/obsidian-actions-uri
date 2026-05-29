@@ -76,7 +76,7 @@ set DATE_NOW (date +%FT%T%z)
 jq ".pluginVersion |= \"$release_tag\" | .pluginReleasedAt |= \"$DATE_NOW\"" \
     src/plugin-info.json >"$TEMP_FILE"; or exit 1
 mv "$TEMP_FILE" src/plugin-info.json
-echo -n "/* File will be overwritten by bin/release.sh! */
+echo -n "/* File will be overwritten by bin/tag-release.fish! */
 export const PLUGIN_INFO = " >src/plugin-info.ts
 cat src/plugin-info.json >>src/plugin-info.ts
 

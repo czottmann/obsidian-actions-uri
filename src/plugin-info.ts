@@ -1,4 +1,4 @@
-/* File will be overwritten by bin/release.sh! */
+/* File will be overwritten by bin/tag-release.fish! */
 export const PLUGIN_INFO = {
   "pluginVersion": "1.8.4",
   "pluginReleasedAt": "2025-11-18T12:48:42+0100"
