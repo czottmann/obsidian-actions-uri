@@ -4,6 +4,7 @@ import {
   Command,
   DataAdapter,
   MetadataCache,
+  Plugin,
   PluginManifest,
   TAbstractFile,
   TFile,
@@ -23,9 +24,14 @@ export interface RealLifeApp extends App {
     executeCommandById(id: string): boolean;
     listCommands(): Command[];
   };
-  internalPlugins: any;
+  internalPlugins: {
+    getEnabledPluginById(id: string): Plugin | null;
+  };
   metadataCache: RealLifeMetadataCache;
-  plugins: any;
+  plugins: {
+    enabledPlugins: Set<string>;
+    getPlugin(id: string): Plugin | null;
+  };
   setting: {
     open: () => void;
     openTabById: (pluginName: string) => void;
